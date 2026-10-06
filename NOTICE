@@ -1,0 +1,23 @@
+Silver Vibe
+Copyright (c) 2026 Silver Vibe / silvervibe-io
+
+This product includes software developed as a personal open-source project
+under the MIT License (see LICENSE).
+
+SPDX-License-Identifier: MIT
+
+Names and marks
+---------------
+"Silver Vibe", "Silvervibe", "VibeStandup", "Vibe Standup", the silvervibe.io
+domain, and related logos or word marks are trademarks or pending trademarks
+of the Silver Vibe project owner.
+
+Use of the source code under MIT does not include a trademark license.
+See TRADEMARKS.md.
+
+Third-party software
+--------------------
+This repository depends on third-party packages (Angular, NestJS, Nx, Prisma,
+daisyUI, OpenFeature, and others). Those packages remain under their own
+licenses. See THIRD_PARTY_NOTICES.md and the license files inside
+node_modules / package registries after install.

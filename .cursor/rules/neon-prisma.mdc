@@ -1,0 +1,13 @@
+---
+description: Neon Postgres and Prisma data-access conventions
+globs: "**/*.{prisma,sql,ts}"
+alwaysApply: false
+---
+
+# Neon and Prisma
+
+- One Postgres database on Neon for app data. Connection string: `DATABASE_URL` (pooled) and `DATABASE_URL_UNPOOLED` for migrations when needed.
+- Schema and Prisma client live under a shared data-access library, not inside an Angular app.
+- Core tables: `users` (`firebase_uid` unique), `workspaces`, `workspace_members`, `workspace_tools`, `addon_connections`.
+- Migrations via Prisma. Do not hand-edit production schema.
+- Cloud Run uses the pooled URL. Never embed credentials in source or Cloudflare Pages env beyond public Firebase web config.

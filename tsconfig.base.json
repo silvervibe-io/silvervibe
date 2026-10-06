@@ -14,7 +14,16 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "strict": false,
-    "paths": {}
+    "paths": {
+      "@silvervibe/shared/ui": ["./libs/shared/ui/src/index.ts"],
+      "@silvervibe/shared/data-access": [
+        "./libs/shared/data-access/src/index.ts"
+      ],
+      "@silvervibe/shared/feature-flags": [
+        "./libs/shared/feature-flags/src/index.ts"
+      ],
+      "@silvervibe/shared/auth": ["./libs/shared/auth/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

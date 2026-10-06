@@ -1,0 +1,14 @@
+---
+description: OpenFeature and GrowthBook feature-flag conventions
+globs: "**/*.{ts,tsx,py}"
+alwaysApply: false
+---
+
+# Feature flags
+
+- Evaluate flags through OpenFeature clients only. Do not call the GrowthBook SDK directly from feature or UI code.
+- GrowthBook is the OpenFeature provider (server for Nest, client for Angular).
+- Use flags for rollout, kill switches, and experiments.
+- Use Neon `workspace_tools` (or equivalent entitlements) for which product tools a workspace has enabled.
+- Name flags with dotted domains: `tools.vibestandup.enabled`, `addons.github.webhooks`.
+- Default safely: missing flag => off for new tools; keep core shell available.

@@ -1,0 +1,15 @@
+---
+description: Angular and Nx conventions for the Silvervibe monorepo
+alwaysApply: true
+---
+
+# Angular and Nx
+
+- Generate with `npx nx g ...`. Do not hand-roll projects outside the Nx graph.
+- Apps: `silvervibe` (base, prefix `sv`, port 4200) and `vibestandup` (prefix `vs`, port 4201). Add later products as new apps, not folders inside an existing app.
+- Public library API is `index.ts`. Import with `@silvervibe/*` aliases, never relative paths across libraries.
+- Tags: `type:app|ui|data-access|feature|util` and `scope:shared|silvervibe|vibestandup|api|ai`. `type:ui` must not depend on `type:data-access`. `scope:feature` depends only on `scope:shared` or `scope:domain`.
+- Standalone only. `inject()`, signals, `computed`, `@if` / `@for` / `@switch`, `ChangeDetectionStrategy.OnPush`, `track` on `@for`.
+- Lazy-load feature routes with `loadComponent` or `loadChildren`.
+- Use `NgOptimizedImage` for static images.
+- Colocate a `.spec.ts` for every component, and update it when the component changes.

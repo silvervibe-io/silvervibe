@@ -1,0 +1,13 @@
+---
+description: NestJS API and product add-on modules
+globs: "apps/api/**/*.ts"
+alwaysApply: false
+---
+
+# NestJS add-ons
+
+- The HTTP API is NestJS in `apps/api`. Do not add a second Node server.
+- One add-on equals one module under `apps/api/src/app/addons/<name>/` with a module, controller, service, and spec.
+- Current add-ons: `slack`, `teams`, `jira`, `linear`, `github`. Register every new module in `AppModule` and tag it with `@ApiTags`.
+- Document every public handler with `@ApiOperation` and response DTOs that use `@ApiProperty`.
+- Keep the global prefix `api`. Swagger UI stays at `/api/docs`. Regenerate the spec with `npx nx openapi api`.

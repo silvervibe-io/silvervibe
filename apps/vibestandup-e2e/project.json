@@ -1,0 +1,9 @@
+{
+  "name": "vibestandup-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/vibestandup-e2e/src",
+  "implicitDependencies": ["vibestandup"],
+  "// targets": "to see all targets run: nx show project vibestandup-e2e --web",
+  "targets": {}
+}

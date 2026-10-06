@@ -1,0 +1,318 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "AppController_health",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "API health",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/me": {
+      "get": {
+        "operationId": "UsersController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Current authenticated user",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/flags/vibestandup": {
+      "get": {
+        "operationId": "FeatureFlagsController_vibestandup",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-firebase-uid",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlagEvaluationDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Evaluate vibestandup rollout flag",
+        "tags": [
+          "flags"
+        ]
+      }
+    },
+    "/api/addons/slack/status": {
+      "get": {
+        "operationId": "SlackController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddonStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Slack add-on status",
+        "tags": [
+          "slack"
+        ]
+      }
+    },
+    "/api/addons/teams/status": {
+      "get": {
+        "operationId": "TeamsController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddonStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Microsoft Teams add-on status",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/addons/jira/status": {
+      "get": {
+        "operationId": "JiraController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddonStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Jira add-on status",
+        "tags": [
+          "jira"
+        ]
+      }
+    },
+    "/api/addons/linear/status": {
+      "get": {
+        "operationId": "LinearController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddonStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Linear add-on status",
+        "tags": [
+          "linear"
+        ]
+      }
+    },
+    "/api/addons/github/status": {
+      "get": {
+        "operationId": "GithubController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddonStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "GitHub add-on status",
+        "tags": [
+          "github"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Silvervibe API",
+    "description": "HTTP API for Silvervibe apps and product add-ons.",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "health",
+      "description": ""
+    },
+    {
+      "name": "auth",
+      "description": ""
+    },
+    {
+      "name": "flags",
+      "description": ""
+    },
+    {
+      "name": "slack",
+      "description": ""
+    },
+    {
+      "name": "teams",
+      "description": ""
+    },
+    {
+      "name": "jira",
+      "description": ""
+    },
+    {
+      "name": "linear",
+      "description": ""
+    },
+    {
+      "name": "github",
+      "description": ""
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "HealthDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "MeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "firebaseUid": {
+            "type": "string"
+          },
+          "email": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "firebaseUid"
+        ]
+      },
+      "FlagEvaluationDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "key",
+          "enabled"
+        ]
+      },
+      "AddonStatusDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "slack"
+          },
+          "status": {
+            "type": "string",
+            "example": "ready"
+          }
+        },
+        "required": [
+          "name",
+          "status"
+        ]
+      }
+    }
+  }
+}

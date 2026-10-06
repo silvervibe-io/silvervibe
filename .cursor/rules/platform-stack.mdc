@@ -1,0 +1,15 @@
+---
+description: Silvervibe platform stack (Cloudflare, Cloud Run, Firebase Auth, Neon, OpenFeature)
+alwaysApply: true
+---
+
+# Platform stack
+
+- Domain: `silvervibe.io` (Cloudflare DNS).
+- Frontends (`silvervibe`, `vibestandup`): Cloudflare Pages.
+- Nest API (`api`) and LangGraph (`ai`): Google Cloud Run.
+- Auth: Firebase Auth. Nest verifies Firebase JWTs; Postgres stores `firebase_uid`.
+- Database: Neon Postgres. Prefer Prisma in `libs/shared/data-access` (planned). Do not use Firestore as the primary app DB.
+- Feature flags: OpenFeature in Nest/Angular, GrowthBook as the provider. Workspace tool access lives in Postgres entitlements (`workspace_tools`), not only in flags.
+- Secrets: environment variables / Secret Manager. Never commit `.env`.
+- Add-ons (Slack, Teams, Jira, Linear, GitHub) stay Nest modules under `apps/api/src/app/addons/`.

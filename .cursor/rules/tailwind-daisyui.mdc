@@ -1,0 +1,20 @@
+---
+description: Tailwind CSS v4 and daisyUI class usage
+globs: "**/*.{html,css,ts}"
+alwaysApply: false
+---
+
+# Tailwind and daisyUI
+
+- Style with Tailwind utilities and daisyUI component classes. Do not add a `tailwind.config.js`.
+- Shared entry is imported from each app `styles.css`:
+
+```css
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
+}
+```
+
+- Prefer semantic daisyUI classes (`btn`, `btn-primary`, `card`, `navbar`, `input`) before long utility strings.
+- Keep theme tokens in the `@plugin "daisyui"` block, not in TypeScript.

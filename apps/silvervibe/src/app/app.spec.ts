@@ -1,20 +1,27 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
-import { NxWelcome } from './nx-welcome';
+import { appConfig } from './app.config';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [App, NxWelcome],
+      imports: [App],
+      providers: [...appConfig.providers],
     }).compileComponents();
   });
 
-  it('should render title', async () => {
+  it('renders the Silver Vibe landing headline', async () => {
     const fixture = TestBed.createComponent(App);
+
     await fixture.whenStable();
+
     const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('Silver');
+    expect(compiled.textContent).toContain('Vibe');
     expect(compiled.querySelector('h1')?.textContent).toContain(
-      'Welcome silvervibe',
+      'A better vibe for async work.',
     );
+    expect(compiled.textContent).toContain('personal open-source');
+    expect(compiled.textContent).not.toContain('VibeStandup');
   });
 });

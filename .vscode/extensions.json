@@ -1,8 +1,21 @@
 {
   "recommendations": [
+    "angular.ng-template",
     "nrwl.angular-console",
-    "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
-    "ms-playwright.playwright"
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "ms-playwright.playwright",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "charliermarsh.ruff",
+    "42crunch.vscode-openapi",
+    "redhat.vscode-yaml",
+    "humao.rest-client",
+    "firsttris.vscode-jest-runner",
+    "Prisma.prisma",
+    "mtxr.sqltools",
+    "mtxr.sqltools-driver-pg",
+    "GoogleCloudTools.cloudcode"
   ]
 }

@@ -1,0 +1,15 @@
+<div class="navbar bg-base-200">
+  <div class="navbar-start">
+    <a class="text-xl" routerLink="/">{{ title() }}</a>
+  </div>
+  <div class="navbar-end gap-4">
+    @for (link of links(); track link.href) { @if (link.external) {
+    <a [href]="link.href">{{ link.label }}</a>
+    } @else {
+    <a [routerLink]="link.href">{{ link.label }}</a>
+    } }
+  </div>
+</div>
+<main class="mx-auto max-w-5xl p-6">
+  <ng-content />
+</main>

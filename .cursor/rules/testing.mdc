@@ -1,0 +1,11 @@
+---
+description: Unit and Playwright test expectations
+globs: "**/*.{spec.ts,py}"
+alwaysApply: false
+---
+
+# Tests
+
+- Angular specs use Arrange-Act-Assert and `TestBed`. Update the spec when public methods or template contracts change.
+- Playwright projects are `silvervibe-e2e` and `vibestandup-e2e`. Run `npx nx e2e <project>`.
+- Assert user-visible behavior (text, roles, navigation), not CSS class strings.

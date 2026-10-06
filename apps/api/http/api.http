@@ -1,0 +1,14 @@
+###
+# Silvervibe local smoke checks (REST Client extension)
+# Start API with: npm start api
+
+@base = http://localhost:3000/api
+
+### Health
+GET {{base}}/health
+
+### GitHub add-on
+GET {{base}}/addons/github/status
+
+### Slack add-on
+GET {{base}}/addons/slack/status

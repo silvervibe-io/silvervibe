@@ -1,0 +1,40 @@
+{
+  "name": "ai",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/ai/src",
+  "tags": ["type:app", "scope:ai"],
+  "targets": {
+    "sync": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "uv sync --extra dev",
+        "cwd": "apps/ai"
+      }
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "nx:run-commands",
+      "dependsOn": ["sync"],
+      "options": {
+        "command": "uv run uvicorn ai.main:app --host 127.0.0.1 --port 8000 --app-dir src",
+        "cwd": "apps/ai"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["sync"],
+      "options": {
+        "command": "uv run pytest",
+        "cwd": "apps/ai"
+      }
+    },
+    "add": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "uv add {args}",
+        "cwd": "apps/ai"
+      }
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "mcpServers": {
+    "nx": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "nx-mcp@latest", "${workspaceFolder}"]
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    },
+    "openfeature": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@openfeature/mcp"]
+    },
+    "growthbook": {
+      "url": "https://mcp.growthbook.io/mcp"
+    },
+    "neon": {
+      "url": "https://mcp.neon.tech/mcp"
+    },
+    "cloudflare": {
+      "url": "https://mcp.cloudflare.com/mcp"
+    },
+    "firebase": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "firebase-tools@latest", "mcp", "--dir", "${workspaceFolder}"]
+    },
+    "daisyui": {
+      "url": "https://gitmcp.io/saadeghi/daisyui"
+    },
+    "angular": {
+      "url": "https://gitmcp.io/angular/angular"
+    },
+    "nestjs": {
+      "url": "https://gitmcp.io/nestjs/nest"
+    },
+    "langgraph": {
+      "url": "https://gitmcp.io/langchain-ai/langgraph"
+    },
+    "growthbook-docs": {
+      "url": "https://gitmcp.io/growthbook/growthbook"
+    },
+    "openfeature-docs": {
+      "url": "https://gitmcp.io/open-feature/js-sdk"
+    },
+    "prisma": {
+      "url": "https://gitmcp.io/prisma/prisma"
+    },
+    "atlassian": {
+      "url": "https://mcp.atlassian.com/v1/mcp"
+    }
+  }
+}

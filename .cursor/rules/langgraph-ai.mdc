@@ -1,0 +1,12 @@
+---
+description: Python LangGraph service conventions
+globs: "apps/ai/**/*.{py,toml}"
+alwaysApply: false
+---
+
+# LangGraph service
+
+- AI integrations live in `apps/ai` (Python, uv, LangGraph). Angular and NestJS call it over HTTP. Do not embed LangGraph in Node.
+- Require Python `>=3.11,<3.14`. Add dependencies with `npx nx run ai:add --args=<package>`.
+- Graphs live in `apps/ai/src/ai/graphs/`. HTTP routes stay thin and call a graph.
+- Cover graph nodes and routes with pytest.

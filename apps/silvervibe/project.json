@@ -4,7 +4,7 @@
   "projectType": "application",
   "prefix": "sv",
   "sourceRoot": "apps/silvervibe/src",
-  "tags": [],
+  "tags": ["type:app", "scope:silvervibe"],
   "targets": {
     "build": {
       "executor": "@angular/build:application",
@@ -56,10 +56,22 @@
         "development": {
           "buildTarget": "silvervibe:build:development"
         }
+      },
+      "dependsOn": [],
+      "options": {
+        "port": 4200,
+        "proxyConfig": "apps/silvervibe/proxy.conf.json",
+        "prebundle": false
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@angular/build:unit-test",
+      "options": {
+        "watch": false
+      }
     },
     "serve-static": {
       "continuous": true,
