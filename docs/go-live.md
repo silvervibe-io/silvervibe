@@ -31,10 +31,13 @@ Do **not** commit `.env`. Keep secrets in Cloudflare / Secret Manager later.
 | Setting | Value |
 | --- | --- |
 | Framework preset | None |
-| Build command | `npm ci && npx nx build silvervibe --configuration=production` |
+| Build command | `npx nx build silvervibe --configuration=production` |
 | Build output directory | `dist/apps/silvervibe/browser` |
 | Root directory | `/` (repo root) |
-| Node version | `22` (or matching `package.json` engines) |
+| Node version | `24.15.0` — commit `.nvmrc`, or set env `NODE_VERSION=24.15.0` |
+
+Cloudflare already runs `npm ci` before your build command. Do not prefix the build with another `npm ci`.
+
 
 4. Save and deploy. Confirm the `*.pages.dev` preview URL shows the landing page.
 

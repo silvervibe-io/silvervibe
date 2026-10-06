@@ -38,6 +38,10 @@
     "licenses:dump": "npx license-checker --production --customPath licenses/customFormat.json --out licenses/THIRD_PARTY_LICENSES.txt"
   },
   "private": true,
+  "engines": {
+    "node": "^22.22.3 || ^24.15.0 || >=26.0.0",
+    "npm": ">=10.0.0"
+  },
   "dependencies": {
     "@angular/common": "~22.1.0",
     "@angular/compiler": "~22.1.0",
