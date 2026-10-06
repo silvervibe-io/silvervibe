@@ -1,0 +1,12 @@
+---
+description: Prefer develop branch; keep main landing frozen
+alwaysApply: true
+---
+
+# Git branches (Silvervibe)
+
+- Day-to-day code changes: commit on **`develop`** (or `feature/*` merged into `develop`).
+- **`main`** is production / public landing on silvervibe.io — do not push unfinished work there.
+- Do not change the silvervibe landing page unless the user explicitly asks to ship a landing update.
+- New routes/screens: add on `develop`; do not link them from the public landing until ready. Keep unknown paths redirecting home.
+- See `docs/branching.md`.

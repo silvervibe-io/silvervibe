@@ -57,8 +57,9 @@ Cloudflare already runs `npm ci` before your build command. Do not prefix the bu
 
 With Git connected:
 
-- Every push to `main` → production deploy.
-- Pull requests → preview deployments (enable in Pages settings).
+- **Production branch = `main`** → deploys to silvervibe.io.
+- **`develop`** and pull requests → preview deployments only (enable in Pages settings).
+- Do not push WIP routes or landing experiments to `main`. See [branching.md](./branching.md).
 
 ## 6. Local check before push
 
