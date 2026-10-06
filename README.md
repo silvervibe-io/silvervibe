@@ -48,6 +48,13 @@ Firebase Auth, Neon Postgres, OpenFeature + GrowthBook.
 | [SECURITY.md](./SECURITY.md) | Vulnerability reporting |
 | [CONTRIBUTING.md](./CONTRIBUTING.md) | Contribution basics |
 
+**Silver Vibe™** and **VibeStandup™** are project names maintained by the
+Silver Vibe / [silvervibe-io](https://github.com/silvervibe-io) project.
+The code is open source under the [MIT License](./LICENSE); the **project
+names, logos, and branding are not included in that license**. If you modify
+or fork this software, you **must rename** your version and must not imply
+endorsement. See [TRADEMARKS.md](./TRADEMARKS.md).
+
 ## Quick start
 
 ```sh

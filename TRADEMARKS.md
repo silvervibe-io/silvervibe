@@ -24,29 +24,48 @@ You may fork and reuse the code under MIT. You may **not**:
 - Use the logos, wordmarks, or silvervibe.io branding without written permission
 - Imply endorsement by the Silver Vibe project
 
-Allowed: factual statements such as “based on the Silver Vibe open-source code”
-with a clear rename of your product.
+**If you modify or fork this software, you must rename your version.** Allowed:
+factual statements such as “based on the Silver Vibe open-source code” with a
+clearly different product name.
 
 ## How to legally register (owner checklist)
 
 This repo cannot file trademarks for you. Complete these steps under your
 **personal or company** ownership (match the GitHub org `silvervibe-io` and
-domain registrant where possible):
+domain registrant where possible).
 
-1. **Clearance search** — USPTO TESS, EUIPO eSearch, WIPO Global Brand Database, and web search for conflicting software marks.
-2. **Decide owner** — you as an individual, or a company you form later. Keep domain, GitHub org, Cloudflare account, and trademark owner aligned.
+### Recommended offices (Benelux / EU first)
+
+If you are based in the Netherlands (or Belgium / Luxembourg), start with:
+
+1. **[BOIP](https://www.boip.int/)** (Benelux Office for Intellectual Property) —
+   Benelux trademark covering NL, BE, LU. Benelux is largely **first-to-file**;
+   public use alone is weak protection compared with a registration.
+2. Optionally expand later via **EUIPO** (EU trade mark) and/or **Madrid Protocol**.
+3. **USPTO** only if you need U.S. coverage.
+
+### Steps
+
+1. **Clearance search** — BOIP, EUIPO eSearch, WIPO Global Brand Database,
+   USPTO TESS (if relevant), and a normal web search for conflicting software marks.
+2. **Decide owner** — you as an individual, or a company you form later. Keep
+   domain, GitHub org, Cloudflare account, and trademark owner aligned.
 3. **File applications** (typical for SaaS / OSS tools):
    - **Nice Class 9** — downloadable / recorded software
    - **Nice Class 42** — SaaS, software as a service
    - Word marks: `SILVER VIBE`, `SILVERVIBE`, `VIBESTANDUP`
-4. **Jurisdictions** — home country / EU (EUIPO), United States (USPTO) if needed; Madrid Protocol later for multi-country coverage.
-5. **Evidence of use** — dated screenshots of silvervibe.io, GitHub, and product UIs.
-6. **Handles** — reserve matching names (GitHub, npm, Discord, X, etc.).
-7. **Update the log below** when serial/registration numbers exist.
+4. **Evidence of use** — dated screenshots of silvervibe.io, GitHub, and product UIs.
+5. **Handles & domains** — reserve matching names (GitHub, npm, Discord, X,
+   LinkedIn) and consider related domains (e.g. vibestandup.com) to reduce squatting.
+6. **Update the log below** when serial/registration numbers exist.
+
+Timing of filings can interact with personal circumstances (e.g. employment or
+benefit rules). That is outside this repo — check with a qualified advisor before
+you file.
 
 ### Registration log (fill in)
 
-| Mark | Office | Serial / Reg. No. | Filed | Status |
+| Mark | Office (e.g. BOIP / EUIPO) | Serial / Reg. No. | Filed | Status |
 | --- | --- | --- | --- | --- |
 | SILVER VIBE | | | | not filed |
 | SILVERVIBE | | | | not filed |
