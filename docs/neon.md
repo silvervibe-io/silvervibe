@@ -8,8 +8,11 @@ Issue: [#3](https://github.com/silvervibe-io/silvervibe/issues/3). Migrations ar
 2. **New project**
    - Name: `silvervibe`
    - Region: pick one close to you (e.g. Frankfurt / London for EU)
-3. Open the project → **Dashboard** → **Connection details**
-4. Copy two URIs:
+3. If Neon shows a long “Set up this Neon project…” wizard (`neon login`, `neon.ts`, `neon deploy`):
+   **skip it for now.** This monorepo uses **Prisma + Nest**, not Neon’s `neon.ts` policy deploy flow.
+   Optional later: `neon login` + `neon link` for CLI/MCP only (still no need for `neon config init` / `neon deploy` until we adopt that tooling).
+4. Open the project → **Dashboard** → **Connection details**
+5. Copy two URIs:
 
 | Env var | Neon connection |
 | --- | --- |
