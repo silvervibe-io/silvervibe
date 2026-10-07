@@ -23,5 +23,12 @@ describe('App', () => {
     );
     expect(compiled.textContent).toContain('personal open-source');
     expect(compiled.textContent).not.toContain('VibeStandup');
+
+    const github = compiled.querySelector(
+      'a[href="https://github.com/silvervibe-io/silvervibe"]',
+    );
+    const email = compiled.querySelector('a[href="mailto:info@silvervibe.io"]');
+    expect(github?.textContent?.trim()).toBe('Source on GitHub');
+    expect(email?.textContent?.trim()).toBe('info@silvervibe.io');
   });
 });
