@@ -32,6 +32,7 @@ may appear in the codebase before they are publicly launched.
 Target stack for **silvervibe.io**: Cloudflare Pages (apps), Cloud Run (API + AI),
 Firebase Auth, Neon Postgres, OpenFeature + GrowthBook.
 
+- [docs/local-dev.md](docs/local-dev.md) — clone, Node version, run landing + API
 - [docs/platform.md](docs/platform.md) — architecture
 - [docs/go-live.md](docs/go-live.md) — GitHub + Cloudflare deploy
 - [docs/branching.md](docs/branching.md) — `main` (landing) vs `develop` (WIP)
@@ -58,11 +59,24 @@ endorsement. See [TRADEMARKS.md](./TRADEMARKS.md).
 
 ## Quick start
 
+Requires **Node.js 24.15.0** (see `.nvmrc`) or another version allowed by
+`package.json` `engines`. Day-to-day work: branch from **`develop`**.
+
 ```sh
+git checkout develop
 npm ci
 cp .env.example .env
 npm start silvervibe
 ```
+
+In another terminal (API health):
+
+```sh
+npm start api
+# http://localhost:3000/api/health
+```
+
+Full local guide: [docs/local-dev.md](docs/local-dev.md).
 
 ```sh
 npx nx build silvervibe

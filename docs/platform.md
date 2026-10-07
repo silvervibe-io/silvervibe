@@ -52,6 +52,8 @@ First deploy steps: [go-live.md](./go-live.md).
 
 ## Local env
 
+Full guide: [local-dev.md](./local-dev.md).
+
 ```bash
 cp .env.example .env
 npm run prisma:generate

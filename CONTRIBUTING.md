@@ -15,11 +15,18 @@ as the public roadmap matures.
 
 ## Local setup
 
+1. Use **Node.js 24.15.0** (`.nvmrc`) or an `engines`-compatible version.
+2. Check out **`develop`**.
+3. Install and run:
+
 ```bash
 npm ci
 cp .env.example .env
 npm start silvervibe
 ```
 
-See [README.md](./README.md), [docs/go-live.md](./docs/go-live.md), and
+4. API (optional second terminal): `npm start api` → http://localhost:3000/api/health
+
+Details: [docs/local-dev.md](./docs/local-dev.md). Also
+[README.md](./README.md), [docs/go-live.md](./docs/go-live.md), and
 [docs/legal.md](./docs/legal.md).
