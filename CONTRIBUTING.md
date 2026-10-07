@@ -6,7 +6,9 @@ as the public roadmap matures.
 ## Ground rules
 
 1. Open an issue before large changes.
-2. Work on **`develop`** (or `feature/*` → `develop`). Keep **`main`** for the stable public landing — see [docs/branching.md](./docs/branching.md).
+2. Cut an **issue branch from `develop`**: `{type}/{number}-{slug}`  
+   (`feature/`, `bugfix/`, `docs/`, or `chore/`). PR back into **`develop`**.  
+   Keep **`main`** for the stable public landing — see [docs/branching.md](./docs/branching.md).
 3. Keep secrets out of PRs (no `.env`, keys, or service accounts).
 4. Follow existing Nx / Angular / Nest patterns in the repo.
 5. Do not add branding that conflicts with [TRADEMARKS.md](./TRADEMARKS.md).

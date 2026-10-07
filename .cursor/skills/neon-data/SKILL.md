@@ -5,6 +5,10 @@ description: Designs and migrates Neon Postgres schema with Prisma for Silvervib
 
 # Neon data
 
+## Git
+
+Neon / Prisma work ships on an issue branch from `develop`, e.g. `feature/3-neon-postgres`. Never commit `DATABASE_URL` or `.env`. See `docs/branching.md`.
+
 ## Schema sketch
 
 - `User`: id, firebaseUid, email, createdAt
@@ -13,11 +17,21 @@ description: Designs and migrates Neon Postgres schema with Prisma for Silvervib
 - `WorkspaceTool`: workspaceId, toolKey (`vibestandup`, `addons.github`, …), enabled
 - `AddonConnection`: workspaceId, provider, status, encrypted secrets ref
 
-## Commands (once Prisma is added)
+## Provisioning (foundation)
+
+1. Create a Neon project (owner aligned with silvervibe-io).
+2. Copy **pooled** URI → `DATABASE_URL` and **direct/unpooled** → `DATABASE_URL_UNPOOLED` in local `.env` (from `.env.example`).
+3. Confirm connectivity with Prisma (generate + `prisma db execute` / migrate on issue #4).
+4. Document steps in `docs/local-dev.md`; never commit secrets.
+
+## Commands
 
 ```bash
-npx prisma migrate dev
-npx prisma generate
+npm run prisma:generate
+npm run prisma:migrate
+npm run prisma:studio
 ```
 
-Use the Neon MCP to inspect branches and connection strings. Prefer a develop branch for local work.
+Schema path: `libs/shared/data-access/prisma/schema.prisma`.
+
+Use the Neon MCP or console for branches and connection strings. Prefer a Neon **development** branch for local work; keep production separate.

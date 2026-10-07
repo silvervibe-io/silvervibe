@@ -33,6 +33,7 @@
     "prisma:generate": "prisma generate --schema=libs/shared/data-access/prisma/schema.prisma",
     "prisma:migrate": "prisma migrate dev --schema=libs/shared/data-access/prisma/schema.prisma",
     "prisma:studio": "prisma studio --schema=libs/shared/data-access/prisma/schema.prisma",
+    "prisma:ping": "node ./tools/prisma-ping.mjs",
     "postinstall": "prisma generate --schema=libs/shared/data-access/prisma/schema.prisma",
     "licenses:report": "npx license-checker --production --summary",
     "licenses:dump": "npx license-checker --production --customPath licenses/customFormat.json --out licenses/THIRD_PARTY_LICENSES.txt"

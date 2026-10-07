@@ -30,7 +30,7 @@ LangGraph AI  →  Cloud Run
 | `api.silvervibe.io` | Nest `api` (Cloud Run) |
 | `ai.silvervibe.io` | LangGraph `ai` (Cloud Run) |
 
-First deploy steps: [go-live.md](./go-live.md).
+First deploy steps: [go-live.md](./go-live.md). Neon setup: [neon.md](./neon.md).
 
 ## Code map
 

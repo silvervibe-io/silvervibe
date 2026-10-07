@@ -15,7 +15,7 @@ Optional later (not needed for landing + API health):
 
 | Tool | When |
 | --- | --- |
-| Neon `DATABASE_URL` | Prisma migrate / real DB ([issue #3](https://github.com/silvervibe-io/silvervibe/issues/3)) |
+| Neon `DATABASE_URL` | Real DB — [docs/neon.md](./neon.md) ([issue #3](https://github.com/silvervibe-io/silvervibe/issues/3)) |
 | Firebase / GrowthBook keys | Auth & live flags |
 | **Python** `>=3.11,<3.14` + [uv](https://github.com/astral-sh/uv) | `apps/ai` only |
 
@@ -25,6 +25,7 @@ Optional later (not needed for landing + API health):
 git clone https://github.com/silvervibe-io/silvervibe.git
 cd silvervibe
 git checkout develop
+# Issue work: git checkout -b feature/<n>-<slug>   (see docs/branching.md)
 
 # Node 24.15 if you use nvm / fnm / asdf
 nvm install   # or: fnm use / asdf install
@@ -35,10 +36,10 @@ cp .env.example .env
 ```
 
 `npm ci` runs `postinstall` → `prisma generate`. That does **not** need a live
-database. Leave placeholder `DATABASE_URL` values until Neon is ready.
+database. Leave placeholder `DATABASE_URL` values until Neon is ready
+([docs/neon.md](./neon.md)), then run `npm run prisma:ping` to verify.
 
 Never commit `.env`.
-
 ## Run the landing (silvervibe)
 
 ```bash
