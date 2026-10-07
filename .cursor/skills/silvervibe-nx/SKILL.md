@@ -5,6 +5,21 @@ description: Navigates the Silvervibe Nx monorepo and generates Angular apps, Ne
 
 # Silvervibe Nx workspace
 
+## Git (issue branches)
+
+Always branch from **`develop`** for issue work. Do not commit issues on `main` or directly on `develop`.
+
+```text
+{type}/{number}-{short-kebab-slug}
+```
+
+- `feature/` — capabilities / foundation
+- `bugfix/` — defects
+- `docs/` — docs-only
+- `chore/` — CI / tooling
+
+Example: `feature/3-neon-postgres`. Open PRs with **base `develop`** and close the issue in the PR body. Details: `docs/branching.md`.
+
 ## Layout
 
 | Project | Path | Port | Tags |

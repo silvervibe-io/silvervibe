@@ -25,6 +25,7 @@ Optional later (not needed for landing + API health):
 git clone https://github.com/silvervibe-io/silvervibe.git
 cd silvervibe
 git checkout develop
+# Issue work: git checkout -b feature/<n>-<slug>   (see docs/branching.md)
 
 # Node 24.15 if you use nvm / fnm / asdf
 nvm install   # or: fnm use / asdf install

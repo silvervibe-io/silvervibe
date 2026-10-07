@@ -1,12 +1,41 @@
 ---
-description: Prefer develop branch; keep main landing frozen
+description: Issue branches from develop; keep main landing frozen
 alwaysApply: true
 ---
 
 # Git branches (Silvervibe)
 
-- Day-to-day code changes: commit on **`develop`** (or `feature/*` merged into `develop`).
-- **`main`** is production / public landing on silvervibe.io — do not push unfinished work there.
-- Do not change the silvervibe landing page unless the user explicitly asks to ship a landing update.
-- New routes/screens: add on `develop`; do not link them from the public landing until ready. Keep unknown paths redirecting home.
-- See `docs/branching.md`.
+## Long-lived
+
+- **`main`** — production / public landing on silvervibe.io. Do not push unfinished work.
+- **`develop`** — integration branch. Do not commit issue work directly here.
+
+## Issue branches (required)
+
+For every GitHub issue, cut a branch from up-to-date `develop`:
+
+```text
+{type}/{number}-{short-kebab-slug}
+```
+
+| Type | When |
+| --- | --- |
+| `feature/` | New capability, foundation, enhancements |
+| `bugfix/` | Defects |
+| `docs/` | Docs-only |
+| `chore/` | CI, tooling, repo process |
+
+Examples: `feature/3-neon-postgres`, `docs/1-local-dev-environment`, `bugfix/12-info-email-routing`.
+
+```bash
+git checkout develop && git pull origin develop
+git checkout -b feature/<n>-<slug>
+# PR base = develop; body closes #<n>
+```
+
+## Landing
+
+- Do not change the silvervibe landing page unless the user explicitly asks to ship a landing update (then PR → `develop`, promote to `main` when ready).
+- New routes: issue branch → `develop`; do not link from the public landing until ready. Keep unknown paths redirecting home.
+
+See `docs/branching.md`.
