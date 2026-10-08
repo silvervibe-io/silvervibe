@@ -1,8 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Injectable,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Injectable, signal } from '@angular/core';
 import {
   User,
   browserLocalPersistence,

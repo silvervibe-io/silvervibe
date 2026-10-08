@@ -22,10 +22,10 @@ Neon PgBouncer).
 4. Open the project → **Dashboard** → **Connection details**
 5. Copy two URIs:
 
-| Env var | Neon connection |
-| --- | --- |
-| `DATABASE_URL` | **Pooled** connection string (PgBouncer / `-pooler` host) |
-| `DATABASE_URL_UNPOOLED` | **Direct** connection string (no pooler) |
+| Env var                 | Neon connection                                           |
+| ----------------------- | --------------------------------------------------------- |
+| `DATABASE_URL`          | **Pooled** connection string (PgBouncer / `-pooler` host) |
+| `DATABASE_URL_UNPOOLED` | **Direct** connection string (no pooler)                  |
 
 Both usually include `?sslmode=require`.
 

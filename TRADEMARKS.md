@@ -5,17 +5,17 @@ under [MIT](./LICENSE). **Trademarks are separate from copyright.**
 
 ## Protected names (claim + pending registration)
 
-| Mark | Status | Notes |
-| --- | --- | --- |
-| **Silver Vibe** / **Silvervibe** | Claimed; registration recommended | Project / platform brand |
-| **VibeStandup** / **Vibe Standup** | Claimed; registration recommended | Product / tool name |
-| **silvervibe.io** | Domain registered | Primary public identity |
+| Mark                               | Status                            | Notes                    |
+| ---------------------------------- | --------------------------------- | ------------------------ |
+| **Silver Vibe** / **Silvervibe**   | Claimed; registration recommended | Project / platform brand |
+| **VibeStandup** / **Vibe Standup** | Claimed; registration recommended | Product / tool name      |
+| **silvervibe.io**                  | Domain registered                 | Primary public identity  |
 
 Until a registration certificate issues, use the **™** symbol on public pages
 and packaging (e.g. `Silver Vibe™`, `VibeStandup™`). After registration in a
 jurisdiction, use **®** only for marks registered there.
 
-## What MIT does *not* give you
+## What MIT does _not_ give you
 
 You may fork and reuse the code under MIT. You may **not**:
 
@@ -65,11 +65,11 @@ you file.
 
 ### Registration log (fill in)
 
-| Mark | Office (e.g. BOIP / EUIPO) | Serial / Reg. No. | Filed | Status |
-| --- | --- | --- | --- | --- |
-| SILVER VIBE | | | | not filed |
-| SILVERVIBE | | | | not filed |
-| VIBESTANDUP | | | | not filed |
+| Mark        | Office (e.g. BOIP / EUIPO) | Serial / Reg. No. | Filed | Status    |
+| ----------- | -------------------------- | ----------------- | ----- | --------- |
+| SILVER VIBE |                            |                   |       | not filed |
+| SILVERVIBE  |                            |                   |       | not filed |
+| VIBESTANDUP |                            |                   |       | not filed |
 
 ## Permission requests
 

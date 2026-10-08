@@ -7,20 +7,20 @@ meetings.
 - **Site:** [silvervibe.io](https://silvervibe.io)
 - **Org:** [github.com/silvervibe-io](https://github.com/silvervibe-io)
 - **License:** [MIT](./LICENSE) (source code)
-- **Trademarks:** [TRADEMARKS.md](./TRADEMARKS.md) — *Silver Vibe™*, *VibeStandup™*, and related marks are **not** licensed under MIT
+- **Trademarks:** [TRADEMARKS.md](./TRADEMARKS.md) — _Silver Vibe™_, _VibeStandup™_, and related marks are **not** licensed under MIT
 
 This monorepo is early / in development. Product names such as **VibeStandup™**
 may appear in the codebase before they are publicly launched.
 
 ## Projects
 
-| Project | Start | Test | Build | URL |
-| --- | --- | --- | --- | --- |
-| silvervibe | `npm start` or `npm start silvervibe` | `npm run test:silvervibe` | `npm run build:silvervibe` | http://localhost:4200 |
-| vibestandup | `npm start vibestandup` | `npm run test:vibestandup` | `npm run build:vibestandup` | http://localhost:4201 |
-| api | `npm start api` | `npm run test:api` | `npm run build:api` | http://localhost:3000/api/docs |
-| ai | `npm start ai` | `npm run test:ai` | — | http://localhost:8000/health |
-| ui | — | `npm run test:ui` | — | — |
+| Project     | Start                                 | Test                       | Build                       | URL                            |
+| ----------- | ------------------------------------- | -------------------------- | --------------------------- | ------------------------------ |
+| silvervibe  | `npm start` or `npm start silvervibe` | `npm run test:silvervibe`  | `npm run build:silvervibe`  | http://localhost:4200          |
+| vibestandup | `npm start vibestandup`               | `npm run test:vibestandup` | `npm run build:vibestandup` | http://localhost:4201          |
+| api         | `npm start api`                       | `npm run test:api`         | `npm run build:api`         | http://localhost:3000/api/docs |
+| ai          | `npm start ai`                        | `npm run test:ai`          | —                           | http://localhost:8000/health   |
+| ui          | —                                     | `npm run test:ui`          | —                           | —                              |
 
 `npm start` serves silvervibe. Start the API with `npm start api` when you need
 `/api` proxy and Swagger. Use `npm test` / `npm run build` for all projects,
@@ -42,14 +42,14 @@ Firebase Auth, Neon Postgres, OpenFeature + GrowthBook.
 
 ## Legal & licenses
 
-| File | Purpose |
-| --- | --- |
-| [LICENSE](./LICENSE) | MIT license for **this** source code |
-| [NOTICE](./NOTICE) | Copyright + trademark + SPDX summary |
-| [TRADEMARKS.md](./TRADEMARKS.md) | Brand policy + registration checklist |
-| [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md) | Upstream dependency licenses |
-| [SECURITY.md](./SECURITY.md) | Vulnerability reporting |
-| [CONTRIBUTING.md](./CONTRIBUTING.md) | Contribution basics |
+| File                                               | Purpose                               |
+| -------------------------------------------------- | ------------------------------------- |
+| [LICENSE](./LICENSE)                               | MIT license for **this** source code  |
+| [NOTICE](./NOTICE)                                 | Copyright + trademark + SPDX summary  |
+| [TRADEMARKS.md](./TRADEMARKS.md)                   | Brand policy + registration checklist |
+| [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md) | Upstream dependency licenses          |
+| [SECURITY.md](./SECURITY.md)                       | Vulnerability reporting               |
+| [CONTRIBUTING.md](./CONTRIBUTING.md)               | Contribution basics                   |
 
 **Silver Vibe™** and **VibeStandup™** are project names maintained by the
 Silver Vibe / [silvervibe-io](https://github.com/silvervibe-io) project.

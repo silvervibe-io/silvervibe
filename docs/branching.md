@@ -2,10 +2,10 @@
 
 ## Long-lived branches
 
-| Branch | Purpose | Deploys to |
-| --- | --- | --- |
-| **`main`** | Stable public landing (and approved releases) | **Production** — `silvervibe.io` |
-| **`develop`** | Integration branch for finished issue PRs | **Preview** (Pages previews) |
+| Branch        | Purpose                                       | Deploys to                       |
+| ------------- | --------------------------------------------- | -------------------------------- |
+| **`main`**    | Stable public landing (and approved releases) | **Production** — `silvervibe.io` |
+| **`develop`** | Integration branch for finished issue PRs     | **Preview** (Pages previews)     |
 
 Do **not** push unfinished work to `main`. Do **not** commit issue work directly on
 `develop` — use a short-lived issue branch (below), then open a PR into `develop`.
@@ -20,24 +20,24 @@ Every GitHub issue gets its own branch, cut from an up-to-date **`develop`**.
 {type}/{number}-{short-kebab-slug}
 ```
 
-| `{type}` | Use when |
-| --- | --- |
-| **`feature/`** | New capability, foundation work, enhancements |
-| **`bugfix/`** | Fixing a defect |
-| **`docs/`** | Documentation-only changes |
-| **`chore/`** | Tooling, CI, repo process (no product behavior) |
+| `{type}`       | Use when                                        |
+| -------------- | ----------------------------------------------- |
+| **`feature/`** | New capability, foundation work, enhancements   |
+| **`bugfix/`**  | Fixing a defect                                 |
+| **`docs/`**    | Documentation-only changes                      |
+| **`chore/`**   | Tooling, CI, repo process (no product behavior) |
 
 - **`{number}`** — GitHub issue number (required).
 - **`{short-kebab-slug}`** — 2–5 words from the issue title, lowercase, hyphens only.
 
 ### Examples
 
-| Issue | Branch |
-| --- | --- |
-| #3 Provision Neon Postgres… | `feature/3-neon-postgres` |
+| Issue                        | Branch                         |
+| ---------------------------- | ------------------------------ |
+| #3 Provision Neon Postgres…  | `feature/3-neon-postgres`      |
 | #1 Document local developer… | `docs/1-local-dev-environment` |
-| #11 CI checks on develop… | `chore/11-ci-develop-previews` |
-| Bug: landing mailto broken | `bugfix/12-info-email-routing` |
+| #11 CI checks on develop…    | `chore/11-ci-develop-previews` |
+| Bug: landing mailto broken   | `bugfix/12-info-email-routing` |
 
 ### Workflow
 
@@ -77,3 +77,5 @@ See `.cursor/rules/branching.mdc` and the `silvervibe-nx` skill.
 - **Production branch:** `main`
 - **Preview deployments:** `develop` and/or pull requests
 - Build settings stay the same; only the branch changes what goes live on the custom domain
+
+GitHub Actions CI (lint, format, build, tests, e2e, CodeQL) is described in [ci.md](./ci.md).
