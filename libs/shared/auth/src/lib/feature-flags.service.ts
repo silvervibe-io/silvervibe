@@ -28,10 +28,7 @@ export class FeatureFlagsService {
 
     if (clientKey) {
       await OpenFeature.setProviderAndWait(
-        new GrowthbookClientProvider(
-          { apiHost, clientKey },
-          { timeout: 2000 },
-        ),
+        new GrowthbookClientProvider({ apiHost, clientKey }, { timeout: 2000 }),
       );
     } else {
       await OpenFeature.setProviderAndWait(

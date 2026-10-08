@@ -3,7 +3,9 @@ import { spawnSync } from 'node:child_process';
 const [command, defaultProject, ...rest] = process.argv.slice(2);
 
 if (!command) {
-  console.error('Usage: node tools/nx-run.mjs <command> [defaultProject] [project]');
+  console.error(
+    'Usage: node tools/nx-run.mjs <command> [defaultProject] [project]',
+  );
   process.exit(1);
 }
 

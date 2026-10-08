@@ -13,21 +13,21 @@ After `npm ci`, inspect:
 
 ## Major stack (non-exhaustive)
 
-| Component | Typical license (verify in package) |
-| --- | --- |
-| Angular | MIT |
-| NestJS | MIT |
-| Nx | MIT |
-| RxJS | Apache-2.0 |
-| NgRx | MIT |
-| Prisma | Apache-2.0 |
-| daisyUI | MIT |
-| Tailwind CSS | MIT |
-| OpenFeature SDKs | Apache-2.0 |
-| GrowthBook providers / SDKs | see package |
-| Firebase JS / Admin | see package (Apache-2.0 / proprietary terms for services) |
-| Playwright | Apache-2.0 |
-| LangGraph / related AI libs | see package |
+| Component                   | Typical license (verify in package)                       |
+| --------------------------- | --------------------------------------------------------- |
+| Angular                     | MIT                                                       |
+| NestJS                      | MIT                                                       |
+| Nx                          | MIT                                                       |
+| RxJS                        | Apache-2.0                                                |
+| NgRx                        | MIT                                                       |
+| Prisma                      | Apache-2.0                                                |
+| daisyUI                     | MIT                                                       |
+| Tailwind CSS                | MIT                                                       |
+| OpenFeature SDKs            | Apache-2.0                                                |
+| GrowthBook providers / SDKs | see package                                               |
+| Firebase JS / Admin         | see package (Apache-2.0 / proprietary terms for services) |
+| Playwright                  | Apache-2.0                                                |
+| LangGraph / related AI libs | see package                                               |
 
 ## Generating a full attribution report
 

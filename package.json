@@ -28,6 +28,8 @@
     "lint:vibestandup": "nx lint vibestandup",
     "lint:ui": "nx lint ui",
     "lint:api": "nx lint api",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "openapi": "nx openapi api",
     "graph": "nx graph",
     "prisma:generate": "prisma generate --schema=libs/shared/data-access/prisma/schema.prisma",

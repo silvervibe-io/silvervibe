@@ -5,3 +5,11 @@
 /.nx/workspace-data
 package-lock.json
 .angular
+/licenses
+**/*.sql
+openapi/*.json
+.cursor
+.agents
+.vscode
+*.mdc
+node_modules

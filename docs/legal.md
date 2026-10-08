@@ -2,14 +2,14 @@
 
 Silver Vibe is a **personal open-source project**.
 
-| Asset | File | What it covers |
-| --- | --- | --- |
-| Source code license | [LICENSE](../LICENSE) | MIT — use, modify, distribute the code |
-| Copyright notice | [NOTICE](../NOTICE) | Copyright holder + trademark pointer |
-| Trademarks | [TRADEMARKS.md](../TRADEMARKS.md) | Silver Vibe™, VibeStandup™, registration checklist |
-| Third-party deps | [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) | Dependency licenses remain with upstream |
-| Security reports | [SECURITY.md](../SECURITY.md) | Private vulnerability disclosure |
-| Contributions | [CONTRIBUTING.md](../CONTRIBUTING.md) | CLA-style MIT grant on contributions |
+| Asset               | File                                                | What it covers                                       |
+| ------------------- | --------------------------------------------------- | ---------------------------------------------------- |
+| Source code license | [LICENSE](../LICENSE)                               | MIT — use, modify, distribute the code               |
+| Copyright notice    | [NOTICE](../NOTICE)                                 | Copyright holder + trademark pointer                 |
+| Trademarks          | [TRADEMARKS.md](../TRADEMARKS.md)                   | Silver Vibe™, VibeStandup™, registration checklist |
+| Third-party deps    | [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) | Dependency licenses remain with upstream             |
+| Security reports    | [SECURITY.md](../SECURITY.md)                       | Private vulnerability disclosure                     |
+| Contributions       | [CONTRIBUTING.md](../CONTRIBUTING.md)               | CLA-style MIT grant on contributions                 |
 
 ## Name & brand protection (summary)
 

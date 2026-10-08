@@ -1,7 +1,4 @@
-import {
-  EnvironmentProviders,
-  makeEnvironmentProviders,
-} from '@angular/core';
+import { EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
 import { AuthService, SilvervibeFirebaseConfig } from './auth.service';
 import {
   FeatureFlagsConfig,
