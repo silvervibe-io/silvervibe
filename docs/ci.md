@@ -56,6 +56,7 @@ Repo → **Settings → Branches → Branch protection rules**.
 ## Notes
 
 - Node **24.15.0** (`.nvmrc`) in Actions.
+- Unit tests install **uv** so `ai:test` (`uv sync` + pytest) can run alongside the Node projects.
 - CI sets placeholder `DATABASE_URL` values so `prisma generate` (postinstall) succeeds; it does not migrate or connect to Neon.
 - E2E uses Chromium only in CI for speed; local configs still list Firefox/WebKit.
 - Nx `defaultBase` is **`develop`** (`nx.json`) for future `nx affected` usage.
