@@ -90,7 +90,9 @@ npm start ai            # http://localhost:8000/health (Python / uv)
 | --- | --- |
 | `npm ci` | Clean install + Prisma generate |
 | `npm run prisma:generate` | Regenerate client |
-| `npm run prisma:migrate` | Apply migrations (needs real `DATABASE_URL`) |
+| `npm run prisma:migrate` | Create/apply migrations locally (needs Neon URLs) |
+| `npm run prisma:migrate:deploy` | Apply committed migrations (CI / shared DB) |
+| `npm run prisma:ping` | Connect + verify core tables |
 | `npm run prisma:studio` | Prisma Studio |
 | `npm test` / `npm run test:silvervibe` / `npm run test:api` | Unit tests |
 | `npm run e2e:silvervibe` | Playwright (starts silvervibe serve) |
