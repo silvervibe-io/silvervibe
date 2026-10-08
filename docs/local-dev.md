@@ -13,11 +13,12 @@ How to run Silver Vibe from a fresh clone. Work happens on **`develop`**;
 
 Optional later (not needed for landing + API health):
 
-| Tool                                                              | When                                                                                                   |
-| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Neon `DATABASE_URL`                                               | Real DB — [docs/neon.md](./neon.md) ([issue #3](https://github.com/silvervibe-io/silvervibe/issues/3)) |
-| Firebase / GrowthBook keys                                        | Auth & live flags                                                                                      |
-| **Python** `>=3.11,<3.14` + [uv](https://github.com/astral-sh/uv) | `apps/ai` only                                                                                         |
+| Tool                                                              | When                                                                                                        |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Neon `DATABASE_URL`                                               | Real DB — [docs/neon.md](./neon.md)                                                                         |
+| Firebase Auth keys                                                | Auth — [docs/firebase.md](./firebase.md) ([issue #5](https://github.com/silvervibe-io/silvervibe/issues/5)) |
+| GrowthBook keys                                                   | Live flags                                                                                                  |
+| **Python** `>=3.11,<3.14` + [uv](https://github.com/astral-sh/uv) | `apps/ai` only                                                                                              |
 
 ## First-time setup
 
@@ -95,6 +96,7 @@ npm start ai            # http://localhost:8000/health (Python / uv)
 | `npm run prisma:migrate:deploy`                             | Apply committed migrations (CI / shared DB)       |
 | `npm run prisma:ping`                                       | Connect + verify core tables                      |
 | `npm run prisma:studio`                                     | Prisma Studio                                     |
+| `npm run firebase:check`                                    | Report which Firebase env vars are set            |
 | `npm run format` / `npm run format:check`                   | Prettier write / check                            |
 | `npm run lint`                                              | ESLint (all projects)                             |
 | `npm test` / `npm run test:silvervibe` / `npm run test:api` | Unit tests                                        |

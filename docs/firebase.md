@@ -1,0 +1,97 @@
+# Firebase Auth (local / foundation)
+
+Issue: [#5](https://github.com/silvervibe-io/silvervibe/issues/5).  
+Angular sign-in UX is [#6](https://github.com/silvervibe-io/silvervibe/issues/6); Nest guard hardening is [#7](https://github.com/silvervibe-io/silvervibe/issues/7).
+
+## Create the Firebase project (console)
+
+1. Open [Firebase console](https://console.firebase.google.com/) with the account that owns **silvervibe-io**.
+2. **Add project** → name `silvervibe` (or `silvervibe-io`). Disable Google Analytics unless you want it.
+3. In the project → **Build → Authentication → Get started**.
+4. Enable providers you need for foundation:
+   - **Email/Password** (required for early local testing)
+   - Optionally **Google**
+5. **Project settings** (gear) → **Your apps** → **Add app** → **Web**  
+   Nickname: `silvervibe-web`. Copy the web config object.
+
+## Wire web config (Angular + `.env`)
+
+Put the public web keys in **repo-root** `.env` (never commit):
+
+| Env var                | Firebase web config field |
+| ---------------------- | ------------------------- |
+| `FIREBASE_API_KEY`     | `apiKey`                  |
+| `FIREBASE_AUTH_DOMAIN` | `authDomain`              |
+| `FIREBASE_PROJECT_ID`  | `projectId`               |
+| `FIREBASE_APP_ID`      | `appId`                   |
+
+Also mirror the same four values into:
+
+- `apps/silvervibe/src/environments/environment.ts` (and `.prod.ts` for production builds)
+- `apps/vibestandup/src/environments/environment.ts` (and `.prod.ts` when present)
+
+Web keys are **public** (shipped to the browser). Still prefer filling them via env/docs rather than inventing placeholders in git.
+
+Apps call `AuthService.init(...)` only when `apiKey` and `projectId` are non-empty.
+
+## Wire Admin (Nest)
+
+1. Firebase console → **Project settings → Service accounts**.
+2. **Generate new private key** → download JSON (keep offline; do not commit).
+3. In `.env`:
+
+| Env var                 | From service account JSON                   |
+| ----------------------- | ------------------------------------------- |
+| `FIREBASE_PROJECT_ID`   | `project_id` (same as web)                  |
+| `FIREBASE_CLIENT_EMAIL` | `client_email`                              |
+| `FIREBASE_PRIVATE_KEY`  | `private_key` — keep `\n` escapes in `.env` |
+
+**Alternative (Cloud Run later):** set `GOOGLE_APPLICATION_CREDENTIALS` to a key file path, or use ADC on GCP. Nest already supports ADC when `FIREBASE_PROJECT_ID` + `GOOGLE_APPLICATION_CREDENTIALS` are set (`FirebaseAuthService`).
+
+## Local behavior
+
+| Situation                                           | API auth                                       |
+| --------------------------------------------------- | ---------------------------------------------- |
+| Admin **not** configured, `NODE_ENV` ≠ `production` | `Authorization: Bearer dev:<uid>` accepted     |
+| Admin **configured**                                | Real Firebase ID tokens only (`dev:` disabled) |
+| `NODE_ENV=production`                               | `dev:` always disabled                         |
+
+```bash
+# Without Admin (default until you fill keys):
+curl -s -H "Authorization: Bearer dev:demo" http://localhost:3000/api/me
+
+# After Admin is configured: sign in via the client, then:
+curl -s -H "Authorization: Bearer <idToken>" http://localhost:3000/api/me
+```
+
+Optional Auth emulator:
+
+```bash
+# .env
+FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099
+```
+
+## Verify config (no secrets printed)
+
+```bash
+npm run firebase:check
+```
+
+Reports which web / Admin variables are set. Does not call Google.
+
+## Authorized domains
+
+Firebase Auth → **Settings → Authorized domains** — include:
+
+- `localhost`
+- `silvervibe.io` / Pages preview hosts when you go live
+
+## Checklist (acceptance #5)
+
+- [ ] Firebase project exists under the correct account
+- [ ] Email/Password (and optional Google) enabled
+- [ ] Web config in local `.env` + Angular `environment*.ts`
+- [ ] Admin service account in local `.env` (`CLIENT_EMAIL` + `PRIVATE_KEY`) **or** ADC path documented
+- [ ] `npm run firebase:check` shows web + Admin as configured
+- [ ] No service-account JSON or `.env` committed
+- [ ] With Admin configured, Nest can `verifyIdToken` (smoke via signed-in ID token → `/api/me`)
