@@ -49,10 +49,11 @@ First deploy steps: [go-live.md](./go-live.md). Neon setup: [neon.md](./neon.md)
 2. **OpenFeature + GrowthBook** — rollout, experiments, kill switches.
 3. Without GrowthBook keys, API/apps use static in-memory defaults (vibestandup on).
 4. Without Firebase Admin, API accepts `Authorization: Bearer dev:<uid>` in non-production.
+   Provisioning: [firebase.md](./firebase.md).
 
 ## Local env
 
-Full guide: [local-dev.md](./local-dev.md).
+Full guide: [local-dev.md](./local-dev.md). Firebase: [firebase.md](./firebase.md).
 
 ```bash
 cp .env.example .env

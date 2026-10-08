@@ -34,6 +34,7 @@ Firebase Auth, Neon Postgres, OpenFeature + GrowthBook.
 
 - [docs/local-dev.md](docs/local-dev.md) — clone, Node version, run landing + API
 - [docs/neon.md](docs/neon.md) — Neon Postgres + `DATABASE_URL`
+- [docs/firebase.md](docs/firebase.md) — Firebase Auth web + Admin
 - [docs/platform.md](docs/platform.md) — architecture
 - [docs/go-live.md](docs/go-live.md) — GitHub + Cloudflare deploy
 - [docs/ci.md](docs/ci.md) — GitHub Actions (format, lint, build, test, e2e, CodeQL)
