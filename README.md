@@ -36,6 +36,7 @@ Firebase Auth, Neon Postgres, OpenFeature + GrowthBook.
 - [docs/neon.md](docs/neon.md) — Neon Postgres + `DATABASE_URL`
 - [docs/platform.md](docs/platform.md) — architecture
 - [docs/go-live.md](docs/go-live.md) — GitHub + Cloudflare deploy
+- [docs/ci.md](docs/ci.md) — GitHub Actions (format, lint, build, test, e2e, CodeQL)
 - [docs/branching.md](docs/branching.md) — `main` (landing) vs `develop` (WIP)
 - [docs/legal.md](docs/legal.md) — copyright, licenses, trademarks
 - [.env.example](.env.example) — copy to `.env` (never commit `.env`)
