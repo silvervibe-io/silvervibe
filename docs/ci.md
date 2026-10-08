@@ -53,6 +53,16 @@ On `develop` (and later `main`), require these status checks before merge:
 
 Repo → **Settings → Branches → Branch protection rules**.
 
+## Copilot code review (fewer nits)
+
+Custom instructions live in:
+
+- `.github/copilot-instructions.md` — high-signal-only review rules
+- `.github/instructions/*.instructions.md` — Angular / API path rules
+
+Keep **Settings → Copilot → Code review → Use custom instructions** enabled.
+See `.cursor/skills/github-copilot-review/SKILL.md`.
+
 ## Notes
 
 - Node **24.15.0** (`.nvmrc`) in Actions.
