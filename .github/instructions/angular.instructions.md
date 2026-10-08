@@ -1,5 +1,5 @@
 ---
-applyTo: "apps/silvervibe/**/*.{ts,html},apps/vibestandup/**/*.{ts,html},libs/shared/**/*.{ts,html}"
+applyTo: 'apps/silvervibe/**/*.{ts,html},apps/vibestandup/**/*.{ts,html},libs/shared/**/*.{ts,html}'
 ---
 
 # Angular / shared UI review

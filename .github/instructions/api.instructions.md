@@ -1,5 +1,5 @@
 ---
-applyTo: "apps/api/**/*.ts,libs/shared/data-access/**/*"
+applyTo: 'apps/api/**/*.ts,libs/shared/data-access/**/*'
 ---
 
 # Nest API / Prisma review
