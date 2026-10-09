@@ -1,0 +1,40 @@
+<sv-shell title="Vibe Standup" [links]="links">
+  <div class="hero rounded-box bg-base-200">
+    <div class="hero-content">
+      <div>
+        <h1 class="text-4xl font-bold">Vibe Standup</h1>
+        <p class="py-4">Capture yesterday, today, and blockers.</p>
+      </div>
+    </div>
+  </div>
+  <form class="mt-6 grid gap-4" (submit)="$event.preventDefault(); save()">
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">Yesterday</legend>
+      <textarea
+        class="textarea"
+        [value]="yesterday()"
+        (input)="onYesterday($event)"
+      ></textarea>
+    </fieldset>
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">Today</legend>
+      <textarea
+        class="textarea"
+        [value]="today()"
+        (input)="onToday($event)"
+      ></textarea>
+    </fieldset>
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">Blockers</legend>
+      <textarea
+        class="textarea"
+        [value]="blockers()"
+        (input)="onBlockers($event)"
+      ></textarea>
+    </fieldset>
+    <button class="btn" type="submit">Save draft</button>
+    @if (saved().today) {
+      <p>Draft saved</p>
+    }
+  </form>
+</sv-shell>

@@ -1,0 +1,41 @@
+<sv-shell title="Silver Vibe">
+  <div class="mx-auto max-w-lg py-10">
+    <h1 class="mb-2 text-3xl font-bold tracking-tight">Account</h1>
+    <p class="mb-8 text-sm text-base-content/70">
+      Calls <code class="text-xs">GET /api/me</code> with your Firebase ID
+      token.
+    </p>
+
+    @if (loading()) {
+      <p class="text-sm text-base-content/60">Loading…</p>
+    } @else if (error(); as message) {
+      <p class="text-sm text-error" role="alert">{{ message }}</p>
+    } @else if (me(); as profile) {
+      <dl class="mb-8 grid gap-3 text-sm">
+        <div>
+          <dt class="font-semibold text-base-content/60">Neon id</dt>
+          <dd>{{ profile.id }}</dd>
+        </div>
+        <div>
+          <dt class="font-semibold text-base-content/60">Firebase uid</dt>
+          <dd>{{ profile.firebaseUid }}</dd>
+        </div>
+        <div>
+          <dt class="font-semibold text-base-content/60">Email</dt>
+          <dd>{{ profile.email || '—' }}</dd>
+        </div>
+        <div>
+          <dt class="font-semibold text-base-content/60">Display name</dt>
+          <dd>{{ profile.displayName || '—' }}</dd>
+        </div>
+      </dl>
+    }
+
+    <div class="flex flex-wrap gap-3">
+      <a class="btn btn-ghost" routerLink="/auth">Back to sign in</a>
+      <button type="button" class="btn btn-outline" (click)="signOut()">
+        Sign out
+      </button>
+    </div>
+  </div>
+</sv-shell>
