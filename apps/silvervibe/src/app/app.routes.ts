@@ -9,13 +9,11 @@ import { authGuard } from '@silvervibe/shared/auth';
 export const appRoutes: Route[] = [
   {
     path: '',
-    loadComponent: () =>
-      import('./landing/landing').then((m) => m.Landing),
+    loadComponent: () => import('./landing/landing').then((m) => m.Landing),
   },
   {
     path: 'auth',
-    loadComponent: () =>
-      import('./auth/sign-in/sign-in').then((m) => m.SignIn),
+    loadComponent: () => import('./auth/sign-in/sign-in').then((m) => m.SignIn),
   },
   {
     path: 'account',

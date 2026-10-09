@@ -44,9 +44,9 @@ Apps call `AuthService.init(...)` only when `apiKey` and `projectId` are non-emp
 
 Unlisted foundation routes (not linked from the public landing / standup home):
 
-| Path       | Purpose |
-| ---------- | ------- |
-| `/auth`    | Sign in / sign out (email, Google, GitHub) |
+| Path       | Purpose                                           |
+| ---------- | ------------------------------------------------- |
+| `/auth`    | Sign in / sign out (email, Google, GitHub)        |
 | `/account` | Guarded; calls `GET /api/me` with Bearer ID token |
 
 `provideSilvervibeAuth` registers `HttpClient` with an interceptor that attaches
