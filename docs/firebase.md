@@ -10,7 +10,11 @@ Angular sign-in UX is [#6](https://github.com/silvervibe-io/silvervibe/issues/6)
 3. In the project → **Build → Authentication → Get started**.
 4. Enable providers you need for foundation:
    - **Email/Password** (required for early local testing)
-   - Optionally **Google**
+   - **Google** (optional)
+   - **GitHub** (optional): create a GitHub OAuth App; set **Redirect URL** to
+     Firebase’s callback (`https://<project>.firebaseapp.com/__/auth/handler`);
+     paste Client ID/Secret into the Firebase GitHub provider. Leave GitHub
+     “wildcard matching” and “Device Flow” off.
 5. **Project settings** (gear) → **Your apps** → **Add app** → **Web**  
    Nickname: `silvervibe-web`. Copy the web config object.
 
@@ -46,7 +50,13 @@ Apps call `AuthService.init(...)` only when `apiKey` and `projectId` are non-emp
 | `FIREBASE_CLIENT_EMAIL` | `client_email`                              |
 | `FIREBASE_PRIVATE_KEY`  | `private_key` — keep `\n` escapes in `.env` |
 
-**Alternative (Cloud Run later):** set `GOOGLE_APPLICATION_CREDENTIALS` to a key file path, or use ADC on GCP. Nest already supports ADC when `FIREBASE_PROJECT_ID` + `GOOGLE_APPLICATION_CREDENTIALS` are set (`FirebaseAuthService`).
+**Alternative (recommended locally):** set `GOOGLE_APPLICATION_CREDENTIALS` to the
+downloaded JSON path (repo-relative is fine, e.g.
+`./silvervibe-…-firebase-adminsdk-….json`). Leave `FIREBASE_CLIENT_EMAIL` /
+`FIREBASE_PRIVATE_KEY` empty so Nest uses ADC. Those JSON filenames are
+gitignored (`*-firebase-adminsdk-*.json`).
+
+On Cloud Run later: mount the secret or use the runtime service account (ADC).
 
 ## Local behavior
 

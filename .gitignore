@@ -46,6 +46,8 @@ vitest.config.*.timestamp*
 **/credentials.json
 **/service-account*.json
 **/firebase-service-account*.json
+# Firebase console downloads (e.g. silvervibe-…-firebase-adminsdk-….json)
+*-firebase-adminsdk-*.json
 **/google-services.json
 **/GoogleService-Info.plist
 secrets/

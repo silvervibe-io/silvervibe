@@ -12,6 +12,7 @@ export class UsersService {
         id: 'local',
         firebaseUid: user.uid,
         email: user.email ?? null,
+        displayName: user.displayName ?? null,
       };
     }
 
@@ -20,9 +21,11 @@ export class UsersService {
       create: {
         firebaseUid: user.uid,
         email: user.email,
+        displayName: user.displayName,
       },
       update: {
         email: user.email,
+        displayName: user.displayName,
       },
     });
   }
