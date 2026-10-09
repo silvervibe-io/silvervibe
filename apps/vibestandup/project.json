@@ -6,9 +6,16 @@
   "sourceRoot": "apps/vibestandup/src",
   "tags": ["type:app", "scope:vibestandup"],
   "targets": {
+    "sync-firebase-web": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/sync-firebase-web-from-env.mjs"
+      }
+    },
     "build": {
       "executor": "@angular/build:application",
       "outputs": ["{options.outputPath}"],
+      "dependsOn": ["sync-firebase-web"],
       "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/apps/vibestandup",
@@ -49,6 +56,7 @@
       "continuous": true,
       "executor": "@angular/build:dev-server",
       "defaultConfiguration": "development",
+      "dependsOn": ["sync-firebase-web"],
       "options": {
         "port": 4201,
         "proxyConfig": "apps/vibestandup/proxy.conf.json",

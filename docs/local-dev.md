@@ -112,9 +112,10 @@ CI mirrors these checks on PRs to `develop` — see [ci.md](./ci.md).
 See [`.env.example`](../.env.example). Nest loads `.env` from the repo root via
 `dotenv` in `apps/api/src/main.ts`.
 
-Angular Firebase / GrowthBook values also live in
-`apps/*/src/environments/environment*.ts` for the client (fill when accounts
-exist — issues #5 / #8).
+Angular Firebase **web** values come from `.env` (`FIREBASE_API_KEY` …).
+`npm start` / `npm run firebase:sync-web` generates gitignored
+`firebase-web.local.ts` — do not commit keys into `environment.ts`.
+Nest Admin credentials stay server-side only (see [firebase.md](./firebase.md)).
 
 ## Smoke checklist (acceptance for foundation #1)
 

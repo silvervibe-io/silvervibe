@@ -29,14 +29,17 @@ Put the public web keys in **repo-root** `.env` (never commit):
 | `FIREBASE_PROJECT_ID`  | `projectId`               |
 | `FIREBASE_APP_ID`      | `appId`                   |
 
-For local Angular, put those four values in the **gitignored** file (created on `npm install` from the example if missing):
+### Where values live (do not hand-edit Angular env files)
 
-- `apps/silvervibe/src/environments/firebase-web.local.ts`
-- `apps/vibestandup/src/environments/firebase-web.local.ts`
+| Context | Web config (`FIREBASE_API_KEY` …) | Admin (Nest) |
+| ------- | --------------------------------- | ------------ |
+| Local | Repo-root **`.env` only** | `.env` + ADC JSON path / private key |
+| Angular serve/build | `npm run firebase:sync-web` (also runs via `npm start`) writes gitignored `firebase-web.local.ts` from `.env` | N/A (browser never gets Admin) |
+| CI / Cloudflare Pages | Same four vars as **build environment / secrets**, then sync or inject at build | Secret Manager / CI secrets — never in the JS bundle |
 
-Committed `environment.ts` only imports that local module. **Do not commit `firebase-web.local.ts`** — GitHub secret scanning treats Google API keys as secrets even though Firebase web config ships to the browser. Restrict the key in Google Cloud (Websites / API restrictions) and rotate if it was ever pushed.
+Committed `environment.ts` only imports the generated local module. GitHub secret scanning flags Google API keys in git history even though the web key ships to the browser — keep it out of commits; restrict by **Websites** in Google Cloud; rotate if leaked.
 
-Prod builds: inject Firebase web config at deploy time (CI / Pages env), not via a committed `.prod.ts` secret.
+Prod: set `FIREBASE_*` on Pages/CI for the build; do not put real `apiKey` in committed `environment.prod.ts`.
 
 Apps call `AuthService.init(...)` only when `apiKey` and `projectId` are non-empty.
 
@@ -114,7 +117,7 @@ Firebase Auth → **Settings → Authorized domains** — include:
 
 - [ ] Firebase project exists under the correct account
 - [ ] Email/Password (and optional Google) enabled
-- [ ] Web config in local `.env` + gitignored `firebase-web.local.ts`
+- [ ] Web config in local `.env`; run `npm run firebase:sync-web` (or `npm start`)
 - [ ] Admin service account in local `.env` (`CLIENT_EMAIL` + `PRIVATE_KEY`) **or** ADC path documented
 - [ ] `npm run firebase:check` shows web + Admin as configured
 - [ ] No service-account JSON or `.env` committed

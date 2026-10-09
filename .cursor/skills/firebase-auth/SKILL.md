@@ -13,7 +13,7 @@ Never commit service-account JSON or `.env`. See `docs/branching.md` and `docs/f
 ## Provisioning (foundation #5)
 
 1. Create Firebase project; enable Email/Password (optional Google).
-2. Web app config → `FIREBASE_API_KEY` / `AUTH_DOMAIN` / `PROJECT_ID` / `APP_ID` in `.env` and gitignored `firebase-web.local.ts` (never commit a real `apiKey`; GitHub secret scanning flags it).
+2. Web app config → `FIREBASE_API_KEY` / `AUTH_DOMAIN` / `PROJECT_ID` / `APP_ID` in `.env` only; sync with `npm run firebase:sync-web` (never commit a real `apiKey`).
 3. Service account → `FIREBASE_CLIENT_EMAIL` + `FIREBASE_PRIVATE_KEY` (or ADC via `GOOGLE_APPLICATION_CREDENTIALS`).
 4. `npm run firebase:check` (prints set/empty only).
 5. Authorized domains: `localhost`, then production hosts.
