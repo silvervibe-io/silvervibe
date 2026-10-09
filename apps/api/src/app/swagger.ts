@@ -15,7 +15,16 @@ export function setupSwagger(app: INestApplication): OpenAPIObject {
     .addTag('jira')
     .addTag('linear')
     .addTag('github')
-    .addBearerAuth()
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description:
+          'Firebase ID token. Outside production, when Admin is unset: Bearer dev:<uid>.',
+      },
+      'bearer',
+    )
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);

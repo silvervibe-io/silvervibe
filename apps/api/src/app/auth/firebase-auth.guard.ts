@@ -19,9 +19,14 @@ export class FirebaseAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<AuthedRequest>();
     const header = request.headers.authorization;
     if (!header?.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Missing Bearer token');
+      throw new UnauthorizedException(
+        'Missing Authorization Bearer token (Firebase ID token)',
+      );
     }
     const token = header.slice('Bearer '.length).trim();
+    if (!token) {
+      throw new UnauthorizedException('Empty Bearer token');
+    }
 
     const devUser = this.firebaseAuth.parseDevBearer(token);
     if (devUser) {
@@ -29,11 +34,17 @@ export class FirebaseAuthGuard implements CanActivate {
       return true;
     }
 
+    if (!this.firebaseAuth.isReady()) {
+      throw new UnauthorizedException(
+        'Firebase Admin is not configured; use a Firebase ID token after setup, or Bearer dev:<uid> in non-production',
+      );
+    }
+
     try {
       request.user = await this.firebaseAuth.verifyIdToken(token);
       return true;
     } catch {
-      throw new UnauthorizedException('Invalid Firebase token');
+      throw new UnauthorizedException('Invalid or expired Firebase ID token');
     }
   }
 }
