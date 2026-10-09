@@ -29,12 +29,12 @@ Put the public web keys in **repo-root** `.env` (never commit):
 | `FIREBASE_PROJECT_ID`  | `projectId`               |
 | `FIREBASE_APP_ID`      | `appId`                   |
 
-For local Angular, copy those four values into your **local** (uncommitted) copies of:
+For local Angular, put those four values in the **gitignored** file (created on `npm install` from the example if missing):
 
-- `apps/silvervibe/src/environments/environment.ts`
-- `apps/vibestandup/src/environments/environment.ts`
+- `apps/silvervibe/src/environments/firebase-web.local.ts`
+- `apps/vibestandup/src/environments/firebase-web.local.ts`
 
-Keep the committed files as empty placeholders. **Do not commit a real `apiKey`** — GitHub secret scanning treats Google API keys as secrets even though Firebase web config ships to the browser. Restrict the key in Google Cloud (HTTP referrers / API restrictions) and rotate if it was ever pushed.
+Committed `environment.ts` only imports that local module. **Do not commit `firebase-web.local.ts`** — GitHub secret scanning treats Google API keys as secrets even though Firebase web config ships to the browser. Restrict the key in Google Cloud (Websites / API restrictions) and rotate if it was ever pushed.
 
 Prod builds: inject Firebase web config at deploy time (CI / Pages env), not via a committed `.prod.ts` secret.
 
@@ -114,7 +114,7 @@ Firebase Auth → **Settings → Authorized domains** — include:
 
 - [ ] Firebase project exists under the correct account
 - [ ] Email/Password (and optional Google) enabled
-- [ ] Web config in local `.env` + local (uncommitted) Angular `environment.ts` fills
+- [ ] Web config in local `.env` + gitignored `firebase-web.local.ts`
 - [ ] Admin service account in local `.env` (`CLIENT_EMAIL` + `PRIVATE_KEY`) **or** ADC path documented
 - [ ] `npm run firebase:check` shows web + Admin as configured
 - [ ] No service-account JSON or `.env` committed
