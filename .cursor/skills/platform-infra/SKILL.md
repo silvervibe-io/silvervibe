@@ -26,7 +26,7 @@ Inbound `info@silvervibe.io`: Cloudflare Email Routing — see `docs/email-routi
 ## Deploy notes
 
 - Pages: build with `nx build <app>`, publish `dist/apps/<app>/browser`.
-- Cloud Run: containerize Nest (`apps/api/Dockerfile`, `docs/cloud-run.md`) and the FastAPI/uv AI service separately.
+- Cloud Run: Nest (`apps/api/Dockerfile`, `docs/cloud-run.md`) and AI (`apps/ai/Dockerfile`, `docs/cloud-run-ai.md`).
 - Env templates: see `.env.example`.
 
 ## Cursor MCP

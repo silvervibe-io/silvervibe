@@ -4,6 +4,8 @@ Issue: [#10](https://github.com/silvervibe-io/silvervibe/issues/10).
 
 Host the Nest app on Google Cloud Run and map **`api.silvervibe.io`** via Cloudflare.
 
+LangGraph AI service: [cloud-run-ai.md](./cloud-run-ai.md).
+
 ## Prerequisites
 
 - Google Cloud project with billing

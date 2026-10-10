@@ -76,5 +76,6 @@ npx nx build silvervibe
 
 1. Point email routing for `info@silvervibe.io` — [email-routing.md](./email-routing.md).
 2. Create Neon + Firebase + GrowthBook when you need auth/API.
-3. Add Cloud Run services and CNAMEs for `api` / `ai` — [cloud-run.md](./cloud-run.md).
+3. Add Cloud Run services and CNAMEs for `api` / `ai` — [cloud-run.md](./cloud-run.md),
+   [cloud-run-ai.md](./cloud-run-ai.md).
 4. File trademark applications and update the registration log in TRADEMARKS.md.
