@@ -35,14 +35,15 @@ GrowthBook: [growthbook.md](./growthbook.md).
 
 ## Code map
 
-| Concern                           | Location                                       |
-| --------------------------------- | ---------------------------------------------- |
-| Prisma schema                     | `libs/shared/data-access/prisma/schema.prisma` |
-| Entitlement helpers               | `@silvervibe/shared/data-access`               |
-| Flag / tool keys                  | `@silvervibe/shared/feature-flags`             |
-| Angular Auth + OpenFeature client | `@silvervibe/shared/auth`                      |
-| Nest Firebase guard / `/api/me`   | `apps/api/src/app/auth`, `users`               |
-| Nest OpenFeature                  | `apps/api/src/app/feature-flags`               |
+| Concern                           | Location                                                             |
+| --------------------------------- | -------------------------------------------------------------------- |
+| Prisma schema                     | `libs/shared/data-access/prisma/schema.prisma`                       |
+| Entitlement helpers               | `@silvervibe/shared/data-access`                                     |
+| Nest workspaces / entitlements    | `apps/api/src/app/workspaces` — [entitlements.md](./entitlements.md) |
+| Flag / tool keys                  | `@silvervibe/shared/feature-flags`                                   |
+| Angular Auth + OpenFeature client | `@silvervibe/shared/auth`                                            |
+| Nest Firebase guard / `/api/me`   | `apps/api/src/app/auth`, `users`                                     |
+| Nest OpenFeature                  | `apps/api/src/app/feature-flags`                                     |
 
 ## Feature access
 
@@ -72,3 +73,4 @@ Fill Neon, Firebase, and GrowthBook values when accounts exist.
 - `GET /api/health`
 - `GET /api/flags/vibestandup`
 - `GET /api/me` with `Authorization: Bearer dev:demo`
+- Workspaces / entitlements: [entitlements.md](./entitlements.md)
