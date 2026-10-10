@@ -29,6 +29,8 @@ npx nx e2e vibestandup-e2e -- --project=chromium
 
 Fix formatting with `npm run format`.
 
+Prettier + EditorConfig use **LF** line endings (`endOfLine: "lf"`). Match CI (Linux): on Windows, avoid committing CRLF-only rewrites — set `git config core.autocrlf false` (or `input`) for this repo so `format:check` matches GitHub Actions.
+
 ## Cloudflare Pages previews
 
 GitHub Actions does **not** deploy Pages. Cloudflare Pages (connected to this repo) should:
