@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { Landing } from './landing';
 
 describe('Landing', () => {
@@ -7,6 +8,7 @@ describe('Landing', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Landing],
+      providers: [provideRouter([])],
     }).compileComponents();
     fixture = TestBed.createComponent(Landing);
     await fixture.whenStable();
@@ -20,6 +22,7 @@ describe('Landing', () => {
       'A better vibe for async work.',
     );
     expect(compiled.textContent).toContain('personal open-source');
+    expect(compiled.textContent).toContain('Privacy');
     expect(compiled.textContent).not.toContain('VibeStandup');
   });
 });

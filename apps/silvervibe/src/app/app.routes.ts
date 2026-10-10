@@ -22,6 +22,10 @@ export const appRoutes: Route[] = [
       import('./auth/account/account').then((m) => m.Account),
   },
   {
+    path: 'privacy',
+    loadComponent: () => import('./privacy/privacy').then((m) => m.Privacy),
+  },
+  {
     path: '**',
     redirectTo: '',
   },
