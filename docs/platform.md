@@ -23,17 +23,18 @@ LangGraph AI  →  Cloud Run
 
 ## Hostnames
 
-| Host                    | Service                         |
-| ----------------------- | ------------------------------- |
-| `silvervibe.io` / `www` | `silvervibe` (Cloudflare Pages) |
-| `standup.silvervibe.io` | `vibestandup` (Pages, later)    |
-| `api.silvervibe.io`     | Nest `api` (Cloud Run)          |
-| `ai.silvervibe.io`      | LangGraph `ai` (Cloud Run)      |
+| Host                    | Service                          |
+| ----------------------- | -------------------------------- |
+| `silvervibe.io` / `www` | `silvervibe` (Cloudflare Pages)  |
+| `standup.silvervibe.io` | `vibestandup` (Cloudflare Pages) |
+| `api.silvervibe.io`     | Nest `api` (Cloud Run)           |
+| `ai.silvervibe.io`      | LangGraph `ai` (Cloud Run)       |
 
 First deploy steps: [go-live.md](./go-live.md). Neon setup: [neon.md](./neon.md).
 GrowthBook: [growthbook.md](./growthbook.md). Theme: [theme.md](./theme.md).
 API on Cloud Run: [cloud-run.md](./cloud-run.md).
 AI on Cloud Run: [cloud-run-ai.md](./cloud-run-ai.md).
+VibeStandup Pages: [vibestandup-pages.md](./vibestandup-pages.md).
 Inbound email: [email-routing.md](./email-routing.md).
 
 ## Code map
@@ -50,6 +51,7 @@ Inbound email: [email-routing.md](./email-routing.md).
 | Nest OpenFeature                  | `apps/api/src/app/feature-flags`                                     |
 | Nest API Cloud Run                | `apps/api/Dockerfile` — [cloud-run.md](./cloud-run.md)               |
 | LangGraph AI Cloud Run            | `apps/ai/Dockerfile` — [cloud-run-ai.md](./cloud-run-ai.md)          |
+| VibeStandup Pages                 | `vibestandup` app — [vibestandup-pages.md](./vibestandup-pages.md)   |
 | Inbound `info@` email             | Cloudflare Email Routing — [email-routing.md](./email-routing.md)    |
 
 ## Feature access
