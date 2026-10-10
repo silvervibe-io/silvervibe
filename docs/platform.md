@@ -31,7 +31,7 @@ LangGraph AI  →  Cloud Run
 | `ai.silvervibe.io`      | LangGraph `ai` (Cloud Run)      |
 
 First deploy steps: [go-live.md](./go-live.md). Neon setup: [neon.md](./neon.md).
-GrowthBook: [growthbook.md](./growthbook.md).
+GrowthBook: [growthbook.md](./growthbook.md). Theme: [theme.md](./theme.md).
 
 ## Code map
 
@@ -40,6 +40,7 @@ GrowthBook: [growthbook.md](./growthbook.md).
 | Prisma schema                     | `libs/shared/data-access/prisma/schema.prisma`                       |
 | Entitlement helpers               | `@silvervibe/shared/data-access`                                     |
 | Nest workspaces / entitlements    | `apps/api/src/app/workspaces` — [entitlements.md](./entitlements.md) |
+| Shared UI / theme                 | `@silvervibe/shared/ui` — [theme.md](./theme.md)                     |
 | Flag / tool keys                  | `@silvervibe/shared/feature-flags`                                   |
 | Angular Auth + OpenFeature client | `@silvervibe/shared/auth`                                            |
 | Nest Firebase guard / `/api/me`   | `apps/api/src/app/auth`, `users`                                     |
