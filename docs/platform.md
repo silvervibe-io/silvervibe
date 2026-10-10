@@ -31,6 +31,7 @@ LangGraph AI  →  Cloud Run
 | `ai.silvervibe.io`      | LangGraph `ai` (Cloud Run)      |
 
 First deploy steps: [go-live.md](./go-live.md). Neon setup: [neon.md](./neon.md).
+GrowthBook: [growthbook.md](./growthbook.md).
 
 ## Code map
 
@@ -48,12 +49,14 @@ First deploy steps: [go-live.md](./go-live.md). Neon setup: [neon.md](./neon.md)
 1. **Entitlements** in Neon (`workspace_tools`) — which tools a workspace owns.
 2. **OpenFeature + GrowthBook** — rollout, experiments, kill switches.
 3. Without GrowthBook keys, API/apps use static in-memory defaults (vibestandup on).
+   Provisioning: [growthbook.md](./growthbook.md).
 4. Without Firebase Admin, API accepts `Authorization: Bearer dev:<uid>` in non-production.
    Provisioning: [firebase.md](./firebase.md).
 
 ## Local env
 
 Full guide: [local-dev.md](./local-dev.md). Firebase: [firebase.md](./firebase.md).
+GrowthBook: [growthbook.md](./growthbook.md).
 
 ```bash
 cp .env.example .env
