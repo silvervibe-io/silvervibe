@@ -81,6 +81,9 @@ members, `workspace_tools`, `addon_connections`).
 
 After migrate, re-run `npm run prisma:ping` — you should see `Core schema OK`.
 
+Grant/revoke tools via the Nest API: [entitlements.md](./entitlements.md)
+([issue #9](https://github.com/silvervibe-io/silvervibe/issues/9)).
+
 ## Neon CLI (optional)
 
 ```bash

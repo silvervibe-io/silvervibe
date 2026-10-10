@@ -29,15 +29,4 @@ export class UsersService {
       },
     });
   }
-
-  async listEnabledTools(workspaceId: string): Promise<string[]> {
-    if (!this.prisma.isEnabled()) {
-      return [];
-    }
-    const tools = await this.prisma.workspaceTool.findMany({
-      where: { workspaceId, enabled: true },
-      select: { toolKey: true },
-    });
-    return tools.map((tool) => tool.toolKey);
-  }
 }
