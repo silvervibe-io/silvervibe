@@ -22,14 +22,14 @@ const server = {
   GROWTHBOOK_SERVER_KEY: present('GROWTHBOOK_SERVER_KEY'),
 };
 
-const apiKey = web.GROWTHBOOK_CLIENT_KEY || server.GROWTHBOOK_SERVER_KEY;
+const hasSdkKey = web.GROWTHBOOK_CLIENT_KEY || server.GROWTHBOOK_SERVER_KEY;
 
 console.log('GrowthBook / OpenFeature env (set = true, empty = false)');
 console.log(
-  JSON.stringify({ web, server, apiCanUseGrowthBook: apiKey }, null, 2),
+  JSON.stringify({ web, server, apiCanUseGrowthBook: hasSdkKey }, null, 2),
 );
 
-if (!apiKey) {
+if (!hasSdkKey) {
   console.log(
     'Status: no SDK key — Nest + Angular use static OpenFeature defaults (see docs/growthbook.md).',
   );
