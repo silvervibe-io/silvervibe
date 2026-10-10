@@ -36,6 +36,7 @@ API on Cloud Run: [cloud-run.md](./cloud-run.md).
 AI on Cloud Run: [cloud-run-ai.md](./cloud-run-ai.md).
 VibeStandup Pages: [vibestandup-pages.md](./vibestandup-pages.md).
 Inbound email: [email-routing.md](./email-routing.md).
+Ops checklist (keys / live API / mail): [ops-followups.md](./ops-followups.md).
 
 ## Code map
 
@@ -53,6 +54,7 @@ Inbound email: [email-routing.md](./email-routing.md).
 | LangGraph AI Cloud Run            | `apps/ai/Dockerfile` — [cloud-run-ai.md](./cloud-run-ai.md)          |
 | VibeStandup Pages                 | `vibestandup` app — [vibestandup-pages.md](./vibestandup-pages.md)   |
 | Inbound `info@` email             | Cloudflare Email Routing — [email-routing.md](./email-routing.md)    |
+| Ops follow-ups                    | GrowthBook / API / mail — [ops-followups.md](./ops-followups.md)     |
 
 ## Feature access
 
