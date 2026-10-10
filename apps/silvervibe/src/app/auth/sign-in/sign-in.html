@@ -1,0 +1,82 @@
+<sv-shell title="Silver Vibe">
+  <div class="mx-auto max-w-md py-10">
+    <h1 class="mb-2 text-3xl font-bold tracking-tight text-base-content">
+      Sign in
+    </h1>
+    <p class="mb-8 text-sm text-base-content/70">
+      Foundation auth for local API calls. Not linked from the public landing.
+    </p>
+
+    @if (user(); as current) {
+    <div class="alert mb-6">
+      <span>Signed in as {{ current.email || current.uid }}</span>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <a class="btn btn-primary" routerLink="/account">Account /api/me</a>
+      <button
+        type="button"
+        class="btn btn-ghost"
+        [disabled]="busy()"
+        (click)="signOut()"
+      >
+        Sign out
+      </button>
+    </div>
+    } @else {
+    <form
+      class="flex flex-col gap-4"
+      [formGroup]="form"
+      (ngSubmit)="signInEmail()"
+    >
+      <label class="form-control w-full">
+        <span class="label-text mb-1">Email</span>
+        <input
+          class="input input-bordered w-full"
+          type="email"
+          autocomplete="username"
+          formControlName="email"
+        />
+      </label>
+      <label class="form-control w-full">
+        <span class="label-text mb-1">Password</span>
+        <input
+          class="input input-bordered w-full"
+          type="password"
+          autocomplete="current-password"
+          formControlName="password"
+        />
+      </label>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="busy() || form.invalid"
+      >
+        Sign in with email
+      </button>
+    </form>
+
+    <div class="divider">or</div>
+
+    <div class="flex flex-col gap-3">
+      <button
+        type="button"
+        class="btn btn-outline"
+        [disabled]="busy()"
+        (click)="signInGoogle()"
+      >
+        Continue with Google
+      </button>
+      <button
+        type="button"
+        class="btn btn-outline"
+        [disabled]="busy()"
+        (click)="signInGithub()"
+      >
+        Continue with GitHub
+      </button>
+    </div>
+    } @if (error(); as message) {
+    <p class="mt-6 text-sm text-error" role="alert">{{ message }}</p>
+    }
+  </div>
+</sv-shell>

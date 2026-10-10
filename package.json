@@ -38,7 +38,8 @@
     "prisma:studio": "prisma studio --schema=libs/shared/data-access/prisma/schema.prisma",
     "prisma:ping": "node ./tools/prisma-ping.mjs",
     "firebase:check": "node ./tools/firebase-check.mjs",
-    "postinstall": "prisma generate --schema=libs/shared/data-access/prisma/schema.prisma",
+    "firebase:sync-web": "node ./tools/sync-firebase-web-from-env.mjs",
+    "postinstall": "prisma generate --schema=libs/shared/data-access/prisma/schema.prisma && node ./tools/ensure-firebase-web-local.mjs",
     "licenses:report": "npx license-checker --production --summary",
     "licenses:dump": "npx license-checker --production --customPath licenses/customFormat.json --out licenses/THIRD_PARTY_LICENSES.txt"
   },

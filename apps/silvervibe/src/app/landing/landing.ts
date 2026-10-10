@@ -1,13 +1,12 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
 
 @Component({
-  imports: [RouterModule],
-  selector: 'vs-root',
-  templateUrl: './app.html',
+  selector: 'sv-landing',
+  imports: [],
+  templateUrl: './landing.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'block min-h-screen',
   },
 })
-export class App {}
+export class Landing {}

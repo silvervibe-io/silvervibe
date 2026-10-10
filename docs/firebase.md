@@ -29,14 +29,31 @@ Put the public web keys in **repo-root** `.env` (never commit):
 | `FIREBASE_PROJECT_ID`  | `projectId`               |
 | `FIREBASE_APP_ID`      | `appId`                   |
 
-Also mirror the same four values into:
+### Where values live (do not hand-edit Angular env files)
 
-- `apps/silvervibe/src/environments/environment.ts` (and `.prod.ts` for production builds)
-- `apps/vibestandup/src/environments/environment.ts` (and `.prod.ts` when present)
+| Context               | Web config (`FIREBASE_API_KEY` …)                                                                             | Admin (Nest)                                         |
+| --------------------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Local                 | Repo-root **`.env` only**                                                                                     | `.env` + ADC JSON path / private key                 |
+| Angular serve/build   | `npm run firebase:sync-web` (also runs via `npm start`) writes gitignored `firebase-web.local.ts` from `.env` | N/A (browser never gets Admin)                       |
+| CI / Cloudflare Pages | Same four vars as **build environment / secrets**, then sync or inject at build                               | Secret Manager / CI secrets — never in the JS bundle |
 
-Web keys are **public** (shipped to the browser). Still prefer filling them via env/docs rather than inventing placeholders in git.
+Committed `environment.ts` only imports the generated local module. GitHub secret scanning flags Google API keys in git history even though the web key ships to the browser — keep it out of commits; restrict by **Websites** in Google Cloud; rotate if leaked.
+
+Prod: set `FIREBASE_*` on Pages/CI for the build; do not put real `apiKey` in committed `environment.prod.ts`.
 
 Apps call `AuthService.init(...)` only when `apiKey` and `projectId` are non-empty.
+
+## Angular routes (issue #6)
+
+Unlisted foundation routes (not linked from the public landing / standup home):
+
+| Path       | Purpose                                           |
+| ---------- | ------------------------------------------------- |
+| `/auth`    | Sign in / sign out (email, Google, GitHub)        |
+| `/account` | Guarded; calls `GET /api/me` with Bearer ID token |
+
+`provideSilvervibeAuth` registers `HttpClient` with an interceptor that attaches
+`Authorization: Bearer <idToken>` to `/api` requests when signed in.
 
 ## Wire Admin (Nest)
 
@@ -100,7 +117,7 @@ Firebase Auth → **Settings → Authorized domains** — include:
 
 - [ ] Firebase project exists under the correct account
 - [ ] Email/Password (and optional Google) enabled
-- [ ] Web config in local `.env` + Angular `environment*.ts`
+- [ ] Web config in local `.env`; run `npm run firebase:sync-web` (or `npm start`)
 - [ ] Admin service account in local `.env` (`CLIENT_EMAIL` + `PRIVATE_KEY`) **or** ADC path documented
 - [ ] `npm run firebase:check` shows web + Admin as configured
 - [ ] No service-account JSON or `.env` committed

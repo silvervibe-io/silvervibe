@@ -39,6 +39,8 @@ vitest.config.*.timestamp*
 .env
 .env.*
 !.env.example
+# Local Firebase web config (apiKey). Keep *.example.ts committed.
+**/environments/firebase-web.local.ts
 *.pem
 *.key
 *.p12
