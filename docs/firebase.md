@@ -31,11 +31,11 @@ Put the public web keys in **repo-root** `.env` (never commit):
 
 ### Where values live (do not hand-edit Angular env files)
 
-| Context | Web config (`FIREBASE_API_KEY` …) | Admin (Nest) |
-| ------- | --------------------------------- | ------------ |
-| Local | Repo-root **`.env` only** | `.env` + ADC JSON path / private key |
-| Angular serve/build | `npm run firebase:sync-web` (also runs via `npm start`) writes gitignored `firebase-web.local.ts` from `.env` | N/A (browser never gets Admin) |
-| CI / Cloudflare Pages | Same four vars as **build environment / secrets**, then sync or inject at build | Secret Manager / CI secrets — never in the JS bundle |
+| Context               | Web config (`FIREBASE_API_KEY` …)                                                                             | Admin (Nest)                                         |
+| --------------------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Local                 | Repo-root **`.env` only**                                                                                     | `.env` + ADC JSON path / private key                 |
+| Angular serve/build   | `npm run firebase:sync-web` (also runs via `npm start`) writes gitignored `firebase-web.local.ts` from `.env` | N/A (browser never gets Admin)                       |
+| CI / Cloudflare Pages | Same four vars as **build environment / secrets**, then sync or inject at build                               | Secret Manager / CI secrets — never in the JS bundle |
 
 Committed `environment.ts` only imports the generated local module. GitHub secret scanning flags Google API keys in git history even though the web key ships to the browser — keep it out of commits; restrict by **Websites** in Google Cloud; rotate if leaked.
 
