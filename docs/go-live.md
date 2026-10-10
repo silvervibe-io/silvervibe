@@ -46,12 +46,12 @@ Cloudflare already runs `npm ci` before your build command. Do not prefix the bu
 1. Pages project → **Custom domains** → add `silvervibe.io` (and optionally `www.silvervibe.io`).
 2. Wait for TLS active, then open https://silvervibe.io.
 
-| Host                    | App                             |
-| ----------------------- | ------------------------------- |
-| `silvervibe.io` / `www` | marketing / base (`silvervibe`) |
-| `standup.silvervibe.io` | `vibestandup` (later)           |
-| `api.silvervibe.io`     | Nest API (later)                |
-| `ai.silvervibe.io`      | LangGraph (later)               |
+| Host                    | App                                                                                   |
+| ----------------------- | ------------------------------------------------------------------------------------- |
+| `silvervibe.io` / `www` | marketing / base (`silvervibe`) — this Pages project                                  |
+| `standup.silvervibe.io` | `vibestandup` — second Pages project ([vibestandup-pages.md](./vibestandup-pages.md)) |
+| `api.silvervibe.io`     | Nest API — [cloud-run.md](./cloud-run.md)                                             |
+| `ai.silvervibe.io`      | LangGraph — [cloud-run-ai.md](./cloud-run-ai.md)                                      |
 
 ## 5. CI/CD behavior
 
@@ -76,6 +76,7 @@ npx nx build silvervibe
 
 1. Point email routing for `info@silvervibe.io` — [email-routing.md](./email-routing.md).
 2. Create Neon + Firebase + GrowthBook when you need auth/API.
-3. Add Cloud Run services and CNAMEs for `api` / `ai` — [cloud-run.md](./cloud-run.md),
+3. Host `vibestandup` on `standup.silvervibe.io` — [vibestandup-pages.md](./vibestandup-pages.md).
+4. Add Cloud Run services and CNAMEs for `api` / `ai` — [cloud-run.md](./cloud-run.md),
    [cloud-run-ai.md](./cloud-run-ai.md).
-4. File trademark applications and update the registration log in TRADEMARKS.md.
+5. File trademark applications and update the registration log in TRADEMARKS.md.

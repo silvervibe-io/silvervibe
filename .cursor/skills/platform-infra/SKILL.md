@@ -9,8 +9,8 @@ description: Guides Silvervibe hosting and infra on Cloudflare Pages, Google Clo
 
 | Service | Host | Target |
 | --- | --- | --- |
-| Marketing / base app | `app.silvervibe.io` | Cloudflare Pages → `silvervibe` |
-| Vibe Standup | `standup.silvervibe.io` | Cloudflare Pages → `vibestandup` |
+| Marketing / base app | `silvervibe.io` | Cloudflare Pages → `silvervibe` (`docs/go-live.md`) |
+| Vibe Standup | `standup.silvervibe.io` | Cloudflare Pages → `vibestandup` (`docs/vibestandup-pages.md`) |
 | API | `api.silvervibe.io` | Cloud Run → `api` |
 | AI | `ai.silvervibe.io` | Cloud Run → `ai` |
 

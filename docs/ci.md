@@ -40,7 +40,8 @@ GitHub Actions does **not** deploy Pages. Cloudflare Pages (connected to this re
 | **`main`**                        | Production → silvervibe.io |
 | **`develop`** + **pull requests** | Preview URLs only          |
 
-Enable PR / branch previews in the Cloudflare Pages project settings. Build command and output path stay as in [go-live.md](./go-live.md).
+Enable PR / branch previews in each Cloudflare Pages project. Base app settings:
+[go-live.md](./go-live.md). VibeStandup: [vibestandup-pages.md](./vibestandup-pages.md).
 
 ## Branch protection (recommended)
 
