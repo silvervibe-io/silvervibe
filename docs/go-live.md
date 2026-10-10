@@ -28,16 +28,15 @@ Do **not** commit `.env`. Keep secrets in Cloudflare / Secret Manager later.
 2. Authorize `silvervibe-io`; select the `silvervibe` repo.
 3. Build settings:
 
-| Setting | Value |
-| --- | --- |
-| Framework preset | None |
-| Build command | `npx nx build silvervibe --configuration=production` |
-| Build output directory | `dist/apps/silvervibe/browser` |
-| Root directory | `/` (repo root) |
-| Node version | `24.15.0` — commit `.nvmrc`, or set env `NODE_VERSION=24.15.0` |
+| Setting                | Value                                                          |
+| ---------------------- | -------------------------------------------------------------- |
+| Framework preset       | None                                                           |
+| Build command          | `npx nx build silvervibe --configuration=production`           |
+| Build output directory | `dist/apps/silvervibe/browser`                                 |
+| Root directory         | `/` (repo root)                                                |
+| Node version           | `24.15.0` — commit `.nvmrc`, or set env `NODE_VERSION=24.15.0` |
 
 Cloudflare already runs `npm ci` before your build command. Do not prefix the build with another `npm ci`.
-
 
 4. Save and deploy. Confirm the `*.pages.dev` preview URL shows the landing page.
 
@@ -46,12 +45,12 @@ Cloudflare already runs `npm ci` before your build command. Do not prefix the bu
 1. Pages project → **Custom domains** → add `silvervibe.io` (and optionally `www.silvervibe.io`).
 2. Wait for TLS active, then open https://silvervibe.io.
 
-| Host | App |
-| --- | --- |
+| Host                    | App                             |
+| ----------------------- | ------------------------------- |
 | `silvervibe.io` / `www` | marketing / base (`silvervibe`) |
-| `standup.silvervibe.io` | `vibestandup` (later) |
-| `api.silvervibe.io` | Nest API (later) |
-| `ai.silvervibe.io` | LangGraph (later) |
+| `standup.silvervibe.io` | `vibestandup` (later)           |
+| `api.silvervibe.io`     | Nest API (later)                |
+| `ai.silvervibe.io`      | LangGraph (later)               |
 
 ## 5. CI/CD behavior
 
@@ -60,6 +59,9 @@ With Git connected:
 - **Production branch = `main`** → deploys to silvervibe.io.
 - **`develop`** and pull requests → preview deployments only (enable in Pages settings).
 - Do not push WIP routes or landing experiments to `main`. See [branching.md](./branching.md).
+
+GitHub Actions also runs format, lint, unit tests, build, e2e, and CodeQL on PRs —
+see [ci.md](./ci.md).
 
 ## 6. Local check before push
 

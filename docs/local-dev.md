@@ -5,19 +5,20 @@ How to run Silver Vibe from a fresh clone. Work happens on **`develop`**;
 
 ## Prerequisites
 
-| Tool | Requirement |
-| --- | --- |
+| Tool        | Requirement                                                                                             |
+| ----------- | ------------------------------------------------------------------------------------------------------- |
 | **Node.js** | `24.15.0` preferred (see [`.nvmrc`](../.nvmrc)); also `^22.22.3` or `>=26` per `package.json` `engines` |
-| **npm** | `>=10` (ships with Node) |
-| **Git** | current |
+| **npm**     | `>=10` (ships with Node)                                                                                |
+| **Git**     | current                                                                                                 |
 
 Optional later (not needed for landing + API health):
 
-| Tool | When |
-| --- | --- |
-| Neon `DATABASE_URL` | Real DB — [docs/neon.md](./neon.md) ([issue #3](https://github.com/silvervibe-io/silvervibe/issues/3)) |
-| Firebase / GrowthBook keys | Auth & live flags |
-| **Python** `>=3.11,<3.14` + [uv](https://github.com/astral-sh/uv) | `apps/ai` only |
+| Tool                                                              | When                                                                                                        |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Neon `DATABASE_URL`                                               | Real DB — [docs/neon.md](./neon.md)                                                                         |
+| Firebase Auth keys                                                | Auth — [docs/firebase.md](./firebase.md) ([issue #5](https://github.com/silvervibe-io/silvervibe/issues/5)) |
+| GrowthBook keys                                                   | Live flags                                                                                                  |
+| **Python** `>=3.11,<3.14` + [uv](https://github.com/astral-sh/uv) | `apps/ai` only                                                                                              |
 
 ## First-time setup
 
@@ -40,6 +41,7 @@ database. Leave placeholder `DATABASE_URL` values until Neon is ready
 ([docs/neon.md](./neon.md)), then run `npm run prisma:ping` to verify.
 
 Never commit `.env`.
+
 ## Run the landing (silvervibe)
 
 ```bash
@@ -57,11 +59,11 @@ In a second terminal:
 npm start api
 ```
 
-| Check | URL |
-| --- | --- |
-| Swagger | http://localhost:3000/api/docs |
-| Health | http://localhost:3000/api/health |
-| Flags (static fallback OK) | http://localhost:3000/api/flags/vibestandup |
+| Check                        | URL                                                             |
+| ---------------------------- | --------------------------------------------------------------- |
+| Swagger                      | http://localhost:3000/api/docs                                  |
+| Health                       | http://localhost:3000/api/health                                |
+| Flags (static fallback OK)   | http://localhost:3000/api/flags/vibestandup                     |
 | Me (dev bearer, no Firebase) | `Authorization: Bearer dev:demo` → http://localhost:3000/api/me |
 
 Example:
@@ -86,26 +88,34 @@ npm start ai            # http://localhost:8000/health (Python / uv)
 
 ## Common scripts
 
-| Script | Purpose |
-| --- | --- |
-| `npm ci` | Clean install + Prisma generate |
-| `npm run prisma:generate` | Regenerate client |
-| `npm run prisma:migrate` | Apply migrations (needs real `DATABASE_URL`) |
-| `npm run prisma:studio` | Prisma Studio |
-| `npm test` / `npm run test:silvervibe` / `npm run test:api` | Unit tests |
-| `npm run e2e:silvervibe` | Playwright (starts silvervibe serve) |
-| `npm run build:silvervibe` | Production build |
-| `npm run openapi` | Write `openapi/silvervibe.openapi.json` |
-| `npx nx graph` | Dependency graph |
+| Script                                                      | Purpose                                           |
+| ----------------------------------------------------------- | ------------------------------------------------- |
+| `npm ci`                                                    | Clean install + Prisma generate                   |
+| `npm run prisma:generate`                                   | Regenerate client                                 |
+| `npm run prisma:migrate`                                    | Create/apply migrations locally (needs Neon URLs) |
+| `npm run prisma:migrate:deploy`                             | Apply committed migrations (CI / shared DB)       |
+| `npm run prisma:ping`                                       | Connect + verify core tables                      |
+| `npm run prisma:studio`                                     | Prisma Studio                                     |
+| `npm run firebase:check`                                    | Report which Firebase env vars are set            |
+| `npm run format` / `npm run format:check`                   | Prettier write / check                            |
+| `npm run lint`                                              | ESLint (all projects)                             |
+| `npm test` / `npm run test:silvervibe` / `npm run test:api` | Unit tests                                        |
+| `npm run e2e:silvervibe`                                    | Playwright (starts silvervibe serve)              |
+| `npm run build:silvervibe`                                  | Production build                                  |
+| `npm run openapi`                                           | Write `openapi/silvervibe.openapi.json`           |
+| `npx nx graph`                                              | Dependency graph                                  |
+
+CI mirrors these checks on PRs to `develop` — see [ci.md](./ci.md).
 
 ## Environment variables
 
 See [`.env.example`](../.env.example). Nest loads `.env` from the repo root via
 `dotenv` in `apps/api/src/main.ts`.
 
-Angular Firebase / GrowthBook values also live in
-`apps/*/src/environments/environment*.ts` for the client (fill when accounts
-exist — issues #5 / #8).
+Angular Firebase **web** values come from `.env` (`FIREBASE_API_KEY` …).
+`npm start` / `npm run firebase:sync-web` generates gitignored
+`firebase-web.local.ts` — do not commit keys into `environment.ts`.
+Nest Admin credentials stay server-side only (see [firebase.md](./firebase.md)).
 
 ## Smoke checklist (acceptance for foundation #1)
 

@@ -8,8 +8,9 @@ loadEnv();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const origins = (process.env['CORS_ORIGINS'] ??
-    'http://localhost:4200,http://localhost:4201')
+  const origins = (
+    process.env['CORS_ORIGINS'] ?? 'http://localhost:4200,http://localhost:4201'
+  )
     .split(',')
     .map((origin) => origin.trim());
   app.enableCors({ origin: origins });

@@ -1,8 +1,7 @@
-import {
-  EnvironmentProviders,
-  makeEnvironmentProviders,
-} from '@angular/core';
+import { EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { AuthService, SilvervibeFirebaseConfig } from './auth.service';
+import { authInterceptor } from './auth.interceptor';
 import {
   FeatureFlagsConfig,
   FeatureFlagsService,
@@ -11,7 +10,10 @@ import {
 export function provideSilvervibeAuth(
   _firebase: SilvervibeFirebaseConfig,
 ): EnvironmentProviders {
-  return makeEnvironmentProviders([AuthService]);
+  return makeEnvironmentProviders([
+    AuthService,
+    provideHttpClient(withInterceptors([authInterceptor])),
+  ]);
 }
 
 export function provideSilvervibeFeatureFlags(

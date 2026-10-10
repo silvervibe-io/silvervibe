@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   applicationDefault,
   cert,
@@ -10,10 +10,12 @@ import { getAuth } from 'firebase-admin/auth';
 export type VerifiedUser = {
   uid: string;
   email?: string;
+  displayName?: string;
 };
 
 @Injectable()
 export class FirebaseAuthService {
+  private readonly logger = new Logger(FirebaseAuthService.name);
   private ready = false;
 
   constructor() {
@@ -26,32 +28,51 @@ export class FirebaseAuthService {
       return;
     }
 
-    const projectId = process.env['FIREBASE_PROJECT_ID'];
-    const clientEmail = process.env['FIREBASE_CLIENT_EMAIL'];
+    const projectId = process.env['FIREBASE_PROJECT_ID']?.trim();
+    const clientEmail = process.env['FIREBASE_CLIENT_EMAIL']?.trim();
     const privateKey = process.env['FIREBASE_PRIVATE_KEY']?.replace(
       /\\n/g,
       '\n',
     );
+    const adcPath = process.env['GOOGLE_APPLICATION_CREDENTIALS']?.trim();
 
-    if (projectId && clientEmail && privateKey) {
-      initializeApp({
-        credential: cert({
+    try {
+      if (projectId && clientEmail && privateKey) {
+        initializeApp({
+          credential: cert({
+            projectId,
+            clientEmail,
+            privateKey,
+          }),
+        });
+        this.ready = true;
+        this.logger.log('Firebase Admin initialized (service account env)');
+        return;
+      }
+
+      if (projectId && adcPath) {
+        initializeApp({
+          credential: applicationDefault(),
           projectId,
-          clientEmail,
-          privateKey,
-        }),
-      });
-      this.ready = true;
+        });
+        this.ready = true;
+        this.logger.log(
+          'Firebase Admin initialized (GOOGLE_APPLICATION_CREDENTIALS)',
+        );
+        return;
+      }
+    } catch (error) {
+      this.ready = false;
+      this.logger.error(
+        'Firebase Admin failed to initialize; ID token verification disabled',
+        error instanceof Error ? error.stack : String(error),
+      );
       return;
     }
 
-    if (projectId && process.env['GOOGLE_APPLICATION_CREDENTIALS']) {
-      initializeApp({
-        credential: applicationDefault(),
-        projectId,
-      });
-      this.ready = true;
-    }
+    this.logger.warn(
+      'Firebase Admin not configured; Bearer dev:<uid> allowed outside production only',
+    );
   }
 
   isReady(): boolean {
@@ -63,7 +84,11 @@ export class FirebaseAuthService {
       throw new Error('Firebase Auth is not configured');
     }
     const decoded = await getAuth().verifyIdToken(token);
-    return { uid: decoded.uid, email: decoded.email };
+    return {
+      uid: decoded.uid,
+      email: decoded.email,
+      displayName: decoded.name,
+    };
   }
 
   /** Dev-only path when Firebase is not configured (`Authorization: Bearer dev:<uid>`). */
@@ -74,7 +99,7 @@ export class FirebaseAuthService {
     if (!token.startsWith('dev:')) {
       return null;
     }
-    const uid = token.slice(4);
-    return uid ? { uid, email: `${uid}@dev.local` } : null;
+    const uid = token.slice(4).trim();
+    return uid ? { uid, email: `${uid}@dev.local`, displayName: uid } : null;
   }
 }

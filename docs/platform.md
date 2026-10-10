@@ -23,25 +23,25 @@ LangGraph AI  →  Cloud Run
 
 ## Hostnames
 
-| Host | Service |
-| --- | --- |
+| Host                    | Service                         |
+| ----------------------- | ------------------------------- |
 | `silvervibe.io` / `www` | `silvervibe` (Cloudflare Pages) |
-| `standup.silvervibe.io` | `vibestandup` (Pages, later) |
-| `api.silvervibe.io` | Nest `api` (Cloud Run) |
-| `ai.silvervibe.io` | LangGraph `ai` (Cloud Run) |
+| `standup.silvervibe.io` | `vibestandup` (Pages, later)    |
+| `api.silvervibe.io`     | Nest `api` (Cloud Run)          |
+| `ai.silvervibe.io`      | LangGraph `ai` (Cloud Run)      |
 
 First deploy steps: [go-live.md](./go-live.md). Neon setup: [neon.md](./neon.md).
 
 ## Code map
 
-| Concern | Location |
-| --- | --- |
-| Prisma schema | `libs/shared/data-access/prisma/schema.prisma` |
-| Entitlement helpers | `@silvervibe/shared/data-access` |
-| Flag / tool keys | `@silvervibe/shared/feature-flags` |
-| Angular Auth + OpenFeature client | `@silvervibe/shared/auth` |
-| Nest Firebase guard / `/api/me` | `apps/api/src/app/auth`, `users` |
-| Nest OpenFeature | `apps/api/src/app/feature-flags` |
+| Concern                           | Location                                       |
+| --------------------------------- | ---------------------------------------------- |
+| Prisma schema                     | `libs/shared/data-access/prisma/schema.prisma` |
+| Entitlement helpers               | `@silvervibe/shared/data-access`               |
+| Flag / tool keys                  | `@silvervibe/shared/feature-flags`             |
+| Angular Auth + OpenFeature client | `@silvervibe/shared/auth`                      |
+| Nest Firebase guard / `/api/me`   | `apps/api/src/app/auth`, `users`               |
+| Nest OpenFeature                  | `apps/api/src/app/feature-flags`               |
 
 ## Feature access
 
@@ -49,10 +49,11 @@ First deploy steps: [go-live.md](./go-live.md). Neon setup: [neon.md](./neon.md)
 2. **OpenFeature + GrowthBook** — rollout, experiments, kill switches.
 3. Without GrowthBook keys, API/apps use static in-memory defaults (vibestandup on).
 4. Without Firebase Admin, API accepts `Authorization: Bearer dev:<uid>` in non-production.
+   Provisioning: [firebase.md](./firebase.md).
 
 ## Local env
 
-Full guide: [local-dev.md](./local-dev.md).
+Full guide: [local-dev.md](./local-dev.md). Firebase: [firebase.md](./firebase.md).
 
 ```bash
 cp .env.example .env

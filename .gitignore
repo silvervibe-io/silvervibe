@@ -39,6 +39,8 @@ vitest.config.*.timestamp*
 .env
 .env.*
 !.env.example
+# Local Firebase web config (apiKey). Keep *.example.ts committed.
+**/environments/firebase-web.local.ts
 *.pem
 *.key
 *.p12
@@ -46,6 +48,8 @@ vitest.config.*.timestamp*
 **/credentials.json
 **/service-account*.json
 **/firebase-service-account*.json
+# Firebase console downloads (e.g. silvervibe-…-firebase-adminsdk-….json)
+*-firebase-adminsdk-*.json
 **/google-services.json
 **/GoogleService-Info.plist
 secrets/
