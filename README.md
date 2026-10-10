@@ -37,6 +37,7 @@ Firebase Auth, Neon Postgres, OpenFeature + GrowthBook.
 - [docs/firebase.md](docs/firebase.md) — Firebase Auth web + Admin
 - [docs/platform.md](docs/platform.md) — architecture
 - [docs/go-live.md](docs/go-live.md) — GitHub + Cloudflare deploy
+- [docs/ops-followups.md](docs/ops-followups.md) — GrowthBook keys, live API, info@ mail
 - [docs/ci.md](docs/ci.md) — GitHub Actions (format, lint, build, test, e2e, CodeQL)
 - [docs/branching.md](docs/branching.md) — `main` (landing) vs `develop` (WIP)
 - [docs/legal.md](docs/legal.md) — copyright, licenses, trademarks

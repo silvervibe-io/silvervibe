@@ -74,6 +74,9 @@ npx nx build silvervibe
 
 ## 7. After the page is live
 
+Operator checklist (GrowthBook keys, live API, `info@` mail, plus related
+hosting): [ops-followups.md](./ops-followups.md).
+
 1. Point email routing for `info@silvervibe.io` — [email-routing.md](./email-routing.md).
 2. Create Neon + Firebase + GrowthBook when you need auth/API.
 3. Host `vibestandup` on `standup.silvervibe.io` — [vibestandup-pages.md](./vibestandup-pages.md).
