@@ -6,7 +6,8 @@ Repo: `https://github.com/silvervibe-io/silvervibe.git`
 
 ## 1. Accounts (create in this order)
 
-1. **Email** — use `you@silvervibe.io` (Cloudflare Email Routing or Google Workspace).
+1. **Email** — route `info@silvervibe.io` (Cloudflare Email Routing or Google Workspace).
+   Steps: [email-routing.md](./email-routing.md).
 2. **Cloudflare** — domain `silvervibe.io` on Cloudflare DNS.
 3. **GitHub org** — `silvervibe-io` with empty repo `silvervibe` (public for OSS).
 4. **Optional later** — Neon, Firebase, GrowthBook, Google Cloud (API/AI). Not required for the static landing page.
@@ -73,7 +74,7 @@ npx nx build silvervibe
 
 ## 7. After the page is live
 
-1. Point email routing to `you@silvervibe.io`.
+1. Point email routing for `info@silvervibe.io` — [email-routing.md](./email-routing.md).
 2. Create Neon + Firebase + GrowthBook when you need auth/API.
 3. Add Cloud Run services and CNAMEs for `api` / `ai` — [cloud-run.md](./cloud-run.md).
 4. File trademark applications and update the registration log in TRADEMARKS.md.

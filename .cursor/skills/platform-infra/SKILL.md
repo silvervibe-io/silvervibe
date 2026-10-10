@@ -15,6 +15,7 @@ description: Guides Silvervibe hosting and infra on Cloudflare Pages, Google Clo
 | AI | `ai.silvervibe.io` | Cloud Run → `ai` |
 
 DNS and TLS stay on Cloudflare. Proxy API/AI CNAMEs to Cloud Run URLs.
+Inbound `info@silvervibe.io`: Cloudflare Email Routing — see `docs/email-routing.md`.
 
 ## Auth
 
