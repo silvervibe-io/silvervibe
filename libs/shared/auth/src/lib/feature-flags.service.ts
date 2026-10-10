@@ -13,6 +13,14 @@ export type FeatureFlagsConfig = {
 export class FeatureFlagsService {
   private readonly readySignal = signal(false);
   readonly ready = this.readySignal.asReadonly();
+
+  private readonly vibestandupEnabledSignal = signal(false);
+  /** Last evaluation of `tools.vibestandup.enabled` (updated on init). */
+  readonly vibestandupEnabled = this.vibestandupEnabledSignal.asReadonly();
+
+  private readonly usingGrowthBookSignal = signal(false);
+  readonly usingGrowthBook = this.usingGrowthBookSignal.asReadonly();
+
   private initPromise: Promise<void> | null = null;
 
   init(config: FeatureFlagsConfig = {}): Promise<void> {
@@ -30,18 +38,26 @@ export class FeatureFlagsService {
       await OpenFeature.setProviderAndWait(
         new GrowthbookClientProvider({ apiHost, clientKey }, { timeout: 2000 }),
       );
+      this.usingGrowthBookSignal.set(true);
     } else {
       await OpenFeature.setProviderAndWait(
         new StaticBooleanProvider({
           [FLAG_KEYS.toolsVibestandupEnabled]: true,
+          [FLAG_KEYS.addonsGithubWebhooks]: false,
         }),
       );
+      this.usingGrowthBookSignal.set(false);
     }
 
     OpenFeature.addHandler(ProviderEvents.Ready, () =>
       this.readySignal.set(true),
     );
     this.readySignal.set(true);
+
+    const enabled = await OpenFeature.getClient(
+      'silvervibe-web',
+    ).getBooleanValue(FLAG_KEYS.toolsVibestandupEnabled, false);
+    this.vibestandupEnabledSignal.set(enabled);
   }
 
   async isEnabled(flagKey: string, defaultValue = false): Promise<boolean> {
