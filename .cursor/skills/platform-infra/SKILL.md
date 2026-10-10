@@ -25,7 +25,7 @@ DNS and TLS stay on Cloudflare. Proxy API/AI CNAMEs to Cloud Run URLs.
 ## Deploy notes
 
 - Pages: build with `nx build <app>`, publish `dist/apps/<app>/browser`.
-- Cloud Run: containerize Nest and the FastAPI/uv AI service separately.
+- Cloud Run: containerize Nest (`apps/api/Dockerfile`, `docs/cloud-run.md`) and the FastAPI/uv AI service separately.
 - Env templates: see `.env.example`.
 
 ## Cursor MCP
