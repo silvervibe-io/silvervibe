@@ -32,6 +32,7 @@ LangGraph AI  →  Cloud Run
 
 First deploy steps: [go-live.md](./go-live.md). Neon setup: [neon.md](./neon.md).
 GrowthBook: [growthbook.md](./growthbook.md). Theme: [theme.md](./theme.md).
+API on Cloud Run: [cloud-run.md](./cloud-run.md).
 
 ## Code map
 
@@ -45,6 +46,7 @@ GrowthBook: [growthbook.md](./growthbook.md). Theme: [theme.md](./theme.md).
 | Angular Auth + OpenFeature client | `@silvervibe/shared/auth`                                            |
 | Nest Firebase guard / `/api/me`   | `apps/api/src/app/auth`, `users`                                     |
 | Nest OpenFeature                  | `apps/api/src/app/feature-flags`                                     |
+| Nest API Cloud Run                | `apps/api/Dockerfile` — [cloud-run.md](./cloud-run.md)               |
 
 ## Feature access
 

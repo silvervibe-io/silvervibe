@@ -95,7 +95,7 @@ npx neonctl connection-string <branch> --project-id <id> --pooled
 ## Branches (Neon)
 
 - Keep a **development** (or `dev`) Neon branch for local work.
-- Keep **production** for Cloud Run later (issue #10).
+- Keep **production** for Cloud Run ([cloud-run.md](./cloud-run.md), issue #10).
 - Do not point local `.env` at production.
 
 ## Checklist
