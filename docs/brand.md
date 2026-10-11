@@ -31,9 +31,9 @@ teal secondary/accent — no purple glow).
 
 ## Trademark (™)
 
-Keep **™ outside the SVG** as adjacent HTML (superscript-style next to the
-wordmark). That keeps the logo reusable for favicons, partners, and app chrome
-without baking legal notation into every size.
+Keep **™ outside the SVG** as adjacent HTML (superscript next to the wordmark).
+On the landing hero, prefer **mark + HTML wordmark + ™** so spacing stays tight
+and Manrope loads from the page (SVG-as-`<img>` cannot use page fonts).
 
 ## Favicon guidance (summary)
 
@@ -45,10 +45,12 @@ without baking legal notation into every size.
 ## Usage in Angular
 
 ```html
-<img src="brand/logo-lg.svg" alt="SilverVibe" width="360" height="72" />
-<span aria-hidden="true">™</span>
+<!-- Hero: mark + HTML wordmark + ™ -->
+<img src="brand/mark.svg" alt="" width="80" height="80" />
+<span>SilverVibe</span><span aria-hidden="true">™</span>
+
+<!-- Compact lockup -->
 <img src="brand/logo.svg" alt="SilverVibe" width="170" height="32" />
-<img src="brand/mark.svg" alt="" width="32" height="32" />
 ```
 
 `index.html` links `favicon.svg` + `favicon.ico` + `apple-touch-icon.png`.
