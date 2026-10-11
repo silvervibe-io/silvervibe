@@ -14,15 +14,22 @@ describe('Landing', () => {
     await fixture.whenStable();
   });
 
-  it('renders the Silver Vibe landing headline', () => {
+  it('renders the SilverVibe landing headline', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('Silver');
-    expect(compiled.textContent).toContain('Vibe');
+    const brand = compiled.querySelector('p[aria-label="SilverVibe"]');
+    expect(brand).toBeTruthy();
+    expect(brand?.textContent).toContain('SilverVibe');
+    expect(brand?.textContent).toContain('™');
     expect(compiled.querySelector('h1')?.textContent).toContain(
       'A better vibe for async work.',
     );
     expect(compiled.textContent).toContain('personal open-source');
     expect(compiled.textContent).toContain('Privacy');
     expect(compiled.textContent).not.toContain('VibeStandup');
+  });
+
+  it('uses the light mark by default', () => {
+    expect(fixture.componentInstance.markSrc()).toBe('brand/mark.svg');
+    expect(fixture.componentInstance.isDark()).toBe(false);
   });
 });
