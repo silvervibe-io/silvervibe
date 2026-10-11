@@ -16,8 +16,7 @@ describe('Landing', () => {
 
   it('renders the Silver Vibe landing headline', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('Silver');
-    expect(compiled.textContent).toContain('Vibe');
+    expect(compiled.querySelector('img[alt="Silver Vibe"]')).toBeTruthy();
     expect(compiled.querySelector('h1')?.textContent).toContain(
       'A better vibe for async work.',
     );

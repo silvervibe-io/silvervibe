@@ -37,6 +37,7 @@ AI on Cloud Run: [cloud-run-ai.md](./cloud-run-ai.md).
 VibeStandup Pages: [vibestandup-pages.md](./vibestandup-pages.md).
 Inbound email: [email-routing.md](./email-routing.md).
 Ops checklist (keys / live API / mail): [ops-followups.md](./ops-followups.md).
+Brand mark / favicon: [brand.md](./brand.md).
 
 ## Code map
 
