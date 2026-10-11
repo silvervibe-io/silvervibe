@@ -19,7 +19,8 @@ COPY dist/apps/api/workspace_modules ./workspace_modules
 COPY libs/shared/data-access/prisma ./prisma
 
 # Production deps + Prisma CLI (generate only), then drop the CLI.
-RUN npm --omit=dev -f ci \
+# Use `npm install` (not `ci`): Nx prune lockfiles can omit nested firebase-admin deps.
+RUN npm install --omit=dev \
   && npm install prisma@$(node -p "require('./node_modules/@prisma/client/package.json').version") --no-save \
   && npx prisma generate --schema=./prisma/schema.prisma \
   && npm uninstall prisma \
