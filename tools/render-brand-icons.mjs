@@ -18,14 +18,19 @@ const markPath = join(pub, 'brand/mark.svg');
 const favPath = join(pub, 'favicon.svg');
 
 const mark = readFileSync(markPath, 'utf8');
+const viewBoxMatch = mark.match(/viewBox="([^"]+)"/i);
+const markViewBox = viewBoxMatch?.[1] ?? '0 0 64 64';
 const inner = mark
   .replace(/<svg[^>]*>/i, '')
   .replace(/<\/svg>/i, '')
   .trim();
 
+// Opaque 180×180 with padding; nested SVG preserves current mark viewBox.
 const appleSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
   <rect width="180" height="180" fill="#eef1f5"/>
-  <g transform="translate(18 18) scale(2.25)">${inner}</g>
+  <svg x="18" y="18" width="144" height="144" viewBox="${markViewBox}">
+    ${inner}
+  </svg>
 </svg>`;
 
 function png(svg, width) {
@@ -34,10 +39,9 @@ function png(svg, width) {
     .asPng();
 }
 
-const fav16 = png(readFileSync(favPath), 16);
-const fav32 = png(readFileSync(favPath), 32);
-writeFileSync(join(pub, 'favicon-16.png'), fav16);
-writeFileSync(join(pub, 'favicon-32.png'), fav32);
+const favSvg = readFileSync(favPath, 'utf8');
+writeFileSync(join(pub, 'favicon-16.png'), png(favSvg, 16));
+writeFileSync(join(pub, 'favicon-32.png'), png(favSvg, 32));
 writeFileSync(join(pub, 'apple-touch-icon.png'), png(appleSvg, 180));
 
 const pngToIco = require('png-to-ico');

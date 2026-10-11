@@ -7,16 +7,16 @@ on S and V only).
 
 ## Assets
 
-| File                                          | Use                                      |
-| --------------------------------------------- | ---------------------------------------- |
+| File                                          | Use                                               |
+| --------------------------------------------- | ------------------------------------------------- |
 | `apps/silvervibe/public/brand/mark.svg`       | Icon (light; also follows `prefers-color-scheme`) |
-| `apps/silvervibe/public/brand/mark-dark.svg`  | Icon for `data-theme="silvervibe-dark"`  |
-| `apps/silvervibe/public/brand/logo.svg`       | Full logo light / compact                |
-| `apps/silvervibe/public/brand/logo-dark.svg`  | Full logo dark                           |
-| `apps/silvervibe/public/brand/logo-lg.svg`    | Hero / landing wordmark                  |
-| `apps/silvervibe/public/favicon.svg`          | Browser tab (modern browsers)            |
-| `apps/silvervibe/public/favicon.ico`          | Safari / legacy fallback                 |
-| `apps/silvervibe/public/apple-touch-icon.png` | iOS home screen (180×180)                |
+| `apps/silvervibe/public/brand/mark-dark.svg`  | Icon for `data-theme="silvervibe-dark"`           |
+| `apps/silvervibe/public/brand/logo.svg`       | Full logo light / compact                         |
+| `apps/silvervibe/public/brand/logo-dark.svg`  | Full logo dark                                    |
+| `apps/silvervibe/public/brand/logo-lg.svg`    | Hero / landing wordmark                           |
+| `apps/silvervibe/public/favicon.svg`          | Browser tab (modern browsers)                     |
+| `apps/silvervibe/public/favicon.ico`          | Safari / legacy fallback                          |
+| `apps/silvervibe/public/apple-touch-icon.png` | iOS home screen (180×180)                         |
 
 ## Colors
 
