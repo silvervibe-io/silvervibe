@@ -1,8 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 348 96" role="img" aria-label="SilverVibe">
   <title>SilverVibe</title>
   <style>
-    .cat { fill: #5c6670; }
-    .star { fill: #3d8b84; }
     .wordmark {
       font-family: Manrope, ui-sans-serif, system-ui, sans-serif;
       font-weight: 700;
@@ -12,20 +10,10 @@
     .silver { fill: #9aa3ad; }
     .vibe { fill: #3d8b84; }
     @media (prefers-color-scheme: dark) {
-      .cat { fill: #c5ccd6; }
-      .star { fill: #5eb5ad; }
       .silver { fill: #c5ccd6; }
       .vibe { fill: #5eb5ad; }
     }
   </style>
-  <svg x="0" y="0" width="96" height="96" viewBox="0 0 64 64">
-    <path class="star" d="M48 10l1.4 3.4 3.6.3-2.75 2.35.85 3.5L48 17.7l-2.1 1.85.85-3.5L44 13.7l3.6-.3z"/>
-    <path class="star" d="M55.5 22l.9 2.2 2.35.2-1.8 1.55.55 2.25-2-1.2-2 1.2.55-2.25-1.8-1.55 2.35-.2z"/>
-    <path
-      class="cat"
-      fill-rule="evenodd"
-      d="M20 18c-1.2-4.2 1.2-7.2 3.8-7.8.7-.15 1.2.55 1 1.2L23.6 16c.9-.45 2-.7 3.2-.7 1.35 0 2.55.3 3.55.85l-1.1-4.4c-.2-.7.4-1.35 1.1-1.15 2.8.85 5.2 4 5.2 8.4 0 .55-.05 1.1-.15 1.6 1.55 1.35 2.55 3.35 2.55 5.55 0 1.55-.55 2.95-1.45 4.05 3.5 1.55 5.95 5 5.95 9.1 0 5.4-4.35 9.2-10.1 9.2H21.2c-5.2 0-9-3.45-9-8.35 0-3.55 2-6.55 5-8.05C15.8 30.9 15 29 15 26.85c0-2.6 1.2-4.85 3.1-6.35C17.7 19.7 18.5 18.7 20 18zm4.2 6.4a1.65 1.65 0 1 0 .01 0zm6.9 0a1.65 1.65 0 1 0 .01 0zM41.5 36.5c2.6-1.2 5.9-.55 7.7 1.85 2 2.65 1.35 6.4-1.35 8.2-1.2.8-2.65 1.05-4 .85.15.7.2 1.4.2 2.15 0 .55-.05 1.1-.1 1.6 3.85-1.35 6.35-4.85 6.35-9.1 0-4.15-2.55-7.55-6.3-8.85-.9.95-1.7 2.05-2.5 3.3z"
-    />
-  </svg>
+  <image href="mark.svg" x="0" y="0" width="96" height="96"/>
   <text x="108" y="64" class="wordmark"><tspan class="silver">Silver</tspan><tspan class="vibe">Vibe</tspan></text>
 </svg>

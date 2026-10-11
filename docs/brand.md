@@ -1,30 +1,34 @@
 # Brand mark & favicon
 
-Calm, friendly mark for **SilverVibe™**: a sitting-cat silhouette with soft
-teal sparkles (“vibe”), paired with a Manrope wordmark (**SilverVibe** — one
-word, capitals on S and V only).
+Calm, friendly mark for **SilverVibe™**: a front-facing meditation-cat
+outline (closed eyes, folded paws, crossed legs) with soft teal sparkles
+(“vibe”), paired with a Manrope wordmark (**SilverVibe** — one word, capitals
+on S and V only).
 
 ## Assets
 
-| File                                          | Use                           |
-| --------------------------------------------- | ----------------------------- |
-| `apps/silvervibe/public/brand/mark.svg`       | Icon / avatar / app chrome    |
-| `apps/silvervibe/public/brand/logo.svg`       | Full logo (nav / compact)     |
-| `apps/silvervibe/public/brand/logo-lg.svg`    | Hero / landing wordmark       |
-| `apps/silvervibe/public/favicon.svg`          | Browser tab (modern browsers) |
-| `apps/silvervibe/public/favicon.ico`          | Safari / legacy fallback      |
-| `apps/silvervibe/public/apple-touch-icon.png` | iOS home screen (180×180)     |
+| File                                          | Use                                      |
+| --------------------------------------------- | ---------------------------------------- |
+| `apps/silvervibe/public/brand/mark.svg`       | Icon (light; also follows `prefers-color-scheme`) |
+| `apps/silvervibe/public/brand/mark-dark.svg`  | Icon for `data-theme="silvervibe-dark"`  |
+| `apps/silvervibe/public/brand/logo.svg`       | Full logo light / compact                |
+| `apps/silvervibe/public/brand/logo-dark.svg`  | Full logo dark                           |
+| `apps/silvervibe/public/brand/logo-lg.svg`    | Hero / landing wordmark                  |
+| `apps/silvervibe/public/favicon.svg`          | Browser tab (modern browsers)            |
+| `apps/silvervibe/public/favicon.ico`          | Safari / legacy fallback                 |
+| `apps/silvervibe/public/apple-touch-icon.png` | iOS home screen (180×180)                |
 
 ## Colors
 
-| Token      | Hex       | Role                      |
-| ---------- | --------- | ------------------------- |
-| Silver     | `#9AA3AD` | “Silver” half of wordmark |
-| Slate mark | `#5C6670` | Cat silhouette (light UI) |
-| Vibe teal  | `#3D8B84` | “Vibe” half + sparkles    |
+| Token      | Hex (light) | Hex (dark) | Role                      |
+| ---------- | ----------- | ---------- | ------------------------- |
+| Silver     | `#9AA3AD`   | `#C5CCD6`  | “Silver” half of wordmark |
+| Slate mark | `#5C6670`   | `#C5CCD6`  | Cat outline               |
+| Vibe teal  | `#3D8B84`   | `#5EB5AD`  | “Vibe” half + sparkles    |
 
-Dark `prefers-color-scheme` variants are embedded in the SVGs (`#C5CCD6` /
-`#5EB5AD`).
+Light SVGs also embed `@media (prefers-color-scheme: dark)` fallbacks. For
+app chrome driven by `ThemeService`, prefer `mark-dark.svg` / `logo-dark.svg`
+when `mode === 'dark'`.
 
 Aligned with daisyUI theme tokens in `docs/theme.md` (cool slate + restrained
 teal secondary/accent — no purple glow).

@@ -20,7 +20,7 @@
       aria-label="SilverVibe"
     >
       <img
-        ngSrc="brand/mark.svg"
+        [ngSrc]="markSrc()"
         alt=""
         width="96"
         height="96"
@@ -31,11 +31,21 @@
         <span
           class="text-[clamp(2.5rem,7vw,3.5rem)] font-bold leading-none tracking-[-0.045em]"
         >
-          <span class="text-[#9aa3ad]">Silver</span
-          ><span class="text-[#3d8b84]">Vibe</span>
+          <span
+            [class]="
+              isDark() ? 'text-[#c5ccd6]' : 'text-[#9aa3ad]'
+            "
+            >Silver</span
+          ><span
+            [class]="
+              isDark() ? 'text-[#5eb5ad]' : 'text-[#3d8b84]'
+            "
+            >Vibe</span
+          >
         </span>
         <span
-          class="mt-1 text-sm font-semibold leading-none text-[#9aa3ad] sm:mt-1.5 sm:text-base"
+          class="mt-1 text-sm font-semibold leading-none sm:mt-1.5 sm:text-base"
+          [class]="isDark() ? 'text-[#c5ccd6]' : 'text-[#9aa3ad]'"
           aria-hidden="true"
           >™</span
         >

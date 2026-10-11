@@ -27,4 +27,9 @@ describe('Landing', () => {
     expect(compiled.textContent).toContain('Privacy');
     expect(compiled.textContent).not.toContain('VibeStandup');
   });
+
+  it('uses the light mark by default', () => {
+    expect(fixture.componentInstance.markSrc()).toBe('brand/mark.svg');
+    expect(fixture.componentInstance.isDark()).toBe(false);
+  });
 });
