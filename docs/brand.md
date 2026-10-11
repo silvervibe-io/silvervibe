@@ -9,24 +9,31 @@ word, capitals on S and V only).
 | File                                          | Use                           |
 | --------------------------------------------- | ----------------------------- |
 | `apps/silvervibe/public/brand/mark.svg`       | Icon / avatar / app chrome    |
-| `apps/silvervibe/public/brand/logo.svg`       | Full logo (mark + wordmark)   |
+| `apps/silvervibe/public/brand/logo.svg`       | Full logo (nav / compact)     |
+| `apps/silvervibe/public/brand/logo-lg.svg`    | Hero / landing wordmark       |
 | `apps/silvervibe/public/favicon.svg`          | Browser tab (modern browsers) |
 | `apps/silvervibe/public/favicon.ico`          | Safari / legacy fallback      |
 | `apps/silvervibe/public/apple-touch-icon.png` | iOS home screen (180×180)     |
 
 ## Colors
 
-| Token      | Hex       | Role                       |
-| ---------- | --------- | -------------------------- |
-| Silver     | `#9AA3AD` | “Silver” half of wordmark  |
-| Slate mark | `#5C6670` | Cat silhouette (light UI)  |
-| Vibe teal  | `#3D8B84` | “Vibe” half + sparkles     |
+| Token      | Hex       | Role                      |
+| ---------- | --------- | ------------------------- |
+| Silver     | `#9AA3AD` | “Silver” half of wordmark |
+| Slate mark | `#5C6670` | Cat silhouette (light UI) |
+| Vibe teal  | `#3D8B84` | “Vibe” half + sparkles    |
 
 Dark `prefers-color-scheme` variants are embedded in the SVGs (`#C5CCD6` /
 `#5EB5AD`).
 
 Aligned with daisyUI theme tokens in `docs/theme.md` (cool slate + restrained
 teal secondary/accent — no purple glow).
+
+## Trademark (™)
+
+Keep **™ outside the SVG** as adjacent HTML (superscript-style next to the
+wordmark). That keeps the logo reusable for favicons, partners, and app chrome
+without baking legal notation into every size.
 
 ## Favicon guidance (summary)
 
@@ -38,7 +45,10 @@ teal secondary/accent — no purple glow).
 ## Usage in Angular
 
 ```html
-<img src="brand/logo.svg" alt="SilverVibe" width="170" height="32" /> <img src="brand/mark.svg" alt="" width="32" height="32" />
+<img src="brand/logo-lg.svg" alt="SilverVibe" width="360" height="72" />
+<span aria-hidden="true">™</span>
+<img src="brand/logo.svg" alt="SilverVibe" width="170" height="32" />
+<img src="brand/mark.svg" alt="" width="32" height="32" />
 ```
 
 `index.html` links `favicon.svg` + `favicon.ico` + `apple-touch-icon.png`.
