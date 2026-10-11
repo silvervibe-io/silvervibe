@@ -1,7 +1,8 @@
 # Brand mark & favicon
 
-Calm, friendly mark for **Silver Vibe™**: a sitting-cat silhouette with soft
-teal sparkles (“vibe”), paired with a Manrope wordmark.
+Calm, friendly mark for **SilverVibe™**: a sitting-cat silhouette with soft
+teal sparkles (“vibe”), paired with a Manrope wordmark (**SilverVibe** — one
+word, capitals on S and V only).
 
 ## Assets
 
@@ -17,9 +18,9 @@ teal sparkles (“vibe”), paired with a Manrope wordmark.
 
 | Token      | Hex       | Role                       |
 | ---------- | --------- | -------------------------- |
-| Silver     | `#9AA3AD` | “Silver” wordmark          |
+| Silver     | `#9AA3AD` | “Silver” half of wordmark  |
 | Slate mark | `#5C6670` | Cat silhouette (light UI)  |
-| Vibe teal  | `#3D8B84` | “Vibe” wordmark + sparkles |
+| Vibe teal  | `#3D8B84` | “Vibe” half + sparkles     |
 
 Dark `prefers-color-scheme` variants are embedded in the SVGs (`#C5CCD6` /
 `#5EB5AD`).
@@ -37,7 +38,7 @@ teal secondary/accent — no purple glow).
 ## Usage in Angular
 
 ```html
-<img src="brand/logo.svg" alt="Silver Vibe" width="170" height="32" /> <img src="brand/mark.svg" alt="" width="32" height="32" />
+<img src="brand/logo.svg" alt="SilverVibe" width="170" height="32" /> <img src="brand/mark.svg" alt="" width="32" height="32" />
 ```
 
 `index.html` links `favicon.svg` + `favicon.ico` + `apple-touch-icon.png`.
