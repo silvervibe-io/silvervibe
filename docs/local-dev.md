@@ -13,12 +13,12 @@ How to run Silver Vibe from a fresh clone. Work happens on **`develop`**;
 
 Optional later (not needed for landing + API health):
 
-| Tool                                                              | When                                                                                                        |
-| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Neon `DATABASE_URL`                                               | Real DB — [docs/neon.md](./neon.md)                                                                         |
-| Firebase Auth keys                                                | Auth — [docs/firebase.md](./firebase.md) ([issue #5](https://github.com/silvervibe-io/silvervibe/issues/5)) |
-| GrowthBook keys                                                   | Live flags                                                                                                  |
-| **Python** `>=3.11,<3.14` + [uv](https://github.com/astral-sh/uv) | `apps/ai` only                                                                                              |
+| Tool                                                              | When                                                                                                                  |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Neon `DATABASE_URL`                                               | Real DB — [docs/neon.md](./neon.md)                                                                                   |
+| Firebase Auth keys                                                | Auth — [docs/firebase.md](./firebase.md) ([issue #5](https://github.com/silvervibe-io/silvervibe/issues/5))           |
+| GrowthBook keys                                                   | Live flags — [docs/growthbook.md](./growthbook.md) ([issue #8](https://github.com/silvervibe-io/silvervibe/issues/8)) |
+| **Python** `>=3.11,<3.14` + [uv](https://github.com/astral-sh/uv) | `apps/ai` only                                                                                                        |
 
 ## First-time setup
 
@@ -74,7 +74,9 @@ curl -s -H "Authorization: Bearer dev:demo" http://localhost:3000/api/me
 ```
 
 Without Firebase Admin and outside production, Nest accepts `Bearer dev:<uid>`.
-Without GrowthBook keys, OpenFeature uses in-memory defaults.
+Without GrowthBook keys, OpenFeature uses in-memory defaults
+(`tools.vibestandup.enabled` → true). See [growthbook.md](./growthbook.md).
+`npm run growthbook:check` / `npm run firebase:sync-web` (syncs Angular env).
 
 Angular apps proxy `/api` to the Nest server when configured
 (`apps/silvervibe/proxy.conf.json`).

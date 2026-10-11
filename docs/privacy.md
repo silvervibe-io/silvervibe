@@ -3,7 +3,7 @@
 Canonical page: [https://silvervibe.io/privacy](https://silvervibe.io/privacy)
 
 Last updated: 10 October 2026. Silver Vibe™ is a personal open-source project.
-Contact: info@silvervibe.io.
+Contact: info@silvervibe.io (delivery: [email-routing.md](./email-routing.md)).
 
 ## What we collect
 

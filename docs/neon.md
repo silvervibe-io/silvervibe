@@ -81,6 +81,9 @@ members, `workspace_tools`, `addon_connections`).
 
 After migrate, re-run `npm run prisma:ping` — you should see `Core schema OK`.
 
+Grant/revoke tools via the Nest API: [entitlements.md](./entitlements.md)
+([issue #9](https://github.com/silvervibe-io/silvervibe/issues/9)).
+
 ## Neon CLI (optional)
 
 ```bash
@@ -92,7 +95,7 @@ npx neonctl connection-string <branch> --project-id <id> --pooled
 ## Branches (Neon)
 
 - Keep a **development** (or `dev`) Neon branch for local work.
-- Keep **production** for Cloud Run later (issue #10).
+- Keep **production** for Cloud Run ([cloud-run.md](./cloud-run.md), issue #10).
 - Do not point local `.env` at production.
 
 ## Checklist

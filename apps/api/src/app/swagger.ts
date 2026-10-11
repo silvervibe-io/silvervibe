@@ -9,6 +9,7 @@ export function setupSwagger(app: INestApplication): OpenAPIObject {
     .setVersion('1.0')
     .addTag('health')
     .addTag('auth')
+    .addTag('workspaces')
     .addTag('flags')
     .addTag('slack')
     .addTag('teams')

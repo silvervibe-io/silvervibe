@@ -9,12 +9,14 @@ description: Guides Silvervibe hosting and infra on Cloudflare Pages, Google Clo
 
 | Service | Host | Target |
 | --- | --- | --- |
-| Marketing / base app | `app.silvervibe.io` | Cloudflare Pages → `silvervibe` |
-| Vibe Standup | `standup.silvervibe.io` | Cloudflare Pages → `vibestandup` |
+| Marketing / base app | `silvervibe.io` | Cloudflare Pages → `silvervibe` (`docs/go-live.md`) |
+| Vibe Standup | `standup.silvervibe.io` | Cloudflare Pages → `vibestandup` (`docs/vibestandup-pages.md`) |
 | API | `api.silvervibe.io` | Cloud Run → `api` |
 | AI | `ai.silvervibe.io` | Cloud Run → `ai` |
 
 DNS and TLS stay on Cloudflare. Proxy API/AI CNAMEs to Cloud Run URLs.
+Inbound `info@silvervibe.io`: Cloudflare Email Routing — see `docs/email-routing.md`.
+Post-foundation ops checklist: `docs/ops-followups.md`.
 
 ## Auth
 
@@ -25,7 +27,7 @@ DNS and TLS stay on Cloudflare. Proxy API/AI CNAMEs to Cloud Run URLs.
 ## Deploy notes
 
 - Pages: build with `nx build <app>`, publish `dist/apps/<app>/browser`.
-- Cloud Run: containerize Nest and the FastAPI/uv AI service separately.
+- Cloud Run: Nest (`apps/api/Dockerfile`, `docs/cloud-run.md`) and AI (`apps/ai/Dockerfile`, `docs/cloud-run-ai.md`).
 - Env templates: see `.env.example`.
 
 ## Cursor MCP

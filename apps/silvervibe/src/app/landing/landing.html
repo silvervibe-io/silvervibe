@@ -16,10 +16,40 @@
 
   <div class="relative z-10 w-full max-w-[42rem]">
     <p
-      class="mb-7 text-[2.625rem] font-bold tracking-[-0.045em] text-[#17191c]"
+      class="mb-8 flex items-center justify-center gap-3 sm:gap-4"
+      aria-label="SilverVibe"
     >
-      Silver <span class="text-[#8a919b]">Vibe</span
-      ><span class="text-lg font-semibold text-[#8a919b]">™</span>
+      <img
+        [ngSrc]="markSrc()"
+        alt=""
+        width="96"
+        height="96"
+        priority
+        class="h-[4.5rem] w-[4.5rem] sm:h-20 sm:w-20"
+      />
+      <span class="inline-flex items-start gap-0.5">
+        <span
+          class="text-[clamp(2.5rem,7vw,3.5rem)] font-bold leading-none tracking-[-0.045em]"
+        >
+          <span
+            [class]="
+              isDark() ? 'text-[#c5ccd6]' : 'text-[#9aa3ad]'
+            "
+            >Silver</span
+          ><span
+            [class]="
+              isDark() ? 'text-[#5eb5ad]' : 'text-[#3d8b84]'
+            "
+            >Vibe</span
+          >
+        </span>
+        <span
+          class="mt-1 text-sm font-semibold leading-none sm:mt-1.5 sm:text-base"
+          [class]="isDark() ? 'text-[#c5ccd6]' : 'text-[#9aa3ad]'"
+          aria-hidden="true"
+          >™</span
+        >
+      </span>
     </p>
 
     <p

@@ -15,6 +15,7 @@ import {
   provideSilvervibeAuth,
   provideSilvervibeFeatureFlags,
 } from '@silvervibe/shared/auth';
+import { provideSilvervibeTheme } from '@silvervibe/shared/ui';
 import { environment } from '../environments/environment';
 import { appRoutes } from './app.routes';
 import * as fromApp from './+state/app.reducer';
@@ -39,6 +40,7 @@ export const appConfig: ApplicationConfig = {
     provideStoreDevtools({ logOnly: !isDevMode() }),
     provideBrowserGlobalErrorListeners(),
     provideRouter(appRoutes),
+    provideSilvervibeTheme(),
     provideSilvervibeAuth(environment.firebase),
     provideSilvervibeFeatureFlags(environment.growthbook),
     {

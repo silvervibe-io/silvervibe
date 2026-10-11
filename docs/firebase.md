@@ -73,7 +73,8 @@ downloaded JSON path (repo-relative is fine, e.g.
 `FIREBASE_PRIVATE_KEY` empty so Nest uses ADC. Those JSON filenames are
 gitignored (`*-firebase-adminsdk-*.json`).
 
-On Cloud Run later: mount the secret or use the runtime service account (ADC).
+On Cloud Run: mount secrets or use the runtime service account (ADC) —
+see [cloud-run.md](./cloud-run.md).
 
 ## Local behavior
 

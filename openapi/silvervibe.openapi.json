@@ -25,6 +25,7 @@
     },
     "/api/me": {
       "get": {
+        "description": "Requires `Authorization: Bearer <Firebase ID token>`. Upserts the Neon `users` row by `firebase_uid`. Outside production, when Firebase Admin is not configured, `Bearer dev:<uid>` is accepted.",
         "operationId": "UsersController_me",
         "parameters": [],
         "responses": {
@@ -37,6 +38,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Missing, invalid, or expired Bearer token"
           }
         },
         "security": [
@@ -47,6 +51,148 @@
         "summary": "Current authenticated user",
         "tags": [
           "auth"
+        ]
+      }
+    },
+    "/api/workspaces": {
+      "post": {
+        "description": "Foundation helper to create a workspace so tool entitlements can be granted.",
+        "operationId": "WorkspacesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkspaceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a workspace",
+        "tags": [
+          "workspaces"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/tools": {
+      "get": {
+        "description": "Ownership rows from `workspace_tools` (not GrowthBook rollout flags).",
+        "operationId": "WorkspacesController_listTools",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkspaceToolDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List workspace tool entitlements",
+        "tags": [
+          "workspaces"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/tools/{toolKey}": {
+      "put": {
+        "description": "`enabled: true` grants (upserts); `enabled: false` revokes. `toolKey` must be a known TOOL_KEYS value.",
+        "operationId": "WorkspacesController_setTool",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "toolKey",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetToolEntitlementDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceToolDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Grant or revoke a tool entitlement",
+        "tags": [
+          "workspaces"
         ]
       }
     },
@@ -216,6 +362,10 @@
       "description": ""
     },
     {
+      "name": "workspaces",
+      "description": ""
+    },
+    {
       "name": "flags",
       "description": ""
     },
@@ -246,7 +396,8 @@
       "bearer": {
         "scheme": "bearer",
         "bearerFormat": "JWT",
-        "type": "http"
+        "type": "http",
+        "description": "Firebase ID token. Outside production, when Admin is unset: Bearer dev:<uid>."
       }
     },
     "schemas": {
@@ -266,12 +417,18 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "description": "Neon user id (cuid)"
           },
           "firebaseUid": {
-            "type": "string"
+            "type": "string",
+            "description": "Firebase Auth uid"
           },
           "email": {
+            "type": "object",
+            "nullable": true
+          },
+          "displayName": {
             "type": "object",
             "nullable": true
           }
@@ -279,6 +436,70 @@
         "required": [
           "id",
           "firebaseUid"
+        ]
+      },
+      "CreateWorkspaceDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Acme"
+          },
+          "slug": {
+            "type": "string",
+            "example": "acme"
+          }
+        },
+        "required": [
+          "name",
+          "slug"
+        ]
+      },
+      "WorkspaceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "WorkspaceToolDto": {
+        "type": "object",
+        "properties": {
+          "toolKey": {
+            "type": "string",
+            "example": "vibestandup"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "toolKey",
+          "enabled"
+        ]
+      },
+      "SetToolEntitlementDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": "true = grant / keep entitlement; false = revoke"
+          }
+        },
+        "required": [
+          "enabled"
         ]
       },
       "FlagEvaluationDto": {

@@ -1,8 +1,12 @@
 @import 'tailwindcss';
 @plugin "daisyui" {
-  themes:
-    light --default,
-    dark --prefersdark;
+  themes: false;
 }
-@source "../";
-@source "../../../libs";
+@import '../../../libs/shared/ui/src/styles/silvervibe-themes.css';
+@source '../';
+@source '../../../libs';
+
+html,
+body {
+  min-height: 100%;
+}

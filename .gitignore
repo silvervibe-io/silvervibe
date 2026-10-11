@@ -39,8 +39,9 @@ vitest.config.*.timestamp*
 .env
 .env.*
 !.env.example
-# Local Firebase web config (apiKey). Keep *.example.ts committed.
+# Local Angular public env (apiKey / GrowthBook client). Keep *.example.ts committed.
 **/environments/firebase-web.local.ts
+**/environments/growthbook.local.ts
 *.pem
 *.key
 *.p12

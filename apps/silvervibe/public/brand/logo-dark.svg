@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 252 64" role="img" aria-label="SilverVibe">
+  <title>SilverVibe</title>
+  <style>
+    .wordmark {
+      font-family: Manrope, ui-sans-serif, system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 32px;
+      letter-spacing: -0.045em;
+    }
+    .silver { fill: #c5ccd6; }
+    .vibe { fill: #5eb5ad; }
+  </style>
+  <image href="mark-dark.svg" x="0" y="0" width="64" height="64"/>
+  <text x="72" y="42" class="wordmark"><tspan class="silver">Silver</tspan><tspan class="vibe">Vibe</tspan></text>
+</svg>

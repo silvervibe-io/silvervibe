@@ -1,11 +1,9 @@
 import { firebaseWeb } from './firebase-web.local';
+import { growthbook } from './growthbook.local';
 
 export const environment = {
   production: false,
   firebase: firebaseWeb,
-  growthbook: {
-    clientKey: '',
-    apiHost: 'https://cdn.growthbook.io',
-  },
+  growthbook,
   apiBaseUrl: '/api',
 };
