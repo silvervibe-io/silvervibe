@@ -28,11 +28,7 @@
       </button>
     </div>
     } @else {
-    <form
-      class="flex flex-col gap-4"
-      [formGroup]="form"
-      (ngSubmit)="signInEmail()"
-    >
+    <form class="flex flex-col gap-4" (submit)="signInEmail($event)">
       <label class="form-control w-full">
         <span class="label-text mb-1"
           >{{ 'auth.signIn.email' | transloco }}</span
@@ -41,7 +37,7 @@
           class="input input-bordered w-full"
           type="email"
           autocomplete="username"
-          formControlName="email"
+          [formField]="loginForm.email"
         />
       </label>
       <label class="form-control w-full">
@@ -52,13 +48,13 @@
           class="input input-bordered w-full"
           type="password"
           autocomplete="current-password"
-          formControlName="password"
+          [formField]="loginForm.password"
         />
       </label>
       <button
         type="submit"
         class="btn btn-primary"
-        [disabled]="busy() || form.invalid"
+        [disabled]="busy() || loginForm().invalid()"
       >
         {{ 'auth.signIn.submitEmail' | transloco }}
       </button>

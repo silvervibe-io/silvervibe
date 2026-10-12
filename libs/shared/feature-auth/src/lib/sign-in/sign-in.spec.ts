@@ -17,10 +17,10 @@ describe('SignIn', () => {
           provide: AuthService,
           useValue: {
             user: () => null,
-            signIn: () => of({ uid: 'u1' }),
-            signInWithGoogle: () => of({ uid: 'u1' }),
-            signInWithGithub: () => of({ uid: 'u1' }),
-            signOut: () => of(undefined),
+            signIn: () => Promise.resolve({ uid: 'u1' }),
+            signInWithGoogle: () => Promise.resolve({ uid: 'u1' }),
+            signInWithGithub: () => Promise.resolve({ uid: 'u1' }),
+            signOut: () => Promise.resolve(),
           },
         },
         ...provideTransloco({

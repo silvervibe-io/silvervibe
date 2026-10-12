@@ -12,7 +12,6 @@ import {
   GithubAuthProvider,
 } from 'firebase/auth';
 import { initializeApp, getApps, type FirebaseOptions } from 'firebase/app';
-import { from, Observable } from 'rxjs';
 
 export type SilvervibeFirebaseConfig = FirebaseOptions;
 
@@ -66,32 +65,23 @@ export class AuthService {
     return this.readyPromise;
   }
 
-  signIn(email: string, password: string): Observable<User> {
-    return from(
-      signInWithEmailAndPassword(getAuth(), email, password).then(
-        (result) => result.user,
-      ),
-    );
+  async signIn(email: string, password: string): Promise<User> {
+    const result = await signInWithEmailAndPassword(getAuth(), email, password);
+    return result.user;
   }
 
-  signInWithGoogle(): Observable<User> {
-    return from(
-      signInWithPopup(getAuth(), new GoogleAuthProvider()).then(
-        (result) => result.user,
-      ),
-    );
+  async signInWithGoogle(): Promise<User> {
+    const result = await signInWithPopup(getAuth(), new GoogleAuthProvider());
+    return result.user;
   }
 
-  signInWithGithub(): Observable<User> {
-    return from(
-      signInWithPopup(getAuth(), new GithubAuthProvider()).then(
-        (result) => result.user,
-      ),
-    );
+  async signInWithGithub(): Promise<User> {
+    const result = await signInWithPopup(getAuth(), new GithubAuthProvider());
+    return result.user;
   }
 
-  signOut(): Observable<void> {
-    return from(signOut(getAuth()));
+  async signOut(): Promise<void> {
+    await signOut(getAuth());
   }
 
   async idToken(): Promise<string | null> {
