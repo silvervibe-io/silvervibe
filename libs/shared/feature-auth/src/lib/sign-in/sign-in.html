@@ -1,17 +1,22 @@
 <sv-shell [title]="productTitle()">
   <div class="mx-auto max-w-md py-10">
     <h1 class="mb-2 text-3xl font-bold tracking-tight text-base-content">
-      Sign in
+      {{ 'auth.signIn.title' | transloco }}
     </h1>
-    <p class="mb-8 text-sm text-base-content/70">{{ blurb() }}</p>
+    <p class="mb-8 text-sm text-base-content/70">
+      {{ blurbKey() | transloco }}
+    </p>
 
     @if (user(); as current) {
     <div class="alert mb-6">
-      <span>Signed in as {{ current.email || current.uid }}</span>
+      <span
+        >{{ 'auth.signIn.signedInAs' | transloco: { identity: current.email ||
+        current.uid } }}</span
+      >
     </div>
     <div class="flex flex-wrap gap-3">
       <a class="btn btn-primary" [routerLink]="accountPath()"
-        >Account /api/me</a
+        >{{ 'auth.signIn.accountLink' | transloco }}</a
       >
       <button
         type="button"
@@ -19,7 +24,7 @@
         [disabled]="busy()"
         (click)="signOut()"
       >
-        Sign out
+        {{ 'auth.signIn.signOut' | transloco }}
       </button>
     </div>
     } @else {
@@ -29,7 +34,9 @@
       (ngSubmit)="signInEmail()"
     >
       <label class="form-control w-full">
-        <span class="label-text mb-1">Email</span>
+        <span class="label-text mb-1"
+          >{{ 'auth.signIn.email' | transloco }}</span
+        >
         <input
           class="input input-bordered w-full"
           type="email"
@@ -38,7 +45,9 @@
         />
       </label>
       <label class="form-control w-full">
-        <span class="label-text mb-1">Password</span>
+        <span class="label-text mb-1"
+          >{{ 'auth.signIn.password' | transloco }}</span
+        >
         <input
           class="input input-bordered w-full"
           type="password"
@@ -51,11 +60,11 @@
         class="btn btn-primary"
         [disabled]="busy() || form.invalid"
       >
-        Sign in with email
+        {{ 'auth.signIn.submitEmail' | transloco }}
       </button>
     </form>
 
-    <div class="divider">or</div>
+    <div class="divider">{{ 'auth.signIn.or' | transloco }}</div>
 
     <div class="flex flex-col gap-3">
       <button
@@ -64,7 +73,7 @@
         [disabled]="busy()"
         (click)="signInGoogle()"
       >
-        Continue with Google
+        {{ 'auth.signIn.google' | transloco }}
       </button>
       <button
         type="button"
@@ -72,7 +81,7 @@
         [disabled]="busy()"
         (click)="signInGithub()"
       >
-        Continue with GitHub
+        {{ 'auth.signIn.github' | transloco }}
       </button>
     </div>
     } @if (error(); as message) {

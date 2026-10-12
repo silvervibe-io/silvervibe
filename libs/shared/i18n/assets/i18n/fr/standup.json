@@ -1,0 +1,12 @@
+{
+  "title": "Vibe Standup",
+  "subtitle": "Capturez hier, aujourd’hui et les bloqueurs.",
+  "yesterday": "Hier",
+  "today": "Aujourd’hui",
+  "blockers": "Bloqueurs",
+  "save": "Enregistrer le brouillon",
+  "saved": "Brouillon enregistré",
+  "links": {
+    "platform": "SilverVibe"
+  }
+}

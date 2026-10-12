@@ -16,8 +16,7 @@ export const appRoutes: Route[] = [
       import('@silvervibe/shared/feature-auth').then((m) => m.SignIn),
     data: {
       productTitle: 'Vibe Standup',
-      blurb:
-        'Foundation auth for local API calls. Not linked from the home standup.',
+      blurbKey: 'auth.signIn.blurb.standup',
     },
   },
   {

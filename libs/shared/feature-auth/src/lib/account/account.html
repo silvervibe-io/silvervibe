@@ -1,40 +1,53 @@
 <sv-shell [title]="productTitle()">
   <div class="mx-auto max-w-lg py-10">
-    <h1 class="mb-2 text-3xl font-bold tracking-tight">Account</h1>
+    <h1 class="mb-2 text-3xl font-bold tracking-tight">
+      {{ 'auth.account.title' | transloco }}
+    </h1>
     <p class="mb-8 text-sm text-base-content/70">
-      Calls <code class="text-xs">GET /api/me</code> with your Firebase ID
-      token.
+      {{ 'auth.account.intro' | transloco }}
     </p>
 
     @if (loading()) {
-    <p class="text-sm text-base-content/60">Loading…</p>
+    <p class="text-sm text-base-content/60">
+      {{ 'auth.account.loading' | transloco }}
+    </p>
     } @else if (error(); as message) {
     <p class="text-sm text-error" role="alert">{{ message }}</p>
     } @else if (me(); as profile) {
     <dl class="mb-8 grid gap-3 text-sm">
       <div>
-        <dt class="font-semibold text-base-content/60">Neon id</dt>
+        <dt class="font-semibold text-base-content/60">
+          {{ 'auth.account.neonId' | transloco }}
+        </dt>
         <dd>{{ profile.id }}</dd>
       </div>
       <div>
-        <dt class="font-semibold text-base-content/60">Firebase uid</dt>
+        <dt class="font-semibold text-base-content/60">
+          {{ 'auth.account.firebaseUid' | transloco }}
+        </dt>
         <dd>{{ profile.firebaseUid }}</dd>
       </div>
       <div>
-        <dt class="font-semibold text-base-content/60">Email</dt>
-        <dd>{{ profile.email || '—' }}</dd>
+        <dt class="font-semibold text-base-content/60">
+          {{ 'auth.account.email' | transloco }}
+        </dt>
+        <dd>{{ profile.email || ('auth.account.empty' | transloco) }}</dd>
       </div>
       <div>
-        <dt class="font-semibold text-base-content/60">Display name</dt>
-        <dd>{{ profile.displayName || '—' }}</dd>
+        <dt class="font-semibold text-base-content/60">
+          {{ 'auth.account.displayName' | transloco }}
+        </dt>
+        <dd>{{ profile.displayName || ('auth.account.empty' | transloco) }}</dd>
       </div>
     </dl>
     }
 
     <div class="flex flex-wrap gap-3">
-      <a class="btn btn-ghost" [routerLink]="authPath()">Back to sign in</a>
+      <a class="btn btn-ghost" [routerLink]="authPath()"
+        >{{ 'auth.account.backToSignIn' | transloco }}</a
+      >
       <button type="button" class="btn btn-outline" (click)="signOut()">
-        Sign out
+        {{ 'auth.account.signOut' | transloco }}
       </button>
     </div>
   </div>

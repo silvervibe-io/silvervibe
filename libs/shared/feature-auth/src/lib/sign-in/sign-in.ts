@@ -7,13 +7,14 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AuthService } from '@silvervibe/shared/auth';
 import { Shell } from '@silvervibe/shared/ui';
 import { Observable } from 'rxjs';
 
 @Component({
   selector: 'sv-sign-in',
-  imports: [ReactiveFormsModule, RouterLink, Shell],
+  imports: [ReactiveFormsModule, RouterLink, Shell, TranslocoPipe],
   templateUrl: './sign-in.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -24,13 +25,12 @@ export class SignIn {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  private readonly transloco = inject(TranslocoService);
 
   /** Product name shown in the shell (bind via route `data` + input binding). */
   readonly productTitle = input('Silver Vibe');
-  /** Short helper copy under the heading. */
-  readonly blurb = input(
-    'Foundation auth for local API calls. Not linked from the public landing.',
-  );
+  /** Translation key for the blurb under the heading. */
+  readonly blurbKey = input('auth.signIn.blurb.platform');
   readonly accountPath = input('/account');
 
   readonly error = signal<string | null>(null);
@@ -75,7 +75,11 @@ export class SignIn {
       },
       error: (err: unknown) => {
         this.busy.set(false);
-        this.error.set(err instanceof Error ? err.message : 'Sign-in failed');
+        this.error.set(
+          err instanceof Error
+            ? err.message
+            : this.transloco.translate('auth.signIn.failed'),
+        );
       },
     });
   }

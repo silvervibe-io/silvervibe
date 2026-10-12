@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { API_BASE_URL, AuthService } from '@silvervibe/shared/auth';
 import { Shell } from '@silvervibe/shared/ui';
 
@@ -20,7 +21,7 @@ export type MeResponse = {
 
 @Component({
   selector: 'sv-account',
-  imports: [RouterLink, Shell],
+  imports: [RouterLink, Shell, TranslocoPipe],
   templateUrl: './account.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -32,6 +33,7 @@ export class Account implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly apiBaseUrl = inject(API_BASE_URL);
+  private readonly transloco = inject(TranslocoService);
 
   readonly productTitle = input('Silver Vibe');
   readonly authPath = input('/auth');
@@ -52,7 +54,7 @@ export class Account implements OnInit {
         const message =
           err && typeof err === 'object' && 'message' in err
             ? String((err as { message: unknown }).message)
-            : 'Failed to load /api/me';
+            : this.transloco.translate('auth.account.loadFailed');
         this.error.set(message);
       },
     });

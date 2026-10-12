@@ -1,0 +1,12 @@
+{
+  "title": "Vibe Standup",
+  "subtitle": "Leg gisteren, vandaag en blockers vast.",
+  "yesterday": "Gisteren",
+  "today": "Vandaag",
+  "blockers": "Blockers",
+  "save": "Concept opslaan",
+  "saved": "Concept opgeslagen",
+  "links": {
+    "platform": "SilverVibe"
+  }
+}

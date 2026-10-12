@@ -1,0 +1,12 @@
+{
+  "title": "Vibe Standup",
+  "subtitle": "Καταγράψτε χθες, σήμερα και εμπόδια.",
+  "yesterday": "Χθες",
+  "today": "Σήμερα",
+  "blockers": "Εμπόδια",
+  "save": "Αποθήκευση πρόχειρου",
+  "saved": "Το πρόχειρο αποθηκεύτηκε",
+  "links": {
+    "platform": "SilverVibe"
+  }
+}
