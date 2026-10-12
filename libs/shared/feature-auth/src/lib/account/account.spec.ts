@@ -5,7 +5,7 @@ import {
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
-import { AuthService } from '@silvervibe/shared/auth';
+import { API_BASE_URL, AuthService } from '@silvervibe/shared/auth';
 import { of } from 'rxjs';
 import { Account } from './account';
 
@@ -20,6 +20,7 @@ describe('Account', () => {
         provideRouter([]),
         provideHttpClient(),
         provideHttpClientTesting(),
+        { provide: API_BASE_URL, useValue: '/api' },
         {
           provide: AuthService,
           useValue: {

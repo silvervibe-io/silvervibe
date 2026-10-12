@@ -25,6 +25,7 @@ describe('SignIn', () => {
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(SignIn);
+    fixture.componentRef.setInput('productTitle', 'Test Product');
     await fixture.whenStable();
   });
 
@@ -33,5 +34,10 @@ describe('SignIn', () => {
     expect(compiled.textContent).toContain('Sign in');
     expect(compiled.textContent).toContain('Continue with Google');
     expect(compiled.textContent).toContain('Continue with GitHub');
+  });
+
+  it('shows the configured product title', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('Test Product');
   });
 });

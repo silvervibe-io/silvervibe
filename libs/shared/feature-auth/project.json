@@ -1,0 +1,20 @@
+{
+  "name": "feature-auth",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/feature-auth/src",
+  "prefix": "sv",
+  "projectType": "library",
+  "tags": ["type:feature", "scope:shared"],
+  "targets": {
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "coverage/libs/shared/feature-auth"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

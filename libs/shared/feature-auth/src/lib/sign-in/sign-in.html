@@ -1,18 +1,18 @@
-<sv-shell title="Silver Vibe">
+<sv-shell [title]="productTitle()">
   <div class="mx-auto max-w-md py-10">
     <h1 class="mb-2 text-3xl font-bold tracking-tight text-base-content">
       Sign in
     </h1>
-    <p class="mb-8 text-sm text-base-content/70">
-      Foundation auth for local API calls. Not linked from the public landing.
-    </p>
+    <p class="mb-8 text-sm text-base-content/70">{{ blurb() }}</p>
 
     @if (user(); as current) {
     <div class="alert mb-6">
       <span>Signed in as {{ current.email || current.uid }}</span>
     </div>
     <div class="flex flex-wrap gap-3">
-      <a class="btn btn-primary" routerLink="/account">Account /api/me</a>
+      <a class="btn btn-primary" [routerLink]="accountPath()"
+        >Account /api/me</a
+      >
       <button
         type="button"
         class="btn btn-ghost"

@@ -12,13 +12,22 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'auth',
-    loadComponent: () => import('./auth/sign-in/sign-in').then((m) => m.SignIn),
+    loadComponent: () =>
+      import('@silvervibe/shared/feature-auth').then((m) => m.SignIn),
+    data: {
+      productTitle: 'Vibe Standup',
+      blurb:
+        'Foundation auth for local API calls. Not linked from the home standup.',
+    },
   },
   {
     path: 'account',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./auth/account/account').then((m) => m.Account),
+      import('@silvervibe/shared/feature-auth').then((m) => m.Account),
+    data: {
+      productTitle: 'Vibe Standup',
+    },
   },
   {
     path: '**',

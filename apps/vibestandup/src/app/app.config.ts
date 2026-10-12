@@ -5,7 +5,7 @@ import {
   isDevMode,
   inject,
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideStore, provideState } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
@@ -41,9 +41,11 @@ export const appConfig: ApplicationConfig = {
     provideEffects(AppEffects),
     provideStoreDevtools({ logOnly: !isDevMode() }),
     provideBrowserGlobalErrorListeners(),
-    provideRouter(appRoutes),
+    provideRouter(appRoutes, withComponentInputBinding()),
     provideSilvervibeTheme(),
-    provideSilvervibeAuth(environment.firebase),
+    provideSilvervibeAuth(environment.firebase, {
+      apiBaseUrl: environment.apiBaseUrl,
+    }),
     provideSilvervibeFeatureFlags(environment.growthbook),
     {
       provide: APP_INITIALIZER,
