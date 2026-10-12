@@ -45,7 +45,9 @@ Apps call `AuthService.init(...)` only when `apiKey` and `projectId` are non-emp
 
 ## Angular routes (issue #6)
 
-Unlisted foundation routes (not linked from the public landing / standup home):
+Unlisted foundation routes (not linked from the public landing / standup home).
+UI lives in `@silvervibe/shared/feature-auth`; apps lazy-load `SignIn` / `Account`
+and pass `productTitle` / `blurb` via route `data` (`withComponentInputBinding`).
 
 | Path       | Purpose                                           |
 | ---------- | ------------------------------------------------- |
@@ -53,7 +55,8 @@ Unlisted foundation routes (not linked from the public landing / standup home):
 | `/account` | Guarded; calls `GET /api/me` with Bearer ID token |
 
 `provideSilvervibeAuth` registers `HttpClient` with an interceptor that attaches
-`Authorization: Bearer <idToken>` to `/api` requests when signed in.
+`Authorization: Bearer <idToken>` to `/api` requests when signed in, and provides
+`API_BASE_URL` for shared account pages.
 
 ## Wire Admin (Nest)
 

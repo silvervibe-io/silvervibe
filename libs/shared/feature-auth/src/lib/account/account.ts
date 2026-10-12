@@ -2,14 +2,14 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
+  input,
   OnInit,
   signal,
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '@silvervibe/shared/auth';
+import { API_BASE_URL, AuthService } from '@silvervibe/shared/auth';
 import { Shell } from '@silvervibe/shared/ui';
-import { environment } from '../../../environments/environment';
 
 export type MeResponse = {
   id: string;
@@ -31,6 +31,10 @@ export class Account implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly apiBaseUrl = inject(API_BASE_URL);
+
+  readonly productTitle = input('Silver Vibe');
+  readonly authPath = input('/auth');
 
   readonly user = this.auth.user;
   readonly me = signal<MeResponse | null>(null);
@@ -38,7 +42,7 @@ export class Account implements OnInit {
   readonly loading = signal(true);
 
   ngOnInit(): void {
-    this.http.get<MeResponse>(`${environment.apiBaseUrl}/me`).subscribe({
+    this.http.get<MeResponse>(`${this.apiBaseUrl}/me`).subscribe({
       next: (me) => {
         this.me.set(me);
         this.loading.set(false);
@@ -57,7 +61,7 @@ export class Account implements OnInit {
   signOut(): void {
     this.auth.signOut().subscribe({
       next: () => {
-        void this.router.navigateByUrl('/auth');
+        void this.router.navigateByUrl(this.authPath());
       },
     });
   }

@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
+  input,
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -23,6 +24,14 @@ export class SignIn {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+
+  /** Product name shown in the shell (bind via route `data` + input binding). */
+  readonly productTitle = input('Silver Vibe');
+  /** Short helper copy under the heading. */
+  readonly blurb = input(
+    'Foundation auth for local API calls. Not linked from the public landing.',
+  );
+  readonly accountPath = input('/account');
 
   readonly error = signal<string | null>(null);
   readonly busy = signal(false);
@@ -61,7 +70,7 @@ export class SignIn {
       next: () => {
         this.busy.set(false);
         if (navigateToAccount) {
-          void this.router.navigateByUrl('/account');
+          void this.router.navigateByUrl(this.accountPath());
         }
       },
       error: (err: unknown) => {
