@@ -9,7 +9,7 @@ description: Adds and maintains Transloco i18n in Silvervibe Angular apps and sh
 
 - Library: `@jsverse/transloco` (v9.x for Angular ≥20 / this repo’s Angular 22).
 - Shared Nx lib: `@silvervibe/shared/i18n` (`libs/shared/i18n`) — `provideSilvervibeI18n()`, loader, locale list.
-- Catalogs: JSON under `libs/shared/i18n/assets/i18n/` (copied into each app’s build assets as `/i18n/`).
+- Catalogs: JSON under `libs/shared/i18n/assets/i18n/` (bundled via `catalogs.ts`; also copied to app assets for tooling).
 - Default language: **`en`**.
 - Target languages (for now): **`nl`**, **`de`**, **`fr`**, **`el`**, **`es`**.
 
