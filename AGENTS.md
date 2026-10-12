@@ -21,3 +21,7 @@
 - The `nx-generate` skill handles generator discovery internally - don't call nx_docs just to look up generator syntax
 
 <!-- nx configuration end-->
+
+## i18n
+
+For Angular localization use the **transloco-i18n** skill (`.cursor/skills/transloco-i18n/`). Locales: `en` (default), `nl`, `de`, `fr`, `el`, `es`. See `docs/i18n.md`.

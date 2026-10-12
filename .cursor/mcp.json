@@ -40,6 +40,15 @@
     "angular": {
       "url": "https://gitmcp.io/angular/angular"
     },
+    "transloco": {
+      "url": "https://gitmcp.io/jsverse/transloco"
+    },
+    "lokalise_sd": {
+      "url": "https://mcp.lokalise.com/mcp/software-development"
+    },
+    "lokalise_pm": {
+      "url": "https://mcp.lokalise.com/mcp/project-management"
+    },
     "nestjs": {
       "url": "https://gitmcp.io/nestjs/nest"
     },

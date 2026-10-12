@@ -10,9 +10,10 @@ description: Builds Angular UI in Silvervibe with signals, OnPush, Tailwind, and
 3. Template control flow is `@if`, `@for` (with `track`), `@switch`.
 4. Put the page inside `sv-shell` from `@silvervibe/shared/ui`.
 5. Use daisyUI classes from the project Tailwind entry. Check the daisyUI skill before inventing a component.
-6. Add or update the colocated `.spec.ts` in the same change. Test the public method or rendered text.
-7. Theme (issue #2): light-first **and** a first-class **dark** theme; calm, clear, user-friendly vibe (high readability, soft contrast — not loud/neon). Prefer shared tokens over one-off colors.
-8. Lazy routes:
+6. User-facing copy goes through **Transloco** (`@silvervibe/shared/i18n`). Follow the `transloco-i18n` skill — no new hard-coded UI strings; keep `en` + `nl`/`de`/`fr`/`el`/`es` in sync.
+7. Add or update the colocated `.spec.ts` in the same change. Test the public method or rendered text.
+8. Theme (issue #2): light-first **and** a first-class **dark** theme; calm, clear, user-friendly vibe (high readability, soft contrast — not loud/neon). Prefer shared tokens over one-off colors.
+9. Lazy routes:
 
 ```typescript
 {

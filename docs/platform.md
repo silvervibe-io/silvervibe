@@ -9,6 +9,7 @@ separate — see [legal.md](./legal.md)).
 
 ```text
 Angular apps  →  Cloudflare Pages
+i18n          →  Transloco (`docs/i18n.md`) — en + nl/de/fr/el/es
       │
       │  Firebase Auth ID token
       ▼

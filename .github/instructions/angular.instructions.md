@@ -16,3 +16,4 @@ applyTo: 'apps/silvervibe/**/*.{ts,html},apps/vibestandup/**/*.{ts,html},libs/sh
 - Suggesting NgModules (standalone only)
 - Constructor DI vs `inject()` (`inject()` is preferred)
 - Style / formatting (CI handles it)
+- Preferring Angular compile-time i18n over Transloco (project uses Transloco)
