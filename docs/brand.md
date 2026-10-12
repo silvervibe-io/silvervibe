@@ -1,7 +1,7 @@
 # Brand mark & favicon
 
 Calm, friendly mark for **SilverVibe™**: a front-facing meditation-cat
-outline (closed eyes, folded paws, crossed legs) with soft teal sparkles
+outline (closed eyes, crossed legs) with soft teal ✨-style sparkles
 (“vibe”), paired with a Manrope wordmark (**SilverVibe** — one word, capitals
 on S and V only).
 
@@ -24,7 +24,7 @@ on S and V only).
 | ---------- | ----------- | ---------- | ------------------------- |
 | Silver     | `#9AA3AD`   | `#C5CCD6`  | “Silver” half of wordmark |
 | Slate mark | `#5C6670`   | `#C5CCD6`  | Cat outline               |
-| Vibe teal  | `#3D8B84`   | `#5EB5AD`  | “Vibe” half + sparkles    |
+| Vibe teal  | `#3D8B84`   | `#5EB5AD`  | “Vibe” half + ✨ sparkles |
 
 Light SVGs also embed `@media (prefers-color-scheme: dark)` fallbacks. For
 app chrome driven by `ThemeService`, prefer `mark-dark.svg` / `logo-dark.svg`
@@ -42,7 +42,7 @@ and Manrope loads from the page (SVG-as-`<img>` cannot use page fonts).
 ## Favicon guidance (summary)
 
 - Prefer **SVG** for Chromium/Firefox; keep **ICO** for Safari/legacy.
-- Icon must stay readable at **16×16**: bold silhouette, few stars, no fine lines.
+- Icon must stay readable at **16×16**: bold silhouette, few sparkles, no fine lines.
 - Apple touch icon: opaque **180×180** PNG with padding; iOS rounds corners.
 - Do not copy GitHub’s Octocat; this mark is an original sitting-cat profile.
 
