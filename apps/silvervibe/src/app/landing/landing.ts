@@ -6,11 +6,12 @@ import {
   inject,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ThemeService } from '@silvervibe/shared/ui';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { LangSwitch, ThemeService } from '@silvervibe/shared/ui';
 
 @Component({
   selector: 'sv-landing',
-  imports: [NgOptimizedImage, RouterLink],
+  imports: [NgOptimizedImage, RouterLink, TranslocoPipe, LangSwitch],
   templateUrl: './landing.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

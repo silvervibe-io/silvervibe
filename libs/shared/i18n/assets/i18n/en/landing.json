@@ -1,0 +1,10 @@
+{
+  "badge": "Personal project · In development",
+  "headline": "A better vibe for async work.",
+  "body": "Exploring calmer, more flexible ways for remote teams to communicate, collaborate and stay focused — without unnecessary meetings.",
+  "footer": {
+    "legal": "Silver Vibe™ is a personal open-source project (MIT). Names and marks are trademarks of the project owner — see LICENSE and TRADEMARKS.md.",
+    "github": "Source on GitHub",
+    "privacy": "Privacy"
+  }
+}

@@ -25,7 +25,8 @@
       "@silvervibe/shared/auth": ["./libs/shared/auth/src/index.ts"],
       "@silvervibe/shared/feature-auth": [
         "./libs/shared/feature-auth/src/index.ts"
-      ]
+      ],
+      "@silvervibe/shared/i18n": ["./libs/shared/i18n/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -1,0 +1,12 @@
+{
+  "title": "Vibe Standup",
+  "subtitle": "Captura ayer, hoy y bloqueos.",
+  "yesterday": "Ayer",
+  "today": "Hoy",
+  "blockers": "Bloqueos",
+  "save": "Guardar borrador",
+  "saved": "Borrador guardado",
+  "links": {
+    "platform": "SilverVibe"
+  }
+}

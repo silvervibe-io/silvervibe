@@ -1,0 +1,8 @@
+{
+  "theme": {
+    "toDark": "Passer au thème sombre",
+    "toLight": "Passer au thème clair",
+    "dark": "Sombre",
+    "light": "Clair"
+  }
+}

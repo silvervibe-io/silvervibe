@@ -1,0 +1,12 @@
+{
+  "title": "Vibe Standup",
+  "subtitle": "Erfassen Sie gestern, heute und Blocker.",
+  "yesterday": "Gestern",
+  "today": "Heute",
+  "blockers": "Blocker",
+  "save": "Entwurf speichern",
+  "saved": "Entwurf gespeichert",
+  "links": {
+    "platform": "SilverVibe"
+  }
+}

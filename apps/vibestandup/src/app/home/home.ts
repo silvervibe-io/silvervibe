@@ -1,10 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { Store } from '@ngrx/store';
 import { Shell, ShellLink } from '@silvervibe/shared/ui';
 import * as AppActions from '../+state/app.actions';
@@ -13,7 +16,7 @@ import { standupFeature } from '../standup/standup.reducer';
 
 @Component({
   selector: 'vs-home',
-  imports: [Shell],
+  imports: [Shell, TranslocoPipe],
   templateUrl: './home.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -22,13 +25,23 @@ import { standupFeature } from '../standup/standup.reducer';
 })
 export class Home implements OnInit {
   private readonly store = inject(Store);
+  private readonly transloco = inject(TranslocoService);
+
   readonly yesterday = signal('');
   readonly today = signal('');
   readonly blockers = signal('');
   readonly saved = this.store.selectSignal(standupFeature.selectStandupState);
-  readonly links: ShellLink[] = [
-    { label: 'Silvervibe', href: 'http://localhost:4200', external: true },
-  ];
+  private readonly platformLabel = toSignal(
+    this.transloco.selectTranslate('standup.links.platform'),
+    { initialValue: 'SilverVibe' },
+  );
+  readonly links = computed<ShellLink[]>(() => [
+    {
+      label: this.platformLabel(),
+      href: 'http://localhost:4200',
+      external: true,
+    },
+  ]);
 
   ngOnInit(): void {
     this.store.dispatch(AppActions.initApp());

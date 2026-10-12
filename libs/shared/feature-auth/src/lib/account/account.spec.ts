@@ -5,6 +5,7 @@ import {
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
+import { provideTransloco } from '@jsverse/transloco';
 import { API_BASE_URL, AuthService } from '@silvervibe/shared/auth';
 import { of } from 'rxjs';
 import { Account } from './account';
@@ -28,6 +29,43 @@ describe('Account', () => {
             signOut: () => of(undefined),
           },
         },
+        ...provideTransloco({
+          config: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+            reRenderOnLangChange: true,
+            prodMode: true,
+          },
+          loader: class {
+            getTranslation() {
+              return of({
+                common: { language: { label: 'Language', en: 'English' } },
+                shell: {
+                  theme: {
+                    toDark: 'dark',
+                    toLight: 'light',
+                    dark: 'Dark',
+                    light: 'Light',
+                  },
+                },
+                auth: {
+                  account: {
+                    title: 'Account',
+                    intro: 'Calls GET /api/me',
+                    loading: 'Loading…',
+                    neonId: 'Neon id',
+                    firebaseUid: 'Firebase uid',
+                    email: 'Email',
+                    displayName: 'Display name',
+                    empty: '—',
+                    backToSignIn: 'Back to sign in',
+                    signOut: 'Sign out',
+                  },
+                },
+              });
+            }
+          },
+        }),
       ],
     }).compileComponents();
     http = TestBed.inject(HttpTestingController);
