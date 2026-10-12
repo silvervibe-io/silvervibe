@@ -7,28 +7,28 @@
     </p>
 
     @if (loading()) {
-      <p class="text-sm text-base-content/60">Loading…</p>
+    <p class="text-sm text-base-content/60">Loading…</p>
     } @else if (error(); as message) {
-      <p class="text-sm text-error" role="alert">{{ message }}</p>
+    <p class="text-sm text-error" role="alert">{{ message }}</p>
     } @else if (me(); as profile) {
-      <dl class="mb-8 grid gap-3 text-sm">
-        <div>
-          <dt class="font-semibold text-base-content/60">Neon id</dt>
-          <dd>{{ profile.id }}</dd>
-        </div>
-        <div>
-          <dt class="font-semibold text-base-content/60">Firebase uid</dt>
-          <dd>{{ profile.firebaseUid }}</dd>
-        </div>
-        <div>
-          <dt class="font-semibold text-base-content/60">Email</dt>
-          <dd>{{ profile.email || '—' }}</dd>
-        </div>
-        <div>
-          <dt class="font-semibold text-base-content/60">Display name</dt>
-          <dd>{{ profile.displayName || '—' }}</dd>
-        </div>
-      </dl>
+    <dl class="mb-8 grid gap-3 text-sm">
+      <div>
+        <dt class="font-semibold text-base-content/60">Neon id</dt>
+        <dd>{{ profile.id }}</dd>
+      </div>
+      <div>
+        <dt class="font-semibold text-base-content/60">Firebase uid</dt>
+        <dd>{{ profile.firebaseUid }}</dd>
+      </div>
+      <div>
+        <dt class="font-semibold text-base-content/60">Email</dt>
+        <dd>{{ profile.email || '—' }}</dd>
+      </div>
+      <div>
+        <dt class="font-semibold text-base-content/60">Display name</dt>
+        <dd>{{ profile.displayName || '—' }}</dd>
+      </div>
+    </dl>
     }
 
     <div class="flex flex-wrap gap-3">
