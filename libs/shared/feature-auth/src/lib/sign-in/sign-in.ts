@@ -5,16 +5,27 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  email,
+  form,
+  FormField,
+  minLength,
+  required,
+  submit,
+} from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AuthService } from '@silvervibe/shared/auth';
 import { Shell } from '@silvervibe/shared/ui';
-import { Observable } from 'rxjs';
+
+type SignInModel = {
+  email: string;
+  password: string;
+};
 
 @Component({
   selector: 'sv-sign-in',
-  imports: [ReactiveFormsModule, RouterLink, Shell, TranslocoPipe],
+  imports: [FormField, RouterLink, Shell, TranslocoPipe],
   templateUrl: './sign-in.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -24,7 +35,6 @@ import { Observable } from 'rxjs';
 export class SignIn {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly fb = inject(FormBuilder);
   private readonly transloco = inject(TranslocoService);
 
   /** Product name shown in the shell (bind via route `data` + input binding). */
@@ -37,50 +47,61 @@ export class SignIn {
   readonly busy = signal(false);
   readonly user = this.auth.user;
 
-  readonly form = this.fb.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+  readonly loginModel = signal<SignInModel>({
+    email: '',
+    password: '',
   });
 
-  signInEmail(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-    const { email, password } = this.form.getRawValue();
-    this.run(this.auth.signIn(email, password));
+  readonly loginForm = form(this.loginModel, (schemaPath) => {
+    required(schemaPath.email);
+    email(schemaPath.email);
+    required(schemaPath.password);
+    minLength(schemaPath.password, 6);
+  });
+
+  async signInEmail(event: Event): Promise<void> {
+    event.preventDefault();
+    this.error.set(null);
+    await submit(this.loginForm, {
+      action: async () => {
+        const { email: address, password } = this.loginModel();
+        await this.run(() => this.auth.signIn(address, password));
+        return undefined;
+      },
+    });
   }
 
   signInGoogle(): void {
-    this.run(this.auth.signInWithGoogle());
+    void this.run(() => this.auth.signInWithGoogle());
   }
 
   signInGithub(): void {
-    this.run(this.auth.signInWithGithub());
+    void this.run(() => this.auth.signInWithGithub());
   }
 
   signOut(): void {
-    this.run(this.auth.signOut(), false);
+    void this.run(() => this.auth.signOut(), false);
   }
 
-  private run(action: Observable<unknown>, navigateToAccount = true): void {
+  private async run(
+    action: () => Promise<unknown>,
+    navigateToAccount = true,
+  ): Promise<void> {
     this.error.set(null);
     this.busy.set(true);
-    action.subscribe({
-      next: () => {
-        this.busy.set(false);
-        if (navigateToAccount) {
-          void this.router.navigateByUrl(this.accountPath());
-        }
-      },
-      error: (err: unknown) => {
-        this.busy.set(false);
-        this.error.set(
-          err instanceof Error
-            ? err.message
-            : this.transloco.translate('auth.signIn.failed'),
-        );
-      },
-    });
+    try {
+      await action();
+      if (navigateToAccount) {
+        void this.router.navigateByUrl(this.accountPath());
+      }
+    } catch (err: unknown) {
+      this.error.set(
+        err instanceof Error
+          ? err.message
+          : this.transloco.translate('auth.signIn.failed'),
+      );
+    } finally {
+      this.busy.set(false);
+    }
   }
 }

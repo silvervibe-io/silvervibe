@@ -1,12 +1,11 @@
+import { httpResource } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
-  OnInit,
-  signal,
 } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { API_BASE_URL, AuthService } from '@silvervibe/shared/auth';
@@ -28,8 +27,7 @@ export type MeResponse = {
     class: 'block min-h-screen',
   },
 })
-export class Account implements OnInit {
-  private readonly http = inject(HttpClient);
+export class Account {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly apiBaseUrl = inject(API_BASE_URL);
@@ -39,32 +37,24 @@ export class Account implements OnInit {
   readonly authPath = input('/auth');
 
   readonly user = this.auth.user;
-  readonly me = signal<MeResponse | null>(null);
-  readonly error = signal<string | null>(null);
-  readonly loading = signal(true);
 
-  ngOnInit(): void {
-    this.http.get<MeResponse>(`${this.apiBaseUrl}/me`).subscribe({
-      next: (me) => {
-        this.me.set(me);
-        this.loading.set(false);
-      },
-      error: (err: unknown) => {
-        this.loading.set(false);
-        const message =
-          err && typeof err === 'object' && 'message' in err
-            ? String((err as { message: unknown }).message)
-            : this.transloco.translate('auth.account.loadFailed');
-        this.error.set(message);
-      },
-    });
-  }
+  readonly profile = httpResource<MeResponse>(() => `${this.apiBaseUrl}/me`);
 
-  signOut(): void {
-    this.auth.signOut().subscribe({
-      next: () => {
-        void this.router.navigateByUrl(this.authPath());
-      },
-    });
+  readonly me = computed(() => this.profile.value() ?? null);
+  readonly loading = computed(() => this.profile.isLoading());
+  readonly error = computed(() => {
+    const err = this.profile.error();
+    if (!err) {
+      return null;
+    }
+    if (err && typeof err === 'object' && 'message' in err) {
+      return String((err as { message: unknown }).message);
+    }
+    return this.transloco.translate('auth.account.loadFailed');
+  });
+
+  async signOut(): Promise<void> {
+    await this.auth.signOut();
+    void this.router.navigateByUrl(this.authPath());
   }
 }

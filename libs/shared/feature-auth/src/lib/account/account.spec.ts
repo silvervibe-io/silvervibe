@@ -26,7 +26,7 @@ describe('Account', () => {
           provide: AuthService,
           useValue: {
             user: () => ({ uid: 'u1', email: 'u1@example.com' }),
-            signOut: () => of(undefined),
+            signOut: () => Promise.resolve(),
           },
         },
         ...provideTransloco({

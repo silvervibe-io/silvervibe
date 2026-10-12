@@ -7,34 +7,22 @@
       </div>
     </div>
   </div>
-  <form class="mt-6 grid gap-4" (submit)="$event.preventDefault(); save()">
+  <form class="mt-6 grid gap-4" (submit)="save($event)">
     <fieldset class="fieldset">
       <legend class="fieldset-legend">
         {{ 'standup.yesterday' | transloco }}
       </legend>
-      <textarea
-        class="textarea"
-        [value]="yesterday()"
-        (input)="onYesterday($event)"
-      ></textarea>
+      <textarea class="textarea" [formField]="draftForm.yesterday"></textarea>
     </fieldset>
     <fieldset class="fieldset">
       <legend class="fieldset-legend">{{ 'standup.today' | transloco }}</legend>
-      <textarea
-        class="textarea"
-        [value]="today()"
-        (input)="onToday($event)"
-      ></textarea>
+      <textarea class="textarea" [formField]="draftForm.today"></textarea>
     </fieldset>
     <fieldset class="fieldset">
       <legend class="fieldset-legend">
         {{ 'standup.blockers' | transloco }}
       </legend>
-      <textarea
-        class="textarea"
-        [value]="blockers()"
-        (input)="onBlockers($event)"
-      ></textarea>
+      <textarea class="textarea" [formField]="draftForm.blockers"></textarea>
     </fieldset>
     <button class="btn" type="submit">{{ 'standup.save' | transloco }}</button>
     @if (saved().today) {

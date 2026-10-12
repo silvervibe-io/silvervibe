@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { form, FormField } from '@angular/forms/signals';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { Store } from '@ngrx/store';
 import { Shell, ShellLink } from '@silvervibe/shared/ui';
@@ -14,9 +15,15 @@ import * as AppActions from '../+state/app.actions';
 import { saveDraft } from '../standup/standup.actions';
 import { standupFeature } from '../standup/standup.reducer';
 
+type StandupDraft = {
+  yesterday: string;
+  today: string;
+  blockers: string;
+};
+
 @Component({
   selector: 'vs-home',
-  imports: [Shell, TranslocoPipe],
+  imports: [FormField, Shell, TranslocoPipe],
   templateUrl: './home.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -27,9 +34,13 @@ export class Home implements OnInit {
   private readonly store = inject(Store);
   private readonly transloco = inject(TranslocoService);
 
-  readonly yesterday = signal('');
-  readonly today = signal('');
-  readonly blockers = signal('');
+  readonly draftModel = signal<StandupDraft>({
+    yesterday: '',
+    today: '',
+    blockers: '',
+  });
+  readonly draftForm = form(this.draftModel);
+
   readonly saved = this.store.selectSignal(standupFeature.selectStandupState);
   private readonly platformLabel = toSignal(
     this.transloco.selectTranslate('standup.links.platform'),
@@ -47,25 +58,9 @@ export class Home implements OnInit {
     this.store.dispatch(AppActions.initApp());
   }
 
-  onYesterday(event: Event): void {
-    this.yesterday.set((event.target as HTMLTextAreaElement).value);
-  }
-
-  onToday(event: Event): void {
-    this.today.set((event.target as HTMLTextAreaElement).value);
-  }
-
-  onBlockers(event: Event): void {
-    this.blockers.set((event.target as HTMLTextAreaElement).value);
-  }
-
-  save(): void {
-    this.store.dispatch(
-      saveDraft({
-        yesterday: this.yesterday(),
-        today: this.today(),
-        blockers: this.blockers(),
-      }),
-    );
+  save(event: Event): void {
+    event.preventDefault();
+    const draft = this.draftModel();
+    this.store.dispatch(saveDraft(draft));
   }
 }
