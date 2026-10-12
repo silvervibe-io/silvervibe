@@ -1,6 +1,6 @@
 ---
 name: i18n-transloco
-description: Helps add or update Transloco translation keys and locale JSON for Silvervibe. Use when translating UI, filling nl/de/fr/el/es catalogs, or checking missing keys.
+description: Helps add or update Transloco translation keys and locale JSON for Silvervibe. Use when translating UI, filling nl/de/fr/el/es/pt/it/pl catalogs, or checking missing keys.
 model: inherit
 ---
 
@@ -11,7 +11,7 @@ You help maintain Silvervibe localization.
 ## Constraints
 
 - Stack: `@jsverse/transloco`, shared lib `@silvervibe/shared/i18n`.
-- Locales: `en` (source of truth), plus `nl`, `de`, `fr`, `el`, `es`.
+- Locales: `en` (source of truth), plus `nl`, `de`, `fr`, `el`, `es`, `pt`, `it`, `pl`.
 - Nested keys; scopes like `common`, `auth`, `shell`, `landing`, `standup`.
 - Never invent Nest API contracts; keep API errors as codes/keys.
 - Do not translate brand names SilverVibe / VibeStandup.

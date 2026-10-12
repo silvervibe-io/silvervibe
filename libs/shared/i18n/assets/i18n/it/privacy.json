@@ -1,0 +1,25 @@
+{
+  "crumb": "Privacy",
+  "title": "Informativa sulla privacy",
+  "updated": "Ultimo aggiornamento: 10 ottobre 2026. Silver Vibe™ è un progetto personale open-source. Contatto",
+  "collect": {
+    "title": "Cosa raccogliamo",
+    "body": "Quando accedi (email/password, Google o GitHub tramite Firebase Authentication), elaboriamo identificatori dell'account come indirizzo email, nome visualizzato e id utente Firebase. Memorizziamo una riga utente corrispondente nel database dell'applicazione in modo che l'API possa autorizzare le tue richieste."
+  },
+  "use": {
+    "title": "Come lo usiamo",
+    "body": "Usiamo queste informazioni solo per gestire l'accesso, proteggere le route API e fornire il prodotto. Non vendiamo dati personali. Non le usiamo per pubblicità non correlata."
+  },
+  "processors": {
+    "title": "Responsabili del trattamento",
+    "body": "L'autenticazione è fornita da Google Firebase Auth. L'hosting e l'infrastruttura correlata possono elaborare le richieste come necessario per far funzionare il servizio. I rispettivi termini sulla privacy si applicano al loro trattamento."
+  },
+  "retention": {
+    "title": "Conservazione e diritti",
+    "body": "I dati dell'account sono conservati finché l'account esiste. Puoi richiedere accesso o cancellazione scrivendo a"
+  },
+  "changes": {
+    "title": "Modifiche",
+    "body": "Possiamo aggiornare questa informativa man mano che il progetto evolve. La data sopra cambierà quando lo faremo. L'uso continuato dopo un aggiornamento implica l'accettazione dell'informativa rivista."
+  }
+}

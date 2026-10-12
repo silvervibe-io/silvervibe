@@ -6,7 +6,7 @@ alwaysApply: false
 
 # i18n (Transloco)
 
-- Use **`@jsverse/transloco`** via `@silvervibe/shared/i18n`. Default locale **`en`**; also maintain **`nl`**, **`de`**, **`fr`**, **`el`**, **`es`**.
+- Use **`@jsverse/transloco`** via `@silvervibe/shared/i18n`. Default locale **`en`**; also maintain **`nl`**, **`de`**, **`fr`**, **`el`**, **`es`**, **`pt`**, **`it`**, **`pl`**.
 - Do not leave new user-visible English (or any language) hard-coded in templates/TS — extract keys under nested scopes (`common`, `auth`, `shell`, `landing`, `standup`, …).
 - When adding or renaming a key, update **every** locale JSON in `libs/shared/i18n/assets/i18n/` in the same PR.
 - Do not translate brand names (SilverVibe, VibeStandup).
