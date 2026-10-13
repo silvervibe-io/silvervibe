@@ -3,8 +3,9 @@
   "compilerOptions": {
     "outDir": "../../../dist/out-tsc",
     "declaration": true,
+    "resolveJsonModule": true,
     "types": []
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "assets/**/*.json"],
   "exclude": ["src/**/*.spec.ts"]
 }

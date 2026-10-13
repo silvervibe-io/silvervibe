@@ -9,9 +9,9 @@ description: Adds and maintains Transloco i18n in Silvervibe Angular apps and sh
 
 - Library: `@jsverse/transloco` (v9.x for Angular ≥20 / this repo’s Angular 22).
 - Shared Nx lib: `@silvervibe/shared/i18n` (`libs/shared/i18n`) — `provideSilvervibeI18n()`, loader, locale list.
-- Catalogs: JSON under `libs/shared/i18n/assets/i18n/` (copied into each app’s build assets as `/i18n/`).
+- Catalogs: JSON under `libs/shared/i18n/assets/i18n/` (bundled via `catalogs.ts`; also copied to app assets for tooling).
 - Default language: **`en`**.
-- Target languages (for now): **`nl`**, **`de`**, **`fr`**, **`el`**, **`es`**.
+- Target languages: **`nl`**, **`de`**, **`fr`**, **`el`**, **`es`**, **`pt`**, **`it`**, **`pl`**.
 
 ## Rules
 
@@ -19,7 +19,7 @@ description: Adds and maintains Transloco i18n in Silvervibe Angular apps and sh
 2. Key style: **nested**, scoped by area — `common.*`, `auth.*`, `landing.*`, `standup.*`, `shell.*`. Prefer `auth.signIn.title` over English-as-key.
 3. Do **not** translate brand/product names (**SilverVibe**, **VibeStandup**, legal entity names) unless marketing explicitly asks.
 4. Keep Nest/API messages as **stable codes or keys**; translate on the client.
-5. When adding a key in `en`, add the same key to **all** locale files in the same change (`nl`, `de`, `fr`, `el`, `es`). Empty string is worse than a temporary English fallback only if product accepts it — prefer real translations.
+5. When adding a key in `en`, add the same key to **all** locale files in the same change (`nl`, `de`, `fr`, `el`, `es`, `pt`, `it`, `pl`). Empty string is worse than a temporary English fallback only if product accepts it — prefer real translations.
 6. Runtime switch via shared shell language control; persist choice (localStorage) when that helper exists.
 7. Wire apps with `provideSilvervibeI18n()` in `app.config.ts` (alongside auth/theme). Use `reRenderOnLangChange: true`.
 8. Specs: assert translation **keys** or mock `TranslocoService` / provide test loader — do not assert locale-specific prose unless testing the catalog.

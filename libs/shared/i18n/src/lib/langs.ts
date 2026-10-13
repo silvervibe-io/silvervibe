@@ -9,6 +9,9 @@ export const AVAILABLE_LANGS: LangDefinition[] = [
   { id: 'fr', label: 'Français' },
   { id: 'el', label: 'Ελληνικά' },
   { id: 'es', label: 'Español' },
+  { id: 'pt', label: 'Português' },
+  { id: 'it', label: 'Italiano' },
+  { id: 'pl', label: 'Polski' },
 ];
 
 export const I18N_SCOPES = [
