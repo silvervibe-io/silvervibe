@@ -12,13 +12,21 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'auth',
-    loadComponent: () => import('./auth/sign-in/sign-in').then((m) => m.SignIn),
+    loadComponent: () =>
+      import('@silvervibe/shared/feature-auth').then((m) => m.SignIn),
+    data: {
+      productTitle: 'Vibe Standup',
+      blurbKey: 'auth.signIn.blurb.standup',
+    },
   },
   {
     path: 'account',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./auth/account/account').then((m) => m.Account),
+      import('@silvervibe/shared/feature-auth').then((m) => m.Account),
+    data: {
+      productTitle: 'Vibe Standup',
+    },
   },
   {
     path: '**',

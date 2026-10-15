@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideTransloco } from '@jsverse/transloco';
+import { of } from 'rxjs';
 import { THEME_STORAGE_KEY, ThemeService } from '../theme/theme.service';
 import { Shell } from './shell';
 
@@ -10,7 +12,38 @@ describe('Shell', () => {
     localStorage.removeItem(THEME_STORAGE_KEY);
     await TestBed.configureTestingModule({
       imports: [Shell],
-      providers: [provideRouter([]), ThemeService],
+      providers: [
+        provideRouter([]),
+        ThemeService,
+        ...provideTransloco({
+          config: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+            reRenderOnLangChange: true,
+            prodMode: true,
+          },
+          loader: class {
+            getTranslation() {
+              return of({
+                common: {
+                  language: {
+                    label: 'Language',
+                    en: 'English',
+                  },
+                },
+                shell: {
+                  theme: {
+                    toDark: 'Switch to dark theme',
+                    toLight: 'Switch to light theme',
+                    dark: 'Dark',
+                    light: 'Light',
+                  },
+                },
+              });
+            }
+          },
+        }),
+      ],
     }).compileComponents();
     const theme = TestBed.inject(ThemeService);
     theme.init();

@@ -5,6 +5,7 @@
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
     "bradlc.vscode-tailwindcss",
+    "lokalise.i18n-ally",
     "ms-playwright.playwright",
     "ms-python.python",
     "ms-python.vscode-pylance",

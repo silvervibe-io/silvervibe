@@ -1,5 +1,6 @@
 import { EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { API_BASE_URL } from './api-base-url.token';
 import { AuthService, SilvervibeFirebaseConfig } from './auth.service';
 import { authInterceptor } from './auth.interceptor';
 import {
@@ -7,12 +8,21 @@ import {
   FeatureFlagsService,
 } from './feature-flags.service';
 
+export type ProvideSilvervibeAuthOptions = {
+  apiBaseUrl?: string;
+};
+
 export function provideSilvervibeAuth(
   _firebase: SilvervibeFirebaseConfig,
+  options: ProvideSilvervibeAuthOptions = {},
 ): EnvironmentProviders {
   return makeEnvironmentProviders([
     AuthService,
     provideHttpClient(withInterceptors([authInterceptor])),
+    {
+      provide: API_BASE_URL,
+      useValue: options.apiBaseUrl ?? '/api',
+    },
   ]);
 }
 

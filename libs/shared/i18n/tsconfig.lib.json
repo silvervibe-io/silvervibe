@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../../dist/out-tsc",
+    "declaration": true,
+    "resolveJsonModule": true,
+    "types": []
+  },
+  "include": ["src/**/*.ts", "assets/**/*.json"],
+  "exclude": ["src/**/*.spec.ts"]
+}

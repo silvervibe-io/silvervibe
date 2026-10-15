@@ -1,0 +1,25 @@
+{
+  "crumb": "Privacy",
+  "title": "Privacybeleid",
+  "updated": "Laatst bijgewerkt: 10 oktober 2026. Silver Vibe™ is een persoonlijk open-sourceproject. Contact",
+  "collect": {
+    "title": "Wat we verzamelen",
+    "body": "Wanneer je inlogt (e-mail/wachtwoord, Google of GitHub via Firebase Authentication), verwerken we accountidentifiers zoals je e-mailadres, weergavenaam en Firebase-gebruikers-id. We slaan een bijbehorende gebruikersrij op in onze applicatiedatabase zodat de API je verzoeken kan autoriseren."
+  },
+  "use": {
+    "title": "Hoe we het gebruiken",
+    "body": "We gebruiken deze informatie alleen om inloggen te laten werken, API-routes te beschermen en het product te leveren. We verkopen geen persoonsgegevens. We gebruiken ze niet voor ongerelateerde reclame."
+  },
+  "processors": {
+    "title": "Verwerkers",
+    "body": "Authenticatie wordt geleverd door Google Firebase Auth. Hosting en gerelateerde infrastructuur kunnen verzoeken verwerken om de dienst te laten draaien. Hun eigen privacyvoorwaarden gelden voor hun verwerking."
+  },
+  "retention": {
+    "title": "Bewaring en rechten",
+    "body": "Accountgegevens worden bewaard zolang je account bestaat. Je kunt toegang of verwijdering aanvragen door te mailen naar"
+  },
+  "changes": {
+    "title": "Wijzigingen",
+    "body": "We kunnen dit beleid bijwerken naarmate het project evolueert. De datum hierboven verandert dan. Voortgezet gebruik na een update betekent dat je het herziene beleid accepteert."
+  }
+}

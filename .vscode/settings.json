@@ -2,10 +2,12 @@
   "files.associations": {
     "*.css": "tailwindcss"
   },
+  "files.eol": "\n",
   "css.lint.unknownAtRules": "ignore",
   "scss.lint.unknownAtRules": "ignore",
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.requireConfig": true,
   "[html]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -26,5 +28,14 @@
   "python.defaultInterpreterPath": "${workspaceFolder}/apps/ai/.venv/Scripts/python.exe",
   "python.testing.pytestEnabled": true,
   "python.testing.pytestArgs": ["apps/ai"],
-  "playwright.reuseBrowser": true
+  "playwright.reuseBrowser": true,
+  "i18n-ally.localesPaths": ["libs/shared/i18n/assets/i18n"],
+  "i18n-ally.sourceLanguage": "en",
+  "i18n-ally.displayLanguage": "en",
+  "i18n-ally.enabledFrameworks": ["transloco"],
+  "i18n-ally.keystyle": "nested",
+  "i18n-ally.namespace": true,
+  "i18n-ally.pathMatcher": "{locale}/{namespaces}.json",
+  "i18n-ally.sortKeys": true,
+  "i18n-ally.extract.autoDetect": true
 }

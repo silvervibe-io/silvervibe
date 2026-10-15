@@ -22,6 +22,7 @@ Never commit service-account JSON or `.env`. See `docs/branching.md` and `docs/f
 
 - Use the Firebase JS SDK (Auth only). Keep web config in local environment files / deploy injection; empty placeholders stay in git.
 - `AuthService.init` runs only when `apiKey` + `projectId` are set (`app.config.ts`).
+- Auth state is a signal (`user` / `ready`); auth actions return Promises (not Observables). Sign-in UI uses Signal Forms.
 - After sign-in, attach the ID token to API calls (`Authorization: Bearer <token>`) — issue #6.
 
 ## Nest

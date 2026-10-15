@@ -5,7 +5,9 @@ import {
   input,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { ThemeService } from '../theme/theme.service';
+import { LangSwitch } from '../lang-switch/lang-switch';
 
 export interface ShellLink {
   label: string;
@@ -15,7 +17,7 @@ export interface ShellLink {
 
 @Component({
   selector: 'sv-shell',
-  imports: [RouterLink],
+  imports: [RouterLink, TranslocoPipe, LangSwitch],
   templateUrl: './shell.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -29,6 +31,8 @@ export class Shell {
   readonly links = input<ShellLink[]>([]);
   /** Show light/dark toggle in the navbar (default true). */
   readonly showThemeToggle = input(true);
+  /** Show language switcher (default true). */
+  readonly showLangSwitch = input(true);
 
   readonly mode = this.theme.mode;
 

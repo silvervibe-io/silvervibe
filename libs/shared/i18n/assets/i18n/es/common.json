@@ -1,0 +1,17 @@
+{
+  "app": {
+    "brand": "SilverVibe"
+  },
+  "language": {
+    "label": "Idioma",
+    "en": "Inglés",
+    "nl": "Neerlandés",
+    "de": "Alemán",
+    "fr": "Francés",
+    "el": "Griego",
+    "es": "Español",
+    "pt": "Portugués",
+    "it": "Italiano",
+    "pl": "Polaco"
+  }
+}

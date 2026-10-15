@@ -1,5 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideTransloco } from '@jsverse/transloco';
+import { ThemeService } from '@silvervibe/shared/ui';
+import { of } from 'rxjs';
 import { Landing } from './landing';
 
 describe('Landing', () => {
@@ -8,17 +11,49 @@ describe('Landing', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Landing],
-      providers: [provideRouter([])],
+      providers: [
+        provideRouter([]),
+        ThemeService,
+        ...provideTransloco({
+          config: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+            reRenderOnLangChange: true,
+            prodMode: true,
+          },
+          loader: class {
+            getTranslation() {
+              return of({
+                common: { language: { label: 'Language', en: 'English' } },
+                landing: {
+                  badge: 'Personal project · In development',
+                  headline: 'A better vibe for async work.',
+                  body: 'Exploring calmer ways.',
+                  footer: {
+                    legal:
+                      'Silver Vibe™ is a personal open-source project (MIT).',
+                    github: 'Source on GitHub',
+                    privacy: 'Privacy',
+                  },
+                },
+              });
+            }
+          },
+        }),
+      ],
     }).compileComponents();
+    TestBed.inject(ThemeService).init();
     fixture = TestBed.createComponent(Landing);
     await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it('renders the SilverVibe landing headline', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const brand = compiled.querySelector('p[aria-label="SilverVibe"]');
     expect(brand).toBeTruthy();
-    expect(brand?.textContent).toContain('SilverVibe');
+    expect(brand?.textContent).toContain('Silver');
+    expect(brand?.textContent).toContain('Vibe');
     expect(brand?.textContent).toContain('™');
     expect(compiled.querySelector('h1')?.textContent).toContain(
       'A better vibe for async work.',

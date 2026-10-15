@@ -10,6 +10,8 @@ alwaysApply: true
 - Public library API is `index.ts`. Import with `@silvervibe/*` aliases, never relative paths across libraries.
 - Tags: `type:app|ui|data-access|feature|util` and `scope:shared|silvervibe|vibestandup|api|ai`. `type:ui` must not depend on `type:data-access`. `scope:feature` depends only on `scope:shared` or `scope:domain`.
 - Standalone only. `inject()`, signals, `computed`, `@if` / `@for` / `@switch`, `ChangeDetectionStrategy.OnPush`, `track` on `@for`.
+- Prefer signals over Observables in UI code. Use signal `input()` / `output()` / `model()` / `viewChild()` / `contentChild()` (not decorators).
+- Forms: Angular Signal Forms (`@angular/forms/signals`) only — no new `FormBuilder` / reactive or template-driven forms.
 - Lazy-load feature routes with `loadComponent` or `loadChildren`.
 - Use `NgOptimizedImage` for static images.
 - Colocate a `.spec.ts` for every component, and update it when the component changes.

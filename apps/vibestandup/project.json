@@ -25,6 +25,16 @@
           {
             "glob": "**/*",
             "input": "apps/vibestandup/public"
+          },
+          {
+            "glob": "**/*",
+            "input": "apps/silvervibe/public/brand",
+            "output": "brand"
+          },
+          {
+            "glob": "**/*",
+            "input": "libs/shared/i18n/assets/i18n",
+            "output": "i18n"
           }
         ],
         "styles": ["apps/vibestandup/src/styles.css"]

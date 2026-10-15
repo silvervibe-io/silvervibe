@@ -1,0 +1,14 @@
+<label class="flex items-center gap-2">
+  <span class="sr-only">{{ 'common.language.label' | transloco }}</span>
+  <select
+    class="select select-bordered select-sm max-w-[9rem]"
+    [value]="currentLang()"
+    (change)="onLangChange($event)"
+  >
+    @for (lang of langs; track lang.id) {
+    <option [value]="lang.id">
+      {{ 'common.language.' + lang.id | transloco }}
+    </option>
+    }
+  </select>
+</label>

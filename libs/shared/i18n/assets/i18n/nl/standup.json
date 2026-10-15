@@ -1,0 +1,23 @@
+{
+  "badge": "Persoonlijk project · In ontwikkeling",
+  "headline": "Async standups zonder de meeting.",
+  "body": "Leg gisteren, vandaag en blockers vast in een rustig concept — deel wanneer je team er klaar voor is.",
+  "cta": {
+    "draft": "Start een concept",
+    "platform": "SilverVibe"
+  },
+  "footer": {
+    "legal": "Vibe Standup maakt deel uit van Silver Vibe™, een persoonlijk open-sourceproject (MIT).",
+    "github": "Broncode op GitHub"
+  },
+  "title": "Concept van vandaag",
+  "subtitle": "Gisteren, vandaag en blockers.",
+  "yesterday": "Gisteren",
+  "today": "Vandaag",
+  "blockers": "Blockers",
+  "save": "Concept opslaan",
+  "saved": "Concept opgeslagen",
+  "links": {
+    "platform": "SilverVibe"
+  }
+}

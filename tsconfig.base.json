@@ -13,6 +13,7 @@
     "lib": ["es2020", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
+    "resolveJsonModule": true,
     "strict": false,
     "paths": {
       "@silvervibe/shared/ui": ["./libs/shared/ui/src/index.ts"],
@@ -22,7 +23,11 @@
       "@silvervibe/shared/feature-flags": [
         "./libs/shared/feature-flags/src/index.ts"
       ],
-      "@silvervibe/shared/auth": ["./libs/shared/auth/src/index.ts"]
+      "@silvervibe/shared/auth": ["./libs/shared/auth/src/index.ts"],
+      "@silvervibe/shared/feature-auth": [
+        "./libs/shared/feature-auth/src/index.ts"
+      ],
+      "@silvervibe/shared/i18n": ["./libs/shared/i18n/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

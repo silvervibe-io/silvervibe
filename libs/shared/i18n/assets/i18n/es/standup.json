@@ -1,0 +1,23 @@
+{
+  "badge": "Proyecto personal · En desarrollo",
+  "headline": "Standups asíncronos sin la reunión.",
+  "body": "Captura ayer, hoy y bloqueos en un borrador tranquilo — y compártelo cuando tu equipo esté listo.",
+  "cta": {
+    "draft": "Empezar un borrador",
+    "platform": "SilverVibe"
+  },
+  "footer": {
+    "legal": "Vibe Standup forma parte de Silver Vibe™, un proyecto personal de código abierto (MIT).",
+    "github": "Código en GitHub"
+  },
+  "title": "Borrador de hoy",
+  "subtitle": "Ayer, hoy y bloqueos.",
+  "yesterday": "Ayer",
+  "today": "Hoy",
+  "blockers": "Bloqueos",
+  "save": "Guardar borrador",
+  "saved": "Borrador guardado",
+  "links": {
+    "platform": "SilverVibe"
+  }
+}
