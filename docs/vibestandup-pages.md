@@ -74,3 +74,10 @@ npx nx build vibestandup --configuration=production
 - [ ] Preview deploy from `develop` / a PR looks correct
 - [ ] `standup.silvervibe.io` custom domain + TLS Active
 - [ ] https://standup.silvervibe.io loads the vibestandup app
+
+## Same zone, no extra DNS cost
+
+`standup.silvervibe.io` is a hostname on the existing `silvervibe.io` Cloudflare
+zone. You do **not** need a separate domain purchase. You **do** need a second
+Pages project (different build output), then attach the subdomain as a custom
+domain — Cloudflare creates the CNAME in the same zone.
