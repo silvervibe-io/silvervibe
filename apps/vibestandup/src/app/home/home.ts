@@ -1,3 +1,4 @@
+import { NgOptimizedImage } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -6,11 +7,10 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { form, FormField } from '@angular/forms/signals';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Store } from '@ngrx/store';
-import { Shell, ShellLink } from '@silvervibe/shared/ui';
+import { LangSwitch, ThemeService } from '@silvervibe/shared/ui';
 import * as AppActions from '../+state/app.actions';
 import { saveDraft } from '../standup/standup.actions';
 import { standupFeature } from '../standup/standup.reducer';
@@ -23,7 +23,7 @@ type StandupDraft = {
 
 @Component({
   selector: 'vs-home',
-  imports: [FormField, Shell, TranslocoPipe],
+  imports: [FormField, LangSwitch, NgOptimizedImage, TranslocoPipe],
   templateUrl: './home.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -32,7 +32,7 @@ type StandupDraft = {
 })
 export class Home implements OnInit {
   private readonly store = inject(Store);
-  private readonly transloco = inject(TranslocoService);
+  private readonly theme = inject(ThemeService);
 
   readonly draftModel = signal<StandupDraft>({
     yesterday: '',
@@ -42,17 +42,11 @@ export class Home implements OnInit {
   readonly draftForm = form(this.draftModel);
 
   readonly saved = this.store.selectSignal(standupFeature.selectStandupState);
-  private readonly platformLabel = toSignal(
-    this.transloco.selectTranslate('standup.links.platform'),
-    { initialValue: 'SilverVibe' },
+
+  readonly markSrc = computed(() =>
+    this.theme.mode() === 'dark' ? 'brand/mark-dark.svg' : 'brand/mark.svg',
   );
-  readonly links = computed<ShellLink[]>(() => [
-    {
-      label: this.platformLabel(),
-      href: 'http://localhost:4200',
-      external: true,
-    },
-  ]);
+  readonly isDark = computed(() => this.theme.mode() === 'dark');
 
   ngOnInit(): void {
     this.store.dispatch(AppActions.initApp());

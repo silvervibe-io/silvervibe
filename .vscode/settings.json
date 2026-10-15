@@ -2,10 +2,12 @@
   "files.associations": {
     "*.css": "tailwindcss"
   },
+  "files.eol": "\n",
   "css.lint.unknownAtRules": "ignore",
   "scss.lint.unknownAtRules": "ignore",
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.requireConfig": true,
   "[html]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },

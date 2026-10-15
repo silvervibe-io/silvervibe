@@ -1,6 +1,17 @@
 {
-  "title": "Vibe Standup",
-  "subtitle": "Erfassen Sie gestern, heute und Blocker.",
+  "badge": "Persönliches Projekt · In Entwicklung",
+  "headline": "Asynchrone Standups ohne das Meeting.",
+  "body": "Erfassen Sie gestern, heute und Blocker in einem ruhigen Entwurf — und teilen Sie ihn, wenn Ihr Team bereit ist.",
+  "cta": {
+    "draft": "Entwurf starten",
+    "platform": "SilverVibe"
+  },
+  "footer": {
+    "legal": "Vibe Standup ist Teil von Silver Vibe™, einem persönlichen Open-Source-Projekt (MIT).",
+    "github": "Quellcode auf GitHub"
+  },
+  "title": "Heutiger Entwurf",
+  "subtitle": "Gestern, heute und Blocker.",
   "yesterday": "Gestern",
   "today": "Heute",
   "blockers": "Blocker",
