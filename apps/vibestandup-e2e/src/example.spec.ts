@@ -9,5 +9,7 @@ test('shows the Vibe Standup home page', async ({ page }) => {
     }),
   ).toBeVisible();
   await expect(page.getByRole('link', { name: 'Log in' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'SilverVibe' })).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'SilverVibe', exact: true }),
+  ).toBeVisible();
 });
