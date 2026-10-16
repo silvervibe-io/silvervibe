@@ -2,8 +2,7 @@ import { Route } from '@angular/router';
 import { authGuard } from '@silvervibe/shared/auth';
 
 /**
- * Home is the marketing landing from `@silvervibe/vibestandup/pages/home`.
- * Auth routes stay available for sign-in. Unknown URLs fall back to `/`.
+ * Marketing home + authenticated product workspace.
  */
 export const appRoutes: Route[] = [
   {
@@ -18,7 +17,13 @@ export const appRoutes: Route[] = [
     data: {
       productTitle: 'Vibe Standup',
       blurbKey: 'auth.signIn.blurb.standup',
+      accountPath: '/app',
     },
+  },
+  {
+    path: 'auth/handoff',
+    loadComponent: () =>
+      import('@silvervibe/shared/feature-auth').then((m) => m.AuthHandoff),
   },
   {
     path: 'account',
@@ -28,6 +33,30 @@ export const appRoutes: Route[] = [
     data: {
       productTitle: 'Vibe Standup',
     },
+  },
+  {
+    path: 'app',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('@silvervibe/vibestandup/pages/my-standup').then(
+        (m) => m.MyStandup,
+      ),
+  },
+  {
+    path: 'app/team',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('@silvervibe/vibestandup/pages/team-admin').then(
+        (m) => m.TeamAdmin,
+      ),
+  },
+  {
+    path: 'app/workspace',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('@silvervibe/vibestandup/pages/workspace-admin').then(
+        (m) => m.WorkspaceAdmin,
+      ),
   },
   {
     path: '**',

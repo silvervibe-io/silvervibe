@@ -8,6 +8,7 @@ jest.mock('firebase-admin/app', () => ({
 jest.mock('firebase-admin/auth', () => ({
   getAuth: () => ({
     verifyIdToken: jest.fn(),
+    createCustomToken: jest.fn(async (uid: string) => `custom:${uid}`),
   }),
 }));
 

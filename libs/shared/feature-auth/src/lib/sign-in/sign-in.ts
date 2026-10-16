@@ -41,6 +41,7 @@ export class SignIn {
   readonly productTitle = input('Silver Vibe');
   /** Translation key for the blurb under the heading. */
   readonly blurbKey = input('auth.signIn.blurb.platform');
+  /** Where to land after a successful sign-in (portal, product app, or account). */
   readonly accountPath = input('/account');
 
   readonly error = signal<string | null>(null);

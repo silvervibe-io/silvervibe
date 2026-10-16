@@ -20,10 +20,23 @@ export class WorkspacesService {
     }
   }
 
-  async create(name: string, slug: string) {
+  async create(name: string, slug: string, ownerUserId?: string) {
     this.ensureDb();
     return this.prisma.workspace.create({
-      data: { name, slug },
+      data: {
+        name,
+        slug,
+        ...(ownerUserId
+          ? {
+              members: {
+                create: { userId: ownerUserId, role: 'OWNER' },
+              },
+              tools: {
+                create: { toolKey: 'vibestandup', enabled: true },
+              },
+            }
+          : {}),
+      },
     });
   }
 

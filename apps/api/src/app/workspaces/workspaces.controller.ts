@@ -14,7 +14,10 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { CurrentUser } from '../auth/current-user.decorator';
 import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
+import { VerifiedUser } from '../auth/firebase-auth.service';
+import { UsersService } from '../users/users.service';
 import { CreateWorkspaceDto } from './create-workspace.dto';
 import { SetToolEntitlementDto } from './set-tool-entitlement.dto';
 import { WorkspaceDto } from './workspace.dto';
@@ -26,18 +29,29 @@ import { WorkspacesService } from './workspaces.service';
 @UseGuards(FirebaseAuthGuard)
 @Controller('workspaces')
 export class WorkspacesController {
-  constructor(private readonly workspaces: WorkspacesService) {}
+  constructor(
+    private readonly workspaces: WorkspacesService,
+    private readonly users: UsersService,
+  ) {}
 
   @Post()
   @ApiOperation({
     summary: 'Create a workspace',
     description:
-      'Foundation helper to create a workspace so tool entitlements can be granted.',
+      'Creates a workspace, adds the caller as OWNER, and enables vibestandup by default.',
   })
   @ApiOkResponse({ type: WorkspaceDto })
   @ApiUnauthorizedResponse()
-  async create(@Body() body: CreateWorkspaceDto): Promise<WorkspaceDto> {
-    const workspace = await this.workspaces.create(body.name, body.slug);
+  async create(
+    @Body() body: CreateWorkspaceDto,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<WorkspaceDto> {
+    const record = await this.users.upsertFromFirebase(user);
+    const workspace = await this.workspaces.create(
+      body.name,
+      body.slug,
+      record.id === 'local' ? undefined : record.id,
+    );
     return {
       id: workspace.id,
       name: workspace.name,

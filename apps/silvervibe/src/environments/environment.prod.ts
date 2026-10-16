@@ -12,4 +12,5 @@ export const environment = {
     apiHost: 'https://cdn.growthbook.io',
   },
   apiBaseUrl: 'https://api.silvervibe.io/api',
+  standupAppOrigin: 'https://standup.silvervibe.io',
 };

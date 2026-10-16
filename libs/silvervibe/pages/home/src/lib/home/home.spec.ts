@@ -30,6 +30,11 @@ describe('Home', () => {
                     toLight: 'Switch to light theme',
                   },
                 },
+                nav: {
+                  about: 'About',
+                  tools: 'Tools',
+                  signIn: 'Sign in',
+                },
                 landing: {
                   badge: 'Personal project · In development',
                   headline: 'A better vibe for async work.',
@@ -65,7 +70,8 @@ describe('Home', () => {
     );
     expect(compiled.textContent).toContain('personal open-source');
     expect(compiled.textContent).toContain('Privacy');
-    expect(compiled.textContent).not.toContain('VibeStandup');
+    expect(compiled.textContent).toContain('About');
+    expect(compiled.textContent).toContain('Sign in');
     expect(compiled.querySelector('sv-theme-toggle .swap')).toBeTruthy();
   });
 

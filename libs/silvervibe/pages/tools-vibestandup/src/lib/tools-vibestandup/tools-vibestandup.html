@@ -1,0 +1,31 @@
+<sv-shell
+  [title]="'Silver Vibe'"
+  [links]="[
+    { label: ('nav.home' | transloco), href: '/' },
+    { label: ('nav.about' | transloco), href: '/about' },
+    { label: ('nav.tools' | transloco), href: '/tools/vibestandup' },
+    { label: ('nav.signIn' | transloco), href: '/auth' }
+  ]"
+>
+  <article class="max-w-2xl space-y-4">
+    <p class="text-sm font-semibold text-base-content/60">
+      {{ 'tools.vibestandup.eyebrow' | transloco }}
+    </p>
+    <h1 class="text-3xl font-bold tracking-tight">
+      {{ 'tools.vibestandup.title' | transloco }}
+    </h1>
+    <p class="text-lg text-base-content/70">
+      {{ 'tools.vibestandup.body' | transloco }}
+    </p>
+    <div class="flex flex-wrap gap-3 pt-2">
+      <a routerLink="/auth" class="btn btn-primary"
+        >{{ 'tools.vibestandup.ctaSignIn' | transloco }}</a
+      >
+      @if (standupOrigin) {
+      <a class="btn btn-ghost" [href]="standupOrigin" rel="noopener noreferrer"
+        >{{ 'tools.vibestandup.ctaOpen' | transloco }}</a
+      >
+      }
+    </div>
+  </article>
+</sv-shell>

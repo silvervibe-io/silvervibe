@@ -1,0 +1,20 @@
+{
+  "name": "silvervibe-pages-portal",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/silvervibe/pages/portal/src",
+  "prefix": "sv",
+  "projectType": "library",
+  "tags": ["type:feature", "scope:silvervibe"],
+  "targets": {
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "coverage/libs/silvervibe/pages/portal"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

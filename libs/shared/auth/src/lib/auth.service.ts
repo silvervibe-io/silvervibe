@@ -5,12 +5,14 @@ import {
   getAuth,
   onAuthStateChanged,
   setPersistence,
+  signInWithCustomToken,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
   GoogleAuthProvider,
   GithubAuthProvider,
 } from 'firebase/auth';
+
 import { initializeApp, getApps, type FirebaseOptions } from 'firebase/app';
 
 export type SilvervibeFirebaseConfig = FirebaseOptions;
@@ -77,6 +79,11 @@ export class AuthService {
 
   async signInWithGithub(): Promise<User> {
     const result = await signInWithPopup(getAuth(), new GithubAuthProvider());
+    return result.user;
+  }
+
+  async signInWithCustomToken(customToken: string): Promise<User> {
+    const result = await signInWithCustomToken(getAuth(), customToken);
     return result.user;
   }
 
