@@ -1,0 +1,84 @@
+<sv-shell
+  [title]="'Vibe Standup'"
+  [links]="[
+    { label: ('standup.nav.myStandup' | transloco), href: '/app' },
+    { label: ('standup.nav.teamAdmin' | transloco), href: '/app/team' },
+    { label: ('standup.nav.workspace' | transloco), href: '/app/workspace' },
+    { label: ('nav.account' | transloco), href: '/account' }
+  ]"
+>
+  <div class="space-y-8">
+    <header>
+      <h1 class="text-3xl font-bold tracking-tight">
+        {{ 'standup.workspace.title' | transloco }}
+      </h1>
+      <p class="text-base-content/70">
+        {{ 'standup.workspace.lead' | transloco }}
+      </p>
+    </header>
+
+    @if (loading()) {
+    <p>{{ 'standup.loading' | transloco }}</p>
+    } @else if (error()) {
+    <p class="text-error">{{ error() }}</p>
+    } @else if (!isAdmin()) {
+    <p>{{ 'standup.workspace.forbidden' | transloco }}</p>
+    } @else {
+    <label class="form-control w-full max-w-xs">
+      <span class="label-text">{{ 'portal.workspace' | transloco }}</span>
+      <select
+        class="select select-bordered"
+        [value]="selected()?.id ?? ''"
+        (change)="selectWorkspace($any($event.target).value)"
+      >
+        @for (ws of memberships(); track ws.id) {
+        <option [value]="ws.id">{{ ws.name }} ({{ ws.role }})</option>
+        }
+      </select>
+    </label>
+
+    <section class="space-y-3">
+      <h2 class="text-xl font-semibold">
+        {{ 'standup.workspace.tools' | transloco }}
+      </h2>
+      <ul class="space-y-2">
+        @for (tool of tools(); track tool.toolKey) {
+        <li class="flex items-center gap-3">
+          <span class="font-medium">{{ tool.toolKey }}</span>
+          <input
+            type="checkbox"
+            class="toggle toggle-primary"
+            [checked]="tool.enabled"
+            (change)="toggleTool(tool.toolKey, $any($event.target).checked)"
+          />
+        </li>
+        }
+      </ul>
+    </section>
+
+    <form class="max-w-md space-y-3" (submit)="createTeam($event)">
+      <h2 class="text-xl font-semibold">
+        {{ 'standup.workspace.createTeam' | transloco }}
+      </h2>
+      <label class="form-control">
+        <span class="label-text"
+          >{{ 'standup.workspace.teamName' | transloco }}</span
+        >
+        <input class="input input-bordered" [formField]="teamForm.name" />
+      </label>
+      <label class="form-control">
+        <span class="label-text"
+          >{{ 'standup.workspace.teamSlug' | transloco }}</span
+        >
+        <input class="input input-bordered" [formField]="teamForm.slug" />
+      </label>
+      <button type="submit" class="btn btn-primary btn-sm">
+        {{ 'standup.workspace.create' | transloco }}
+      </button>
+    </form>
+
+    @if (message()) {
+    <p class="text-success text-sm">{{ message()! | transloco }}</p>
+    } }
+  </div>
+</sv-shell>

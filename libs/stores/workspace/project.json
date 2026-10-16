@@ -1,0 +1,21 @@
+{
+  "name": "stores-workspace",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/stores/workspace/src",
+  "prefix": "sv",
+  "projectType": "library",
+  "tags": ["type:data-access", "scope:shared"],
+
+  "targets": {
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "coverage/libs/stores/workspace"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

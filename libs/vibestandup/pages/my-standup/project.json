@@ -1,0 +1,20 @@
+{
+  "name": "vibestandup-pages-my-standup",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/vibestandup/pages/my-standup/src",
+  "prefix": "vs",
+  "projectType": "library",
+  "tags": ["type:feature", "scope:vibestandup"],
+  "targets": {
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "coverage/libs/vibestandup/pages/my-standup"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

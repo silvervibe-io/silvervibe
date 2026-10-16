@@ -102,4 +102,15 @@ export class FirebaseAuthService {
     const uid = token.slice(4).trim();
     return uid ? { uid, email: `${uid}@dev.local`, displayName: uid } : null;
   }
+
+  /**
+   * Mint a Firebase custom token for cross-subdomain handoff
+   * (silvervibe.io ↔ standup.silvervibe.io).
+   */
+  async createCustomToken(uid: string): Promise<string> {
+    if (!this.ready) {
+      throw new Error('Firebase Auth is not configured');
+    }
+    return getAuth().createCustomToken(uid);
+  }
 }

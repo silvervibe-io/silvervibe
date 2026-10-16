@@ -1,0 +1,20 @@
+{
+  "name": "vibestandup-pages-team-admin",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/vibestandup/pages/team-admin/src",
+  "prefix": "vs",
+  "projectType": "library",
+  "tags": ["type:feature", "scope:vibestandup"],
+  "targets": {
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "coverage/libs/vibestandup/pages/team-admin"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

@@ -46,9 +46,6 @@
     "prepare": "husky"
   },
   "private": true,
-  "lint-staged": {
-    "*": "prettier --write --ignore-unknown"
-  },
   "engines": {
     "node": "^22.22.3 || ^24.15.0 || >=26.0.0",
     "npm": ">=10.0.0"

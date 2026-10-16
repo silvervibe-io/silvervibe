@@ -15,10 +15,25 @@
   ></div>
 
   <div class="relative z-10 w-full max-w-[42rem]">
-    <div class="mb-6 flex items-center justify-end gap-2">
+    <div class="mb-6 flex flex-wrap items-center justify-end gap-3">
+      <nav
+        class="flex flex-wrap items-center gap-3 text-sm"
+        aria-label="Primary"
+      >
+        <a class="link link-hover" routerLink="/about"
+          >{{ 'nav.about' | transloco }}</a
+        >
+        <a class="link link-hover" routerLink="/tools/vibestandup"
+          >{{ 'nav.tools' | transloco }}</a
+        >
+        <a class="link link-hover" routerLink="/auth"
+          >{{ 'nav.signIn' | transloco }}</a
+        >
+      </nav>
       <sv-lang-switch />
       <sv-theme-toggle />
     </div>
+
     <p
       class="mb-8 flex items-center justify-center gap-3 sm:gap-4"
       aria-label="SilverVibe"
@@ -63,6 +78,15 @@
     >
       {{ 'landing.body' | transloco }}
     </p>
+
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+      <a routerLink="/auth" class="btn btn-primary"
+        >{{ 'nav.signIn' | transloco }}</a
+      >
+      <a routerLink="/about" class="btn btn-ghost"
+        >{{ 'nav.about' | transloco }}</a
+      >
+    </div>
 
     <footer class="mt-10 text-[13px] leading-relaxed text-base-content/55">
       <p class="m-0">{{ 'landing.footer.legal' | transloco }}</p>

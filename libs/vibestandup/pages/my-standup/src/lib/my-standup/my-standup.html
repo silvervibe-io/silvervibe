@@ -1,0 +1,103 @@
+<sv-shell
+  [title]="'Vibe Standup'"
+  [links]="[
+    { label: ('standup.nav.myStandup' | transloco), href: '/app' },
+    { label: ('standup.nav.teamAdmin' | transloco), href: '/app/team' },
+    { label: ('standup.nav.workspace' | transloco), href: '/app/workspace' },
+    { label: ('nav.account' | transloco), href: '/account' }
+  ]"
+>
+  <div class="space-y-6">
+    <header class="space-y-1">
+      <h1 class="text-3xl font-bold tracking-tight">
+        {{ 'standup.my.title' | transloco }}
+      </h1>
+      <p class="text-base-content/70">{{ 'standup.my.lead' | transloco }}</p>
+    </header>
+
+    @if (loading()) {
+    <p>{{ 'standup.loading' | transloco }}</p>
+    } @else if (error()) {
+    <p class="text-error">{{ error() }}</p>
+    } @else if (teams().length === 0) {
+    <p>{{ 'standup.my.noTeams' | transloco }}</p>
+    } @else {
+    <label class="form-control w-full max-w-xs">
+      <span class="label-text">{{ 'standup.my.team' | transloco }}</span>
+      <select
+        class="select select-bordered"
+        [value]="selectedTeamId() ?? ''"
+        (change)="onTeamChange($any($event.target).value)"
+      >
+        @for (team of teams(); track team.id) {
+        <option [value]="team.id">{{ team.name }}</option>
+        }
+      </select>
+    </label>
+
+    <form class="space-y-4 max-w-xl" (submit)="submitEntry($event)">
+      <label class="form-control">
+        <span class="label-text"
+          >{{ config()?.questionsJson?.['yesterday'] || ('standup.my.yesterday'
+          | transloco) }}</span
+        >
+        <textarea
+          class="textarea textarea-bordered"
+          rows="3"
+          [formField]="standupForm.yesterday"
+        ></textarea>
+      </label>
+      <label class="form-control">
+        <span class="label-text"
+          >{{ config()?.questionsJson?.['today'] || ('standup.my.today' |
+          transloco) }}</span
+        >
+        <textarea
+          class="textarea textarea-bordered"
+          rows="3"
+          [formField]="standupForm.today"
+        ></textarea>
+      </label>
+      <label class="form-control">
+        <span class="label-text"
+          >{{ config()?.questionsJson?.['blockers'] || ('standup.my.blockers' |
+          transloco) }}</span
+        >
+        <textarea
+          class="textarea textarea-bordered"
+          rows="2"
+          [formField]="standupForm.blockers"
+        ></textarea>
+      </label>
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="btn btn-ghost"
+          [disabled]="busy()"
+          (click)="saveDraft($event)"
+        >
+          {{ 'standup.my.saveDraft' | transloco }}
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="busy()">
+          {{ 'standup.my.submit' | transloco }}
+        </button>
+      </div>
+      @if (entry()?.status === 'SUBMITTED') {
+      <p class="text-success text-sm">
+        {{ 'standup.my.submitted' | transloco }}
+      </p>
+      }
+    </form>
+
+    @if (summary(); as s) {
+    <section class="space-y-2 border-t border-base-300 pt-6">
+      <h2 class="text-xl font-semibold">
+        {{ 'standup.my.summary' | transloco }}
+      </h2>
+      <pre class="whitespace-pre-wrap rounded-lg bg-base-200 p-4 text-sm">
+{{ s.content }}</pre
+      >
+    </section>
+    } }
+  </div>
+</sv-shell>

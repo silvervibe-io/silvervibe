@@ -1,0 +1,122 @@
+<sv-shell
+  [title]="'Vibe Standup'"
+  [links]="[
+    { label: ('standup.nav.myStandup' | transloco), href: '/app' },
+    { label: ('standup.nav.teamAdmin' | transloco), href: '/app/team' },
+    { label: ('standup.nav.workspace' | transloco), href: '/app/workspace' },
+    { label: ('nav.account' | transloco), href: '/account' }
+  ]"
+>
+  <div class="space-y-8">
+    <header>
+      <h1 class="text-3xl font-bold tracking-tight">
+        {{ 'standup.team.title' | transloco }}
+      </h1>
+      <p class="text-base-content/70">{{ 'standup.team.lead' | transloco }}</p>
+    </header>
+
+    @if (loading()) {
+    <p>{{ 'standup.loading' | transloco }}</p>
+    } @else if (error()) {
+    <p class="text-error">{{ error() }}</p>
+    } @else if (teams().length === 0) {
+    <p>{{ 'standup.team.noTeams' | transloco }}</p>
+    } @else {
+    <label class="form-control w-full max-w-xs">
+      <span class="label-text">{{ 'standup.my.team' | transloco }}</span>
+      <select
+        class="select select-bordered"
+        [value]="selectedTeamId() ?? ''"
+        (change)="onTeamChange($any($event.target).value)"
+      >
+        @for (team of teams(); track team.id) {
+        <option [value]="team.id">{{ team.name }} ({{ team.role }})</option>
+        }
+      </select>
+    </label>
+
+    <form class="max-w-xl space-y-3" (submit)="saveConfig($event)">
+      <h2 class="text-xl font-semibold">
+        {{ 'standup.team.config' | transloco }}
+      </h2>
+      <label class="form-control">
+        <span class="label-text"
+          >{{ 'standup.team.timezone' | transloco }}</span
+        >
+        <input class="input input-bordered" [formField]="configForm.timezone" />
+      </label>
+      <label class="form-control">
+        <span class="label-text">Yesterday</span>
+        <input
+          class="input input-bordered"
+          [formField]="configForm.yesterday"
+        />
+      </label>
+      <label class="form-control">
+        <span class="label-text">Today</span>
+        <input class="input input-bordered" [formField]="configForm.today" />
+      </label>
+      <label class="form-control">
+        <span class="label-text">Blockers</span>
+        <input class="input input-bordered" [formField]="configForm.blockers" />
+      </label>
+      <button type="submit" class="btn btn-primary btn-sm">
+        {{ 'standup.team.saveConfig' | transloco }}
+      </button>
+      @if (message()) {
+      <p class="text-success text-sm">{{ message()! | transloco }}</p>
+      }
+    </form>
+
+    <form class="max-w-xl space-y-3" (submit)="invite($event)">
+      <h2 class="text-xl font-semibold">
+        {{ 'standup.team.members' | transloco }}
+      </h2>
+      <ul class="space-y-1 text-sm">
+        @for (m of members(); track m.id) {
+        <li>{{ m.displayName || m.email || m.userId }} — {{ m.role }}</li>
+        }
+      </ul>
+      <label class="form-control">
+        <span class="label-text"
+          >{{ 'standup.team.inviteUserId' | transloco }}</span
+        >
+        <input class="input input-bordered" [formField]="inviteForm.userId" />
+      </label>
+      <button type="submit" class="btn btn-secondary btn-sm">
+        {{ 'standup.team.invite' | transloco }}
+      </button>
+    </form>
+
+    <section class="space-y-3">
+      <div class="flex items-center gap-3">
+        <h2 class="text-xl font-semibold">
+          {{ 'standup.team.todayEntries' | transloco }}
+        </h2>
+        <button
+          type="button"
+          class="btn btn-outline btn-sm"
+          (click)="rebuildSummary()"
+        >
+          {{ 'standup.team.rebuildSummary' | transloco }}
+        </button>
+      </div>
+      <ul class="space-y-2 text-sm">
+        @for (e of teamEntries(); track e.id) {
+        <li class="rounded-lg bg-base-200 p-3">
+          <span class="font-medium">{{ e.status }}</span>
+          — {{ e.today || '—' }}
+        </li>
+        }
+      </ul>
+      @if (summary(); as s) {
+      <pre class="whitespace-pre-wrap rounded-lg bg-base-200 p-4 text-sm">
+{{
+        s.content
+      }}</pre
+      >
+      }
+    </section>
+    }
+  </div>
+</sv-shell>

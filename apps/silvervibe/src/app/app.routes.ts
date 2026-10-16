@@ -2,14 +2,23 @@ import { Route } from '@angular/router';
 import { authGuard } from '@silvervibe/shared/auth';
 
 /**
- * Public `main` / production: keep feature routes off the home until ready.
- * `/auth` and `/account` are unlisted foundation routes (not linked from home).
- * Unknown URLs fall back to `/`.
+ * Public marketing + signed-in portal. Unknown URLs fall back to `/`.
  */
 export const appRoutes: Route[] = [
   {
     path: '',
     loadComponent: () => import('@silvervibe/pages/home').then((m) => m.Home),
+  },
+  {
+    path: 'about',
+    loadComponent: () => import('@silvervibe/pages/about').then((m) => m.About),
+  },
+  {
+    path: 'tools/vibestandup',
+    loadComponent: () =>
+      import('@silvervibe/pages/tools-vibestandup').then(
+        (m) => m.ToolsVibestandup,
+      ),
   },
   {
     path: 'auth',
@@ -18,7 +27,14 @@ export const appRoutes: Route[] = [
     data: {
       productTitle: 'Silver Vibe',
       blurbKey: 'auth.signIn.blurb.platform',
+      accountPath: '/portal',
     },
+  },
+  {
+    path: 'portal',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('@silvervibe/pages/portal').then((m) => m.Portal),
   },
   {
     path: 'account',
