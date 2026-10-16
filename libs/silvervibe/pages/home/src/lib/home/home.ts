@@ -11,7 +11,7 @@ import { LangSwitch, ThemeToggle } from '@silvervibe/shared/ui';
 import { ThemeStore } from '@silvervibe/stores/theme';
 
 @Component({
-  selector: 'sv-landing',
+  selector: 'sv-home',
   imports: [
     NgOptimizedImage,
     RouterLink,
@@ -19,13 +19,13 @@ import { ThemeStore } from '@silvervibe/stores/theme';
     LangSwitch,
     ThemeToggle,
   ],
-  templateUrl: './landing.html',
+  templateUrl: './home.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'block min-h-screen bg-base-100 text-base-content',
   },
 })
-export class Landing {
+export class Home {
   private readonly theme = inject(ThemeStore);
 
   readonly markSrc = computed(() =>

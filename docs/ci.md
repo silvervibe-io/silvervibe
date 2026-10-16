@@ -29,7 +29,17 @@ npx nx e2e vibestandup-e2e -- --project=chromium
 
 Fix formatting with `npm run format`.
 
-Prettier + EditorConfig use **LF** line endings (`endOfLine: "lf"`). Match CI (Linux): on Windows, avoid committing CRLF-only rewrites — set `git config core.autocrlf false` (or `input`) for this repo so `format:check` matches GitHub Actions.
+CI Format and local Prettier share the same config:
+
+| Source           | Setting                                                    |
+| ---------------- | ---------------------------------------------------------- |
+| `.prettierrc`    | `singleQuote: true`, `endOfLine: "lf"`                     |
+| `.editorconfig`  | `end_of_line = lf`, indent 2                               |
+| `.gitattributes` | `* text=auto eol=lf`                                       |
+| CI job           | `npm run format:check` → `prettier --check .`              |
+| Pre-commit       | Husky → `lint-staged` → `prettier --write` on staged files |
+
+On Windows, set `git config core.autocrlf false` (or `input`) for this repo so the working tree stays LF and local `format:check` matches GitHub Actions.
 
 ## Cloudflare Pages previews
 

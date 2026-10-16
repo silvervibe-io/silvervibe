@@ -2,14 +2,14 @@ import { Route } from '@angular/router';
 import { authGuard } from '@silvervibe/shared/auth';
 
 /**
- * Public `main` / production: keep feature routes off the landing until ready.
- * `/auth` and `/account` are unlisted foundation routes (not linked from landing).
+ * Public `main` / production: keep feature routes off the home until ready.
+ * `/auth` and `/account` are unlisted foundation routes (not linked from home).
  * Unknown URLs fall back to `/`.
  */
 export const appRoutes: Route[] = [
   {
     path: '',
-    loadComponent: () => import('./landing/landing').then((m) => m.Landing),
+    loadComponent: () => import('@silvervibe/pages/home').then((m) => m.Home),
   },
   {
     path: 'auth',
