@@ -1,23 +1,13 @@
 {
   "badge": "Projet personnel · En développement",
   "headline": "Des standups asynchrones sans réunion.",
-  "body": "Capturez hier, aujourd’hui et les bloqueurs dans un brouillon calme — puis partagez quand votre équipe est prête.",
+  "body": "Partagez hier, aujourd’hui et les bloqueurs en asynchrone — quand votre équipe est prête.",
   "cta": {
-    "draft": "Commencer un brouillon",
+    "login": "Se connecter",
     "platform": "SilverVibe"
   },
   "footer": {
     "legal": "Vibe Standup fait partie de Silver Vibe™, un projet open source personnel (MIT).",
     "github": "Code source sur GitHub"
-  },
-  "title": "Brouillon du jour",
-  "subtitle": "Hier, aujourd’hui et bloqueurs.",
-  "yesterday": "Hier",
-  "today": "Aujourd’hui",
-  "blockers": "Bloqueurs",
-  "save": "Enregistrer le brouillon",
-  "saved": "Brouillon enregistré",
-  "links": {
-    "platform": "SilverVibe"
   }
 }

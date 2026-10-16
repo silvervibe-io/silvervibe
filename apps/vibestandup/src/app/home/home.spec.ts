@@ -1,8 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
-import { provideMockStore } from '@ngrx/store/testing';
-import { ThemeService } from '@silvervibe/shared/ui';
+import { ThemeStore } from '@silvervibe/stores/theme';
 import { of } from 'rxjs';
 import { Home } from './home';
 
@@ -14,12 +13,6 @@ describe('Home', () => {
       imports: [Home],
       providers: [
         provideRouter([]),
-        ThemeService,
-        provideMockStore({
-          initialState: {
-            standup: { yesterday: '', today: '', blockers: '' },
-          },
-        }),
         ...provideTransloco({
           config: {
             availableLangs: ['en'],
@@ -31,22 +24,21 @@ describe('Home', () => {
             getTranslation() {
               return of({
                 common: { language: { label: 'Language', en: 'English' } },
+                shell: {
+                  theme: {
+                    toDark: 'Switch to dark theme',
+                    toLight: 'Switch to light theme',
+                  },
+                },
                 standup: {
                   badge: 'Personal project · In development',
                   headline: 'Async standups without the meeting.',
-                  body: 'Capture yesterday, today, and blockers.',
-                  cta: { draft: 'Start a draft', platform: 'SilverVibe' },
+                  body: 'Share yesterday, today, and blockers when your team is ready.',
+                  cta: { login: 'Log in', platform: 'SilverVibe' },
                   footer: {
                     legal: 'Vibe Standup is part of Silver Vibe™.',
                     github: 'Source on GitHub',
                   },
-                  title: "Today's draft",
-                  subtitle: 'Yesterday, today, and blockers.',
-                  yesterday: 'Yesterday',
-                  today: 'Today',
-                  blockers: 'Blockers',
-                  save: 'Save draft',
-                  saved: 'Draft saved',
                 },
               });
             }
@@ -54,13 +46,13 @@ describe('Home', () => {
         }),
       ],
     }).compileComponents();
-    TestBed.inject(ThemeService).init();
+    TestBed.inject(ThemeStore).setMode('light');
     fixture = TestBed.createComponent(Home);
     await fixture.whenStable();
     fixture.detectChanges();
   });
 
-  it('renders the marketing hero and draft form', () => {
+  it('renders the marketing hero with a login CTA', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const brand = compiled.querySelector('p[aria-label="Vibe Standup"]');
     expect(brand).toBeTruthy();
@@ -69,9 +61,10 @@ describe('Home', () => {
     expect(compiled.querySelector('h1')?.textContent).toContain(
       'Async standups without the meeting.',
     );
-    expect(compiled.textContent).toContain('Start a draft');
-    expect(compiled.textContent).toContain('Yesterday');
-    expect(compiled.textContent).toContain('Save draft');
+    expect(compiled.textContent).toContain('Log in');
+    expect(compiled.querySelector('a[href="/auth"]')).toBeTruthy();
+    expect(compiled.textContent).not.toContain('Save draft');
+    expect(compiled.querySelector('sv-theme-toggle .swap')).toBeTruthy();
   });
 
   it('uses the light mark by default', () => {

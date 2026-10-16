@@ -1,23 +1,13 @@
 {
   "badge": "Progetto personale · In sviluppo",
   "headline": "Standup asincroni senza la riunione.",
-  "body": "Registra ieri, oggi e i blocker in una bozza tranquilla — poi condividi quando il team è pronto.",
+  "body": "Condividi ieri, oggi e i blocker in modo asincrono — quando il team è pronto.",
   "cta": {
-    "draft": "Inizia una bozza",
+    "login": "Accedi",
     "platform": "SilverVibe"
   },
   "footer": {
     "legal": "Vibe Standup fa parte di Silver Vibe™, un progetto personale open source (MIT).",
     "github": "Codice su GitHub"
-  },
-  "title": "Bozza di oggi",
-  "subtitle": "Ieri, oggi e blocker.",
-  "yesterday": "Ieri",
-  "today": "Oggi",
-  "blockers": "Blocker",
-  "save": "Salva bozza",
-  "saved": "Bozza salvata",
-  "links": {
-    "platform": "SilverVibe"
   }
 }

@@ -4,57 +4,32 @@ import {
   Component,
   computed,
   inject,
-  OnInit,
-  signal,
 } from '@angular/core';
-import { form, FormField } from '@angular/forms/signals';
+import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Store } from '@ngrx/store';
-import { LangSwitch, ThemeService } from '@silvervibe/shared/ui';
-import * as AppActions from '../+state/app.actions';
-import { saveDraft } from '../standup/standup.actions';
-import { standupFeature } from '../standup/standup.reducer';
-
-type StandupDraft = {
-  yesterday: string;
-  today: string;
-  blockers: string;
-};
+import { LangSwitch, ThemeToggle } from '@silvervibe/shared/ui';
+import { ThemeStore } from '@silvervibe/stores/theme';
 
 @Component({
   selector: 'vs-home',
-  imports: [FormField, LangSwitch, NgOptimizedImage, TranslocoPipe],
+  imports: [
+    LangSwitch,
+    NgOptimizedImage,
+    RouterLink,
+    ThemeToggle,
+    TranslocoPipe,
+  ],
   templateUrl: './home.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'block min-h-screen',
+    class: 'block min-h-screen bg-base-100 text-base-content',
   },
 })
-export class Home implements OnInit {
-  private readonly store = inject(Store);
-  private readonly theme = inject(ThemeService);
-
-  readonly draftModel = signal<StandupDraft>({
-    yesterday: '',
-    today: '',
-    blockers: '',
-  });
-  readonly draftForm = form(this.draftModel);
-
-  readonly saved = this.store.selectSignal(standupFeature.selectStandupState);
+export class Home {
+  private readonly theme = inject(ThemeStore);
 
   readonly markSrc = computed(() =>
     this.theme.mode() === 'dark' ? 'brand/mark-dark.svg' : 'brand/mark.svg',
   );
   readonly isDark = computed(() => this.theme.mode() === 'dark');
-
-  ngOnInit(): void {
-    this.store.dispatch(AppActions.initApp());
-  }
-
-  save(event: Event): void {
-    event.preventDefault();
-    const draft = this.draftModel();
-    this.store.dispatch(saveDraft(draft));
-  }
 }

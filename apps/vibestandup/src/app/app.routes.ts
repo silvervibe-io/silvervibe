@@ -2,8 +2,8 @@ import { Route } from '@angular/router';
 import { authGuard } from '@silvervibe/shared/auth';
 
 /**
- * Home stays the standup draft. `/auth` and `/account` are unlisted foundation
- * routes (not linked from home). Unknown URLs fall back to `/`.
+ * Home is the marketing landing. Auth routes stay available for sign-in.
+ * Unknown URLs fall back to `/`.
  */
 export const appRoutes: Route[] = [
   {

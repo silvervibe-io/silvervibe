@@ -1,12 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
+import { THEME_STORAGE_KEY, ThemeStore } from '@silvervibe/stores/theme';
 import { of } from 'rxjs';
-import { THEME_STORAGE_KEY, ThemeService } from '../theme/theme.service';
 import { Shell } from './shell';
 
 describe('Shell', () => {
   let fixture: ComponentFixture<Shell>;
+  let themeStore: ThemeStore;
 
   beforeEach(async () => {
     localStorage.removeItem(THEME_STORAGE_KEY);
@@ -14,7 +15,6 @@ describe('Shell', () => {
       imports: [Shell],
       providers: [
         provideRouter([]),
-        ThemeService,
         ...provideTransloco({
           config: {
             availableLangs: ['en'],
@@ -45,8 +45,8 @@ describe('Shell', () => {
         }),
       ],
     }).compileComponents();
-    const theme = TestBed.inject(ThemeService);
-    theme.init();
+    themeStore = TestBed.inject(ThemeStore);
+    themeStore.setMode('light');
     fixture = TestBed.createComponent(Shell);
     await fixture.whenStable();
   });
@@ -56,17 +56,17 @@ describe('Shell', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.textContent).toContain('Silver Vibe');
-    expect(compiled.textContent).toContain('Dark');
+    expect(compiled.querySelector('sv-theme-toggle .swap')).toBeTruthy();
   });
 
-  it('toggles theme when the button is clicked', () => {
+  it('toggles theme when the swap input changes', () => {
     fixture.detectChanges();
-    const button = fixture.nativeElement.querySelector(
-      'button[aria-label]',
-    ) as HTMLButtonElement;
-    button.click();
+    const input = fixture.nativeElement.querySelector(
+      'sv-theme-toggle input',
+    ) as HTMLInputElement;
+    input.checked = true;
+    input.dispatchEvent(new Event('change'));
     fixture.detectChanges();
-    expect(fixture.componentInstance.mode()).toBe('dark');
-    expect(fixture.nativeElement.textContent).toContain('Light');
+    expect(themeStore.mode()).toBe('dark');
   });
 });
