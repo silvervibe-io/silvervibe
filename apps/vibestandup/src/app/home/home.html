@@ -1,4 +1,6 @@
-<main class="relative overflow-hidden">
+<main
+  class="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-16 text-center"
+>
   <div
     class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#eef1f5_0%,_#f7f8fa_45%,_#f3f4f6_100%)]"
     aria-hidden="true"
@@ -12,9 +14,7 @@
     aria-hidden="true"
   ></div>
 
-  <section
-    class="relative z-10 mx-auto flex min-h-screen max-w-[42rem] flex-col justify-center px-6 py-16 text-center"
-  >
+  <div class="relative z-10 w-full max-w-[42rem]">
     <div class="mb-6 flex items-center justify-end gap-2">
       <sv-lang-switch />
       <sv-theme-toggle />
@@ -45,7 +45,7 @@
     </p>
 
     <p
-      class="mb-6 inline-block self-center border border-[#e1e4e8] bg-white/80 px-3.5 py-1.5 text-[13px] font-semibold text-[#6b7280] backdrop-blur-sm"
+      class="mb-6 inline-block border border-[#e1e4e8] bg-white/80 px-3.5 py-1.5 text-[13px] font-semibold text-[#6b7280] backdrop-blur-sm"
     >
       {{ 'standup.badge' | transloco }}
     </p>
@@ -63,9 +63,9 @@
     </p>
 
     <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
-      <a class="btn btn-primary" href="#draft"
-        >{{ 'standup.cta.draft' | transloco }}</a
-      >
+      <a class="btn btn-primary" routerLink="/auth">{{
+        'standup.cta.login' | transloco
+      }}</a>
       <a
         class="btn btn-ghost"
         href="https://silvervibe.io"
@@ -93,55 +93,5 @@
         >
       </p>
     </footer>
-  </section>
-
-  <section
-    id="draft"
-    class="relative z-10 border-t border-[#e1e4e8]/80 bg-white/70 px-6 py-16 backdrop-blur-sm"
-  >
-    <div class="mx-auto max-w-xl">
-      <h2
-        class="mb-2 text-2xl font-bold tracking-tight text-[#17191c] sm:text-3xl"
-      >
-        {{ 'standup.title' | transloco }}
-      </h2>
-      <p class="mb-8 text-[#6b7280]">{{ 'standup.subtitle' | transloco }}</p>
-
-      <form class="grid gap-4" (submit)="save($event)">
-        <fieldset class="fieldset">
-          <legend class="fieldset-legend">
-            {{ 'standup.yesterday' | transloco }}
-          </legend>
-          <textarea
-            class="textarea textarea-bordered w-full"
-            [formField]="draftForm.yesterday"
-          ></textarea>
-        </fieldset>
-        <fieldset class="fieldset">
-          <legend class="fieldset-legend">
-            {{ 'standup.today' | transloco }}
-          </legend>
-          <textarea
-            class="textarea textarea-bordered w-full"
-            [formField]="draftForm.today"
-          ></textarea>
-        </fieldset>
-        <fieldset class="fieldset">
-          <legend class="fieldset-legend">
-            {{ 'standup.blockers' | transloco }}
-          </legend>
-          <textarea
-            class="textarea textarea-bordered w-full"
-            [formField]="draftForm.blockers"
-          ></textarea>
-        </fieldset>
-        <button class="btn btn-primary" type="submit">
-          {{ 'standup.save' | transloco }}
-        </button>
-        @if (saved().today) {
-        <p class="text-sm text-[#3d8b84]">{{ 'standup.saved' | transloco }}</p>
-        }
-      </form>
-    </div>
-  </section>
+  </div>
 </main>
