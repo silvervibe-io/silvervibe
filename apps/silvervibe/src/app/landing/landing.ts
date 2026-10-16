@@ -22,7 +22,7 @@ import { ThemeStore } from '@silvervibe/stores/theme';
   templateUrl: './landing.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'block min-h-screen',
+    class: 'block min-h-screen bg-base-100 text-base-content',
   },
 })
 export class Landing {

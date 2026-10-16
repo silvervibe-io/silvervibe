@@ -8,7 +8,8 @@ Issue: [#2](https://github.com/silvervibe-io/silvervibe/issues/2). Theme store: 
 - Calm, clear, user-friendly (soft contrast, high readability — not neon/purple glow)
 - Shared tokens via daisyUI + CSS variables; new product UI should use semantic colors (`bg-base-100`, `text-base-content`, `btn-primary`, …)
 
-The public **landing** may keep bespoke marketing colors until an explicit landing redesign. Authenticated / shell screens should use the theme.
+Marketing pages (landing, vibestandup home, privacy) use the same semantic
+tokens so light/dark switch covers the full surface, not only chrome controls.
 
 ## Themes
 
@@ -58,4 +59,5 @@ Preference is stored in `localStorage` under `silvervibe.theme`.
 - [ ] `provideSilvervibeTheme()` registered
 - [ ] `ThemeStore` + `sv-theme-toggle` switch `data-theme` between `silvervibe` and `silvervibe-dark`
 - [ ] Landing / vibestandup home / shell show the toggle
-- [ ] New screens use daisyUI semantic colors (not one-off greys for content UI)
+- [ ] Landing / home / privacy surfaces switch with `data-theme` (no hard-coded light greys)
+- [ ] New screens use daisyUI semantic colors (`bg-base-*`, `text-base-content`, …)

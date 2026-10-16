@@ -1,16 +1,16 @@
 <main
-  class="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-16 text-center"
+  class="relative flex min-h-screen items-center justify-center overflow-hidden bg-base-100 px-6 py-16 text-center text-base-content"
 >
   <div
-    class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#eef1f5_0%,_#f7f8fa_45%,_#f3f4f6_100%)]"
+    class="pointer-events-none absolute inset-0 bg-gradient-to-b from-base-200/90 via-base-100 to-base-100"
     aria-hidden="true"
   ></div>
   <div
-    class="pointer-events-none absolute -left-24 top-16 h-72 w-72 rounded-full bg-[#c5ccd6]/25 blur-3xl"
+    class="pointer-events-none absolute -left-24 top-16 h-72 w-72 rounded-full bg-secondary/20 blur-3xl"
     aria-hidden="true"
   ></div>
   <div
-    class="pointer-events-none absolute -right-16 bottom-10 h-80 w-80 rounded-full bg-[#9aa3ad]/15 blur-3xl"
+    class="pointer-events-none absolute -right-16 bottom-10 h-80 w-80 rounded-full bg-neutral/15 blur-3xl"
     aria-hidden="true"
   ></div>
 
@@ -35,21 +35,11 @@
         <span
           class="text-[clamp(2.5rem,7vw,3.5rem)] font-bold leading-none tracking-[-0.045em]"
         >
-          <span
-            [class]="
-              isDark() ? 'text-[#c5ccd6]' : 'text-[#9aa3ad]'
-            "
-            >Silver</span
-          ><span
-            [class]="
-              isDark() ? 'text-[#5eb5ad]' : 'text-[#3d8b84]'
-            "
-            >Vibe</span
-          >
+          <span class="text-neutral">Silver</span
+          ><span class="text-secondary">Vibe</span>
         </span>
         <span
-          class="mt-1 text-sm font-semibold leading-none sm:mt-1.5 sm:text-base"
-          [class]="isDark() ? 'text-[#c5ccd6]' : 'text-[#9aa3ad]'"
+          class="mt-1 text-sm font-semibold leading-none text-neutral sm:mt-1.5 sm:text-base"
           aria-hidden="true"
           >™</span
         >
@@ -57,42 +47,42 @@
     </p>
 
     <p
-      class="mb-6 inline-block border border-[#e1e4e8] bg-white/80 px-3.5 py-1.5 text-[13px] font-semibold text-[#6b7280] backdrop-blur-sm"
+      class="mb-6 inline-block border border-base-300 bg-base-200/80 px-3.5 py-1.5 text-[13px] font-semibold text-base-content/70 backdrop-blur-sm"
     >
       {{ 'landing.badge' | transloco }}
     </p>
 
     <h1
-      class="m-0 mb-5 text-[clamp(2.375rem,7vw,4rem)] font-bold leading-[1.05] tracking-[-0.045em] text-[#17191c]"
+      class="m-0 mb-5 text-[clamp(2.375rem,7vw,4rem)] font-bold leading-[1.05] tracking-[-0.045em] text-base-content"
     >
       {{ 'landing.headline' | transloco }}
     </h1>
 
     <p
-      class="mx-auto m-0 max-w-[36.875rem] text-xl leading-relaxed text-[#6b7280]"
+      class="mx-auto m-0 max-w-[36.875rem] text-xl leading-relaxed text-base-content/70"
     >
       {{ 'landing.body' | transloco }}
     </p>
 
-    <footer class="mt-10 text-[13px] leading-relaxed text-[#9aa0a8]">
+    <footer class="mt-10 text-[13px] leading-relaxed text-base-content/55">
       <p class="m-0">{{ 'landing.footer.legal' | transloco }}</p>
       <p class="mt-3 m-0">
         <a
-          class="text-[#6b7280] underline decoration-[#e1e4e8] underline-offset-4 transition-colors hover:text-[#17191c]"
+          class="text-base-content/70 underline decoration-base-300 underline-offset-4 transition-colors hover:text-base-content"
           href="https://github.com/silvervibe-io/silvervibe"
           rel="noopener noreferrer"
           target="_blank"
           >{{ 'landing.footer.github' | transloco }}</a
         >
-        <span class="mx-2 text-[#d1d5db]" aria-hidden="true">·</span>
+        <span class="mx-2 text-base-content/30" aria-hidden="true">·</span>
         <a
-          class="text-[#6b7280] underline decoration-[#e1e4e8] underline-offset-4 transition-colors hover:text-[#17191c]"
+          class="text-base-content/70 underline decoration-base-300 underline-offset-4 transition-colors hover:text-base-content"
           routerLink="/privacy"
           >{{ 'landing.footer.privacy' | transloco }}</a
         >
-        <span class="mx-2 text-[#d1d5db]" aria-hidden="true">·</span>
+        <span class="mx-2 text-base-content/30" aria-hidden="true">·</span>
         <a
-          class="text-[#6b7280] underline decoration-[#e1e4e8] underline-offset-4 transition-colors hover:text-[#17191c]"
+          class="text-base-content/70 underline decoration-base-300 underline-offset-4 transition-colors hover:text-base-content"
           href="mailto:info@silvervibe.io"
           >info&#64;silvervibe.io</a
         >
