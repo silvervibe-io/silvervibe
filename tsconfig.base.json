@@ -28,7 +28,11 @@
         "./libs/shared/feature-auth/src/index.ts"
       ],
       "@silvervibe/shared/i18n": ["./libs/shared/i18n/src/index.ts"],
-      "@silvervibe/stores/theme": ["./libs/stores/theme/src/index.ts"]
+      "@silvervibe/stores/theme": ["./libs/stores/theme/src/index.ts"],
+      "@silvervibe/pages/home": ["./libs/silvervibe/pages/home/src/index.ts"],
+      "@silvervibe/vibestandup/pages/home": [
+        "./libs/vibestandup/pages/home/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]

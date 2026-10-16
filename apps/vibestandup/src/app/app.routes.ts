@@ -2,13 +2,14 @@ import { Route } from '@angular/router';
 import { authGuard } from '@silvervibe/shared/auth';
 
 /**
- * Home is the marketing landing. Auth routes stay available for sign-in.
- * Unknown URLs fall back to `/`.
+ * Home is the marketing landing from `@silvervibe/vibestandup/pages/home`.
+ * Auth routes stay available for sign-in. Unknown URLs fall back to `/`.
  */
 export const appRoutes: Route[] = [
   {
     path: '',
-    loadComponent: () => import('./home/home').then((m) => m.Home),
+    loadComponent: () =>
+      import('@silvervibe/vibestandup/pages/home').then((m) => m.Home),
   },
   {
     path: 'auth',

@@ -54,7 +54,7 @@ Use Workspace if you need a real mailbox and outbound `@silvervibe.io` send.
 
 | Surface             | Location                                       |
 | ------------------- | ---------------------------------------------- |
-| Landing mailto      | `apps/silvervibe/src/app/landing/landing.html` |
+| Landing mailto      | `libs/silvervibe/pages/home/src/lib/home/home.html` |
 | Privacy contact     | `apps/silvervibe/src/app/privacy/privacy.html` |
 | Privacy copy (docs) | [privacy.md](./privacy.md)                     |
 | E2E asserts link    | `apps/silvervibe-e2e/src/example.spec.ts`      |
