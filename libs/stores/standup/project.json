@@ -4,7 +4,8 @@
   "sourceRoot": "libs/stores/standup/src",
   "prefix": "sv",
   "projectType": "library",
-  "tags": ["type:util", "scope:shared"],
+  "tags": ["type:data-access", "scope:shared"],
+
   "targets": {
     "test": {
       "executor": "@nx/vitest:test",
