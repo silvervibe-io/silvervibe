@@ -66,6 +66,7 @@
     "@ngrx/effects": "^22.0.1",
     "@ngrx/entity": "^22.0.1",
     "@ngrx/router-store": "^22.0.1",
+    "@ngrx/signals": "^22.0.1",
     "@ngrx/store": "^22.0.1",
     "@openfeature/growthbook-client-provider": "^0.1.2",
     "@openfeature/growthbook-provider": "^0.1.2",

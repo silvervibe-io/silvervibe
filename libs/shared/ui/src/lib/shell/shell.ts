@@ -1,13 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslocoPipe } from '@jsverse/transloco';
-import { ThemeService } from '../theme/theme.service';
 import { LangSwitch } from '../lang-switch/lang-switch';
+import { ThemeToggle } from '../theme-toggle/theme-toggle';
 
 export interface ShellLink {
   label: string;
@@ -17,7 +11,7 @@ export interface ShellLink {
 
 @Component({
   selector: 'sv-shell',
-  imports: [RouterLink, TranslocoPipe, LangSwitch],
+  imports: [RouterLink, LangSwitch, ThemeToggle],
   templateUrl: './shell.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -25,18 +19,10 @@ export interface ShellLink {
   },
 })
 export class Shell {
-  private readonly theme = inject(ThemeService);
-
   readonly title = input('Silvervibe');
   readonly links = input<ShellLink[]>([]);
   /** Show light/dark toggle in the navbar (default true). */
   readonly showThemeToggle = input(true);
   /** Show language switcher (default true). */
   readonly showLangSwitch = input(true);
-
-  readonly mode = this.theme.mode;
-
-  toggleTheme(): void {
-    this.theme.toggle();
-  }
 }

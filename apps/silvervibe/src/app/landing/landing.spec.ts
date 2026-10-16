@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
-import { ThemeService } from '@silvervibe/shared/ui';
+import { ThemeStore } from '@silvervibe/stores/theme';
 import { of } from 'rxjs';
 import { Landing } from './landing';
 
@@ -13,7 +13,6 @@ describe('Landing', () => {
       imports: [Landing],
       providers: [
         provideRouter([]),
-        ThemeService,
         ...provideTransloco({
           config: {
             availableLangs: ['en'],
@@ -25,6 +24,12 @@ describe('Landing', () => {
             getTranslation() {
               return of({
                 common: { language: { label: 'Language', en: 'English' } },
+                shell: {
+                  theme: {
+                    toDark: 'Switch to dark theme',
+                    toLight: 'Switch to light theme',
+                  },
+                },
                 landing: {
                   badge: 'Personal project · In development',
                   headline: 'A better vibe for async work.',
@@ -42,7 +47,7 @@ describe('Landing', () => {
         }),
       ],
     }).compileComponents();
-    TestBed.inject(ThemeService).init();
+    TestBed.inject(ThemeStore).setMode('light');
     fixture = TestBed.createComponent(Landing);
     await fixture.whenStable();
     fixture.detectChanges();
@@ -61,6 +66,7 @@ describe('Landing', () => {
     expect(compiled.textContent).toContain('personal open-source');
     expect(compiled.textContent).toContain('Privacy');
     expect(compiled.textContent).not.toContain('VibeStandup');
+    expect(compiled.querySelector('sv-theme-toggle .swap')).toBeTruthy();
   });
 
   it('uses the light mark by default', () => {

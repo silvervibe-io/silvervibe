@@ -10,7 +10,8 @@ import {
 import { form, FormField } from '@angular/forms/signals';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Store } from '@ngrx/store';
-import { LangSwitch, ThemeService } from '@silvervibe/shared/ui';
+import { LangSwitch, ThemeToggle } from '@silvervibe/shared/ui';
+import { ThemeStore } from '@silvervibe/stores/theme';
 import * as AppActions from '../+state/app.actions';
 import { saveDraft } from '../standup/standup.actions';
 import { standupFeature } from '../standup/standup.reducer';
@@ -23,7 +24,13 @@ type StandupDraft = {
 
 @Component({
   selector: 'vs-home',
-  imports: [FormField, LangSwitch, NgOptimizedImage, TranslocoPipe],
+  imports: [
+    FormField,
+    LangSwitch,
+    NgOptimizedImage,
+    ThemeToggle,
+    TranslocoPipe,
+  ],
   templateUrl: './home.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -32,7 +39,7 @@ type StandupDraft = {
 })
 export class Home implements OnInit {
   private readonly store = inject(Store);
-  private readonly theme = inject(ThemeService);
+  private readonly theme = inject(ThemeStore);
 
   readonly draftModel = signal<StandupDraft>({
     yesterday: '',

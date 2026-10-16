@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
 import { provideMockStore } from '@ngrx/store/testing';
-import { ThemeService } from '@silvervibe/shared/ui';
+import { ThemeStore } from '@silvervibe/stores/theme';
 import { of } from 'rxjs';
 import { Home } from './home';
 
@@ -14,7 +14,6 @@ describe('Home', () => {
       imports: [Home],
       providers: [
         provideRouter([]),
-        ThemeService,
         provideMockStore({
           initialState: {
             standup: { yesterday: '', today: '', blockers: '' },
@@ -31,6 +30,12 @@ describe('Home', () => {
             getTranslation() {
               return of({
                 common: { language: { label: 'Language', en: 'English' } },
+                shell: {
+                  theme: {
+                    toDark: 'Switch to dark theme',
+                    toLight: 'Switch to light theme',
+                  },
+                },
                 standup: {
                   badge: 'Personal project · In development',
                   headline: 'Async standups without the meeting.',
@@ -54,7 +59,7 @@ describe('Home', () => {
         }),
       ],
     }).compileComponents();
-    TestBed.inject(ThemeService).init();
+    TestBed.inject(ThemeStore).setMode('light');
     fixture = TestBed.createComponent(Home);
     await fixture.whenStable();
     fixture.detectChanges();
@@ -72,6 +77,7 @@ describe('Home', () => {
     expect(compiled.textContent).toContain('Start a draft');
     expect(compiled.textContent).toContain('Yesterday');
     expect(compiled.textContent).toContain('Save draft');
+    expect(compiled.querySelector('sv-theme-toggle .swap')).toBeTruthy();
   });
 
   it('uses the light mark by default', () => {
