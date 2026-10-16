@@ -1,23 +1,13 @@
 {
   "badge": "Projeto pessoal · Em desenvolvimento",
   "headline": "Standups assíncronos sem a reunião.",
-  "body": "Registre ontem, hoje e bloqueios em um rascunho calmo — e compartilhe quando sua equipe estiver pronta.",
+  "body": "Compartilhe ontem, hoje e bloqueios de forma assíncrona — quando sua equipe estiver pronta.",
   "cta": {
-    "draft": "Começar um rascunho",
+    "login": "Entrar",
     "platform": "SilverVibe"
   },
   "footer": {
     "legal": "Vibe Standup faz parte do Silver Vibe™, um projeto pessoal open source (MIT).",
     "github": "Código no GitHub"
-  },
-  "title": "Rascunho de hoje",
-  "subtitle": "Ontem, hoje e bloqueios.",
-  "yesterday": "Ontem",
-  "today": "Hoje",
-  "blockers": "Bloqueios",
-  "save": "Salvar rascunho",
-  "saved": "Rascunho salvo",
-  "links": {
-    "platform": "SilverVibe"
   }
 }

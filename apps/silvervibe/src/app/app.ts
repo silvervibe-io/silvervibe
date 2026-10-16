@@ -1,12 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { Store } from '@ngrx/store';
-import * as AppActions from './+state/app.actions';
 
 @Component({
   imports: [RouterModule],
@@ -17,10 +10,4 @@ import * as AppActions from './+state/app.actions';
     class: 'block min-h-screen',
   },
 })
-export class App implements OnInit {
-  private readonly store = inject(Store);
-
-  ngOnInit(): void {
-    this.store.dispatch(AppActions.initApp());
-  }
-}
+export class App {}

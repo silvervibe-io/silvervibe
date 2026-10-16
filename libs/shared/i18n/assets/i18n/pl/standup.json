@@ -1,23 +1,13 @@
 {
   "badge": "Projekt osobisty · W trakcie rozwoju",
   "headline": "Asynchroniczne standupy bez spotkania.",
-  "body": "Zapisz wczoraj, dziś i blokery w spokojnym szkicu — a potem udostępnij, gdy zespół będzie gotowy.",
+  "body": "Udostępniaj wczoraj, dziś i blokery asynchronicznie — gdy zespół będzie gotowy.",
   "cta": {
-    "draft": "Rozpocznij szkic",
+    "login": "Zaloguj się",
     "platform": "SilverVibe"
   },
   "footer": {
     "legal": "Vibe Standup jest częścią Silver Vibe™, osobistego projektu open source (MIT).",
     "github": "Kod źródłowy na GitHubie"
-  },
-  "title": "Dzisiejszy szkic",
-  "subtitle": "Wczoraj, dziś i blokery.",
-  "yesterday": "Wczoraj",
-  "today": "Dziś",
-  "blockers": "Blokery",
-  "save": "Zapisz szkic",
-  "saved": "Szkic zapisany",
-  "links": {
-    "platform": "SilverVibe"
   }
 }
