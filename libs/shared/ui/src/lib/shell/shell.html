@@ -14,19 +14,7 @@
     } } @if (showLangSwitch()) {
     <sv-lang-switch />
     } @if (showThemeToggle()) {
-    <button
-      type="button"
-      class="btn btn-ghost btn-sm"
-      [attr.aria-label]="
-          mode() === 'light'
-            ? ('shell.theme.toDark' | transloco)
-            : ('shell.theme.toLight' | transloco)
-        "
-      (click)="toggleTheme()"
-    >
-      @if (mode() === 'light') { {{ 'shell.theme.dark' | transloco }} } @else {
-      {{ 'shell.theme.light' | transloco }} }
-    </button>
+    <sv-theme-toggle />
     }
   </div>
 </div>

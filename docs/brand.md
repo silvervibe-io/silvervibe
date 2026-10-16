@@ -27,7 +27,7 @@ on S and V only).
 | Vibe teal  | `#3D8B84`   | `#5EB5AD`  | “Vibe” half + ✨ sparkles |
 
 Light SVGs also embed `@media (prefers-color-scheme: dark)` fallbacks. For
-app chrome driven by `ThemeService`, prefer `mark-dark.svg` / `logo-dark.svg`
+app chrome driven by `ThemeStore`, prefer `mark-dark.svg` / `logo-dark.svg`
 when `mode === 'dark'`.
 
 Aligned with daisyUI theme tokens in `docs/theme.md` (cool slate + restrained

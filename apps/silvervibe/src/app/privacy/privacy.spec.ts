@@ -23,6 +23,12 @@ describe('Privacy', () => {
             getTranslation() {
               return of({
                 common: { language: { label: 'Language', en: 'English' } },
+                shell: {
+                  theme: {
+                    toDark: 'Switch to dark theme',
+                    toLight: 'Switch to light theme',
+                  },
+                },
                 privacy: {
                   crumb: 'Privacy',
                   title: 'Privacy policy',

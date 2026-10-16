@@ -1,72 +1,85 @@
-<main class="relative min-h-screen overflow-hidden px-6 py-16">
+<main
+  class="relative min-h-screen overflow-hidden bg-base-100 px-6 py-16 text-base-content"
+>
   <div
-    class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#eef1f5_0%,_#f7f8fa_45%,_#f3f4f6_100%)]"
+    class="pointer-events-none absolute inset-0 bg-gradient-to-b from-base-200/90 via-base-100 to-base-100"
     aria-hidden="true"
   ></div>
 
-  <article class="relative z-10 mx-auto max-w-[40rem] text-left text-[#17191c]">
+  <article class="relative z-10 mx-auto max-w-[40rem] text-left">
     <div class="mb-6 flex items-center justify-between gap-4">
-      <p class="m-0 text-sm text-[#6b7280]">
+      <p class="m-0 text-sm text-base-content/70">
         <a
           routerLink="/"
-          class="underline decoration-[#e1e4e8] underline-offset-4 transition-colors hover:text-[#17191c]"
+          class="underline decoration-base-300 underline-offset-4 transition-colors hover:text-base-content"
           >Silver Vibe</a
         >
-        <span class="mx-2 text-[#d1d5db]" aria-hidden="true">·</span>
+        <span class="mx-2 text-base-content/30" aria-hidden="true">·</span>
         {{ 'privacy.crumb' | transloco }}
       </p>
-      <sv-lang-switch />
+      <div class="flex items-center gap-2">
+        <sv-lang-switch />
+        <sv-theme-toggle />
+      </div>
     </div>
 
-    <h1 class="mb-4 text-3xl font-bold tracking-[-0.04em]">
+    <h1 class="mb-4 text-3xl font-bold tracking-[-0.04em] text-base-content">
       {{ 'privacy.title' | transloco }}
     </h1>
-    <p class="mb-8 text-sm leading-relaxed text-[#6b7280]">
+    <p class="mb-8 text-sm leading-relaxed text-base-content/70">
       {{ 'privacy.updated' | transloco }}
       <a
-        class="underline decoration-[#e1e4e8] underline-offset-4 hover:text-[#17191c]"
+        class="underline decoration-base-300 underline-offset-4 hover:text-base-content"
         href="mailto:info@silvervibe.io"
         >info&#64;silvervibe.io</a
       >.
     </p>
 
-    <section class="mb-8 space-y-3 text-sm leading-relaxed text-[#4b5563]">
-      <h2 class="text-base font-semibold text-[#17191c]">
+    <section
+      class="mb-8 space-y-3 text-sm leading-relaxed text-base-content/75"
+    >
+      <h2 class="text-base font-semibold text-base-content">
         {{ 'privacy.collect.title' | transloco }}
       </h2>
       <p>{{ 'privacy.collect.body' | transloco }}</p>
     </section>
 
-    <section class="mb-8 space-y-3 text-sm leading-relaxed text-[#4b5563]">
-      <h2 class="text-base font-semibold text-[#17191c]">
+    <section
+      class="mb-8 space-y-3 text-sm leading-relaxed text-base-content/75"
+    >
+      <h2 class="text-base font-semibold text-base-content">
         {{ 'privacy.use.title' | transloco }}
       </h2>
       <p>{{ 'privacy.use.body' | transloco }}</p>
     </section>
 
-    <section class="mb-8 space-y-3 text-sm leading-relaxed text-[#4b5563]">
-      <h2 class="text-base font-semibold text-[#17191c]">
+    <section
+      class="mb-8 space-y-3 text-sm leading-relaxed text-base-content/75"
+    >
+      <h2 class="text-base font-semibold text-base-content">
         {{ 'privacy.processors.title' | transloco }}
       </h2>
       <p>{{ 'privacy.processors.body' | transloco }}</p>
     </section>
 
-    <section class="mb-8 space-y-3 text-sm leading-relaxed text-[#4b5563]">
-      <h2 class="text-base font-semibold text-[#17191c]">
+    <section
+      class="mb-8 space-y-3 text-sm leading-relaxed text-base-content/75"
+    >
+      <h2 class="text-base font-semibold text-base-content">
         {{ 'privacy.retention.title' | transloco }}
       </h2>
       <p>
         {{ 'privacy.retention.body' | transloco }}
         <a
-          class="underline decoration-[#e1e4e8] underline-offset-4 hover:text-[#17191c]"
+          class="underline decoration-base-300 underline-offset-4 hover:text-base-content"
           href="mailto:info@silvervibe.io"
           >info&#64;silvervibe.io</a
         >.
       </p>
     </section>
 
-    <section class="space-y-3 text-sm leading-relaxed text-[#4b5563]">
-      <h2 class="text-base font-semibold text-[#17191c]">
+    <section class="space-y-3 text-sm leading-relaxed text-base-content/75">
+      <h2 class="text-base font-semibold text-base-content">
         {{ 'privacy.changes.title' | transloco }}
       </h2>
       <p>{{ 'privacy.changes.body' | transloco }}</p>
