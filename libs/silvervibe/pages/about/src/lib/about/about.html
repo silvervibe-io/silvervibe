@@ -1,0 +1,20 @@
+<sv-shell
+  [title]="'Silver Vibe'"
+  [links]="[
+    { label: ('nav.home' | transloco), href: '/' },
+    { label: ('nav.about' | transloco), href: '/about' },
+    { label: ('nav.tools' | transloco), href: '/tools/vibestandup' },
+    { label: ('nav.signIn' | transloco), href: '/auth' }
+  ]"
+>
+  <article class="prose prose-neutral max-w-none dark:prose-invert">
+    <h1>{{ 'about.title' | transloco }}</h1>
+    <p>{{ 'about.lead' | transloco }}</p>
+    <p>{{ 'about.body' | transloco }}</p>
+    <p>
+      <a routerLink="/tools/vibestandup" class="link link-primary"
+        >{{ 'about.ctaTools' | transloco }}</a
+      >
+    </p>
+  </article>
+</sv-shell>

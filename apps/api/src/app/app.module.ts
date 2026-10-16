@@ -9,6 +9,8 @@ import { LinearModule } from './addons/linear/linear.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SlackModule } from './addons/slack/slack.module';
 import { TeamsModule } from './addons/teams/teams.module';
+import { StandupsModule } from './standups/standups.module';
+import { WorkspaceTeamsModule } from './teams/teams.module';
 import { UsersModule } from './users/users.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
 
@@ -18,6 +20,8 @@ import { WorkspacesModule } from './workspaces/workspaces.module';
     AuthModule,
     UsersModule,
     WorkspacesModule,
+    WorkspaceTeamsModule,
+    StandupsModule,
     FeatureFlagsModule,
     SlackModule,
     TeamsModule,

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { VerifiedUser } from '../auth/firebase-auth.service';
+import { MeWorkspaceDto } from './me-workspace.dto';
 
 @Injectable()
 export class UsersService {
@@ -28,5 +29,35 @@ export class UsersService {
         displayName: user.displayName,
       },
     });
+  }
+
+  async listMyWorkspaces(user: VerifiedUser): Promise<MeWorkspaceDto[]> {
+    const record = await this.upsertFromFirebase(user);
+    if (!this.prisma.isEnabled() || record.id === 'local') {
+      return [];
+    }
+
+    const memberships = await this.prisma.workspaceMember.findMany({
+      where: { userId: record.id },
+      include: {
+        workspace: {
+          include: {
+            tools: {
+              orderBy: { toolKey: 'asc' },
+              select: { toolKey: true, enabled: true },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    return memberships.map((m) => ({
+      id: m.workspace.id,
+      name: m.workspace.name,
+      slug: m.workspace.slug,
+      role: m.role,
+      tools: m.workspace.tools,
+    }));
   }
 }

@@ -1,0 +1,9 @@
+<sv-shell [title]="'Vibe Standup'">
+  <div class="py-16 text-center">
+    @if (busy()) {
+    <p>{{ 'auth.handoff.working' | transloco }}</p>
+    } @else if (error()) {
+    <p class="text-error">{{ error() | transloco }}</p>
+    }
+  </div>
+</sv-shell>

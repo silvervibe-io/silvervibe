@@ -11,6 +11,7 @@ import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
 import { VerifiedUser } from '../auth/firebase-auth.service';
 import { UsersService } from './users.service';
 import { MeDto } from './me.dto';
+import { MeWorkspaceDto } from './me-workspace.dto';
 
 @ApiTags('auth')
 @ApiBearerAuth()
@@ -39,5 +40,20 @@ export class UsersController {
       email: record.email,
       displayName: record.displayName ?? null,
     };
+  }
+
+  @Get('workspaces')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiOperation({
+    summary: 'Workspaces for the current user',
+    description:
+      'Memberships with workspace role and tool entitlements (`workspace_tools`).',
+  })
+  @ApiOkResponse({ type: MeWorkspaceDto, isArray: true })
+  @ApiUnauthorizedResponse()
+  async myWorkspaces(
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<MeWorkspaceDto[]> {
+    return this.users.listMyWorkspaces(user);
   }
 }

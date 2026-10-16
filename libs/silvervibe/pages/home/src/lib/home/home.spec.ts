@@ -3,14 +3,14 @@ import { provideRouter } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
 import { ThemeStore } from '@silvervibe/stores/theme';
 import { of } from 'rxjs';
-import { Landing } from './landing';
+import { Home } from './home';
 
-describe('Landing', () => {
-  let fixture: ComponentFixture<Landing>;
+describe('Home', () => {
+  let fixture: ComponentFixture<Home>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Landing],
+      imports: [Home],
       providers: [
         provideRouter([]),
         ...provideTransloco({
@@ -30,6 +30,11 @@ describe('Landing', () => {
                     toLight: 'Switch to light theme',
                   },
                 },
+                nav: {
+                  about: 'About',
+                  tools: 'Tools',
+                  signIn: 'Sign in',
+                },
                 landing: {
                   badge: 'Personal project · In development',
                   headline: 'A better vibe for async work.',
@@ -48,12 +53,12 @@ describe('Landing', () => {
       ],
     }).compileComponents();
     TestBed.inject(ThemeStore).setMode('light');
-    fixture = TestBed.createComponent(Landing);
+    fixture = TestBed.createComponent(Home);
     await fixture.whenStable();
     fixture.detectChanges();
   });
 
-  it('renders the SilverVibe landing headline', () => {
+  it('renders the SilverVibe home headline', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const brand = compiled.querySelector('p[aria-label="SilverVibe"]');
     expect(brand).toBeTruthy();
@@ -65,7 +70,8 @@ describe('Landing', () => {
     );
     expect(compiled.textContent).toContain('personal open-source');
     expect(compiled.textContent).toContain('Privacy');
-    expect(compiled.textContent).not.toContain('VibeStandup');
+    expect(compiled.textContent).toContain('About');
+    expect(compiled.textContent).toContain('Sign in');
     expect(compiled.querySelector('sv-theme-toggle .swap')).toBeTruthy();
   });
 

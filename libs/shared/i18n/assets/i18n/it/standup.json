@@ -1,13 +1,58 @@
 {
-  "badge": "Progetto personale · In sviluppo",
-  "headline": "Standup asincroni senza la riunione.",
-  "body": "Condividi ieri, oggi e i blocker in modo asincrono — quando il team è pronto.",
+  "badge": "Personal project · In development",
+  "headline": "Async standups without the meeting.",
+  "body": "Share yesterday, today, and blockers asynchronously — when your team is ready.",
   "cta": {
-    "login": "Accedi",
+    "login": "Log in",
     "platform": "SilverVibe"
   },
   "footer": {
-    "legal": "Vibe Standup fa parte di Silver Vibe™, un progetto personale open source (MIT).",
-    "github": "Codice su GitHub"
+    "legal": "Vibe Standup is part of Silver Vibe™, a personal open-source project (MIT).",
+    "github": "Source on GitHub"
+  },
+  "loading": "Loading…",
+  "nav": {
+    "myStandup": "My standup",
+    "teamAdmin": "Team",
+    "workspace": "Workspace"
+  },
+  "my": {
+    "title": "My standup",
+    "lead": "Draft, submit, and review today’s team summary.",
+    "noTeams": "You are not on any team yet.",
+    "team": "Team",
+    "yesterday": "What did you do yesterday?",
+    "today": "What will you do today?",
+    "blockers": "Any blockers?",
+    "saveDraft": "Save draft",
+    "submit": "Submit",
+    "submitted": "Submitted for today.",
+    "summary": "Team summary"
+  },
+  "team": {
+    "title": "Team admin",
+    "lead": "Configure standup questions, invite members, and rebuild summaries.",
+    "noTeams": "No teams available.",
+    "config": "Standup configuration",
+    "timezone": "Timezone",
+    "saveConfig": "Save configuration",
+    "saved": "Configuration saved.",
+    "members": "Members",
+    "inviteUserId": "User id or Firebase UID",
+    "invite": "Invite",
+    "todayEntries": "Today’s entries",
+    "rebuildSummary": "Rebuild summary"
+  },
+  "workspace": {
+    "title": "Workspace admin",
+    "lead": "Enable tools and create teams for this workspace.",
+    "forbidden": "Workspace admin access required.",
+    "tools": "Tool entitlements",
+    "createTeam": "Create team",
+    "teamName": "Name",
+    "teamSlug": "Slug",
+    "create": "Create",
+    "toolUpdated": "Tool updated.",
+    "teamCreated": "Team created."
   }
 }

@@ -10,6 +10,7 @@ import {
   FeatureFlagsService,
   provideSilvervibeAuth,
   provideSilvervibeFeatureFlags,
+  STANDUP_APP_ORIGIN,
 } from '@silvervibe/shared/auth';
 import { provideSilvervibeI18n } from '@silvervibe/shared/i18n';
 import { provideSilvervibeTheme } from '@silvervibe/shared/ui';
@@ -35,6 +36,10 @@ export const appConfig: ApplicationConfig = {
     provideSilvervibeAuth(environment.firebase, {
       apiBaseUrl: environment.apiBaseUrl,
     }),
+    {
+      provide: STANDUP_APP_ORIGIN,
+      useValue: environment.standupAppOrigin,
+    },
     provideSilvervibeFeatureFlags(environment.growthbook),
     ...provideSilvervibeI18n(),
     {

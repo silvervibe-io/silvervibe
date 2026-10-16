@@ -1,0 +1,73 @@
+<sv-shell
+  [title]="'Silver Vibe'"
+  [links]="[
+    { label: ('nav.home' | transloco), href: '/' },
+    { label: ('nav.about' | transloco), href: '/about' },
+    { label: ('nav.portal' | transloco), href: '/portal' },
+    { label: ('nav.account' | transloco), href: '/account' }
+  ]"
+>
+  <div class="space-y-6">
+    <header class="space-y-2">
+      <h1 class="text-3xl font-bold tracking-tight">
+        {{ 'portal.title' | transloco }}
+      </h1>
+      <p class="text-base-content/70">{{ 'portal.lead' | transloco }}</p>
+    </header>
+
+    @if (loading()) {
+    <p class="text-sm text-base-content/60">
+      {{ 'portal.loading' | transloco }}
+    </p>
+    } @else if (error()) {
+    <p class="text-error">{{ error() }}</p>
+    } @else if (memberships().length === 0) {
+    <p class="text-base-content/70">{{ 'portal.empty' | transloco }}</p>
+    } @else {
+    <label class="form-control w-full max-w-xs">
+      <span class="label-text">{{ 'portal.workspace' | transloco }}</span>
+      <select
+        class="select select-bordered"
+        [value]="selected()?.id ?? ''"
+        (change)="selectWorkspace($any($event.target).value)"
+      >
+        @for (ws of memberships(); track ws.id) {
+        <option [value]="ws.id">{{ ws.name }} ({{ ws.role }})</option>
+        }
+      </select>
+    </label>
+
+    <section class="space-y-3">
+      <h2 class="text-xl font-semibold">{{ 'portal.tools' | transloco }}</h2>
+      @if (enabledTools().length === 0) {
+      <p class="text-base-content/60">{{ 'portal.noTools' | transloco }}</p>
+      } @else {
+      <ul class="space-y-2">
+        @for (tool of enabledTools(); track tool.toolKey) {
+        <li
+          class="flex flex-wrap items-center justify-between gap-3 border-b border-base-300 py-3"
+        >
+          <span class="font-medium">{{ tool.toolKey }}</span>
+          @if (tool.toolKey === 'vibestandup') {
+          <button
+            type="button"
+            class="btn btn-primary btn-sm"
+            [disabled]="openingTool()"
+            (click)="openVibeStandup()"
+          >
+            {{ 'portal.openTool' | transloco }}
+          </button>
+          }
+        </li>
+        }
+      </ul>
+      }
+    </section>
+
+    @if (isAdmin()) {
+    <p class="text-sm text-base-content/60">
+      {{ 'portal.adminHint' | transloco }}
+    </p>
+    } }
+  </div>
+</sv-shell>

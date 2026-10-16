@@ -28,7 +28,29 @@
         "./libs/shared/feature-auth/src/index.ts"
       ],
       "@silvervibe/shared/i18n": ["./libs/shared/i18n/src/index.ts"],
-      "@silvervibe/stores/theme": ["./libs/stores/theme/src/index.ts"]
+      "@silvervibe/stores/theme": ["./libs/stores/theme/src/index.ts"],
+      "@silvervibe/stores/workspace": ["./libs/stores/workspace/src/index.ts"],
+      "@silvervibe/stores/standup": ["./libs/stores/standup/src/index.ts"],
+      "@silvervibe/pages/home": ["./libs/silvervibe/pages/home/src/index.ts"],
+      "@silvervibe/pages/about": ["./libs/silvervibe/pages/about/src/index.ts"],
+      "@silvervibe/pages/tools-vibestandup": [
+        "./libs/silvervibe/pages/tools-vibestandup/src/index.ts"
+      ],
+      "@silvervibe/pages/portal": [
+        "./libs/silvervibe/pages/portal/src/index.ts"
+      ],
+      "@silvervibe/vibestandup/pages/home": [
+        "./libs/vibestandup/pages/home/src/index.ts"
+      ],
+      "@silvervibe/vibestandup/pages/my-standup": [
+        "./libs/vibestandup/pages/my-standup/src/index.ts"
+      ],
+      "@silvervibe/vibestandup/pages/team-admin": [
+        "./libs/vibestandup/pages/team-admin/src/index.ts"
+      ],
+      "@silvervibe/vibestandup/pages/workspace-admin": [
+        "./libs/vibestandup/pages/workspace-admin/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]

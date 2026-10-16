@@ -15,6 +15,16 @@ enum WorkspaceRole {
   MEMBER
 }
 
+enum TeamRole {
+  ADMIN
+  MEMBER
+}
+
+enum StandupEntryStatus {
+  DRAFT
+  SUBMITTED
+}
+
 enum AddonProvider {
   SLACK
   TEAMS
@@ -38,7 +48,9 @@ model User {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  memberships WorkspaceMember[]
+  memberships     WorkspaceMember[]
+  teamMemberships TeamMember[]
+  standupEntries  StandupEntry[]
 
   @@map("users")
 }
@@ -50,9 +62,10 @@ model Workspace {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  members     WorkspaceMember[]
-  tools       WorkspaceTool[]
+  members          WorkspaceMember[]
+  tools            WorkspaceTool[]
   addonConnections AddonConnection[]
+  teams            Team[]
 
   @@map("workspaces")
 }
@@ -100,4 +113,83 @@ model AddonConnection {
 
   @@unique([workspaceId, provider])
   @@map("addon_connections")
+}
+
+model Team {
+  id          String   @id @default(cuid())
+  workspaceId String   @map("workspace_id")
+  name        String
+  slug        String
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  workspace     Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  members       TeamMember[]
+  standupConfig StandupConfig?
+  entries       StandupEntry[]
+  summaries     StandupSummary[]
+
+  @@unique([workspaceId, slug])
+  @@map("teams")
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  teamId    String   @map("team_id")
+  userId    String   @map("user_id")
+  role      TeamRole @default(MEMBER)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@map("team_members")
+}
+
+model StandupConfig {
+  id            String   @id @default(cuid())
+  teamId        String   @unique @map("team_id")
+  timezone      String   @default("UTC")
+  questionsJson Json     @default("{\"yesterday\":\"What did you do yesterday?\",\"today\":\"What will you do today?\",\"blockers\":\"Any blockers?\"}") @map("questions_json")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@map("standup_configs")
+}
+
+model StandupEntry {
+  id          String             @id @default(cuid())
+  teamId      String             @map("team_id")
+  userId      String             @map("user_id")
+  entryDate   DateTime           @map("entry_date") @db.Date
+  status      StandupEntryStatus @default(DRAFT)
+  yesterday   String?
+  today       String?
+  blockers    String?
+  submittedAt DateTime?          @map("submitted_at")
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId, entryDate])
+  @@map("standup_entries")
+}
+
+model StandupSummary {
+  id        String   @id @default(cuid())
+  teamId    String   @map("team_id")
+  entryDate DateTime @map("entry_date") @db.Date
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, entryDate])
+  @@map("standup_summaries")
 }
