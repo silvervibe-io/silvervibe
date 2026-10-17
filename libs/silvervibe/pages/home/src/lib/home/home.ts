@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { LangSwitch, ThemeToggle } from '@silvervibe/shared/ui';
+import { LangSwitch, ThemeToggle, UI_BRAND } from '@silvervibe/shared/ui';
 import { ThemeStore } from '@silvervibe/stores/theme';
 
 @Component({
@@ -29,7 +29,7 @@ export class Home {
   private readonly theme = inject(ThemeStore);
 
   readonly markSrc = computed(() =>
-    this.theme.mode() === 'dark' ? 'brand/mark-dark.svg' : 'brand/mark.svg',
+    this.theme.mode() === 'dark' ? UI_BRAND.markDark : UI_BRAND.mark,
   );
 
   readonly isDark = computed(() => this.theme.mode() === 'dark');
