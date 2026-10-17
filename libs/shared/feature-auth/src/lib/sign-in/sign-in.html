@@ -65,18 +65,20 @@
     <div class="flex flex-col gap-3">
       <button
         type="button"
-        class="btn btn-outline"
+        class="btn btn-outline gap-2"
         [disabled]="busy()"
         (click)="signInGoogle()"
       >
+        <sv-icon name="google" class="h-5 w-5" />
         {{ 'auth.signIn.google' | transloco }}
       </button>
       <button
         type="button"
-        class="btn btn-outline"
+        class="btn btn-outline gap-2"
         [disabled]="busy()"
         (click)="signInGithub()"
       >
+        <sv-icon name="github" class="h-5 w-5" />
         {{ 'auth.signIn.github' | transloco }}
       </button>
     </div>

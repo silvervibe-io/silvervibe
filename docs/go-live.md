@@ -39,12 +39,38 @@ Do **not** commit `.env`. Keep secrets in Cloudflare / Secret Manager later.
 
 Cloudflare already runs `npm ci` before your build command. Do not prefix the build with another `npm ci`.
 
-4. Save and deploy. Confirm the `*.pages.dev` preview URL shows the landing page.
+4. **Build environment variables** (Pages → Settings → Environment variables) —
+   required for Firebase Auth / Google login on the live site. Production build
+   runs `sync-firebase-web` and writes `firebase-web.local.ts` from these:
+
+| Variable                | Notes                                  |
+| ----------------------- | -------------------------------------- |
+| `FIREBASE_API_KEY`      | Same as local `.env`                   |
+| `FIREBASE_AUTH_DOMAIN`  | Same as local `.env`                   |
+| `FIREBASE_PROJECT_ID`   | Same as local `.env`                   |
+| `FIREBASE_APP_ID`       | Same as local `.env`                   |
+| `GROWTHBOOK_CLIENT_KEY` | Optional                               |
+| `GROWTHBOOK_API_HOST`   | Optional (`https://cdn.growthbook.io`) |
+| `NODE_VERSION`          | `24.15.0` if not using `.nvmrc`        |
+
+Apply to **Production** (and Preview if you test auth on `*.pages.dev`).
+Redeploy after saving. Without `FIREBASE_*`, the bundled app has empty keys and
+Google login fails with `app/no-app`.
+
+5. Firebase console → **Authentication → Settings → Authorized domains** — add:
+
+- `localhost` (already there)
+- `silvervibe.io`
+- `www.silvervibe.io` (if used)
+- your `*.pages.dev` host if you sign in on previews
+
+6. Save and deploy. Confirm the `*.pages.dev` preview URL shows the landing page.
 
 ## 4. Attach silvervibe.io
 
 1. Pages project → **Custom domains** → add `silvervibe.io` (and optionally `www.silvervibe.io`).
 2. Wait for TLS active, then open https://silvervibe.io.
+3. Confirm Google login on `/auth` after the `FIREBASE_*` vars above are set and a fresh deploy finished.
 
 | Host                    | App                                                                                   |
 | ----------------------- | ------------------------------------------------------------------------------------- |
