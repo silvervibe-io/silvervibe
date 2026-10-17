@@ -1,0 +1,29 @@
+{
+  "defaultPlanKey": "free",
+  "plans": {
+    "free": {
+      "key": "free",
+      "name": "Free",
+      "description": "Default plan while Silver Vibe is free. Limits prepare paid upgrades later.",
+      "tools": {
+        "vibestandup": {
+          "enabledByDefault": true,
+          "maxTeams": 1,
+          "maxMembersPerTeam": 12
+        }
+      }
+    },
+    "team": {
+      "key": "team",
+      "name": "Team",
+      "description": "Placeholder paid tier — more teams and larger standups. Not sold yet.",
+      "tools": {
+        "vibestandup": {
+          "enabledByDefault": true,
+          "maxTeams": 10,
+          "maxMembersPerTeam": 50
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "generatedFor": "GrowthBook FeatureDefinition / SDK payload",
+  "note": "Create matching features in the GrowthBook UI (or API) using these keys and defaults. Do not treat flags as purchase proof — use Neon workspace_tools + plan.",
+  "attributesSuggested": ["id", "firebaseUid", "workspaceId", "planKey"],
+  "features": [
+    {
+      "key": "tools.vibestandup.enabled",
+      "valueType": "boolean",
+      "description": "Roll out the VibeStandup product surface (not proof of workspace entitlement).",
+      "defaultValue": true
+    },
+    {
+      "key": "addons.github.webhooks",
+      "valueType": "boolean",
+      "description": "Roll out GitHub webhook handling for add-ons.",
+      "defaultValue": false
+    },
+    {
+      "key": "vibestandup.multiTeam.enabled",
+      "valueType": "boolean",
+      "description": "Roll out multi-team UI/API beyond the free-plan single-team default. Enforce limits in Neon.",
+      "defaultValue": false
+    },
+    {
+      "key": "plans.catalog",
+      "valueType": "json",
+      "description": "Remote-readable copy of the workspace plan catalog (limits are authoritative in Neon when plans ship).",
+      "defaultValue": {
+        "defaultPlanKey": "free",
+        "plans": {
+          "free": {
+            "key": "free",
+            "name": "Free",
+            "description": "Default plan while Silver Vibe is free. Limits prepare paid upgrades later.",
+            "tools": {
+              "vibestandup": {
+                "enabledByDefault": true,
+                "maxTeams": 1,
+                "maxMembersPerTeam": 12
+              }
+            }
+          },
+          "team": {
+            "key": "team",
+            "name": "Team",
+            "description": "Placeholder paid tier — more teams and larger standups. Not sold yet.",
+            "tools": {
+              "vibestandup": {
+                "enabledByDefault": true,
+                "maxTeams": 10,
+                "maxMembersPerTeam": 50
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "key": "vibestandup.limits",
+      "valueType": "json",
+      "description": "Convenience JSON of free-tier VibeStandup limits (Neon plan remains authoritative when enforced).",
+      "defaultValue": {
+        "planKey": "free",
+        "maxTeams": 1,
+        "maxMembersPerTeam": 12
+      }
+    }
+  ]
+}

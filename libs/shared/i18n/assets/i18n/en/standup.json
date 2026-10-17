@@ -27,7 +27,8 @@
     "saveDraft": "Save draft",
     "submit": "Submit",
     "submitted": "Submitted for today.",
-    "summary": "Team summary"
+    "summary": "Team summary",
+    "planHint": "Preview plan {{plan}}: up to {{teams}} teams, {{members}} members per team (UI only — API still uses real roles)."
   },
   "team": {
     "title": "Team admin",
@@ -53,6 +54,7 @@
     "teamSlug": "Slug",
     "create": "Create",
     "toolUpdated": "Tool updated.",
-    "teamCreated": "Team created."
+    "teamCreated": "Team created.",
+    "planHint": "Preview plan {{plan}}: up to {{teams}} teams, {{members}} members per team (UI only — API still uses real roles)."
   }
 }

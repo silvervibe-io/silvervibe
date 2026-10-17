@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LangSwitch } from '../lang-switch/lang-switch';
+import { PreviewSwitcher } from '../preview-switcher/preview-switcher';
 import { ThemeToggle } from '../theme-toggle/theme-toggle';
 
 export interface ShellLink {
@@ -11,7 +12,7 @@ export interface ShellLink {
 
 @Component({
   selector: 'sv-shell',
-  imports: [RouterLink, LangSwitch, ThemeToggle],
+  imports: [RouterLink, LangSwitch, PreviewSwitcher, ThemeToggle],
   templateUrl: './shell.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

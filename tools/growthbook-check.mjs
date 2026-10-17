@@ -36,6 +36,6 @@ if (!hasSdkKey) {
   process.exitCode = 0;
 } else {
   console.log(
-    'Status: SDK key present — set boolean flags in GrowthBook to match FLAG_KEYS (tools.vibestandup.enabled, addons.github.webhooks).',
+    'Status: SDK key present — create flags from npm run growthbook:generate-features (see libs/shared/feature-flags/growthbook/features.inventory.json).',
   );
 }

@@ -27,7 +27,8 @@
     "saveDraft": "Save draft",
     "submit": "Submit",
     "submitted": "Submitted for today.",
-    "summary": "Team summary"
+    "summary": "Team summary",
+    "planHint": "Plano de pre-visualizacao {{plan}}: ate {{teams}} equipas, {{members}} membros por equipa (so UI — a API mantem funcoes reais)."
   },
   "team": {
     "title": "Team admin",
@@ -53,6 +54,7 @@
     "teamSlug": "Slug",
     "create": "Create",
     "toolUpdated": "Tool updated.",
-    "teamCreated": "Team created."
+    "teamCreated": "Team created.",
+    "planHint": "Plano de pre-visualizacao {{plan}}: ate {{teams}} equipas, {{members}} membros por equipa (so UI — a API mantem funcoes reais)."
   }
 }

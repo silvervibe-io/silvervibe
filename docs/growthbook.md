@@ -1,19 +1,65 @@
 # GrowthBook + OpenFeature (foundation)
 
-Issue: [#8](https://github.com/silvervibe-io/silvervibe/issues/8).
+Issues: [#8](https://github.com/silvervibe-io/silvervibe/issues/8),
+[#67](https://github.com/silvervibe-io/silvervibe/issues/67) (plans + generated features JSON).
 
 Silvervibe evaluates flags through **OpenFeature**. GrowthBook is the remote
 provider when SDK keys are present; otherwise Nest and Angular use **static
 in-memory defaults**.
 
-## Flag vs entitlement
+## Flag vs entitlement vs plan
 
 | Layer                    | Meaning                                                                                                        |
 | ------------------------ | -------------------------------------------------------------------------------------------------------------- |
 | Neon `workspace_tools`   | Ownership — does this workspace **own** the tool? ([#9](https://github.com/silvervibe-io/silvervibe/issues/9)) |
+| Workspace **plan**       | Commercial package / limits (free: 1 VibeStandup team, max 12 members). Enforced in Neon when shipped.         |
 | OpenFeature / GrowthBook | Rollout — is the feature **turned on** for this user/workspace?                                                |
 
-Never use a flag alone as proof of purchase.
+Never use a flag alone as proof of purchase or seat limits.
+
+## Founder preview switcher (role + plan)
+
+Allowlisted Firebase emails can switch **workspace role** and **plan tier** in the
+shell navbar to preview UI gates and limit copy. Nest RBAC is unchanged.
+
+| Piece | Detail                                                                          |
+| ----- | ------------------------------------------------------------------------------- |
+| Env   | `PREVIEW_SWITCHER_EMAILS=you@example.com` (comma-separated) in repo-root `.env` |
+| Sync  | `npm run firebase:sync-web` → `preview-switcher.local.ts` (gitignored)          |
+| Store | `@silvervibe/stores/preview` (`PreviewContextStore`)                            |
+| UI    | `sv-preview-switcher` inside `sv-shell` (md+ screens)                           |
+| Prod  | `environment.prod` keeps an empty allowlist                                     |
+
+When active, prefers selecting a workspace with slug `silvervibe` if present.
+Overrides persist in `sessionStorage` for the tab session.
+
+## Generated features JSON (from plan catalog)
+
+Canonical sources:
+
+| File                                                   | Role                                       |
+| ------------------------------------------------------ | ------------------------------------------ |
+| `libs/shared/feature-flags/src/lib/plans.catalog.json` | Plan definitions (free / team placeholder) |
+| `libs/shared/feature-flags/src/lib/flag-defaults.json` | Flag keys, types, defaults, descriptions   |
+| `libs/shared/feature-flags/src/lib/flag-keys.ts`       | TypeScript `FLAG_KEYS` / `TOOL_KEYS`       |
+
+Regenerate GrowthBook-compatible definitions:
+
+```bash
+npm run growthbook:generate-features
+```
+
+Outputs under `libs/shared/feature-flags/growthbook/`:
+
+| File                        | Use                                                                                        |
+| --------------------------- | ------------------------------------------------------------------------------------------ |
+| `features.definitions.json` | Flat FeatureDefinition map — pass as `features` / SDK `payload.features`                   |
+| `features.json`             | SDK endpoint-shaped payload `{ status: 200, features }`                                    |
+| `features.inventory.json`   | Human checklist (key, type, description, default) when creating flags in the GrowthBook UI |
+
+Suggested GrowthBook attributes for targeting: `id`, `firebaseUid`, `workspaceId`, `planKey`.
+
+After editing the catalog or defaults, regenerate and create/update matching features in GrowthBook (same keys + defaults).
 
 ## Create a GrowthBook project
 
@@ -37,15 +83,18 @@ npm run firebase:sync-web   # also syncs GrowthBook into Angular local modules
 
 `npm start` / Nx `serve` / `build` sync Angular env from `.env` automatically.
 
-## Initial boolean flags
+## Initial flags
 
-Create these **boolean** features in GrowthBook with the **same keys** as
-`FLAG_KEYS` in `@silvervibe/shared/feature-flags`:
+Prefer `npm run growthbook:generate-features` and create features from
+`features.inventory.json`. Current defaults include:
 
-| Key                         | Suggested default | Purpose                          |
-| --------------------------- | ----------------- | -------------------------------- |
-| `tools.vibestandup.enabled` | `true`            | Roll out Vibe Standup            |
-| `addons.github.webhooks`    | `false`           | Roll out GitHub webhook handling |
+| Key                             | Type    | Suggested default | Purpose                                      |
+| ------------------------------- | ------- | ----------------- | -------------------------------------------- |
+| `tools.vibestandup.enabled`     | boolean | `true`            | Roll out Vibe Standup                        |
+| `addons.github.webhooks`        | boolean | `false`           | Roll out GitHub webhook handling             |
+| `vibestandup.multiTeam.enabled` | boolean | `false`           | Roll out multi-team UX beyond free default   |
+| `plans.catalog`                 | JSON    | plan catalog      | Remote-readable plan catalog                 |
+| `vibestandup.limits`            | JSON    | free limits       | Convenience free-tier limits (Neon enforces) |
 
 Publish rules so the SDK connection can see them (dev environment is fine for local).
 
@@ -68,7 +117,8 @@ With keys set, the same endpoint returns GrowthBook’s evaluation.
 
 | Piece                                        | Location                                             |
 | -------------------------------------------- | ---------------------------------------------------- |
-| Shared flag keys                             | `libs/shared/feature-flags`                          |
+| Shared flag keys + plan catalog              | `libs/shared/feature-flags`                          |
+| Generated GrowthBook JSON                    | `libs/shared/feature-flags/growthbook/`              |
 | Nest provider + `GET /api/flags/vibestandup` | `apps/api/src/app/feature-flags`                     |
 | Angular `FeatureFlagsService`                | `libs/shared/auth` (`provideSilvervibeFeatureFlags`) |
 

@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { firstValueFrom } from 'rxjs';
 import { API_BASE_URL } from '@silvervibe/shared/auth';
+import { PreviewContextStore } from '@silvervibe/stores/preview';
 
 export type TeamView = {
   id: string;
@@ -70,6 +71,7 @@ export const StandupStore = signalStore(
   withMethods((store) => {
     const http = inject(HttpClient);
     const apiBase = inject(API_BASE_URL);
+    const preview = inject(PreviewContextStore);
 
     return {
       async loadMyTeams(workspaceId: string): Promise<void> {
@@ -95,6 +97,9 @@ export const StandupStore = signalStore(
       },
 
       isTeamAdmin(): boolean {
+        if (preview.isActive()) {
+          return preview.isTeamAdmin();
+        }
         const id = store.selectedTeamId();
         const team = store.teams().find((t) => t.id === id);
         return team?.role === 'ADMIN';

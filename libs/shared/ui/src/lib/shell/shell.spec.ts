@@ -1,6 +1,11 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
+import {
+  PREVIEW_SWITCHER_EMAILS,
+  PREVIEW_SWITCHER_USER_EMAIL,
+} from '@silvervibe/stores/preview';
 import { THEME_STORAGE_KEY, ThemeStore } from '@silvervibe/stores/theme';
 import { of } from 'rxjs';
 import { Shell } from './shell';
@@ -15,6 +20,11 @@ describe('Shell', () => {
       imports: [Shell],
       providers: [
         provideRouter([]),
+        { provide: PREVIEW_SWITCHER_EMAILS, useValue: [] },
+        {
+          provide: PREVIEW_SWITCHER_USER_EMAIL,
+          useValue: signal<string | null>(null),
+        },
         ...provideTransloco({
           config: {
             availableLangs: ['en'],
@@ -37,6 +47,12 @@ describe('Shell', () => {
                     toLight: 'Switch to light theme',
                     dark: 'Dark',
                     light: 'Light',
+                  },
+                  preview: {
+                    badge: 'Preview',
+                    role: 'Role',
+                    plan: 'Plan',
+                    limits: '{{plan}}: {{teams}} / {{members}}',
                   },
                 },
               });

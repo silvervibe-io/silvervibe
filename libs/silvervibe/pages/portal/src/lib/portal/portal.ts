@@ -14,7 +14,9 @@ import {
   AuthService,
   STANDUP_APP_ORIGIN,
 } from '@silvervibe/shared/auth';
+import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
 import { Shell } from '@silvervibe/shared/ui';
+import { PreviewContextStore } from '@silvervibe/stores/preview';
 import { WorkspaceStore } from '@silvervibe/stores/workspace';
 import { firstValueFrom } from 'rxjs';
 
@@ -29,6 +31,7 @@ import { firstValueFrom } from 'rxjs';
 })
 export class Portal implements OnInit {
   private readonly workspaces = inject(WorkspaceStore);
+  private readonly preview = inject(PreviewContextStore);
   private readonly auth = inject(AuthService);
   private readonly http = inject(HttpClient);
   private readonly apiBase = inject(API_BASE_URL);
@@ -41,6 +44,21 @@ export class Portal implements OnInit {
   readonly selected = computed(() => this.workspaces.selectedWorkspace());
   readonly enabledTools = computed(() => this.workspaces.enabledTools());
   readonly isAdmin = computed(() => this.workspaces.isWorkspaceAdmin());
+  readonly effectiveRole = computed(() =>
+    this.workspaces.effectiveWorkspaceRole(),
+  );
+  readonly previewActive = this.preview.isActive;
+  readonly planHint = computed(() => {
+    if (!this.preview.isActive()) {
+      return null;
+    }
+    const limits = getVibestandupLimits(this.preview.planKey());
+    return {
+      planKey: this.preview.planKey(),
+      maxTeams: limits.maxTeams,
+      maxMembersPerTeam: limits.maxMembersPerTeam,
+    };
+  });
   readonly openingTool = signal(false);
 
   ngOnInit(): void {

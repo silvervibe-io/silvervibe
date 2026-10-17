@@ -4,5 +4,11 @@
     "toLight": "Overschakelen naar licht thema",
     "dark": "Donker",
     "light": "Licht"
+  },
+  "preview": {
+    "badge": "Voorbeeld",
+    "role": "Rol",
+    "plan": "Abonnement",
+    "limits": "{{plan}}: {{teams}} teams / {{members}} leden"
   }
 }

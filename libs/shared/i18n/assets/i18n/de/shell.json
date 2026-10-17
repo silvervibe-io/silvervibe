@@ -4,5 +4,11 @@
     "toLight": "Zum hellen Design wechseln",
     "dark": "Dunkel",
     "light": "Hell"
+  },
+  "preview": {
+    "badge": "Vorschau",
+    "role": "Rolle",
+    "plan": "Tarif",
+    "limits": "{{plan}}: {{teams}} Teams / {{members}} Mitglieder"
   }
 }
