@@ -1,0 +1,22 @@
+{
+  "tools.vibestandup.enabled": {
+    "valueType": "boolean",
+    "defaultValue": true,
+    "description": "Roll out the VibeStandup product surface (not proof of workspace entitlement)."
+  },
+  "addons.github.webhooks": {
+    "valueType": "boolean",
+    "defaultValue": false,
+    "description": "Roll out GitHub webhook handling for add-ons."
+  },
+  "vibestandup.multiTeam.enabled": {
+    "valueType": "boolean",
+    "defaultValue": false,
+    "description": "Roll out multi-team UI/API beyond the free-plan single-team default. Enforce limits in Neon."
+  },
+  "plans.catalog": {
+    "valueType": "json",
+    "defaultValueFrom": "plans.catalog",
+    "description": "Remote-readable copy of the workspace plan catalog (limits are authoritative in Neon when plans ship)."
+  }
+}

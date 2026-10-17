@@ -19,4 +19,5 @@ description: Implements OpenFeature evaluations with GrowthBook as the provider 
 2. Pass workspace/user attributes for targeting (`workspaceId`, `firebaseUid`).
 3. Keep entitlement truth in Neon; use a flag only to gate rollout of an already-entitled tool.
 4. Flag key strings live in `@silvervibe/shared/feature-flags` (`FLAG_KEYS`); document new keys in `docs/growthbook.md`.
-5. Without keys, both Nest and Angular must fall back to static defaults (do not crash).
+5. Plan limits live in `plans.catalog.json`; regenerate GrowthBook JSON with `npm run growthbook:generate-features` after catalog or `flag-defaults.json` changes.
+6. Without keys, both Nest and Angular must fall back to static defaults (do not crash).
