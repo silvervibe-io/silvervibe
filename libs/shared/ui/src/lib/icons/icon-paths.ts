@@ -2,6 +2,8 @@
 export const UI_ICON = {
   sun: 'icons/sun.svg',
   moon: 'icons/moon.svg',
+  google: 'icons/google.svg',
+  github: 'icons/github.svg',
 } as const;
 
 export const UI_BRAND = {

@@ -3,6 +3,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { API_BASE_URL } from './api-base-url.token';
 import { AuthService, SilvervibeFirebaseConfig } from './auth.service';
 import { authInterceptor } from './auth.interceptor';
+import { FIREBASE_WEB_CONFIG } from './firebase-web-config.token';
 import {
   FeatureFlagsConfig,
   FeatureFlagsService,
@@ -13,11 +14,12 @@ export type ProvideSilvervibeAuthOptions = {
 };
 
 export function provideSilvervibeAuth(
-  _firebase: SilvervibeFirebaseConfig,
+  firebase: SilvervibeFirebaseConfig,
   options: ProvideSilvervibeAuthOptions = {},
 ): EnvironmentProviders {
   return makeEnvironmentProviders([
     AuthService,
+    { provide: FIREBASE_WEB_CONFIG, useValue: firebase },
     provideHttpClient(withInterceptors([authInterceptor])),
     {
       provide: API_BASE_URL,

@@ -16,7 +16,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AuthService } from '@silvervibe/shared/auth';
-import { Shell } from '@silvervibe/shared/ui';
+import { Icon, Shell } from '@silvervibe/shared/ui';
 
 type SignInModel = {
   email: string;
@@ -25,7 +25,7 @@ type SignInModel = {
 
 @Component({
   selector: 'sv-sign-in',
-  imports: [FormField, RouterLink, Shell, TranslocoPipe],
+  imports: [FormField, Icon, RouterLink, Shell, TranslocoPipe],
   templateUrl: './sign-in.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

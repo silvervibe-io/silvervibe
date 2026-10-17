@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import {
   User,
   browserLocalPersistence,
@@ -11,14 +11,23 @@ import {
   signOut,
   GoogleAuthProvider,
   GithubAuthProvider,
+  type Auth,
 } from 'firebase/auth';
 
 import { initializeApp, getApps, type FirebaseOptions } from 'firebase/app';
+import { FIREBASE_WEB_CONFIG } from './firebase-web-config.token';
 
 export type SilvervibeFirebaseConfig = FirebaseOptions;
 
+const NOT_CONFIGURED =
+  'Firebase Auth is not configured. Set FIREBASE_API_KEY and FIREBASE_PROJECT_ID in .env, run npm run firebase:sync-web, then restart the app.';
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly defaultConfig = inject(FIREBASE_WEB_CONFIG, {
+    optional: true,
+  });
+
   private readonly userSignal = signal<User | null>(null);
   readonly user = this.userSignal.asReadonly();
 
@@ -31,7 +40,7 @@ export class AuthService {
     this.resolveReady = resolve;
   });
 
-  init(config: SilvervibeFirebaseConfig): void {
+  init(config: SilvervibeFirebaseConfig = this.defaultConfig ?? {}): void {
     if (this.initialized) {
       return;
     }
@@ -60,34 +69,49 @@ export class AuthService {
       return Promise.resolve();
     }
     if (!this.initialized) {
-      this.readySignal.set(true);
-      this.resolveReady();
+      this.init();
+    }
+    if (this.readySignal()) {
       return Promise.resolve();
     }
     return this.readyPromise;
   }
 
   async signIn(email: string, password: string): Promise<User> {
-    const result = await signInWithEmailAndPassword(getAuth(), email, password);
+    const result = await signInWithEmailAndPassword(
+      this.requireAuth(),
+      email,
+      password,
+    );
     return result.user;
   }
 
   async signInWithGoogle(): Promise<User> {
-    const result = await signInWithPopup(getAuth(), new GoogleAuthProvider());
+    const result = await signInWithPopup(
+      this.requireAuth(),
+      new GoogleAuthProvider(),
+    );
     return result.user;
   }
 
   async signInWithGithub(): Promise<User> {
-    const result = await signInWithPopup(getAuth(), new GithubAuthProvider());
+    const result = await signInWithPopup(
+      this.requireAuth(),
+      new GithubAuthProvider(),
+    );
     return result.user;
   }
 
   async signInWithCustomToken(customToken: string): Promise<User> {
-    const result = await signInWithCustomToken(getAuth(), customToken);
+    const result = await signInWithCustomToken(this.requireAuth(), customToken);
     return result.user;
   }
 
   async signOut(): Promise<void> {
+    if (!getApps().length) {
+      this.userSignal.set(null);
+      return;
+    }
     await signOut(getAuth());
   }
 
@@ -98,5 +122,13 @@ export class AuthService {
       return null;
     }
     return current.getIdToken();
+  }
+
+  private requireAuth(): Auth {
+    this.init();
+    if (!getApps().length) {
+      throw new Error(NOT_CONFIGURED);
+    }
+    return getAuth();
   }
 }
