@@ -1,7 +1,12 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
 import { AuthService } from '@silvervibe/shared/auth';
+import {
+  PREVIEW_SWITCHER_EMAILS,
+  PREVIEW_SWITCHER_USER_EMAIL,
+} from '@silvervibe/stores/preview';
 import { of } from 'rxjs';
 import { SignIn } from './sign-in';
 
@@ -13,6 +18,11 @@ describe('SignIn', () => {
       imports: [SignIn],
       providers: [
         provideRouter([]),
+        { provide: PREVIEW_SWITCHER_EMAILS, useValue: [] },
+        {
+          provide: PREVIEW_SWITCHER_USER_EMAIL,
+          useValue: signal<string | null>(null),
+        },
         {
           provide: AuthService,
           useValue: {
@@ -40,6 +50,12 @@ describe('SignIn', () => {
                     toLight: 'light',
                     dark: 'Dark',
                     light: 'Light',
+                  },
+                  preview: {
+                    badge: 'Preview',
+                    role: 'Role',
+                    plan: 'Plan',
+                    limits: '{{plan}}',
                   },
                 },
                 auth: {
@@ -71,6 +87,8 @@ describe('SignIn', () => {
     expect(compiled.textContent).toContain('Sign in');
     expect(compiled.textContent).toContain('Continue with Google');
     expect(compiled.textContent).toContain('Continue with GitHub');
+    expect(compiled.querySelector('sv-icon[name="google"]')).toBeTruthy();
+    expect(compiled.querySelector('sv-icon[name="github"]')).toBeTruthy();
   });
 
   it('shows the configured product title', () => {

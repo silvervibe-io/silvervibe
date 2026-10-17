@@ -25,9 +25,7 @@ function initPlatform() {
   const auth = inject(AuthService);
   const flags = inject(FeatureFlagsService);
   return () => {
-    if (environment.firebase.apiKey && environment.firebase.projectId) {
-      auth.init(environment.firebase);
-    }
+    auth.init(environment.firebase);
     return flags.init(environment.growthbook);
   };
 }
