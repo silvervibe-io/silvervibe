@@ -4,5 +4,11 @@
     "toLight": "Przełącz na jasny motyw",
     "dark": "Ciemny",
     "light": "Jasny"
+  },
+  "preview": {
+    "badge": "Podglad",
+    "role": "Rola",
+    "plan": "Plan",
+    "limits": "{{plan}}: {{teams}} zespolow / {{members}} czlonkow"
   }
 }

@@ -1,9 +1,14 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
 import { API_BASE_URL, AuthService } from '@silvervibe/shared/auth';
+import {
+  PREVIEW_SWITCHER_EMAILS,
+  PREVIEW_SWITCHER_USER_EMAIL,
+} from '@silvervibe/stores/preview';
 import { WorkspaceStore } from '@silvervibe/stores/workspace';
 import { of } from 'rxjs';
 import { Portal } from './portal';
@@ -19,6 +24,11 @@ describe('Portal', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: API_BASE_URL, useValue: '/api' },
+        { provide: PREVIEW_SWITCHER_EMAILS, useValue: [] },
+        {
+          provide: PREVIEW_SWITCHER_USER_EMAIL,
+          useValue: signal<string | null>(null),
+        },
         {
           provide: AuthService,
           useValue: { signOut: async () => undefined, user: () => null },
@@ -50,9 +60,16 @@ describe('Portal', () => {
                   noTools: 'No tools',
                   openTool: 'Open',
                   adminHint: 'You are an admin',
+                  planHint: 'Preview plan {{plan}}',
                 },
                 shell: {
                   theme: { toDark: 'Dark', toLight: 'Light' },
+                  preview: {
+                    badge: 'Preview',
+                    role: 'Role',
+                    plan: 'Plan',
+                    limits: '{{plan}}',
+                  },
                 },
                 common: { language: { label: 'Language', en: 'English' } },
               });

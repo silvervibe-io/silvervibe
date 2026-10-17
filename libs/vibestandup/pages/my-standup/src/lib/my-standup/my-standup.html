@@ -13,6 +13,12 @@
         {{ 'standup.my.title' | transloco }}
       </h1>
       <p class="text-base-content/70">{{ 'standup.my.lead' | transloco }}</p>
+      @if (planHint(); as hint) {
+      <p class="text-sm text-base-content/60">
+        {{ 'standup.my.planHint' | transloco : { plan: hint.planKey, teams:
+        hint.maxTeams, members: hint.maxMembersPerTeam, } }}
+      </p>
+      }
     </header>
 
     @if (loading()) {

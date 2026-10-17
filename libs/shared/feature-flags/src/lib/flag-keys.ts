@@ -16,9 +16,16 @@ export function isKnownToolKey(key: string): key is ToolKey {
   return TOOL_KEY_VALUES.has(key);
 }
 
+/**
+ * OpenFeature / GrowthBook flag keys.
+ * Keep in sync with `flag-defaults.json` and regenerate GrowthBook JSON after changes.
+ */
 export const FLAG_KEYS = {
   toolsVibestandupEnabled: 'tools.vibestandup.enabled',
   addonsGithubWebhooks: 'addons.github.webhooks',
+  vibestandupMultiTeamEnabled: 'vibestandup.multiTeam.enabled',
+  plansCatalog: 'plans.catalog',
+  vibestandupLimits: 'vibestandup.limits',
 } as const;
 
 export type FlagKey = (typeof FLAG_KEYS)[keyof typeof FLAG_KEYS];

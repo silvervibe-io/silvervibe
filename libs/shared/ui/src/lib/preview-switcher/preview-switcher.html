@@ -1,0 +1,40 @@
+@if (visible()) {
+<div class="hidden items-center gap-2 md:flex">
+  <span class="badge badge-warning badge-sm whitespace-nowrap"
+    >{{ 'shell.preview.badge' | transloco }}</span
+  >
+  @if (orgLabel(); as org) {
+  <span class="text-xs font-semibold tracking-tight whitespace-nowrap"
+    >{{ org }}</span
+  >
+  }
+  <label class="form-control min-w-0">
+    <span class="sr-only">{{ 'shell.preview.role' | transloco }}</span>
+    <select
+      class="select select-bordered select-sm max-w-[9rem]"
+      [value]="workspaceRole()"
+      (change)="onRoleChange($event)"
+    >
+      @for (role of roles; track role) {
+      <option [value]="role">{{ role }}</option>
+      }
+    </select>
+  </label>
+  <label class="form-control min-w-0">
+    <span class="sr-only">{{ 'shell.preview.plan' | transloco }}</span>
+    <select
+      class="select select-bordered select-sm max-w-[7rem]"
+      [value]="planKey()"
+      (change)="onPlanChange($event)"
+    >
+      @for (plan of plans; track plan) {
+      <option [value]="plan">{{ plan }}</option>
+      }
+    </select>
+  </label>
+  <span class="hidden text-xs text-base-content/60 lg:inline">
+    {{ 'shell.preview.limits' | transloco : { plan: planHint().planKey, teams:
+    planHint().maxTeams, members: planHint().maxMembersPerTeam, } }}
+  </span>
+</div>
+}

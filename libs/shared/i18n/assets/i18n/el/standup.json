@@ -27,7 +27,8 @@
     "saveDraft": "Save draft",
     "submit": "Submit",
     "submitted": "Submitted for today.",
-    "summary": "Team summary"
+    "summary": "Team summary",
+    "planHint": "Προεπισκόπηση πλάνου {{plan}}: έως {{teams}} ομάδες, {{members}} μέλη ανά ομάδα (μόνο UI — το API κρατά πραγματικούς ρόλους)."
   },
   "team": {
     "title": "Team admin",
@@ -53,6 +54,7 @@
     "teamSlug": "Slug",
     "create": "Create",
     "toolUpdated": "Tool updated.",
-    "teamCreated": "Team created."
+    "teamCreated": "Team created.",
+    "planHint": "Προεπισκόπηση πλάνου {{plan}}: έως {{teams}} ομάδες, {{members}} μέλη ανά ομάδα (μόνο UI — το API κρατά πραγματικούς ρόλους)."
   }
 }

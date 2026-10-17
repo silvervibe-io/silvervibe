@@ -4,6 +4,9 @@
       >{{ title() }}</a
     >
   </div>
+  <div class="navbar-center">
+    <sv-preview-switcher />
+  </div>
   <div class="navbar-end gap-2 sm:gap-4">
     @for (link of links(); track link.href) { @if (link.external) {
     <a class="link link-hover text-sm" [href]="link.href">{{ link.label }}</a>

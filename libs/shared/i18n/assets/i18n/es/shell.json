@@ -4,5 +4,11 @@
     "toLight": "Cambiar al tema claro",
     "dark": "Oscuro",
     "light": "Claro"
+  },
+  "preview": {
+    "badge": "Vista previa",
+    "role": "Rol",
+    "plan": "Plan",
+    "limits": "{{plan}}: {{teams}} equipos / {{members}} miembros"
   }
 }

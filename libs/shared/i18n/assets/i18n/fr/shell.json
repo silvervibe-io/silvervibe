@@ -4,5 +4,11 @@
     "toLight": "Passer au thème clair",
     "dark": "Sombre",
     "light": "Clair"
+  },
+  "preview": {
+    "badge": "Apercu",
+    "role": "Role",
+    "plan": "Offre",
+    "limits": "{{plan}}: {{teams}} equipes / {{members}} membres"
   }
 }

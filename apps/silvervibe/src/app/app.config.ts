@@ -1,6 +1,7 @@
 import {
   ApplicationConfig,
   APP_INITIALIZER,
+  computed,
   provideBrowserGlobalErrorListeners,
   inject,
 } from '@angular/core';
@@ -14,6 +15,10 @@ import {
 } from '@silvervibe/shared/auth';
 import { provideSilvervibeI18n } from '@silvervibe/shared/i18n';
 import { provideSilvervibeTheme } from '@silvervibe/shared/ui';
+import {
+  PREVIEW_SWITCHER_EMAILS,
+  PREVIEW_SWITCHER_USER_EMAIL,
+} from '@silvervibe/stores/preview';
 import { environment } from '../environments/environment';
 import { appRoutes } from './app.routes';
 
@@ -41,6 +46,17 @@ export const appConfig: ApplicationConfig = {
       useValue: environment.standupAppOrigin,
     },
     provideSilvervibeFeatureFlags(environment.growthbook),
+    {
+      provide: PREVIEW_SWITCHER_EMAILS,
+      useValue: environment.previewSwitcherEmails,
+    },
+    {
+      provide: PREVIEW_SWITCHER_USER_EMAIL,
+      useFactory: () => {
+        const auth = inject(AuthService);
+        return computed(() => auth.user()?.email ?? null);
+      },
+    },
     ...provideSilvervibeI18n(),
     {
       provide: APP_INITIALIZER,
