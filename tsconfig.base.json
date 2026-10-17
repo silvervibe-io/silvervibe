@@ -29,6 +29,7 @@
       ],
       "@silvervibe/shared/i18n": ["./libs/shared/i18n/src/index.ts"],
       "@silvervibe/stores/theme": ["./libs/stores/theme/src/index.ts"],
+      "@silvervibe/stores/preview": ["./libs/stores/preview/src/index.ts"],
       "@silvervibe/stores/workspace": ["./libs/stores/workspace/src/index.ts"],
       "@silvervibe/stores/standup": ["./libs/stores/standup/src/index.ts"],
       "@silvervibe/pages/home": ["./libs/silvervibe/pages/home/src/index.ts"],

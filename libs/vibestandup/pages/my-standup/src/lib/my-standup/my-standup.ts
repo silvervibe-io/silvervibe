@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   OnInit,
@@ -9,7 +10,9 @@ import {
 import { form, FormField, required, submit } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
 import { Shell } from '@silvervibe/shared/ui';
+import { PreviewContextStore } from '@silvervibe/stores/preview';
 import { StandupStore } from '@silvervibe/stores/standup';
 import { WorkspaceStore } from '@silvervibe/stores/workspace';
 
@@ -31,6 +34,7 @@ type StandupFormModel = {
 export class MyStandup implements OnInit {
   private readonly workspaces = inject(WorkspaceStore);
   private readonly standup = inject(StandupStore);
+  private readonly preview = inject(PreviewContextStore);
 
   readonly loading = this.standup.loading;
   readonly error = this.standup.error;
@@ -40,6 +44,17 @@ export class MyStandup implements OnInit {
   readonly teams = this.standup.teams;
   readonly selectedTeamId = this.standup.selectedTeamId;
   readonly isTeamAdmin = () => this.standup.isTeamAdmin();
+  readonly planHint = computed(() => {
+    if (!this.preview.isActive()) {
+      return null;
+    }
+    const limits = getVibestandupLimits(this.preview.planKey());
+    return {
+      planKey: this.preview.planKey(),
+      maxTeams: limits.maxTeams,
+      maxMembersPerTeam: limits.maxMembersPerTeam,
+    };
+  });
   readonly busy = signal(false);
 
   readonly model = signal<StandupFormModel>({

@@ -4,5 +4,11 @@
     "toLight": "Switch to light theme",
     "dark": "Dark",
     "light": "Light"
+  },
+  "preview": {
+    "badge": "Preview",
+    "role": "Role",
+    "plan": "Plan",
+    "limits": "{{plan}}: {{teams}} teams / {{members}} members"
   }
 }

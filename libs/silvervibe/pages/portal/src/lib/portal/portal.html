@@ -32,10 +32,20 @@
         (change)="selectWorkspace($any($event.target).value)"
       >
         @for (ws of memberships(); track ws.id) {
-        <option [value]="ws.id">{{ ws.name }} ({{ ws.role }})</option>
+        <option [value]="ws.id">
+          {{ ws.name }} ({{ previewActive() && selected()?.id === ws.id ?
+          effectiveRole() : ws.role }})
+        </option>
         }
       </select>
     </label>
+
+    @if (planHint(); as hint) {
+    <p class="text-sm text-base-content/60">
+      {{ 'portal.planHint' | transloco : { plan: hint.planKey, teams:
+      hint.maxTeams, members: hint.maxMembersPerTeam, } }}
+    </p>
+    }
 
     <section class="space-y-3">
       <h2 class="text-xl font-semibold">{{ 'portal.tools' | transloco }}</h2>

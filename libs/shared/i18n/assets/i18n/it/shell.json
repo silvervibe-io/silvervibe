@@ -4,5 +4,11 @@
     "toLight": "Passa al tema chiaro",
     "dark": "Scuro",
     "light": "Chiaro"
+  },
+  "preview": {
+    "badge": "Anteprima",
+    "role": "Ruolo",
+    "plan": "Piano",
+    "limits": "{{plan}}: {{teams}} team / {{members}} membri"
   }
 }

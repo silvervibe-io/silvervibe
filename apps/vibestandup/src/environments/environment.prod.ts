@@ -11,5 +11,7 @@ export const environment = {
     clientKey: '',
     apiHost: 'https://cdn.growthbook.io',
   },
+  /** Empty in production builds — preview switcher stays hidden. */
+  previewSwitcherEmails: [] as string[],
   apiBaseUrl: 'https://api.silvervibe.io/api',
 };

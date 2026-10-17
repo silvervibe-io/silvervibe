@@ -24,6 +24,7 @@ for (const app of ['silvervibe', 'vibestandup']) {
   for (const [localName, exampleName] of [
     ['firebase-web.local.ts', 'firebase-web.local.example.ts'],
     ['growthbook.local.ts', 'growthbook.local.example.ts'],
+    ['preview-switcher.local.ts', 'preview-switcher.local.example.ts'],
   ]) {
     const local = join(dir, localName);
     const example = join(dir, exampleName);

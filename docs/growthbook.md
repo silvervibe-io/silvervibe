@@ -17,6 +17,22 @@ in-memory defaults**.
 
 Never use a flag alone as proof of purchase or seat limits.
 
+## Founder preview switcher (role + plan)
+
+Allowlisted Firebase emails can switch **workspace role** and **plan tier** in the
+shell navbar to preview UI gates and limit copy. Nest RBAC is unchanged.
+
+| Piece | Detail                                                                          |
+| ----- | ------------------------------------------------------------------------------- |
+| Env   | `PREVIEW_SWITCHER_EMAILS=you@example.com` (comma-separated) in repo-root `.env` |
+| Sync  | `npm run firebase:sync-web` → `preview-switcher.local.ts` (gitignored)          |
+| Store | `@silvervibe/stores/preview` (`PreviewContextStore`)                            |
+| UI    | `sv-preview-switcher` inside `sv-shell` (md+ screens)                           |
+| Prod  | `environment.prod` keeps an empty allowlist                                     |
+
+When active, prefers selecting a workspace with slug `silvervibe` if present.
+Overrides persist in `sessionStorage` for the tab session.
+
 ## Generated features JSON (from plan catalog)
 
 Canonical sources:

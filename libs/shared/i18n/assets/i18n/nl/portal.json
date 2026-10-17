@@ -7,5 +7,6 @@
   "tools": "Enabled tools",
   "noTools": "No tools enabled for this workspace.",
   "openTool": "Open",
-  "adminHint": "You can manage tools and teams as a workspace admin."
+  "adminHint": "You can manage tools and teams as a workspace admin.",
+  "planHint": "Voorbeeldabonnement {{plan}}: max. {{teams}} teams, {{members}} leden per team (alleen UI — API gebruikt echte rollen)."
 }

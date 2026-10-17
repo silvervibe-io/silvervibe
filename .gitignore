@@ -42,6 +42,7 @@ vitest.config.*.timestamp*
 # Local Angular public env (apiKey / GrowthBook client). Keep *.example.ts committed.
 **/environments/firebase-web.local.ts
 **/environments/growthbook.local.ts
+**/environments/preview-switcher.local.ts
 *.pem
 *.key
 *.p12
