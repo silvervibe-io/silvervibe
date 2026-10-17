@@ -6,10 +6,11 @@ import {
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ThemeStore } from '@silvervibe/stores/theme';
+import { Icon } from '../icons/icon';
 
 @Component({
   selector: 'sv-theme-toggle',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, Icon],
   templateUrl: './theme-toggle.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

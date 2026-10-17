@@ -42,12 +42,14 @@ describe('ThemeToggle', () => {
     await fixture.whenStable();
   });
 
-  it('renders the daisyUI swap control', () => {
+  it('renders the daisyUI swap control with shared icons', () => {
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('.swap.swap-rotate')).toBeTruthy();
     expect(
       root.querySelector('[aria-label="Switch to dark theme"]'),
     ).toBeTruthy();
+    expect(root.querySelector('sv-icon.swap-on')).toBeTruthy();
+    expect(root.querySelector('sv-icon.swap-off')).toBeTruthy();
   });
 
   it('toggles ThemeStore between light and dark', () => {
