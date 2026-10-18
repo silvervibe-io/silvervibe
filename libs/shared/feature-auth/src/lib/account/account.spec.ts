@@ -4,9 +4,15 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
+import { signal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
 import { API_BASE_URL, AuthService } from '@silvervibe/shared/auth';
+import {
+  PREVIEW_SWITCHER_EMAILS,
+  PREVIEW_SWITCHER_USER_EMAIL,
+} from '@silvervibe/stores/preview';
+import { UserStore } from '@silvervibe/stores/user';
 import { of } from 'rxjs';
 import { Account } from './account';
 
@@ -22,6 +28,11 @@ describe('Account', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: API_BASE_URL, useValue: '/api' },
+        { provide: PREVIEW_SWITCHER_EMAILS, useValue: [] },
+        {
+          provide: PREVIEW_SWITCHER_USER_EMAIL,
+          useValue: signal<string | null>(null),
+        },
         {
           provide: AuthService,
           useValue: {
@@ -29,6 +40,7 @@ describe('Account', () => {
             signOut: () => Promise.resolve(),
           },
         },
+        UserStore,
         ...provideTransloco({
           config: {
             availableLangs: ['en'],
@@ -47,6 +59,12 @@ describe('Account', () => {
                     dark: 'Dark',
                     light: 'Light',
                   },
+                  preview: {
+                    badge: 'Preview',
+                    role: 'Role',
+                    plan: 'Plan',
+                    limits: '{{plan}}',
+                  },
                 },
                 auth: {
                   account: {
@@ -60,6 +78,7 @@ describe('Account', () => {
                     empty: '—',
                     backToSignIn: 'Back to sign in',
                     signOut: 'Sign out',
+                    loadFailed: 'Failed to load /api/me',
                   },
                 },
               });
@@ -77,7 +96,7 @@ describe('Account', () => {
     http.verify();
   });
 
-  it('loads /api/me profile', async () => {
+  it('loads /api/me profile via UserStore', async () => {
     const req = http.expectOne('/api/me');
     expect(req.request.method).toBe('GET');
     req.flush({
