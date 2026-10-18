@@ -23,6 +23,37 @@
         ]
       }
     },
+    "/api/auth/custom-token": {
+      "post": {
+        "description": "Caller sends a valid ID token; response is a short-lived custom token consumable via `signInWithCustomToken` on another authorized domain.",
+        "operationId": "AuthHandoffController_customToken",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomTokenDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a Firebase custom token for cross-app handoff",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/api/me": {
       "get": {
         "description": "Requires `Authorization: Bearer <Firebase ID token>`. Upserts the Neon `users` row by `firebase_uid`. Outside production, when Firebase Admin is not configured, `Bearer dev:<uid>` is accepted.",
@@ -54,9 +85,43 @@
         ]
       }
     },
+    "/api/me/workspaces": {
+      "get": {
+        "description": "Memberships with workspace role and tool entitlements (`workspace_tools`).",
+        "operationId": "UsersController_myWorkspaces",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MeWorkspaceDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Workspaces for the current user",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/api/workspaces": {
       "post": {
-        "description": "Foundation helper to create a workspace so tool entitlements can be granted.",
+        "description": "Creates a workspace, adds the caller as OWNER, and enables vibestandup by default.",
         "operationId": "WorkspacesController_create",
         "parameters": [],
         "requestBody": {
@@ -193,6 +258,516 @@
         "summary": "Grant or revoke a tool entitlement",
         "tags": [
           "workspaces"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/teams/mine": {
+      "get": {
+        "operationId": "TeamsController_listMine",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyTeamDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Teams the current user can access in a workspace",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/teams": {
+      "post": {
+        "operationId": "TeamsController_create",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTeamDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a team (workspace admin)",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/members": {
+      "get": {
+        "operationId": "TeamsController_listMembers",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TeamMemberDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List team members",
+        "tags": [
+          "teams"
+        ]
+      },
+      "post": {
+        "operationId": "TeamsController_invite",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteTeamMemberDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamMemberDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Invite or update a team member (team admin)",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/standup-config": {
+      "get": {
+        "operationId": "StandupsController_getConfig",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandupConfigDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get standup questions/timezone for a team",
+        "tags": [
+          "standups"
+        ]
+      },
+      "put": {
+        "operationId": "StandupsController_updateConfig",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStandupConfigDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandupConfigDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update standup config (team admin)",
+        "tags": [
+          "standups"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/standups/me": {
+      "get": {
+        "operationId": "StandupsController_getMine",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandupEntryDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get or create my standup entry for a date",
+        "tags": [
+          "standups"
+        ]
+      },
+      "put": {
+        "operationId": "StandupsController_upsertMine",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertStandupEntryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandupEntryDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Save draft or submit my standup",
+        "tags": [
+          "standups"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/standups": {
+      "get": {
+        "operationId": "StandupsController_list",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StandupEntryDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List team standup entries for a date (admin)",
+        "tags": [
+          "standups"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/standups/summary": {
+      "get": {
+        "operationId": "StandupsController_getSummary",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandupSummaryDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get daily team summary if present",
+        "tags": [
+          "standups"
+        ]
+      },
+      "post": {
+        "operationId": "StandupsController_rebuildSummary",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandupSummaryDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Rebuild daily summary from submitted entries",
+        "tags": [
+          "standups"
         ]
       }
     },
@@ -413,6 +988,17 @@
           "status"
         ]
       },
+      "CustomTokenDto": {
+        "type": "object",
+        "properties": {
+          "customToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "customToken"
+        ]
+      },
       "MeDto": {
         "type": "object",
         "properties": {
@@ -436,6 +1022,56 @@
         "required": [
           "id",
           "firebaseUid"
+        ]
+      },
+      "MeWorkspaceToolDto": {
+        "type": "object",
+        "properties": {
+          "toolKey": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "toolKey",
+          "enabled"
+        ]
+      },
+      "MeWorkspaceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "OWNER",
+              "ADMIN",
+              "MEMBER"
+            ]
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MeWorkspaceToolDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "role",
+          "tools"
         ]
       },
       "CreateWorkspaceDto": {
@@ -500,6 +1136,240 @@
         },
         "required": [
           "enabled"
+        ]
+      },
+      "MyTeamDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "MEMBER"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "role"
+        ]
+      },
+      "CreateTeamDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "slug"
+        ]
+      },
+      "TeamDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "TeamMemberDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "MEMBER"
+            ]
+          },
+          "email": {
+            "type": "object",
+            "nullable": true
+          },
+          "displayName": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "role"
+        ]
+      },
+      "InviteTeamMemberDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "Firebase UID or existing Neon user id"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "MEMBER"
+            ]
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      },
+      "StandupConfigDto": {
+        "type": "object",
+        "properties": {
+          "teamId": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "questionsJson": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "teamId",
+          "timezone",
+          "questionsJson"
+        ]
+      },
+      "UpdateStandupConfigDto": {
+        "type": "object",
+        "properties": {
+          "timezone": {
+            "type": "string"
+          },
+          "questionsJson": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "timezone",
+          "questionsJson"
+        ]
+      },
+      "StandupEntryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "teamId": {
+            "type": "string"
+          },
+          "entryDate": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "SUBMITTED"
+            ]
+          },
+          "yesterday": {
+            "type": "object",
+            "nullable": true
+          },
+          "today": {
+            "type": "object",
+            "nullable": true
+          },
+          "blockers": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "teamId",
+          "entryDate",
+          "status"
+        ]
+      },
+      "UpsertStandupEntryDto": {
+        "type": "object",
+        "properties": {
+          "yesterday": {
+            "type": "string"
+          },
+          "today": {
+            "type": "string"
+          },
+          "blockers": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "SUBMITTED"
+            ]
+          }
+        },
+        "required": [
+          "yesterday",
+          "today",
+          "blockers",
+          "status"
+        ]
+      },
+      "StandupSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "teamId": {
+            "type": "string"
+          },
+          "entryDate": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "teamId",
+          "entryDate",
+          "content"
         ]
       },
       "FlagEvaluationDto": {
