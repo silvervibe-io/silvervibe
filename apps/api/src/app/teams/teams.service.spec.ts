@@ -33,7 +33,7 @@ describe('TeamsService invites and plan limits', () => {
     } as unknown as UsersService;
     const mailService = {
       isConfigured: jest.fn().mockReturnValue(false),
-      sendTeamInvite: jest.fn().mockResolvedValue(false),
+      sendTeamInvite: jest.fn().mockResolvedValue({ sent: false }),
       ...mail,
     } as unknown as MailService;
     return new TeamsService(prisma as PrismaService, usersService, mailService);
@@ -59,13 +59,11 @@ describe('TeamsService invites and plan limits', () => {
         count: jest.fn().mockResolvedValue(1),
       },
       team: {
-        findUnique: jest
-          .fn()
-          .mockResolvedValue({
-            id: 'team1',
-            workspaceId: 'ws1',
-            name: 'Alpha',
-          }),
+        findUnique: jest.fn().mockResolvedValue({
+          id: 'team1',
+          workspaceId: 'ws1',
+          name: 'Alpha',
+        }),
       },
       user: { findFirst: jest.fn().mockResolvedValue(null) },
       teamInvite: {
@@ -74,7 +72,7 @@ describe('TeamsService invites and plan limits', () => {
         create,
       },
     };
-    const sendTeamInvite = jest.fn().mockResolvedValue(true);
+    const sendTeamInvite = jest.fn().mockResolvedValue({ sent: true });
     const service = build(prisma, undefined, { sendTeamInvite });
     const result = await service.createInviteByEmail(
       'team1',

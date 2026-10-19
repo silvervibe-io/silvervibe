@@ -43,13 +43,16 @@ describe('MailService', () => {
         acceptUrl: 'http://localhost:4201/invite/tok',
         expiresAt: new Date('2030-01-01T00:00:00Z'),
       }),
-    ).resolves.toBe(false);
+    ).resolves.toEqual({
+      sent: false,
+      error: 'RESEND_API_KEY is not set',
+    });
     expect(sendMock).not.toHaveBeenCalled();
   });
 
   it('sends invite mail when Resend is configured', async () => {
     setEnv('RESEND_API_KEY', 're_test');
-    setEnv('EMAIL_FROM', 'VibeStandup <invites@silvervibe.io>');
+    setEnv('EMAIL_FROM', '"VibeStandup <invites@silvervibe.io>"');
     sendMock.mockResolvedValue({ data: { id: 'email_1' }, error: null });
 
     const mail = new MailService();
@@ -61,7 +64,7 @@ describe('MailService', () => {
         acceptUrl: 'http://localhost:4201/invite/tok',
         expiresAt: new Date('2030-01-01T00:00:00Z'),
       }),
-    ).resolves.toBe(true);
+    ).resolves.toEqual({ sent: true });
 
     expect(sendMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -75,7 +78,7 @@ describe('MailService', () => {
     expect(html).toContain('http://localhost:4201/invite/tok');
   });
 
-  it('returns false when Resend reports an error', async () => {
+  it('returns Resend error message when send fails', async () => {
     setEnv('RESEND_API_KEY', 're_test');
     sendMock.mockResolvedValue({
       data: null,
@@ -89,6 +92,6 @@ describe('MailService', () => {
         html: '<p>Hi</p>',
         text: 'Hi',
       }),
-    ).resolves.toBe(false);
+    ).resolves.toEqual({ sent: false, error: 'boom' });
   });
 });

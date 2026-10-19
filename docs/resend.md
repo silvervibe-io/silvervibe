@@ -14,13 +14,16 @@ Inbound `info@silvervibe.io` remains Cloudflare Email Routing
 
 ```bash
 RESEND_API_KEY=re_...
-EMAIL_FROM=VibeStandup <onboarding@resend.dev>
+EMAIL_FROM="VibeStandup <onboarding@resend.dev>"
 PUBLIC_STANDUP_URL=http://localhost:4201
 ```
 
-3. Restart `npm run start:api`.
-4. Invite an address you can receive on. With `onboarding@resend.dev`, Resend
-   only delivers to the email on your Resend account until you verify a domain.
+Quote `EMAIL_FROM` so dotenv keeps the display name / angle brackets. Do **not**
+use `@silvervibe.io` until that domain is verified in Resend.
+
+3. Restart `npm run start:api` (env is read at boot).
+4. Invite the **same email as your Resend account**. With `onboarding@resend.dev`,
+   Resend only delivers to that address until you verify a domain.
 
 ## Production
 

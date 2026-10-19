@@ -58,7 +58,7 @@ export class TeamsService {
       token: string;
       expiresAt: Date;
     },
-    emailSent?: boolean,
+    mail?: { emailSent: boolean; emailError?: string },
   ): TeamInviteDto {
     return {
       id: row.id,
@@ -69,7 +69,12 @@ export class TeamsService {
       token: row.token,
       acceptPath: `/invite/${row.token}`,
       expiresAt: row.expiresAt.toISOString(),
-      ...(emailSent !== undefined ? { emailSent } : {}),
+      ...(mail
+        ? {
+            emailSent: mail.emailSent,
+            ...(mail.emailError ? { emailError: mail.emailError } : {}),
+          }
+        : {}),
     };
   }
 
@@ -83,13 +88,17 @@ export class TeamsService {
   private async sendInviteEmail(
     invite: { email: string; token: string; expiresAt: Date },
     teamName: string,
-  ): Promise<boolean> {
-    return this.mail.sendTeamInvite({
+  ): Promise<{ emailSent: boolean; emailError?: string }> {
+    const result = await this.mail.sendTeamInvite({
       to: invite.email,
       teamName,
       acceptUrl: this.inviteAcceptUrl(invite.token),
       expiresAt: invite.expiresAt,
     });
+    return {
+      emailSent: result.sent,
+      ...(result.error ? { emailError: result.error } : {}),
+    };
   }
 
   private toMemberDto(member: {
@@ -420,8 +429,8 @@ export class TeamsService {
     });
     if (pending) {
       if (pending.expiresAt > new Date()) {
-        const emailSent = await this.sendInviteEmail(pending, team.name);
-        return this.toInviteDto(pending, emailSent);
+        const mail = await this.sendInviteEmail(pending, team.name);
+        return this.toInviteDto(pending, mail);
       }
       await this.prisma.teamInvite.update({
         where: { id: pending.id },
@@ -442,8 +451,8 @@ export class TeamsService {
         invitedById: userId,
       },
     });
-    const emailSent = await this.sendInviteEmail(created, team.name);
-    return this.toInviteDto(created, emailSent);
+    const mail = await this.sendInviteEmail(created, team.name);
+    return this.toInviteDto(created, mail);
   }
 
   async listInvites(

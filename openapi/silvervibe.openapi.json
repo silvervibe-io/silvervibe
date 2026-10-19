@@ -1519,6 +1519,10 @@
           "emailSent": {
             "type": "boolean",
             "description": "True when an invite email was sent via Resend for this response"
+          },
+          "emailError": {
+            "type": "string",
+            "description": "Resend error message when emailSent is false after a send attempt"
           }
         },
         "required": [

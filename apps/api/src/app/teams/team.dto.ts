@@ -121,6 +121,13 @@ export class TeamInviteDto {
       'True when an invite email was sent via Resend for this response',
   })
   emailSent?: boolean;
+
+  @ApiProperty({
+    required: false,
+    description:
+      'Resend error message when emailSent is false after a send attempt',
+  })
+  emailError?: string;
 }
 
 export class AcceptTeamInviteDto {

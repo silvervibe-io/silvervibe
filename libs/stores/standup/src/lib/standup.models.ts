@@ -65,6 +65,8 @@ export type TeamInviteView = {
   member?: TeamMemberView;
   /** True when Nest sent the invite via Resend for this create/resend call. */
   emailSent?: boolean;
+  /** Resend error when a send was attempted but failed. */
+  emailError?: string;
 };
 
 export type StandupState = {

@@ -8,6 +8,11 @@ export type SendMailInput = {
   text: string;
 };
 
+export type SendMailResult = {
+  sent: boolean;
+  error?: string;
+};
+
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
@@ -16,14 +21,17 @@ export class MailService {
 
   constructor() {
     const apiKey = process.env['RESEND_API_KEY']?.trim();
-    this.from =
+    this.from = stripEnvQuotes(
       process.env['EMAIL_FROM']?.trim() ||
-      'VibeStandup <onboarding@resend.dev>';
+        'VibeStandup <onboarding@resend.dev>',
+    );
     this.resend = apiKey ? new Resend(apiKey) : null;
     if (!this.resend) {
       this.logger.warn(
         'RESEND_API_KEY is not set; outbound email is disabled (invite links still work)',
       );
+    } else {
+      this.logger.log(`Outbound email enabled (from=${this.from})`);
     }
   }
 
@@ -31,9 +39,9 @@ export class MailService {
     return this.resend !== null;
   }
 
-  async send(input: SendMailInput): Promise<boolean> {
+  async send(input: SendMailInput): Promise<SendMailResult> {
     if (!this.resend) {
-      return false;
+      return { sent: false, error: 'RESEND_API_KEY is not set' };
     }
 
     const { data, error } = await this.resend.emails.send({
@@ -45,12 +53,14 @@ export class MailService {
     });
 
     if (error) {
-      this.logger.error(`Failed to send mail to ${input.to}: ${error.message}`);
-      return false;
+      this.logger.error(
+        `Failed to send mail to ${input.to} from ${this.from}: ${error.message}`,
+      );
+      return { sent: false, error: error.message };
     }
 
     this.logger.log(`Sent mail to ${input.to} (id=${data?.id ?? 'unknown'})`);
-    return true;
+    return { sent: true };
   }
 
   async sendTeamInvite(params: {
@@ -58,7 +68,7 @@ export class MailService {
     teamName: string;
     acceptUrl: string;
     expiresAt: Date;
-  }): Promise<boolean> {
+  }): Promise<SendMailResult> {
     const expires = params.expiresAt.toUTCString();
     const subject = `You're invited to ${params.teamName} on VibeStandup`;
     const text = [
@@ -78,6 +88,16 @@ export class MailService {
 
     return this.send({ to: params.to, subject, html, text });
   }
+}
+
+function stripEnvQuotes(value: string): string {
+  if (
+    (value.startsWith('"') && value.endsWith('"')) ||
+    (value.startsWith("'") && value.endsWith("'"))
+  ) {
+    return value.slice(1, -1);
+  }
+  return value;
 }
 
 function escapeHtml(value: string): string {

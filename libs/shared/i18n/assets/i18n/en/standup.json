@@ -47,7 +47,7 @@
     "copyLink": "Copy link",
     "revoke": "Revoke",
     "shareLink": "Share this link",
-    "invitePending": "Invite created, but email was not sent (check RESEND_API_KEY). Copy the link below and share it.",
+    "invitePending": "Invite created, but email was not sent. Copy the link below and share it.",
     "inviteEmailSent": "Invite email sent. You can still copy the link below if needed.",
     "inviteAccepted": "Member added (they already had an account).",
     "inviteRevoked": "Invite revoked.",
