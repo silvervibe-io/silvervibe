@@ -80,20 +80,33 @@
     </p>
     } }
 
-    <form class="max-w-md space-y-3" (submit)="createWorkspace($event)">
+    <form
+      class="flex max-w-md flex-col gap-3"
+      (submit)="createWorkspace($event)"
+    >
       <h2 class="text-xl font-semibold">
         {{ (memberships().length === 0 ? 'portal.createTitle' :
         'portal.addWorkspace') | transloco }}
       </h2>
-      <label class="form-control">
-        <span class="label-text">{{ 'portal.createName' | transloco }}</span>
-        <input class="input input-bordered" [formField]="workspaceForm.name" />
-      </label>
-      <label class="form-control">
-        <span class="label-text">{{ 'portal.createSlug' | transloco }}</span>
-        <input class="input input-bordered" [formField]="workspaceForm.slug" />
-      </label>
-      <button type="submit" class="btn btn-primary btn-sm">
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'portal.createName' | transloco }}
+        </legend>
+        <input
+          class="input input-bordered w-full"
+          [formField]="workspaceForm.name"
+        />
+      </fieldset>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'portal.createSlug' | transloco }}
+        </legend>
+        <input
+          class="input input-bordered w-full"
+          [formField]="workspaceForm.slug"
+        />
+      </fieldset>
+      <button type="submit" class="btn btn-primary btn-sm self-start">
         {{ 'portal.createSubmit' | transloco }}
       </button>
       @if (createMessage()) {
