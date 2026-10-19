@@ -1,43 +1,19 @@
-import { HttpClient } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
-import { firstValueFrom } from 'rxjs';
-import { API_BASE_URL } from '@silvervibe/shared/auth';
-
-/** Neon profile from `GET /api/me` (upserted from Firebase). */
-export type UserProfile = {
-  id: string;
-  firebaseUid: string;
-  email: string | null;
-  displayName: string | null;
-};
-
-type UserState = {
-  profile: UserProfile | null;
-  loading: boolean;
-  error: string | null;
-};
-
-const initialState: UserState = {
-  profile: null,
-  loading: false,
-  error: null,
-};
+import { USER_INITIAL_STATE } from './user.models';
+import { UserService } from './user.service';
 
 export const UserStore = signalStore(
   { providedIn: 'root' },
-  withState(initialState),
+  withState(USER_INITIAL_STATE),
   withMethods((store) => {
-    const http = inject(HttpClient);
-    const apiBase = inject(API_BASE_URL);
+    const api = inject(UserService);
 
     return {
       async loadMe(): Promise<void> {
         patchState(store, { loading: true, error: null });
         try {
-          const profile = await firstValueFrom(
-            http.get<UserProfile>(`${apiBase}/me`),
-          );
+          const profile = await api.getMe();
           patchState(store, { profile, loading: false, error: null });
         } catch (err: unknown) {
           patchState(store, {
@@ -49,7 +25,7 @@ export const UserStore = signalStore(
       },
 
       clear(): void {
-        patchState(store, initialState);
+        patchState(store, USER_INITIAL_STATE);
       },
     };
   }),

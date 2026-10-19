@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -9,11 +8,9 @@ import {
 import { form, FormField, required, submit } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { API_BASE_URL } from '@silvervibe/shared/auth';
 import { Shell } from '@silvervibe/shared/ui';
-import { StandupStore } from '@silvervibe/stores/standup';
-import { WorkspaceStore } from '@silvervibe/stores/workspace';
-import { firstValueFrom } from 'rxjs';
+import { StandupFacade, type TeamMemberView } from '@silvervibe/stores/standup';
+import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 
 type ConfigModel = {
   timezone: string;
@@ -36,10 +33,8 @@ type InviteModel = {
   },
 })
 export class TeamAdmin implements OnInit {
-  private readonly workspaces = inject(WorkspaceStore);
-  private readonly standup = inject(StandupStore);
-  private readonly http = inject(HttpClient);
-  private readonly apiBase = inject(API_BASE_URL);
+  private readonly workspaces = inject(WorkspaceFacade);
+  private readonly standup = inject(StandupFacade);
 
   readonly loading = this.standup.loading;
   readonly error = this.standup.error;
@@ -47,15 +42,7 @@ export class TeamAdmin implements OnInit {
   readonly selectedTeamId = this.standup.selectedTeamId;
   readonly teamEntries = this.standup.teamEntries;
   readonly summary = this.standup.summary;
-  readonly members = signal<
-    {
-      id: string;
-      userId: string;
-      role: string;
-      email?: string | null;
-      displayName?: string | null;
-    }[]
-  >([]);
+  readonly members = signal<TeamMemberView[]>([]);
   readonly message = signal<string | null>(null);
 
   readonly configModel = signal<ConfigModel>({
@@ -103,18 +90,7 @@ export class TeamAdmin implements OnInit {
         blockers: config.questionsJson['blockers'] ?? '',
       });
     }
-    const members = await firstValueFrom(
-      this.http.get<
-        {
-          id: string;
-          userId: string;
-          role: string;
-          email?: string | null;
-          displayName?: string | null;
-        }[]
-      >(`${this.apiBase}/teams/${teamId}/members`),
-    );
-    this.members.set(members);
+    this.members.set(await this.standup.listMembers(teamId));
   }
 
   async saveConfig(event: Event): Promise<void> {
@@ -148,12 +124,7 @@ export class TeamAdmin implements OnInit {
     }
     await submit(this.inviteForm, {
       action: async () => {
-        await firstValueFrom(
-          this.http.post(`${this.apiBase}/teams/${teamId}/members`, {
-            userId: this.inviteModel().userId,
-            role: 'MEMBER',
-          }),
-        );
+        await this.standup.inviteMember(teamId, this.inviteModel().userId);
         this.inviteModel.set({ userId: '' });
         await this.refreshTeam(teamId);
         return undefined;

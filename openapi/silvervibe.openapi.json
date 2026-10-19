@@ -1011,11 +1011,11 @@
             "description": "Firebase Auth uid"
           },
           "email": {
-            "type": "object",
+            "type": "string",
             "nullable": true
           },
           "displayName": {
-            "type": "object",
+            "type": "string",
             "nullable": true
           }
         },

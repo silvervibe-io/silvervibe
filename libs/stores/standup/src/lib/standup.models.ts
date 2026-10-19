@@ -1,0 +1,76 @@
+export type TeamView = {
+  id: string;
+  name: string;
+  slug: string;
+  role: 'ADMIN' | 'MEMBER';
+};
+
+export type StandupEntryView = {
+  id: string;
+  teamId: string;
+  entryDate: string;
+  status: 'DRAFT' | 'SUBMITTED';
+  yesterday: string | null;
+  today: string | null;
+  blockers: string | null;
+};
+
+export type StandupSummaryView = {
+  id: string;
+  teamId: string;
+  entryDate: string;
+  content: string;
+};
+
+export type StandupQuestions = {
+  yesterday?: string;
+  today?: string;
+  blockers?: string;
+};
+
+export type StandupConfigView = {
+  teamId: string;
+  timezone: string;
+  questionsJson: StandupQuestions;
+};
+
+export type StandupAnswersInput = {
+  yesterday: string;
+  today: string;
+  blockers: string;
+};
+
+export type StandupConfigInput = {
+  timezone: string;
+  questionsJson: StandupQuestions;
+};
+
+export type TeamMemberView = {
+  id: string;
+  userId: string;
+  role: string;
+  email?: string | null;
+  displayName?: string | null;
+};
+
+export type StandupState = {
+  teams: TeamView[];
+  selectedTeamId: string | null;
+  entry: StandupEntryView | null;
+  summary: StandupSummaryView | null;
+  config: StandupConfigView | null;
+  teamEntries: StandupEntryView[];
+  loading: boolean;
+  error: string | null;
+};
+
+export const STANDUP_INITIAL_STATE: StandupState = {
+  teams: [],
+  selectedTeamId: null,
+  entry: null,
+  summary: null,
+  config: null,
+  teamEntries: [],
+  loading: false,
+  error: null,
+};

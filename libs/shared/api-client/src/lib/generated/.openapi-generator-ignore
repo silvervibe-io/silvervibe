@@ -1,0 +1,4 @@
+# Keep these out of regeneration noise / accidental commits
+git_push.sh
+.gitignore
+README.md
