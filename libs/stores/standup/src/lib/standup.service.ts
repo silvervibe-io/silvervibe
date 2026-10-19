@@ -1,15 +1,17 @@
 import { inject, Injectable } from '@angular/core';
 import {
-  InviteTeamMemberDtoRoleEnum,
+  CreateTeamInviteDtoRoleEnum,
   MyTeamDtoRoleEnum,
   StandupEntryDtoStatusEnum,
   StandupsDataService,
   TeamsDataService,
+  TeamInviteDtoStatusEnum,
   UpsertStandupEntryDtoStatusEnum,
   type MyTeamDto,
   type StandupConfigDto,
   type StandupEntryDto,
   type StandupSummaryDto,
+  type TeamInviteDto,
   type TeamMemberDto,
 } from '@silvervibe/shared/api-client';
 import { firstValueFrom } from 'rxjs';
@@ -20,6 +22,7 @@ import type {
   StandupEntryView,
   StandupQuestions,
   StandupSummaryView,
+  TeamInviteView,
   TeamMemberView,
   TeamView,
 } from './standup.models';
@@ -98,6 +101,32 @@ function mapMember(dto: TeamMemberDto): TeamMemberView {
     role: dto.role,
     email: asNullableString(dto.email),
     displayName: asNullableString(dto.displayName),
+  };
+}
+
+function mapInviteStatus(
+  status: TeamInviteDtoStatusEnum,
+): TeamInviteView['status'] {
+  if (status === TeamInviteDtoStatusEnum.ACCEPTED) {
+    return 'ACCEPTED';
+  }
+  if (status === TeamInviteDtoStatusEnum.REVOKED) {
+    return 'REVOKED';
+  }
+  return 'PENDING';
+}
+
+function mapInvite(dto: TeamInviteDto): TeamInviteView {
+  return {
+    id: dto.id,
+    teamId: dto.teamId,
+    email: dto.email,
+    role: dto.role,
+    status: mapInviteStatus(dto.status),
+    token: dto.token,
+    acceptPath: dto.acceptPath,
+    expiresAt: dto.expiresAt,
+    member: dto.member ? mapMember(dto.member) : undefined,
   };
 }
 
@@ -208,15 +237,48 @@ export class StandupService {
     return rows.map(mapMember);
   }
 
-  inviteMember(teamId: string, userId: string): Promise<TeamMemberDto> {
-    return firstValueFrom(
-      this.teamsApi.teamsControllerInvite({
+  async inviteByEmail(teamId: string, email: string): Promise<TeamInviteView> {
+    const dto = await firstValueFrom(
+      this.teamsApi.teamsControllerCreateInvite({
         teamId,
-        inviteTeamMemberDto: {
-          userId,
-          role: InviteTeamMemberDtoRoleEnum.MEMBER,
+        createTeamInviteDto: {
+          email,
+          role: CreateTeamInviteDtoRoleEnum.MEMBER,
         },
       }),
     );
+    return mapInvite(dto);
+  }
+
+  async listInvites(teamId: string): Promise<TeamInviteView[]> {
+    const rows = await firstValueFrom(
+      this.teamsApi.teamsControllerListInvites({ teamId }),
+    );
+    return rows.map(mapInvite);
+  }
+
+  async revokeInvite(
+    teamId: string,
+    inviteId: string,
+  ): Promise<TeamInviteView> {
+    const dto = await firstValueFrom(
+      this.teamsApi.teamsControllerRevokeInvite({ teamId, inviteId }),
+    );
+    return mapInvite(dto);
+  }
+
+  async acceptInvite(token: string): Promise<{
+    teamId: string;
+    workspaceId: string;
+    member: TeamMemberView;
+  }> {
+    const dto = await firstValueFrom(
+      this.teamsApi.teamsControllerAcceptInvite({ token }),
+    );
+    return {
+      teamId: dto.teamId,
+      workspaceId: dto.workspaceId,
+      member: mapMember(dto.member),
+    };
   }
 }

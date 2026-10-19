@@ -5,11 +5,21 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { form, FormField, required, submit } from '@angular/forms/signals';
+import {
+  email,
+  form,
+  FormField,
+  required,
+  submit,
+} from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Shell } from '@silvervibe/shared/ui';
-import { StandupFacade, type TeamMemberView } from '@silvervibe/stores/standup';
+import {
+  StandupFacade,
+  type TeamInviteView,
+  type TeamMemberView,
+} from '@silvervibe/stores/standup';
 import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 
 type ConfigModel = {
@@ -20,7 +30,7 @@ type ConfigModel = {
 };
 
 type InviteModel = {
-  userId: string;
+  email: string;
 };
 
 @Component({
@@ -43,7 +53,10 @@ export class TeamAdmin implements OnInit {
   readonly teamEntries = this.standup.teamEntries;
   readonly summary = this.standup.summary;
   readonly members = signal<TeamMemberView[]>([]);
+  readonly pendingInvites = signal<TeamInviteView[]>([]);
   readonly message = signal<string | null>(null);
+  readonly inviteError = signal<string | null>(null);
+  readonly lastInviteLink = signal<string | null>(null);
 
   readonly configModel = signal<ConfigModel>({
     timezone: 'UTC',
@@ -56,9 +69,10 @@ export class TeamAdmin implements OnInit {
     required(schemaPath.timezone);
   });
 
-  readonly inviteModel = signal<InviteModel>({ userId: '' });
+  readonly inviteModel = signal<InviteModel>({ email: '' });
   readonly inviteForm = form(this.inviteModel, (schemaPath) => {
-    required(schemaPath.userId);
+    required(schemaPath.email);
+    email(schemaPath.email);
   });
 
   async ngOnInit(): Promise<void> {
@@ -90,7 +104,12 @@ export class TeamAdmin implements OnInit {
         blockers: config.questionsJson['blockers'] ?? '',
       });
     }
-    this.members.set(await this.standup.listMembers(teamId));
+    const [members, invites] = await Promise.all([
+      this.standup.listMembers(teamId),
+      this.standup.listInvites(teamId),
+    ]);
+    this.members.set(members);
+    this.pendingInvites.set(invites);
   }
 
   async saveConfig(event: Event): Promise<void> {
@@ -122,14 +141,56 @@ export class TeamAdmin implements OnInit {
     if (!teamId) {
       return;
     }
+    this.inviteError.set(null);
+    this.lastInviteLink.set(null);
     await submit(this.inviteForm, {
       action: async () => {
-        await this.standup.inviteMember(teamId, this.inviteModel().userId);
-        this.inviteModel.set({ userId: '' });
-        await this.refreshTeam(teamId);
+        try {
+          const result = await this.standup.inviteByEmail(
+            teamId,
+            this.inviteModel().email.trim(),
+          );
+          this.inviteModel.set({ email: '' });
+          if (result.status === 'ACCEPTED') {
+            this.message.set('standup.team.inviteAccepted');
+          } else {
+            this.message.set('standup.team.invitePending');
+            this.lastInviteLink.set(
+              `${window.location.origin}${result.acceptPath}`,
+            );
+          }
+          await this.refreshTeam(teamId);
+        } catch (err: unknown) {
+          this.inviteError.set(
+            err instanceof Error ? err.message : 'Invite failed',
+          );
+        }
         return undefined;
       },
     });
+  }
+
+  async copyInviteLink(path: string): Promise<void> {
+    const url = path.startsWith('http')
+      ? path
+      : `${window.location.origin}${path}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      this.message.set('standup.team.linkCopied');
+      this.lastInviteLink.set(url);
+    } catch {
+      this.lastInviteLink.set(url);
+    }
+  }
+
+  async revokeInvite(inviteId: string): Promise<void> {
+    const teamId = this.selectedTeamId();
+    if (!teamId) {
+      return;
+    }
+    await this.standup.revokeInvite(teamId, inviteId);
+    this.message.set('standup.team.inviteRevoked');
+    await this.refreshTeam(teamId);
   }
 
   async rebuildSummary(): Promise<void> {

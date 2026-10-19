@@ -27,7 +27,7 @@ describe('authGuard', () => {
     expect(result).toBe(true);
   });
 
-  it('redirects to /auth when signed out', async () => {
+  it('redirects to /auth with returnUrl when signed out', async () => {
     const tree = { path: '/auth' } as unknown as UrlTree;
     TestBed.configureTestingModule({
       providers: [
@@ -41,8 +41,12 @@ describe('authGuard', () => {
         {
           provide: Router,
           useValue: {
-            createUrlTree: (commands: unknown[]) => {
+            createUrlTree: (
+              commands: unknown[],
+              extras?: { queryParams?: { returnUrl?: string } },
+            ) => {
               expect(commands).toEqual(['/auth']);
+              expect(extras?.queryParams?.returnUrl).toBe('/invite/tok');
               return tree;
             },
           },
@@ -51,7 +55,7 @@ describe('authGuard', () => {
     });
 
     const result = await TestBed.runInInjectionContext(() =>
-      authGuard({} as never, {} as never),
+      authGuard({} as never, { url: '/invite/tok' } as never),
     );
     expect(result).toBe(tree);
   });

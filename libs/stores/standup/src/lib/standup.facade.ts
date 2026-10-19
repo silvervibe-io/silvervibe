@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import type { TeamMemberDto } from '@silvervibe/shared/api-client';
 import type {
   StandupAnswersInput,
   StandupConfigInput,
+  TeamInviteView,
   TeamMemberView,
 } from './standup.models';
 import { StandupService } from './standup.service';
@@ -65,7 +65,23 @@ export class StandupFacade {
     return this.api.listMembers(teamId);
   }
 
-  inviteMember(teamId: string, userId: string): Promise<TeamMemberDto> {
-    return this.api.inviteMember(teamId, userId);
+  inviteByEmail(teamId: string, email: string): Promise<TeamInviteView> {
+    return this.api.inviteByEmail(teamId, email);
+  }
+
+  listInvites(teamId: string): Promise<TeamInviteView[]> {
+    return this.api.listInvites(teamId);
+  }
+
+  revokeInvite(teamId: string, inviteId: string): Promise<TeamInviteView> {
+    return this.api.revokeInvite(teamId, inviteId);
+  }
+
+  acceptInvite(token: string): Promise<{
+    teamId: string;
+    workspaceId: string;
+    member: TeamMemberView;
+  }> {
+    return this.api.acceptInvite(token);
   }
 }

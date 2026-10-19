@@ -74,12 +74,9 @@
       <button type="submit" class="btn btn-primary btn-sm self-start">
         {{ 'standup.team.saveConfig' | transloco }}
       </button>
-      @if (message()) {
-      <p class="text-success text-sm">{{ message()! | transloco }}</p>
-      }
     </form>
 
-    <form class="flex max-w-xl flex-col gap-3" (submit)="invite($event)">
+    <section class="flex max-w-xl flex-col gap-3">
       <h2 class="text-xl font-semibold">
         {{ 'standup.team.members' | transloco }}
       </h2>
@@ -88,19 +85,72 @@
         <li>{{ m.displayName || m.email || m.userId }} — {{ m.role }}</li>
         }
       </ul>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'standup.team.inviteUserId' | transloco }}
-        </legend>
-        <input
-          class="input input-bordered w-full"
-          [formField]="inviteForm.userId"
-        />
-      </fieldset>
-      <button type="submit" class="btn btn-secondary btn-sm self-start">
-        {{ 'standup.team.invite' | transloco }}
-      </button>
-    </form>
+
+      <form class="flex flex-col gap-3" (submit)="invite($event)">
+        <fieldset class="fieldset w-full">
+          <legend class="fieldset-legend">
+            {{ 'standup.team.inviteEmail' | transloco }}
+          </legend>
+          <input
+            class="input input-bordered w-full"
+            type="email"
+            autocomplete="email"
+            [formField]="inviteForm.email"
+          />
+        </fieldset>
+        <button type="submit" class="btn btn-secondary btn-sm self-start">
+          {{ 'standup.team.invite' | transloco }}
+        </button>
+      </form>
+
+      @if (pendingInvites().length > 0) {
+      <div class="space-y-2">
+        <h3 class="text-lg font-medium">
+          {{ 'standup.team.pendingInvites' | transloco }}
+        </h3>
+        <ul class="space-y-2 text-sm">
+          @for (inv of pendingInvites(); track inv.id) {
+          <li
+            class="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-base-200 px-3 py-2"
+          >
+            <span>{{ inv.email }}</span>
+            <span class="flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs"
+                (click)="copyInviteLink(inv.acceptPath)"
+              >
+                {{ 'standup.team.copyLink' | transloco }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs text-error"
+                (click)="revokeInvite(inv.id)"
+              >
+                {{ 'standup.team.revoke' | transloco }}
+              </button>
+            </span>
+          </li>
+          }
+        </ul>
+      </div>
+      } @if (lastInviteLink()) {
+      <p class="break-all text-sm text-base-content/70">
+        {{ 'standup.team.shareLink' | transloco }}:
+        <a
+          class="link"
+          [href]="lastInviteLink()!"
+          target="_blank"
+          rel="noopener"
+          >{{ lastInviteLink() }}</a
+        >
+      </p>
+      } @if (message()) {
+      <p class="text-success text-sm">{{ message()! | transloco }}</p>
+      } @if (inviteError()) {
+      <p class="text-error text-sm">{{ inviteError() }}</p>
+      }
+    </section>
 
     <section class="space-y-3">
       <div class="flex items-center gap-3">

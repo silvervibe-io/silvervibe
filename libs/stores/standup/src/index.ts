@@ -7,6 +7,7 @@ export type {
   StandupQuestions,
   StandupState,
   StandupSummaryView,
+  TeamInviteView,
   TeamMemberView,
   TeamView,
 } from './lib/standup.models';

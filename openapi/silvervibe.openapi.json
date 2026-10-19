@@ -162,7 +162,7 @@
     },
     "/api/workspaces/{workspaceId}/tools": {
       "get": {
-        "description": "Ownership rows from `workspace_tools` (not GrowthBook rollout flags).",
+        "description": "Ownership rows from `workspace_tools` (not GrowthBook rollout flags). Requires workspace membership.",
         "operationId": "WorkspacesController_listTools",
         "parameters": [
           {
@@ -190,6 +190,9 @@
           },
           "401": {
             "description": ""
+          },
+          "403": {
+            "description": ""
           }
         },
         "security": [
@@ -205,7 +208,7 @@
     },
     "/api/workspaces/{workspaceId}/tools/{toolKey}": {
       "put": {
-        "description": "`enabled: true` grants (upserts); `enabled: false` revokes. `toolKey` must be a known TOOL_KEYS value.",
+        "description": "`enabled: true` grants (upserts); `enabled: false` revokes. `toolKey` must be a known TOOL_KEYS value. Requires workspace OWNER or ADMIN.",
         "operationId": "WorkspacesController_setTool",
         "parameters": [
           {
@@ -247,6 +250,9 @@
             }
           },
           "401": {
+            "description": ""
+          },
+          "403": {
             "description": ""
           }
         },
@@ -339,6 +345,9 @@
           },
           "401": {
             "description": ""
+          },
+          "403": {
+            "description": ""
           }
         },
         "security": [
@@ -428,6 +437,9 @@
           },
           "401": {
             "description": ""
+          },
+          "403": {
+            "description": ""
           }
         },
         "security": [
@@ -435,7 +447,196 @@
             "bearer": []
           }
         ],
-        "summary": "Invite or update a team member (team admin)",
+        "summary": "Add an existing user to a team by Neon id or Firebase UID",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/invites": {
+      "post": {
+        "description": "If the email already belongs to a Neon user, adds WorkspaceMember + TeamMember immediately. Otherwise creates a pending invite with a shareable accept path.",
+        "operationId": "TeamsController_createInvite",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTeamInviteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamInviteDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Invite a member by email (pending link or immediate add)",
+        "tags": [
+          "teams"
+        ]
+      },
+      "get": {
+        "operationId": "TeamsController_listInvites",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TeamInviteDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List pending team invites (team admin)",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/invites/{inviteId}": {
+      "delete": {
+        "operationId": "TeamsController_revokeInvite",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "inviteId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamInviteDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Revoke a pending team invite",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/invites/{token}/accept": {
+      "post": {
+        "description": "Caller must be signed in with the same email as the invite. Adds workspace + team membership.",
+        "operationId": "TeamsController_acceptInvite",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcceptTeamInviteDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Accept a pending team invite by token",
         "tags": [
           "teams"
         ]
@@ -1169,10 +1370,12 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "example": "Platform"
           },
           "slug": {
-            "type": "string"
+            "type": "string",
+            "example": "platform"
           }
         },
         "required": [
@@ -1247,6 +1450,101 @@
         },
         "required": [
           "userId"
+        ]
+      },
+      "CreateTeamInviteDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "teammate@example.com"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "MEMBER"
+            ]
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "TeamInviteDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "teamId": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "MEMBER"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "ACCEPTED",
+              "REVOKED"
+            ]
+          },
+          "token": {
+            "type": "string"
+          },
+          "acceptPath": {
+            "type": "string",
+            "description": "Relative path for the invitee to open after sign-in"
+          },
+          "expiresAt": {
+            "type": "string"
+          },
+          "member": {
+            "description": "Set when the invitee was added immediately (already a user)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TeamMemberDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "teamId",
+          "email",
+          "role",
+          "status",
+          "token",
+          "acceptPath",
+          "expiresAt"
+        ]
+      },
+      "AcceptTeamInviteDto": {
+        "type": "object",
+        "properties": {
+          "teamId": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "member": {
+            "$ref": "#/components/schemas/TeamMemberDto"
+          }
+        },
+        "required": [
+          "teamId",
+          "workspaceId",
+          "member"
         ]
       },
       "StandupConfigDto": {

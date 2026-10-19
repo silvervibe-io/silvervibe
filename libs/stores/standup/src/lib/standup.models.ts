@@ -53,6 +53,18 @@ export type TeamMemberView = {
   displayName?: string | null;
 };
 
+export type TeamInviteView = {
+  id: string;
+  teamId: string;
+  email: string;
+  role: string;
+  status: 'PENDING' | 'ACCEPTED' | 'REVOKED';
+  token: string;
+  acceptPath: string;
+  expiresAt: string;
+  member?: TeamMemberView;
+};
+
 export type StandupState = {
   teams: TeamView[];
   selectedTeamId: string | null;

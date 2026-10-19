@@ -13,7 +13,7 @@ import {
   required,
   submit,
 } from '@angular/forms/signals';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AuthService } from '@silvervibe/shared/auth';
 import { Icon, Shell } from '@silvervibe/shared/ui';
@@ -35,6 +35,7 @@ type SignInModel = {
 export class SignIn {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly transloco = inject(TranslocoService);
 
   /** Product name shown in the shell (bind via route `data` + input binding). */
@@ -93,7 +94,10 @@ export class SignIn {
     try {
       await action();
       if (navigateToAccount) {
-        void this.router.navigateByUrl(this.accountPath());
+        const returnUrl =
+          this.route.snapshot.queryParamMap.get('returnUrl') ||
+          this.accountPath();
+        void this.router.navigateByUrl(returnUrl);
       }
     } catch (err: unknown) {
       this.error.set(

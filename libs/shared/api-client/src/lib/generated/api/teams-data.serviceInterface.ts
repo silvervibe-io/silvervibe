@@ -13,23 +13,39 @@ import { HttpHeaders } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
 
+import { AcceptTeamInviteDto } from '../model/models';
 import { AddonStatusDto } from '../model/models';
 import { CreateTeamDto } from '../model/models';
+import { CreateTeamInviteDto } from '../model/models';
 import { InviteTeamMemberDto } from '../model/models';
 import { MyTeamDto } from '../model/models';
 import { TeamDto } from '../model/models';
+import { TeamInviteDto } from '../model/models';
 import { TeamMemberDto } from '../model/models';
 
 import { Configuration } from '../configuration';
+
+export interface TeamsControllerAcceptInviteRequestParams {
+  token: string;
+}
 
 export interface TeamsControllerCreateRequestParams {
   workspaceId: string;
   createTeamDto: CreateTeamDto;
 }
 
+export interface TeamsControllerCreateInviteRequestParams {
+  teamId: string;
+  createTeamInviteDto: CreateTeamInviteDto;
+}
+
 export interface TeamsControllerInviteRequestParams {
   teamId: string;
   inviteTeamMemberDto: InviteTeamMemberDto;
+}
+
+export interface TeamsControllerListInvitesRequestParams {
+  teamId: string;
 }
 
 export interface TeamsControllerListMembersRequestParams {
@@ -40,9 +56,24 @@ export interface TeamsControllerListMineRequestParams {
   workspaceId: string;
 }
 
+export interface TeamsControllerRevokeInviteRequestParams {
+  teamId: string;
+  inviteId: string;
+}
+
 export interface TeamsDataServiceInterface {
   defaultHeaders: HttpHeaders;
   configuration: Configuration;
+
+  /**
+   * Accept a pending team invite by token
+   * Caller must be signed in with the same email as the invite. Adds workspace + team membership.
+   * @param requestParameters
+   */
+  teamsControllerAcceptInvite(
+    requestParameters: TeamsControllerAcceptInviteRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<AcceptTeamInviteDto>;
 
   /**
    * Create a team (workspace admin)
@@ -55,7 +86,17 @@ export interface TeamsDataServiceInterface {
   ): Observable<TeamDto>;
 
   /**
-   * Invite or update a team member (team admin)
+   * Invite a member by email (pending link or immediate add)
+   * If the email already belongs to a Neon user, adds WorkspaceMember + TeamMember immediately. Otherwise creates a pending invite with a shareable accept path.
+   * @param requestParameters
+   */
+  teamsControllerCreateInvite(
+    requestParameters: TeamsControllerCreateInviteRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<TeamInviteDto>;
+
+  /**
+   * Add an existing user to a team by Neon id or Firebase UID
    *
    * @param requestParameters
    */
@@ -63,6 +104,16 @@ export interface TeamsDataServiceInterface {
     requestParameters: TeamsControllerInviteRequestParams,
     extraHttpRequestParams?: any,
   ): Observable<TeamMemberDto>;
+
+  /**
+   * List pending team invites (team admin)
+   *
+   * @param requestParameters
+   */
+  teamsControllerListInvites(
+    requestParameters: TeamsControllerListInvitesRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<Array<TeamInviteDto>>;
 
   /**
    * List team members
@@ -83,6 +134,16 @@ export interface TeamsDataServiceInterface {
     requestParameters: TeamsControllerListMineRequestParams,
     extraHttpRequestParams?: any,
   ): Observable<Array<MyTeamDto>>;
+
+  /**
+   * Revoke a pending team invite
+   *
+   * @param requestParameters
+   */
+  teamsControllerRevokeInvite(
+    requestParameters: TeamsControllerRevokeInviteRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<TeamInviteDto>;
 
   /**
    * Microsoft Teams add-on status

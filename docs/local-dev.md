@@ -86,6 +86,13 @@ http://localhost:4200/portal — that calls `POST /api/workspaces` and enables
 `vibestandup` for the new OWNER. Tool grant/revoke still needs workspace
 OWNER/ADMIN; see [entitlements.md](./entitlements.md).
 
+Team admins invite members by **email** from VibeStandup team admin
+(`http://localhost:4201/app/team`). If the email is already a Neon user, they
+are added immediately (workspace + team). Otherwise a pending invite is created
+with a shareable link (`/invite/<token>`). Outbound email (Resend/SendGrid) is
+not wired yet — copy the link manually. Free-plan seat limits
+(`maxTeams` / `maxMembersPerTeam`) are enforced in the API.
+
 ## Other apps
 
 ```bash

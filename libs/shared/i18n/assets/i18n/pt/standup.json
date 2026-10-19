@@ -42,7 +42,16 @@
     "inviteUserId": "User id or Firebase UID",
     "invite": "Invite",
     "todayEntries": "Today’s entries",
-    "rebuildSummary": "Rebuild summary"
+    "rebuildSummary": "Rebuild summary",
+    "inviteEmail": "Email",
+    "pendingInvites": "Pending invites",
+    "copyLink": "Copy link",
+    "revoke": "Revoke",
+    "shareLink": "Share this link",
+    "invitePending": "Invite created — share the link with your teammate.",
+    "inviteAccepted": "Member added (they already had an account).",
+    "inviteRevoked": "Invite revoked.",
+    "linkCopied": "Invite link copied."
   },
   "workspace": {
     "title": "Workspace admin",
@@ -56,5 +65,14 @@
     "toolUpdated": "Tool updated.",
     "teamCreated": "Team created.",
     "planHint": "Plano de pre-visualizacao {{plan}}: ate {{teams}} equipas, {{members}} membros por equipa (so UI — a API mantem funcoes reais)."
+  },
+  "invite": {
+    "title": "Join team",
+    "accepting": "Accepting invite…",
+    "success": "You joined the team.",
+    "goStandup": "Open my standup",
+    "signIn": "Sign in",
+    "missingToken": "Invite link is missing a token.",
+    "acceptFailed": "Could not accept this invite."
   }
 }
