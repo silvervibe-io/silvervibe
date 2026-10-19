@@ -114,6 +114,13 @@ export class TeamInviteDto {
     description: 'Set when the invitee was added immediately (already a user)',
   })
   member?: TeamMemberDto;
+
+  @ApiProperty({
+    required: false,
+    description:
+      'True when an invite email was sent via Resend for this response',
+  })
+  emailSent?: boolean;
 }
 
 export class AcceptTeamInviteDto {

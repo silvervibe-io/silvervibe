@@ -127,6 +127,7 @@ function mapInvite(dto: TeamInviteDto): TeamInviteView {
     acceptPath: dto.acceptPath,
     expiresAt: dto.expiresAt,
     member: dto.member ? mapMember(dto.member) : undefined,
+    emailSent: dto.emailSent,
   };
 }
 

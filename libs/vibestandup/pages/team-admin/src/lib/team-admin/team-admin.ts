@@ -154,7 +154,11 @@ export class TeamAdmin implements OnInit {
           if (result.status === 'ACCEPTED') {
             this.message.set('standup.team.inviteAccepted');
           } else {
-            this.message.set('standup.team.invitePending');
+            this.message.set(
+              result.emailSent
+                ? 'standup.team.inviteEmailSent'
+                : 'standup.team.invitePending',
+            );
             this.lastInviteLink.set(
               `${window.location.origin}${result.acceptPath}`,
             );

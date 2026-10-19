@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { TeamInviteStatus, TeamRole, WorkspaceRole } from '@prisma/client';
 import { VerifiedUser } from '../auth/firebase-auth.service';
+import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 import { TeamsService } from './teams.service';
@@ -16,7 +17,11 @@ const invitee: VerifiedUser = {
 };
 
 describe('TeamsService invites and plan limits', () => {
-  function build(prisma: unknown, users?: Partial<UsersService>): TeamsService {
+  function build(
+    prisma: unknown,
+    users?: Partial<UsersService>,
+    mail?: Partial<MailService>,
+  ): TeamsService {
     const usersService = {
       upsertFromFirebase: jest
         .fn()
@@ -26,7 +31,12 @@ describe('TeamsService invites and plan limits', () => {
         })),
       ...users,
     } as unknown as UsersService;
-    return new TeamsService(prisma as PrismaService, usersService);
+    const mailService = {
+      isConfigured: jest.fn().mockReturnValue(false),
+      sendTeamInvite: jest.fn().mockResolvedValue(false),
+      ...mail,
+    } as unknown as MailService;
+    return new TeamsService(prisma as PrismaService, usersService, mailService);
   }
 
   it('creates a pending invite when email is unknown', async () => {
@@ -51,7 +61,11 @@ describe('TeamsService invites and plan limits', () => {
       team: {
         findUnique: jest
           .fn()
-          .mockResolvedValue({ id: 'team1', workspaceId: 'ws1' }),
+          .mockResolvedValue({
+            id: 'team1',
+            workspaceId: 'ws1',
+            name: 'Alpha',
+          }),
       },
       user: { findFirst: jest.fn().mockResolvedValue(null) },
       teamInvite: {
@@ -60,7 +74,8 @@ describe('TeamsService invites and plan limits', () => {
         create,
       },
     };
-    const service = build(prisma);
+    const sendTeamInvite = jest.fn().mockResolvedValue(true);
+    const service = build(prisma, undefined, { sendTeamInvite });
     const result = await service.createInviteByEmail(
       'team1',
       admin,
@@ -69,7 +84,15 @@ describe('TeamsService invites and plan limits', () => {
     expect(result.email).toBe('new@example.com');
     expect(result.acceptPath).toBe('/invite/tok');
     expect(result.status).toBe('PENDING');
+    expect(result.emailSent).toBe(true);
     expect(create).toHaveBeenCalled();
+    expect(sendTeamInvite).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'new@example.com',
+        teamName: 'Alpha',
+        acceptUrl: 'http://localhost:4201/invite/tok',
+      }),
+    );
   });
 
   it('adds workspace + team membership immediately when email exists', async () => {
@@ -92,9 +115,11 @@ describe('TeamsService invites and plan limits', () => {
         }),
       },
       team: {
-        findUnique: jest
-          .fn()
-          .mockResolvedValue({ id: 'team1', workspaceId: 'ws1' }),
+        findUnique: jest.fn().mockResolvedValue({
+          id: 'team1',
+          workspaceId: 'ws1',
+          name: 'Alpha',
+        }),
       },
       user: {
         findFirst: jest.fn().mockResolvedValue({

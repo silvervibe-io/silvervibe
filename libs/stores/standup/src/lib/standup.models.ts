@@ -63,6 +63,8 @@ export type TeamInviteView = {
   acceptPath: string;
   expiresAt: string;
   member?: TeamMemberView;
+  /** True when Nest sent the invite via Resend for this create/resend call. */
+  emailSent?: boolean;
 };
 
 export type StandupState = {

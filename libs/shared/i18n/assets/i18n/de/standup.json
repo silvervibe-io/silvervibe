@@ -44,15 +44,16 @@
     "todayEntries": "Today’s entries",
     "rebuildSummary": "Rebuild summary",
     "inviteEmail": "E-Mail",
-    "inviteNoEmailHint": "Es wird noch keine E-Mail gesendet — Einladung erstellen, Link kopieren und selbst teilen.",
     "pendingInvites": "Ausstehende Einladungen",
     "copyLink": "Link kopieren",
     "revoke": "Widerrufen",
     "shareLink": "Diesen Link teilen",
-    "invitePending": "Einladung erstellt (keine E-Mail gesendet). Link unten kopieren und mit dem Teammitglied teilen.",
+    "invitePending": "Einladung erstellt, aber E-Mail wurde nicht gesendet (RESEND_API_KEY prüfen). Link unten kopieren.",
     "inviteAccepted": "Member added (they already had an account).",
     "inviteRevoked": "Invite revoked.",
-    "linkCopied": "Invite link copied."
+    "linkCopied": "Invite link copied.",
+    "inviteEmailHint": "Wir senden die Einladung per E-Mail, wenn Resend konfiguriert ist. Den Link kannst du jederzeit als Backup kopieren.",
+    "inviteEmailSent": "Einladungs-E-Mail gesendet. Den Link unten kannst du bei Bedarf noch kopieren."
   },
   "workspace": {
     "title": "Workspace admin",

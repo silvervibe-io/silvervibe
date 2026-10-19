@@ -83,6 +83,7 @@
     "firebase": "^12.19.0",
     "firebase-admin": "^14.5.0",
     "reflect-metadata": "^0.2.0",
+    "resend": "^6.34.1",
     "rxjs": "~7.8.0"
   },
   "devDependencies": {

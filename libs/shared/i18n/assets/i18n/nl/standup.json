@@ -44,15 +44,16 @@
     "todayEntries": "Today’s entries",
     "rebuildSummary": "Rebuild summary",
     "inviteEmail": "E-mail",
-    "inviteNoEmailHint": "Er wordt nog geen e-mail verstuurd — maak de uitnodiging aan, kopieer de link en deel die zelf.",
     "pendingInvites": "Openstaande uitnodigingen",
     "copyLink": "Link kopiëren",
     "revoke": "Intrekken",
     "shareLink": "Deel deze link",
-    "invitePending": "Uitnodiging aangemaakt (geen e-mail verstuurd). Kopieer de link hieronder en deel die met je teamgenoot.",
+    "invitePending": "Uitnodiging aangemaakt, maar e-mail is niet verstuurd (controleer RESEND_API_KEY). Kopieer de link hieronder.",
     "inviteAccepted": "Member added (they already had an account).",
     "inviteRevoked": "Invite revoked.",
-    "linkCopied": "Invite link copied."
+    "linkCopied": "Invite link copied.",
+    "inviteEmailHint": "We sturen de uitnodiging per e-mail als Resend is geconfigureerd. Je kunt de link altijd als backup kopiëren.",
+    "inviteEmailSent": "Uitnodigingsmail verstuurd. Je kunt de link hieronder nog kopiëren indien nodig."
   },
   "workspace": {
     "title": "Workspace admin",

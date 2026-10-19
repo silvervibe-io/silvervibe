@@ -44,15 +44,16 @@
     "todayEntries": "Today’s entries",
     "rebuildSummary": "Rebuild summary",
     "inviteEmail": "Email",
-    "inviteNoEmailHint": "Δεν στέλνεται ακόμα email — δημιουργήστε την πρόσκληση, αντιγράψτε τον σύνδεσμο και μοιραστείτε τον μόνοι σας.",
     "pendingInvites": "Εκκρεμείς προσκλήσεις",
     "copyLink": "Αντιγραφή συνδέσμου",
     "revoke": "Ανάκληση",
     "shareLink": "Μοιραστείτε αυτόν τον σύνδεσμο",
-    "invitePending": "Η πρόσκληση δημιουργήθηκε (δεν στάλθηκε email). Αντιγράψτε τον σύνδεσμο παρακάτω και μοιραστείτε τον.",
+    "invitePending": "Η πρόσκληση δημιουργήθηκε, αλλά το email δεν στάλθηκε (ελέγξτε RESEND_API_KEY). Αντιγράψτε τον σύνδεσμο παρακάτω.",
     "inviteAccepted": "Member added (they already had an account).",
     "inviteRevoked": "Invite revoked.",
-    "linkCopied": "Invite link copied."
+    "linkCopied": "Invite link copied.",
+    "inviteEmailHint": "Θα στείλουμε την πρόσκληση με email όταν είναι ρυθμισμένο το Resend. Μπορείτε πάντα να αντιγράψετε τον σύνδεσμο ως εφεδρικό.",
+    "inviteEmailSent": "Το email πρόσκλησης στάλθηκε. Μπορείτε ακόμα να αντιγράψετε τον σύνδεσμο παρακάτω αν χρειαστεί."
   },
   "workspace": {
     "title": "Workspace admin",

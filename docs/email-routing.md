@@ -5,6 +5,8 @@ Issue: [#12](https://github.com/silvervibe-io/silvervibe/issues/12).
 The landing and privacy pages use `mailto:info@silvervibe.io`. Delivery depends on
 **Cloudflare Email Routing** (or Google Workspace) — not on the Angular app.
 
+Outbound team invites use Resend from Nest — see [resend.md](./resend.md).
+
 ## Prefer: Cloudflare Email Routing
 
 Free for the zone when DNS is on Cloudflare. Forwards inbound mail to a personal

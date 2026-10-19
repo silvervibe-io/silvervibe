@@ -10,6 +10,7 @@ import { TeamInviteStatus, TeamRole, WorkspaceRole } from '@prisma/client';
 import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
 import { randomBytes } from 'crypto';
 import { VerifiedUser } from '../auth/firebase-auth.service';
+import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 import {
@@ -27,6 +28,7 @@ export class TeamsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly users: UsersService,
+    private readonly mail: MailService,
   ) {}
 
   private ensureDb(): void {
@@ -46,15 +48,18 @@ export class TeamsService {
     return email.trim().toLowerCase();
   }
 
-  private toInviteDto(row: {
-    id: string;
-    teamId: string;
-    email: string;
-    role: TeamRole;
-    status: TeamInviteStatus;
-    token: string;
-    expiresAt: Date;
-  }): TeamInviteDto {
+  private toInviteDto(
+    row: {
+      id: string;
+      teamId: string;
+      email: string;
+      role: TeamRole;
+      status: TeamInviteStatus;
+      token: string;
+      expiresAt: Date;
+    },
+    emailSent?: boolean,
+  ): TeamInviteDto {
     return {
       id: row.id,
       teamId: row.teamId,
@@ -64,7 +69,27 @@ export class TeamsService {
       token: row.token,
       acceptPath: `/invite/${row.token}`,
       expiresAt: row.expiresAt.toISOString(),
+      ...(emailSent !== undefined ? { emailSent } : {}),
     };
+  }
+
+  private inviteAcceptUrl(token: string): string {
+    const base = (
+      process.env['PUBLIC_STANDUP_URL'] ?? 'http://localhost:4201'
+    ).replace(/\/$/, '');
+    return `${base}/invite/${token}`;
+  }
+
+  private async sendInviteEmail(
+    invite: { email: string; token: string; expiresAt: Date },
+    teamName: string,
+  ): Promise<boolean> {
+    return this.mail.sendTeamInvite({
+      to: invite.email,
+      teamName,
+      acceptUrl: this.inviteAcceptUrl(invite.token),
+      expiresAt: invite.expiresAt,
+    });
   }
 
   private toMemberDto(member: {
@@ -395,7 +420,8 @@ export class TeamsService {
     });
     if (pending) {
       if (pending.expiresAt > new Date()) {
-        return this.toInviteDto(pending);
+        const emailSent = await this.sendInviteEmail(pending, team.name);
+        return this.toInviteDto(pending, emailSent);
       }
       await this.prisma.teamInvite.update({
         where: { id: pending.id },
@@ -416,7 +442,8 @@ export class TeamsService {
         invitedById: userId,
       },
     });
-    return this.toInviteDto(created);
+    const emailSent = await this.sendInviteEmail(created, team.name);
+    return this.toInviteDto(created, emailSent);
   }
 
   async listInvites(

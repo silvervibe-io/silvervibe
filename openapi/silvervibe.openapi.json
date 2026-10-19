@@ -1515,6 +1515,10 @@
                 "$ref": "#/components/schemas/TeamMemberDto"
               }
             ]
+          },
+          "emailSent": {
+            "type": "boolean",
+            "description": "True when an invite email was sent via Resend for this response"
           }
         },
         "required": [

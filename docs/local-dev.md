@@ -89,8 +89,9 @@ OWNER/ADMIN; see [entitlements.md](./entitlements.md).
 Team admins invite members by **email** from VibeStandup team admin
 (`http://localhost:4201/app/team`). If the email is already a Neon user, they
 are added immediately (workspace + team). Otherwise a pending invite is created
-with a shareable link (`/invite/<token>`). Outbound email (Resend/SendGrid) is
-not wired yet — copy the link manually. Free-plan seat limits
+and Nest sends mail via **Resend** when `RESEND_API_KEY` is set (see
+`.env.example`). The accept link (`/invite/<token>`) is always shown so you can
+copy it if mail is off or fails. Free-plan seat limits
 (`maxTeams` / `maxMembersPerTeam`) are enforced in the API.
 
 ## Other apps

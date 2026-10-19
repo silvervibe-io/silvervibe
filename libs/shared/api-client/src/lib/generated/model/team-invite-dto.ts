@@ -27,6 +27,10 @@ export interface TeamInviteDto {
    * Set when the invitee was added immediately (already a user)
    */
   member?: TeamMemberDto;
+  /**
+   * True when an invite email was sent via Resend for this response
+   */
+  emailSent?: boolean;
 }
 export enum TeamInviteDtoRoleEnum {
   ADMIN = 'ADMIN',
