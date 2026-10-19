@@ -97,6 +97,9 @@
             autocomplete="email"
             [formField]="inviteForm.email"
           />
+          <p class="label text-base-content/70">
+            {{ 'standup.team.inviteNoEmailHint' | transloco }}
+          </p>
         </fieldset>
         <button type="submit" class="btn btn-secondary btn-sm self-start">
           {{ 'standup.team.invite' | transloco }}

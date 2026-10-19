@@ -1,0 +1,4 @@
+name: Silvervibe CodeQL
+paths-ignore:
+  # OpenAPI Generator output — unused imports are expected and reappear on regen.
+  - 'libs/shared/api-client/src/lib/generated/**'

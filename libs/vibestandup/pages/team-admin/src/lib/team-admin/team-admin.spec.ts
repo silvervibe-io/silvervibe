@@ -68,6 +68,7 @@ describe('TeamAdmin', () => {
                     inviteUserId: 'User id',
                     inviteEmail: 'Email',
                     invite: 'Invite',
+                    inviteNoEmailHint: 'No email yet',
                     pendingInvites: 'Pending',
                     copyLink: 'Copy',
                     revoke: 'Revoke',
