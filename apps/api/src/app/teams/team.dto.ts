@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsEmail,
   IsIn,
   IsOptional,
   IsString,
@@ -53,6 +54,17 @@ export class InviteTeamMemberDto {
   role?: 'ADMIN' | 'MEMBER';
 }
 
+export class CreateTeamInviteDto {
+  @ApiProperty({ example: 'teammate@example.com' })
+  @IsEmail()
+  email!: string;
+
+  @ApiProperty({ enum: ['ADMIN', 'MEMBER'], required: false })
+  @IsOptional()
+  @IsIn(['ADMIN', 'MEMBER'])
+  role?: 'ADMIN' | 'MEMBER';
+}
+
 export class TeamMemberDto {
   @ApiProperty()
   id!: string;
@@ -68,4 +80,63 @@ export class TeamMemberDto {
 
   @ApiProperty({ required: false, nullable: true })
   displayName?: string | null;
+}
+
+export class TeamInviteDto {
+  @ApiProperty()
+  id!: string;
+
+  @ApiProperty()
+  teamId!: string;
+
+  @ApiProperty()
+  email!: string;
+
+  @ApiProperty({ enum: ['ADMIN', 'MEMBER'] })
+  role!: 'ADMIN' | 'MEMBER';
+
+  @ApiProperty({ enum: ['PENDING', 'ACCEPTED', 'REVOKED'] })
+  status!: 'PENDING' | 'ACCEPTED' | 'REVOKED';
+
+  @ApiProperty()
+  token!: string;
+
+  @ApiProperty({
+    description: 'Relative path for the invitee to open after sign-in',
+  })
+  acceptPath!: string;
+
+  @ApiProperty()
+  expiresAt!: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'Set when the invitee was added immediately (already a user)',
+  })
+  member?: TeamMemberDto;
+
+  @ApiProperty({
+    required: false,
+    description:
+      'True when an invite email was sent via Resend for this response',
+  })
+  emailSent?: boolean;
+
+  @ApiProperty({
+    required: false,
+    description:
+      'Resend error message when emailSent is false after a send attempt',
+  })
+  emailError?: string;
+}
+
+export class AcceptTeamInviteDto {
+  @ApiProperty()
+  teamId!: string;
+
+  @ApiProperty()
+  workspaceId!: string;
+
+  @ApiProperty()
+  member!: TeamMemberDto;
 }

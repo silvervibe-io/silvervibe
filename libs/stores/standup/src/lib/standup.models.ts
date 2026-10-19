@@ -53,6 +53,22 @@ export type TeamMemberView = {
   displayName?: string | null;
 };
 
+export type TeamInviteView = {
+  id: string;
+  teamId: string;
+  email: string;
+  role: string;
+  status: 'PENDING' | 'ACCEPTED' | 'REVOKED';
+  token: string;
+  acceptPath: string;
+  expiresAt: string;
+  member?: TeamMemberView;
+  /** True when Nest sent the invite via Resend for this create/resend call. */
+  emailSent?: boolean;
+  /** Resend error when a send was attempted but failed. */
+  emailError?: string;
+};
+
 export type StandupState = {
   teams: TeamView[];
   selectedTeamId: string | null;

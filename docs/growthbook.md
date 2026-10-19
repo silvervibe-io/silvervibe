@@ -9,11 +9,11 @@ in-memory defaults**.
 
 ## Flag vs entitlement vs plan
 
-| Layer                    | Meaning                                                                                                        |
-| ------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| Neon `workspace_tools`   | Ownership — does this workspace **own** the tool? ([#9](https://github.com/silvervibe-io/silvervibe/issues/9)) |
-| Workspace **plan**       | Commercial package / limits (free: 1 VibeStandup team, max 12 members). Enforced in Neon when shipped.         |
-| OpenFeature / GrowthBook | Rollout — is the feature **turned on** for this user/workspace?                                                |
+| Layer                    | Meaning                                                                                                                                  |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Neon `workspace_tools`   | Ownership — does this workspace **own** the tool? ([#9](https://github.com/silvervibe-io/silvervibe/issues/9))                           |
+| Workspace **plan**       | Commercial package / limits (free: 1 VibeStandup team, max 12 members). Enforced in Nest on team create / invite (default free catalog). |
+| OpenFeature / GrowthBook | Rollout — is the feature **turned on** for this user/workspace?                                                                          |
 
 Never use a flag alone as proof of purchase or seat limits.
 

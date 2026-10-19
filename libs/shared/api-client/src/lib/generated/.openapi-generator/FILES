@@ -23,8 +23,10 @@ api/workspaces-data.serviceInterface.ts
 configuration.ts
 encoder.ts
 index.ts
+model/accept-team-invite-dto.ts
 model/addon-status-dto.ts
 model/create-team-dto.ts
+model/create-team-invite-dto.ts
 model/create-workspace-dto.ts
 model/custom-token-dto.ts
 model/flag-evaluation-dto.ts
@@ -40,6 +42,7 @@ model/standup-config-dto.ts
 model/standup-entry-dto.ts
 model/standup-summary-dto.ts
 model/team-dto.ts
+model/team-invite-dto.ts
 model/team-member-dto.ts
 model/update-standup-config-dto.ts
 model/upsert-standup-entry-dto.ts

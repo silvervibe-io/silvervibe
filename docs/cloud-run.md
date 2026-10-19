@@ -51,13 +51,14 @@ gcloud run deploy silvervibe-api \
   --platform=managed \
   --allow-unauthenticated \
   --port=8080 \
-  --set-env-vars="NODE_ENV=production,CORS_ORIGINS=https://silvervibe.io,https://www.silvervibe.io,https://standup.silvervibe.io" \
-  --set-secrets="DATABASE_URL=DATABASE_URL:latest,DATABASE_URL_UNPOOLED=DATABASE_URL_UNPOOLED:latest,FIREBASE_PROJECT_ID=FIREBASE_PROJECT_ID:latest,FIREBASE_CLIENT_EMAIL=FIREBASE_CLIENT_EMAIL:latest,FIREBASE_PRIVATE_KEY=FIREBASE_PRIVATE_KEY:latest,GROWTHBOOK_SERVER_KEY=GROWTHBOOK_SERVER_KEY:latest,GROWTHBOOK_API_HOST=GROWTHBOOK_API_HOST:latest"
+  --set-env-vars="NODE_ENV=production,CORS_ORIGINS=https://silvervibe.io,https://www.silvervibe.io,https://standup.silvervibe.io,PUBLIC_STANDUP_URL=https://standup.silvervibe.io,EMAIL_FROM=invites@silvervibe.io" \
+  --set-secrets="DATABASE_URL=DATABASE_URL:latest,DATABASE_URL_UNPOOLED=DATABASE_URL_UNPOOLED:latest,FIREBASE_PROJECT_ID=FIREBASE_PROJECT_ID:latest,FIREBASE_CLIENT_EMAIL=FIREBASE_CLIENT_EMAIL:latest,FIREBASE_PRIVATE_KEY=FIREBASE_PRIVATE_KEY:latest,GROWTHBOOK_SERVER_KEY=GROWTHBOOK_SERVER_KEY:latest,GROWTHBOOK_API_HOST=GROWTHBOOK_API_HOST:latest,RESEND_API_KEY=RESEND_API_KEY:latest"
 ```
 
 Create the Secret Manager secrets first (names above). Prefer attaching a Firebase-capable
 service account and omitting `FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY` so Nest uses ADC
-([firebase.md](./firebase.md)).
+([firebase.md](./firebase.md)). Verify `silvervibe.io` in Resend before using
+`invites@silvervibe.io` as `EMAIL_FROM`.
 
 Health probe path for Cloud Run (optional): `/api/health`.
 

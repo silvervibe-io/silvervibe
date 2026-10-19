@@ -59,6 +59,14 @@ export const appRoutes: Route[] = [
       ),
   },
   {
+    path: 'invite/:token',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('@silvervibe/vibestandup/pages/team-admin').then(
+        (m) => m.InviteAccept,
+      ),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

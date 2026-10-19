@@ -50,7 +50,7 @@ export interface WorkspacesDataServiceInterface {
 
   /**
    * List workspace tool entitlements
-   * Ownership rows from &#x60;workspace_tools&#x60; (not GrowthBook rollout flags).
+   * Ownership rows from &#x60;workspace_tools&#x60; (not GrowthBook rollout flags). Requires workspace membership.
    * @param requestParameters
    */
   workspacesControllerListTools(
@@ -60,7 +60,7 @@ export interface WorkspacesDataServiceInterface {
 
   /**
    * Grant or revoke a tool entitlement
-   * &#x60;enabled: true&#x60; grants (upserts); &#x60;enabled: false&#x60; revokes. &#x60;toolKey&#x60; must be a known TOOL_KEYS value.
+   * &#x60;enabled: true&#x60; grants (upserts); &#x60;enabled: false&#x60; revokes. &#x60;toolKey&#x60; must be a known TOOL_KEYS value. Requires workspace OWNER or ADMIN.
    * @param requestParameters
    */
   workspacesControllerSetTool(
