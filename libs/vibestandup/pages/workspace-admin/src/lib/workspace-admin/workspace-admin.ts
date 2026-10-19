@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -10,12 +9,10 @@ import {
 import { form, FormField, required, submit } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { API_BASE_URL } from '@silvervibe/shared/auth';
 import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
 import { Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
-import { WorkspaceStore } from '@silvervibe/stores/workspace';
-import { firstValueFrom } from 'rxjs';
+import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 
 type CreateTeamModel = {
   name: string;
@@ -32,10 +29,8 @@ type CreateTeamModel = {
   },
 })
 export class WorkspaceAdmin implements OnInit {
-  private readonly workspaces = inject(WorkspaceStore);
+  private readonly workspaces = inject(WorkspaceFacade);
   private readonly preview = inject(PreviewContextStore);
-  private readonly http = inject(HttpClient);
-  private readonly apiBase = inject(API_BASE_URL);
 
   readonly loading = this.workspaces.loading;
   readonly error = this.workspaces.error;
@@ -79,11 +74,7 @@ export class WorkspaceAdmin implements OnInit {
     if (!ws || !this.isAdmin()) {
       return;
     }
-    await firstValueFrom(
-      this.http.put(`${this.apiBase}/workspaces/${ws.id}/tools/${toolKey}`, {
-        enabled,
-      }),
-    );
+    await this.workspaces.setToolEntitlement(ws.id, toolKey, enabled);
     await this.workspaces.loadMyWorkspaces();
     this.workspaces.selectWorkspace(ws.id);
     this.message.set('standup.workspace.toolUpdated');
@@ -98,9 +89,7 @@ export class WorkspaceAdmin implements OnInit {
     await submit(this.teamForm, {
       action: async () => {
         const body = this.teamModel();
-        await firstValueFrom(
-          this.http.post(`${this.apiBase}/workspaces/${ws.id}/teams`, body),
-        );
+        await this.workspaces.createTeam(ws.id, body);
         this.teamModel.set({ name: '', slug: '' });
         this.message.set('standup.workspace.teamCreated');
         return undefined;

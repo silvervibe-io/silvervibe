@@ -1,0 +1,19 @@
+{
+  "name": "api-client",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/api-client/src",
+  "prefix": "sv",
+  "projectType": "library",
+  "tags": ["type:data-access", "scope:shared"],
+  "targets": {
+    "generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node ./tools/generate-api-client.mjs"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,22 +6,17 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import {
-  API_BASE_URL,
-  AuthService,
-  STANDUP_APP_ORIGIN,
-} from '@silvervibe/shared/auth';
+import { AuthService, STANDUP_APP_ORIGIN } from '@silvervibe/shared/auth';
 import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
 import { Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
-import { WorkspaceStore } from '@silvervibe/stores/workspace';
-import { firstValueFrom } from 'rxjs';
+import { UserFacade } from '@silvervibe/stores/user';
+import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 
 @Component({
   selector: 'sv-portal',
-  imports: [RouterLink, Shell, TranslocoPipe],
+  imports: [Shell, TranslocoPipe],
   templateUrl: './portal.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -30,11 +24,10 @@ import { firstValueFrom } from 'rxjs';
   },
 })
 export class Portal implements OnInit {
-  private readonly workspaces = inject(WorkspaceStore);
+  private readonly workspaces = inject(WorkspaceFacade);
+  private readonly users = inject(UserFacade);
   private readonly preview = inject(PreviewContextStore);
   private readonly auth = inject(AuthService);
-  private readonly http = inject(HttpClient);
-  private readonly apiBase = inject(API_BASE_URL);
   private readonly standupOrigin =
     inject(STANDUP_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4201';
 
@@ -72,12 +65,7 @@ export class Portal implements OnInit {
   async openVibeStandup(): Promise<void> {
     this.openingTool.set(true);
     try {
-      const { customToken } = await firstValueFrom(
-        this.http.post<{ customToken: string }>(
-          `${this.apiBase}/auth/custom-token`,
-          {},
-        ),
-      );
+      const { customToken } = await this.users.createCustomToken();
       const url = new URL('/auth/handoff', this.standupOrigin);
       url.searchParams.set('token', customToken);
       url.searchParams.set('returnUrl', '/app');

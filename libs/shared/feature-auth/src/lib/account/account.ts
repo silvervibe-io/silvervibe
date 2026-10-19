@@ -10,7 +10,7 @@ import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AuthService } from '@silvervibe/shared/auth';
 import { Shell } from '@silvervibe/shared/ui';
-import { UserStore } from '@silvervibe/stores/user';
+import { UserFacade } from '@silvervibe/stores/user';
 
 @Component({
   selector: 'sv-account',
@@ -23,7 +23,7 @@ import { UserStore } from '@silvervibe/stores/user';
 })
 export class Account implements OnInit {
   private readonly auth = inject(AuthService);
-  private readonly users = inject(UserStore);
+  private readonly users = inject(UserFacade);
   private readonly router = inject(Router);
   private readonly transloco = inject(TranslocoService);
 

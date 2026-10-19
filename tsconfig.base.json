@@ -23,6 +23,9 @@
       "@silvervibe/shared/feature-flags": [
         "./libs/shared/feature-flags/src/index.ts"
       ],
+      "@silvervibe/shared/api-client": [
+        "./libs/shared/api-client/src/index.ts"
+      ],
       "@silvervibe/shared/auth": ["./libs/shared/auth/src/index.ts"],
       "@silvervibe/shared/feature-auth": [
         "./libs/shared/feature-auth/src/index.ts"

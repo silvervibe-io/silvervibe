@@ -4,11 +4,12 @@ import {
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { provideSilvervibeApiClient } from '@silvervibe/shared/api-client';
 import { API_BASE_URL } from '@silvervibe/shared/auth';
-import { UserStore } from './user.store';
+import { UserFacade } from './user.facade';
 
-describe('UserStore', () => {
-  let store: UserStore;
+describe('UserFacade', () => {
+  let facade: UserFacade;
   let http: HttpTestingController;
 
   beforeEach(() => {
@@ -17,10 +18,11 @@ describe('UserStore', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: API_BASE_URL, useValue: '/api' },
-        UserStore,
+        provideSilvervibeApiClient(),
+        UserFacade,
       ],
     });
-    store = TestBed.inject(UserStore);
+    facade = TestBed.inject(UserFacade);
     http = TestBed.inject(HttpTestingController);
   });
 
@@ -29,7 +31,7 @@ describe('UserStore', () => {
   });
 
   it('loads the Neon profile from GET /me', async () => {
-    const load = store.loadMe();
+    const load = facade.loadMe();
     const req = http.expectOne('/api/me');
     expect(req.request.method).toBe('GET');
     req.flush({
@@ -40,9 +42,9 @@ describe('UserStore', () => {
     });
     await load;
 
-    expect(store.loading()).toBe(false);
-    expect(store.error()).toBeNull();
-    expect(store.profile()).toEqual({
+    expect(facade.loading()).toBe(false);
+    expect(facade.error()).toBeNull();
+    expect(facade.profile()).toEqual({
       id: 'cuid1',
       firebaseUid: 'fb1',
       email: 'u@example.com',
@@ -51,7 +53,7 @@ describe('UserStore', () => {
   });
 
   it('clears profile state', async () => {
-    const load = store.loadMe();
+    const load = facade.loadMe();
     http.expectOne('/api/me').flush({
       id: 'cuid1',
       firebaseUid: 'fb1',
@@ -60,14 +62,14 @@ describe('UserStore', () => {
     });
     await load;
 
-    store.clear();
-    expect(store.profile()).toBeNull();
-    expect(store.loading()).toBe(false);
-    expect(store.error()).toBeNull();
+    facade.clear();
+    expect(facade.profile()).toBeNull();
+    expect(facade.loading()).toBe(false);
+    expect(facade.error()).toBeNull();
   });
 
   it('records an error when /me fails', async () => {
-    const load = store.loadMe();
+    const load = facade.loadMe();
     http
       .expectOne('/api/me')
       .flush(
@@ -76,8 +78,16 @@ describe('UserStore', () => {
       );
     await load;
 
-    expect(store.profile()).toBeNull();
-    expect(store.loading()).toBe(false);
-    expect(store.error()).toBeTruthy();
+    expect(facade.profile()).toBeNull();
+    expect(facade.loading()).toBe(false);
+    expect(facade.error()).toBeTruthy();
+  });
+
+  it('creates a custom token for handoff', async () => {
+    const pending = facade.createCustomToken();
+    const req = http.expectOne('/api/auth/custom-token');
+    expect(req.request.method).toBe('POST');
+    req.flush({ customToken: 'tok' });
+    await expect(pending).resolves.toEqual({ customToken: 'tok' });
   });
 });

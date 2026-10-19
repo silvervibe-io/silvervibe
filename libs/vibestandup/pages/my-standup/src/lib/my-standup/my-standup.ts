@@ -13,8 +13,8 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
 import { Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
-import { StandupStore } from '@silvervibe/stores/standup';
-import { WorkspaceStore } from '@silvervibe/stores/workspace';
+import { StandupFacade } from '@silvervibe/stores/standup';
+import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 
 type StandupFormModel = {
   yesterday: string;
@@ -32,8 +32,8 @@ type StandupFormModel = {
   },
 })
 export class MyStandup implements OnInit {
-  private readonly workspaces = inject(WorkspaceStore);
-  private readonly standup = inject(StandupStore);
+  private readonly workspaces = inject(WorkspaceFacade);
+  private readonly standup = inject(StandupFacade);
   private readonly preview = inject(PreviewContextStore);
 
   readonly loading = this.standup.loading;

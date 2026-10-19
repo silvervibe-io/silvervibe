@@ -33,7 +33,9 @@ async function bootstrap() {
     .filter(Boolean);
   app.enableCors({ origin: origins });
   setupSwagger(app);
-  const port = Number(process.env['PORT'] || 3000);
+  // Cloud Run sets PORT. Locally use API_PORT — root `.env` PORT is picked up by
+  // Vite and would force Angular `nx serve` onto 3000 as well.
+  const port = Number(process.env['PORT'] || process.env['API_PORT'] || 3000);
   const host = process.env['HOST'] || '0.0.0.0';
   await app.listen(port, host);
   Logger.log(`Silvervibe API: http://${host}:${port}/api/docs`);

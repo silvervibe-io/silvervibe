@@ -7,9 +7,9 @@ export class MeDto {
   @ApiProperty({ description: 'Firebase Auth uid' })
   firebaseUid!: string;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiPropertyOptional({ type: String, nullable: true })
   email!: string | null;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiPropertyOptional({ type: String, nullable: true })
   displayName!: string | null;
 }
