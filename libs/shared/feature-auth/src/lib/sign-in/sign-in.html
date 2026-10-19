@@ -29,28 +29,28 @@
     </div>
     } @else {
     <form class="flex flex-col gap-4" (submit)="signInEmail($event)">
-      <label class="form-control w-full">
-        <span class="label-text mb-1"
-          >{{ 'auth.signIn.email' | transloco }}</span
-        >
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'auth.signIn.email' | transloco }}
+        </legend>
         <input
           class="input input-bordered w-full"
           type="email"
           autocomplete="username"
           [formField]="loginForm.email"
         />
-      </label>
-      <label class="form-control w-full">
-        <span class="label-text mb-1"
-          >{{ 'auth.signIn.password' | transloco }}</span
-        >
+      </fieldset>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'auth.signIn.password' | transloco }}
+        </legend>
         <input
           class="input input-bordered w-full"
           type="password"
           autocomplete="current-password"
           [formField]="loginForm.password"
         />
-      </label>
+      </fieldset>
       <button
         type="submit"
         class="btn btn-primary"

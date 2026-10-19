@@ -24,10 +24,12 @@
     } @else { @if (memberships().length === 0) {
     <p class="text-base-content/70">{{ 'portal.empty' | transloco }}</p>
     } @else {
-    <label class="form-control w-full max-w-xs">
-      <span class="label-text">{{ 'portal.workspace' | transloco }}</span>
+    <fieldset class="fieldset w-full max-w-xs">
+      <legend class="fieldset-legend">
+        {{ 'portal.workspace' | transloco }}
+      </legend>
       <select
-        class="select select-bordered"
+        class="select select-bordered w-full"
         [value]="selected()?.id ?? ''"
         (change)="selectWorkspace($any($event.target).value)"
       >
@@ -38,7 +40,7 @@
         </option>
         }
       </select>
-    </label>
+    </fieldset>
 
     @if (planHint(); as hint) {
     <p class="text-sm text-base-content/60">
