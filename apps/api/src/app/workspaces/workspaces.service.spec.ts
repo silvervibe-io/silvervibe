@@ -1,39 +1,75 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
+import { WorkspaceRole } from '@prisma/client';
 import { TOOL_KEYS } from '@silvervibe/shared/feature-flags';
+import { VerifiedUser } from '../auth/firebase-auth.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { UsersService } from '../users/users.service';
 import { WorkspacesService } from './workspaces.service';
 
+const owner: VerifiedUser = {
+  uid: 'uid-owner',
+  email: 'owner@example.com',
+};
+
+const member: VerifiedUser = {
+  uid: 'uid-member',
+  email: 'member@example.com',
+};
+
 describe('WorkspacesService', () => {
+  function buildService(prisma: unknown, users?: Partial<UsersService>) {
+    const usersService = {
+      upsertFromFirebase: jest
+        .fn()
+        .mockImplementation(async (user: VerifiedUser) => ({
+          id: user.uid === 'uid-owner' ? 'user-owner' : 'user-member',
+        })),
+      ...users,
+    } as unknown as UsersService;
+    return new WorkspacesService(prisma as PrismaService, usersService);
+  }
+
   it('rejects unknown tool keys', async () => {
     const prisma = {
       isEnabled: () => true,
+      workspaceMember: {
+        findUnique: jest.fn().mockResolvedValue({ role: WorkspaceRole.OWNER }),
+      },
       workspace: {
         findUnique: jest.fn().mockResolvedValue({ id: 'ws1' }),
       },
-    } as unknown as PrismaService;
-    const service = new WorkspacesService(prisma);
+    };
+    const service = buildService(prisma);
     await expect(
-      service.setToolEntitlement('ws1', 'not-a-tool', true),
+      service.setToolEntitlement('ws1', 'not-a-tool', true, owner),
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
-  it('grants a known tool via upsert', async () => {
+  it('grants a known tool via upsert when caller is admin', async () => {
     const upsert = jest.fn().mockResolvedValue({
       toolKey: TOOL_KEYS.vibestandup,
       enabled: true,
     });
     const prisma = {
       isEnabled: () => true,
+      workspaceMember: {
+        findUnique: jest.fn().mockResolvedValue({ role: WorkspaceRole.OWNER }),
+      },
       workspace: {
         findUnique: jest.fn().mockResolvedValue({ id: 'ws1' }),
       },
       workspaceTool: { upsert },
-    } as unknown as PrismaService;
-    const service = new WorkspacesService(prisma);
+    };
+    const service = buildService(prisma);
     const result = await service.setToolEntitlement(
       'ws1',
       TOOL_KEYS.vibestandup,
       true,
+      owner,
     );
     expect(upsert).toHaveBeenCalledWith({
       where: {
@@ -56,6 +92,40 @@ describe('WorkspacesService', () => {
     });
   });
 
+  it('forbids tool mutations for non-admin members', async () => {
+    const prisma = {
+      isEnabled: () => true,
+      workspaceMember: {
+        findUnique: jest.fn().mockResolvedValue({ role: WorkspaceRole.MEMBER }),
+      },
+      workspace: {
+        findUnique: jest.fn().mockResolvedValue({ id: 'ws1' }),
+      },
+      workspaceTool: { upsert: jest.fn() },
+    };
+    const service = buildService(prisma);
+    await expect(
+      service.setToolEntitlement('ws1', TOOL_KEYS.vibestandup, true, member),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('forbids listing tools for non-members', async () => {
+    const prisma = {
+      isEnabled: () => true,
+      workspaceMember: {
+        findUnique: jest.fn().mockResolvedValue(null),
+      },
+      workspace: {
+        findUnique: jest.fn().mockResolvedValue({ id: 'ws1' }),
+      },
+      workspaceTool: { findMany: jest.fn() },
+    };
+    const service = buildService(prisma);
+    await expect(service.listTools('ws1', member)).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
+  });
+
   it('lists enabled keys from entitlement rows', async () => {
     const prisma = {
       isEnabled: () => true,
@@ -68,8 +138,8 @@ describe('WorkspacesService', () => {
           { toolKey: 'addons.github', enabled: false },
         ]),
       },
-    } as unknown as PrismaService;
-    const service = new WorkspacesService(prisma);
+    };
+    const service = buildService(prisma);
     await expect(service.listEnabledToolKeys('ws1')).resolves.toEqual([
       'vibestandup',
     ]);
@@ -78,10 +148,13 @@ describe('WorkspacesService', () => {
   it('throws when workspace is missing', async () => {
     const prisma = {
       isEnabled: () => true,
+      workspaceMember: {
+        findUnique: jest.fn().mockResolvedValue({ role: WorkspaceRole.OWNER }),
+      },
       workspace: { findUnique: jest.fn().mockResolvedValue(null) },
-    } as unknown as PrismaService;
-    const service = new WorkspacesService(prisma);
-    await expect(service.listTools('missing')).rejects.toBeInstanceOf(
+    };
+    const service = buildService(prisma);
+    await expect(service.listTools('missing', owner)).rejects.toBeInstanceOf(
       NotFoundException,
     );
   });

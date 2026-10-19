@@ -68,6 +68,12 @@ describe('Portal', () => {
                   openTool: 'Open',
                   adminHint: 'You are an admin',
                   planHint: 'Preview plan {{plan}}',
+                  createTitle: 'Create a workspace',
+                  addWorkspace: 'Create another workspace',
+                  createName: 'Name',
+                  createSlug: 'Slug',
+                  createSubmit: 'Create',
+                  createSuccess: 'Workspace created.',
                 },
                 shell: {
                   theme: { toDark: 'Dark', toLight: 'Light' },
@@ -91,11 +97,18 @@ describe('Portal', () => {
       .expectOne('/api/me/workspaces')
       .flush([]);
     await fixture.whenStable();
+    await Promise.resolve();
     fixture.detectChanges();
   });
 
   it('renders the portal title', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('h1')?.textContent).toContain('Your portal');
+  });
+
+  it('shows the create workspace form when empty', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('form')).toBeTruthy();
+    expect(el.textContent).toContain('Create a workspace');
   });
 });

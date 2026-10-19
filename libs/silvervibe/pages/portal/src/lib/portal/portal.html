@@ -21,7 +21,7 @@
     </p>
     } @else if (error()) {
     <p class="text-error">{{ error() }}</p>
-    } @else if (memberships().length === 0) {
+    } @else { @if (memberships().length === 0) {
     <p class="text-base-content/70">{{ 'portal.empty' | transloco }}</p>
     } @else {
     <label class="form-control w-full max-w-xs">
@@ -79,5 +79,29 @@
       {{ 'portal.adminHint' | transloco }}
     </p>
     } }
+
+    <form class="max-w-md space-y-3" (submit)="createWorkspace($event)">
+      <h2 class="text-xl font-semibold">
+        {{ (memberships().length === 0 ? 'portal.createTitle' :
+        'portal.addWorkspace') | transloco }}
+      </h2>
+      <label class="form-control">
+        <span class="label-text">{{ 'portal.createName' | transloco }}</span>
+        <input class="input input-bordered" [formField]="workspaceForm.name" />
+      </label>
+      <label class="form-control">
+        <span class="label-text">{{ 'portal.createSlug' | transloco }}</span>
+        <input class="input input-bordered" [formField]="workspaceForm.slug" />
+      </label>
+      <button type="submit" class="btn btn-primary btn-sm">
+        {{ 'portal.createSubmit' | transloco }}
+      </button>
+      @if (createMessage()) {
+      <p class="text-success text-sm">{{ createMessage()! | transloco }}</p>
+      } @if (createError()) {
+      <p class="text-error text-sm">{{ createError() }}</p>
+      }
+    </form>
+    }
   </div>
 </sv-shell>

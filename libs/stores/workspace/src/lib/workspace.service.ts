@@ -5,14 +5,17 @@ import {
   TeamsDataService,
   WorkspacesDataService,
   type CreateTeamDto,
+  type CreateWorkspaceDto,
   type MeWorkspaceDto,
   type TeamDto,
+  type WorkspaceDto,
   type WorkspaceToolDto,
 } from '@silvervibe/shared/api-client';
 import type { PreviewWorkspaceRole } from '@silvervibe/stores/preview';
 import { firstValueFrom } from 'rxjs';
 import type {
   CreateTeamInput,
+  CreateWorkspaceInput,
   WorkspaceMembershipView,
   WorkspaceToolView,
 } from './workspace.models';
@@ -49,6 +52,16 @@ export class WorkspaceService {
       this.authApi.usersControllerMyWorkspaces(),
     );
     return rows.map(mapMembership);
+  }
+
+  createWorkspace(body: CreateWorkspaceInput): Promise<WorkspaceDto> {
+    const createWorkspaceDto: CreateWorkspaceDto = {
+      name: body.name,
+      slug: body.slug,
+    };
+    return firstValueFrom(
+      this.workspacesApi.workspacesControllerCreate({ createWorkspaceDto }),
+    );
   }
 
   setToolEntitlement(

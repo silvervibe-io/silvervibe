@@ -98,4 +98,31 @@ describe('WorkspaceFacade', () => {
     expect(facade.effectiveWorkspaceRole()).toBe('MEMBER');
     expect(facade.isWorkspaceAdmin()).toBe(false);
   });
+
+  it('creates a workspace then reloads and selects it', async () => {
+    const create = facade.createWorkspace({ name: 'Acme', slug: 'acme' });
+    const post = http.expectOne('/api/workspaces');
+    expect(post.request.method).toBe('POST');
+    expect(post.request.body).toEqual({ name: 'Acme', slug: 'acme' });
+    post.flush({ id: 'ws-new', name: 'Acme', slug: 'acme' });
+
+    await Promise.resolve();
+
+    const reload = http.expectOne('/api/me/workspaces');
+    reload.flush([
+      {
+        id: 'ws-new',
+        name: 'Acme',
+        slug: 'acme',
+        role: 'OWNER',
+        tools: [{ toolKey: 'vibestandup', enabled: true }],
+      },
+    ]);
+
+    const result = await create;
+    expect(result.id).toBe('ws-new');
+    expect(facade.selectedWorkspaceId()).toBe('ws-new');
+    expect(facade.memberships().length).toBe(1);
+    expect(facade.isWorkspaceAdmin()).toBe(true);
+  });
 });

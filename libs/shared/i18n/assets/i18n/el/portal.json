@@ -1,12 +1,18 @@
 {
-  "title": "Your portal",
-  "lead": "Workspaces and tools enabled for your organization.",
-  "loading": "Loading workspaces…",
-  "empty": "No workspaces yet. Ask an admin to invite you, or create one via the API.",
-  "workspace": "Workspace",
-  "tools": "Enabled tools",
-  "noTools": "No tools enabled for this workspace.",
-  "openTool": "Open",
-  "adminHint": "You can manage tools and teams as a workspace admin.",
-  "planHint": "Προεπισκόπηση πλάνου {{plan}}: έως {{teams}} ομάδες, {{members}} μέλη ανά ομάδα (μόνο UI — το API κρατά πραγματικούς ρόλους)."
+  "title": "Η πύλη σας",
+  "lead": "Χώροι εργασίας και εργαλεία ενεργά για τον οργανισμό σας.",
+  "loading": "Φόρτωση χώρων…",
+  "empty": "Δεν υπάρχουν ακόμα χώροι. Δημιουργήστε έναν παρακάτω, ή ζητήστε πρόσκληση από διαχειριστή.",
+  "workspace": "Χώρος εργασίας",
+  "tools": "Ενεργά εργαλεία",
+  "noTools": "Δεν υπάρχουν ενεργά εργαλεία για αυτόν τον χώρο.",
+  "openTool": "Άνοιγμα",
+  "adminHint": "Ως διαχειριστής χώρου μπορείτε να διαχειρίζεστε εργαλεία και ομάδες.",
+  "planHint": "Προεπισκόπηση πλάνου {{plan}}: έως {{teams}} ομάδες, {{members}} μέλη ανά ομάδα (μόνο UI — το API χρησιμοποιεί πραγματικούς ρόλους).",
+  "createTitle": "Δημιουργία χώρου",
+  "addWorkspace": "Δημιουργία άλλου χώρου",
+  "createName": "Όνομα",
+  "createSlug": "Slug",
+  "createSubmit": "Δημιουργία",
+  "createSuccess": "Ο χώρος δημιουργήθηκε."
 }

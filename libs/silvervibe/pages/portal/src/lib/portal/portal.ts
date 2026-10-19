@@ -6,6 +6,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { form, FormField, required, submit } from '@angular/forms/signals';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService, STANDUP_APP_ORIGIN } from '@silvervibe/shared/auth';
 import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
@@ -14,9 +15,14 @@ import { PreviewContextStore } from '@silvervibe/stores/preview';
 import { UserFacade } from '@silvervibe/stores/user';
 import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 
+type CreateWorkspaceModel = {
+  name: string;
+  slug: string;
+};
+
 @Component({
   selector: 'sv-portal',
-  imports: [Shell, TranslocoPipe],
+  imports: [FormField, Shell, TranslocoPipe],
   templateUrl: './portal.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -53,6 +59,17 @@ export class Portal implements OnInit {
     };
   });
   readonly openingTool = signal(false);
+  readonly createMessage = signal<string | null>(null);
+  readonly createError = signal<string | null>(null);
+
+  readonly workspaceModel = signal<CreateWorkspaceModel>({
+    name: '',
+    slug: '',
+  });
+  readonly workspaceForm = form(this.workspaceModel, (schemaPath) => {
+    required(schemaPath.name);
+    required(schemaPath.slug);
+  });
 
   ngOnInit(): void {
     void this.workspaces.loadMyWorkspaces();
@@ -60,6 +77,27 @@ export class Portal implements OnInit {
 
   selectWorkspace(workspaceId: string): void {
     this.workspaces.selectWorkspace(workspaceId);
+  }
+
+  async createWorkspace(event: Event): Promise<void> {
+    event.preventDefault();
+    this.createMessage.set(null);
+    this.createError.set(null);
+    await submit(this.workspaceForm, {
+      action: async () => {
+        try {
+          const body = this.workspaceModel();
+          await this.workspaces.createWorkspace(body);
+          this.workspaceModel.set({ name: '', slug: '' });
+          this.createMessage.set('portal.createSuccess');
+        } catch (err: unknown) {
+          this.createError.set(
+            err instanceof Error ? err.message : 'Failed to create workspace',
+          );
+        }
+        return undefined;
+      },
+    });
   }
 
   async openVibeStandup(): Promise<void> {
