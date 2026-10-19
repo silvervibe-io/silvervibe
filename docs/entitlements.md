@@ -22,11 +22,13 @@ Pure helpers: `@silvervibe/shared/data-access` (`isToolEnabled`, `enabledToolKey
 
 Requires Firebase ID token (or `Bearer dev:<uid>` outside production when Admin is unset). Requires `DATABASE_URL`.
 
-| Method | Path                                          | Purpose                                              |
-| ------ | --------------------------------------------- | ---------------------------------------------------- |
-| `POST` | `/api/workspaces`                             | Create workspace `{ name, slug }`                    |
-| `GET`  | `/api/workspaces/:workspaceId/tools`          | List entitlement rows                                |
-| `PUT`  | `/api/workspaces/:workspaceId/tools/:toolKey` | Grant (`enabled: true`) or revoke (`enabled: false`) |
+| Method | Path                                          | Purpose                                                                |
+| ------ | --------------------------------------------- | ---------------------------------------------------------------------- |
+| `POST` | `/api/workspaces`                             | Create workspace `{ name, slug }` (caller becomes OWNER + vibestandup) |
+| `GET`  | `/api/workspaces/:workspaceId/tools`          | List entitlement rows (workspace **member**)                           |
+| `PUT`  | `/api/workspaces/:workspaceId/tools/:toolKey` | Grant/revoke (workspace **OWNER** or **ADMIN**)                        |
+
+Prefer creating workspaces from the Silvervibe **portal** UI (`/portal`) when signed in; the curl examples below remain useful for API smoke checks.
 
 Example:
 

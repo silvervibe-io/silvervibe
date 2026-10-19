@@ -1,4 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsIn,
+  IsObject,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class StandupConfigDto {
   @ApiProperty()
@@ -13,9 +20,13 @@ export class StandupConfigDto {
 
 export class UpdateStandupConfigDto {
   @ApiProperty()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(64)
   timezone!: string;
 
   @ApiProperty()
+  @IsObject()
   questionsJson!: Record<string, string>;
 }
 
@@ -44,15 +55,19 @@ export class StandupEntryDto {
 
 export class UpsertStandupEntryDto {
   @ApiProperty()
+  @IsString()
   yesterday!: string;
 
   @ApiProperty()
+  @IsString()
   today!: string;
 
   @ApiProperty()
+  @IsString()
   blockers!: string;
 
   @ApiProperty({ enum: ['DRAFT', 'SUBMITTED'] })
+  @IsIn(['DRAFT', 'SUBMITTED'])
   status!: 'DRAFT' | 'SUBMITTED';
 }
 

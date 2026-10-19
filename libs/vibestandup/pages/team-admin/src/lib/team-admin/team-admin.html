@@ -22,10 +22,12 @@
     } @else if (teams().length === 0) {
     <p>{{ 'standup.team.noTeams' | transloco }}</p>
     } @else {
-    <label class="form-control w-full max-w-xs">
-      <span class="label-text">{{ 'standup.my.team' | transloco }}</span>
+    <fieldset class="fieldset w-full max-w-xs">
+      <legend class="fieldset-legend">
+        {{ 'standup.my.team' | transloco }}
+      </legend>
       <select
-        class="select select-bordered"
+        class="select select-bordered w-full"
         [value]="selectedTeamId() ?? ''"
         (change)="onTeamChange($any($event.target).value)"
       >
@@ -33,34 +35,43 @@
         <option [value]="team.id">{{ team.name }} ({{ team.role }})</option>
         }
       </select>
-    </label>
+    </fieldset>
 
-    <form class="max-w-xl space-y-3" (submit)="saveConfig($event)">
+    <form class="flex max-w-xl flex-col gap-3" (submit)="saveConfig($event)">
       <h2 class="text-xl font-semibold">
         {{ 'standup.team.config' | transloco }}
       </h2>
-      <label class="form-control">
-        <span class="label-text"
-          >{{ 'standup.team.timezone' | transloco }}</span
-        >
-        <input class="input input-bordered" [formField]="configForm.timezone" />
-      </label>
-      <label class="form-control">
-        <span class="label-text">Yesterday</span>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.team.timezone' | transloco }}
+        </legend>
         <input
-          class="input input-bordered"
+          class="input input-bordered w-full"
+          [formField]="configForm.timezone"
+        />
+      </fieldset>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">Yesterday</legend>
+        <input
+          class="input input-bordered w-full"
           [formField]="configForm.yesterday"
         />
-      </label>
-      <label class="form-control">
-        <span class="label-text">Today</span>
-        <input class="input input-bordered" [formField]="configForm.today" />
-      </label>
-      <label class="form-control">
-        <span class="label-text">Blockers</span>
-        <input class="input input-bordered" [formField]="configForm.blockers" />
-      </label>
-      <button type="submit" class="btn btn-primary btn-sm">
+      </fieldset>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">Today</legend>
+        <input
+          class="input input-bordered w-full"
+          [formField]="configForm.today"
+        />
+      </fieldset>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">Blockers</legend>
+        <input
+          class="input input-bordered w-full"
+          [formField]="configForm.blockers"
+        />
+      </fieldset>
+      <button type="submit" class="btn btn-primary btn-sm self-start">
         {{ 'standup.team.saveConfig' | transloco }}
       </button>
       @if (message()) {
@@ -68,7 +79,7 @@
       }
     </form>
 
-    <form class="max-w-xl space-y-3" (submit)="invite($event)">
+    <form class="flex max-w-xl flex-col gap-3" (submit)="invite($event)">
       <h2 class="text-xl font-semibold">
         {{ 'standup.team.members' | transloco }}
       </h2>
@@ -77,13 +88,16 @@
         <li>{{ m.displayName || m.email || m.userId }} — {{ m.role }}</li>
         }
       </ul>
-      <label class="form-control">
-        <span class="label-text"
-          >{{ 'standup.team.inviteUserId' | transloco }}</span
-        >
-        <input class="input input-bordered" [formField]="inviteForm.userId" />
-      </label>
-      <button type="submit" class="btn btn-secondary btn-sm">
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.team.inviteUserId' | transloco }}
+        </legend>
+        <input
+          class="input input-bordered w-full"
+          [formField]="inviteForm.userId"
+        />
+      </fieldset>
+      <button type="submit" class="btn btn-secondary btn-sm self-start">
         {{ 'standup.team.invite' | transloco }}
       </button>
     </form>

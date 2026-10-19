@@ -13,6 +13,11 @@ export type WorkspaceMembershipView = {
   tools: WorkspaceToolView[];
 };
 
+export type CreateWorkspaceInput = {
+  name: string;
+  slug: string;
+};
+
 export type CreateTeamInput = {
   name: string;
   slug: string;

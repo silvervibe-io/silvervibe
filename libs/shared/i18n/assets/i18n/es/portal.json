@@ -1,12 +1,18 @@
 {
-  "title": "Your portal",
-  "lead": "Workspaces and tools enabled for your organization.",
-  "loading": "Loading workspaces…",
-  "empty": "No workspaces yet. Ask an admin to invite you, or create one via the API.",
-  "workspace": "Workspace",
-  "tools": "Enabled tools",
-  "noTools": "No tools enabled for this workspace.",
-  "openTool": "Open",
-  "adminHint": "You can manage tools and teams as a workspace admin.",
-  "planHint": "Plan de vista previa {{plan}}: hasta {{teams}} equipos, {{members}} miembros por equipo (solo UI — la API sigue con roles reales)."
+  "title": "Tu portal",
+  "lead": "Espacios de trabajo y herramientas habilitadas para tu organización.",
+  "loading": "Cargando espacios…",
+  "empty": "Aún no hay espacios. Crea uno abajo, o pide a un admin que te invite.",
+  "workspace": "Espacio de trabajo",
+  "tools": "Herramientas habilitadas",
+  "noTools": "No hay herramientas habilitadas para este espacio.",
+  "openTool": "Abrir",
+  "adminHint": "Como admin del espacio puedes gestionar herramientas y equipos.",
+  "planHint": "Plan de vista previa {{plan}}: hasta {{teams}} equipos, {{members}} miembros por equipo (solo UI — la API usa roles reales).",
+  "createTitle": "Crear un espacio",
+  "addWorkspace": "Crear otro espacio",
+  "createName": "Nombre",
+  "createSlug": "Slug",
+  "createSubmit": "Crear",
+  "createSuccess": "Espacio creado."
 }

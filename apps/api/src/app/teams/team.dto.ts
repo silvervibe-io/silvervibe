@@ -1,4 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsIn,
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class TeamDto {
   @ApiProperty()
@@ -17,18 +25,31 @@ export class MyTeamDto extends TeamDto {
 }
 
 export class CreateTeamDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'Platform' })
+  @IsString()
+  @MinLength(1)
+  @MaxLength(80)
   name!: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'platform' })
+  @IsString()
+  @MinLength(2)
+  @MaxLength(48)
+  @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+    message: 'slug must be lowercase letters, numbers, and hyphens',
+  })
   slug!: string;
 }
 
 export class InviteTeamMemberDto {
   @ApiProperty({ description: 'Firebase UID or existing Neon user id' })
+  @IsString()
+  @MinLength(1)
   userId!: string;
 
   @ApiProperty({ enum: ['ADMIN', 'MEMBER'], required: false })
+  @IsOptional()
+  @IsIn(['ADMIN', 'MEMBER'])
   role?: 'ADMIN' | 'MEMBER';
 }
 

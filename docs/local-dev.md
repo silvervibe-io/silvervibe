@@ -81,6 +81,11 @@ Without GrowthBook keys, OpenFeature uses in-memory defaults
 Angular apps proxy `/api` to the Nest server when configured
 (`apps/silvervibe/proxy.conf.json`).
 
+Signed-in users create a workspace (organization) from the portal at
+http://localhost:4200/portal — that calls `POST /api/workspaces` and enables
+`vibestandup` for the new OWNER. Tool grant/revoke still needs workspace
+OWNER/ADMIN; see [entitlements.md](./entitlements.md).
+
 ## Other apps
 
 ```bash

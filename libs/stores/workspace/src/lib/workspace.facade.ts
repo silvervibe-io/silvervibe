@@ -1,8 +1,13 @@
 import { inject, Injectable } from '@angular/core';
-import type { TeamDto, WorkspaceToolDto } from '@silvervibe/shared/api-client';
+import type {
+  TeamDto,
+  WorkspaceDto,
+  WorkspaceToolDto,
+} from '@silvervibe/shared/api-client';
 import type { PreviewWorkspaceRole } from '@silvervibe/stores/preview';
 import type {
   CreateTeamInput,
+  CreateWorkspaceInput,
   WorkspaceMembershipView,
   WorkspaceToolView,
 } from './workspace.models';
@@ -44,6 +49,13 @@ export class WorkspaceFacade {
 
   isWorkspaceAdmin(): boolean {
     return this.store.isWorkspaceAdmin();
+  }
+
+  async createWorkspace(body: CreateWorkspaceInput): Promise<WorkspaceDto> {
+    const workspace = await this.api.createWorkspace(body);
+    await this.store.loadMyWorkspaces();
+    this.store.selectWorkspace(workspace.id);
+    return workspace;
   }
 
   setToolEntitlement(
