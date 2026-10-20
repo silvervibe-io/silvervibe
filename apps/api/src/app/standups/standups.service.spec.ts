@@ -1,4 +1,5 @@
 import { StandupEntryStatus } from '@prisma/client';
+import { SlackService } from '../addons/slack/slack.service';
 import { VerifiedUser } from '../auth/firebase-auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { TeamsService } from '../teams/teams.service';
@@ -9,6 +10,10 @@ const member: VerifiedUser = {
   uid: 'uid-1',
   email: 'member@example.com',
 };
+
+const slackStub = {
+  postStandupDigest: jest.fn().mockResolvedValue(false),
+} as unknown as SlackService;
 
 describe('StandupsService auto-summary', () => {
   it('rebuilds the team summary after a submit', async () => {
@@ -50,6 +55,11 @@ describe('StandupsService auto-summary', () => {
       },
       standupEntry: { upsert, findMany },
       standupSummary: { upsert: summaryUpsert },
+      team: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({ workspaceId: 'ws1', name: 'Alpha' }),
+      },
     };
 
     const users = {
@@ -63,10 +73,12 @@ describe('StandupsService auto-summary', () => {
       requireTeamMember: jest.fn().mockResolvedValue(undefined),
     } as unknown as TeamsService;
 
+    const postStandupDigest = jest.fn().mockResolvedValue(true);
     const service = new StandupsService(
       prisma as unknown as PrismaService,
       users,
       teams,
+      { postStandupDigest } as unknown as SlackService,
     );
 
     const result = await service.upsertMine('team1', member, {
@@ -83,6 +95,12 @@ describe('StandupsService auto-summary', () => {
         create: expect.objectContaining({
           content: expect.stringContaining('shipped auto-summary'),
         }),
+      }),
+    );
+    expect(postStandupDigest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        workspaceId: 'ws1',
+        teamName: 'Alpha',
       }),
     );
   });
@@ -117,6 +135,7 @@ describe('StandupsService auto-summary', () => {
       {
         requireTeamMember: jest.fn().mockResolvedValue(undefined),
       } as unknown as TeamsService,
+      slackStub,
     );
 
     await expect(
@@ -161,6 +180,7 @@ describe('StandupsService auto-summary', () => {
       {
         requireTeamMember: jest.fn().mockResolvedValue(undefined),
       } as unknown as TeamsService,
+      slackStub,
     );
 
     await service.upsertMine('team1', member, {

@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import {
   AuthDataService,
@@ -11,11 +12,14 @@ import {
   type WorkspaceDto,
   type WorkspaceToolDto,
 } from '@silvervibe/shared/api-client';
+import { API_BASE_URL } from '@silvervibe/shared/auth';
 import type { PreviewWorkspaceRole } from '@silvervibe/stores/preview';
 import { firstValueFrom } from 'rxjs';
 import type {
+  ConnectSlackInput,
   CreateTeamInput,
   CreateWorkspaceInput,
+  SlackConnectionView,
   WorkspaceMembershipView,
   WorkspaceToolView,
 } from './workspace.models';
@@ -46,6 +50,8 @@ export class WorkspaceService {
   private readonly authApi = inject(AuthDataService);
   private readonly workspacesApi = inject(WorkspacesDataService);
   private readonly teamsApi = inject(TeamsDataService);
+  private readonly http = inject(HttpClient);
+  private readonly apiBase = inject(API_BASE_URL);
 
   async listMyWorkspaces(): Promise<WorkspaceMembershipView[]> {
     const rows = await firstValueFrom(
@@ -88,6 +94,34 @@ export class WorkspaceService {
         workspaceId,
         createTeamDto,
       }),
+    );
+  }
+
+  getSlackConnection(workspaceId: string): Promise<SlackConnectionView> {
+    return firstValueFrom(
+      this.http.get<SlackConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/slack`,
+      ),
+    );
+  }
+
+  connectSlack(
+    workspaceId: string,
+    body: ConnectSlackInput,
+  ): Promise<SlackConnectionView> {
+    return firstValueFrom(
+      this.http.put<SlackConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/slack`,
+        body,
+      ),
+    );
+  }
+
+  disconnectSlack(workspaceId: string): Promise<SlackConnectionView> {
+    return firstValueFrom(
+      this.http.delete<SlackConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/slack`,
+      ),
     );
   }
 }
