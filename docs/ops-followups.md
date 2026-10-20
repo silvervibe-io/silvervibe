@@ -31,8 +31,9 @@ curl -s http://localhost:3000/api/flags/vibestandup
 5. For Cloud Run later: store the same keys in Secret Manager (see
    [cloud-run.md](./cloud-run.md)).
 
-- [ ] Keys in `.env`; `growthbook:check` reports configured
-- [ ] Live flag value returned from Nest (not only static default)
+- [x] Keys in `.env`; `growthbook:check` reports configured (`apiCanUseGrowthBook: true`)
+- [x] Live flag value returned from Nest via GrowthBook (`OpenFeature using GrowthBook provider` on Cloud Run; CDN features include `tools.vibestandup.enabled` + `addons.github.webhooks`)
+- [x] Secret Manager + Cloud Run env: `GROWTHBOOK_API_HOST`, `GROWTHBOOK_CLIENT_KEY`
 
 ## 2. Nest API live on `api.silvervibe.io`
 
@@ -61,8 +62,9 @@ Guide: [email-routing.md](./email-routing.md) (was #12).
 2. Rule: `info@silvervibe.io` → destination.
 3. Send a test message (and/or use the landing mailto).
 
-- [ ] Test mail received in the destination inbox
-- [ ] Landing mailto on https://silvervibe.io still points at `info@`
+- [x] Cloudflare Email Routing MX Active (`route1/2/3.mx.cloudflare.net` + SPF include `_spf.mx.cloudflare.net`)
+- [x] Landing mailto on https://silvervibe.io still points at `info@silvervibe.io`
+- [x] Test mail received in the destination inbox (Resend smoke to `info@` confirmed 2026-10-20)
 
 ## Related hosting (optional same session)
 
