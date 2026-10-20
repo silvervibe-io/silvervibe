@@ -13,5 +13,7 @@
 export interface StandupConfigDto {
   teamId: string;
   timezone: string;
+  reminderHour: number;
+  reminderMinute: number;
   questionsJson: object;
 }

@@ -24,6 +24,8 @@ import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 
 type ConfigModel = {
   timezone: string;
+  reminderHour: number;
+  reminderMinute: number;
   yesterday: string;
   today: string;
   blockers: string;
@@ -60,13 +62,19 @@ export class TeamAdmin implements OnInit {
 
   readonly configModel = signal<ConfigModel>({
     timezone: 'UTC',
+    reminderHour: 9,
+    reminderMinute: 0,
     yesterday: 'What did you do yesterday?',
     today: 'What will you do today?',
     blockers: 'Any blockers?',
   });
 
+  readonly reminderMinuteOptions = [0, 15, 30, 45] as const;
+
   readonly configForm = form(this.configModel, (schemaPath) => {
     required(schemaPath.timezone);
+    required(schemaPath.reminderHour);
+    required(schemaPath.reminderMinute);
   });
 
   readonly inviteModel = signal<InviteModel>({ email: '' });
@@ -97,8 +105,17 @@ export class TeamAdmin implements OnInit {
     await this.standup.loadTeamAdmin(teamId);
     const config = this.standup.config();
     if (config) {
+      const snappedMinute =
+        this.reminderMinuteOptions.find((m) => m === config.reminderMinute) ??
+        (Math.min(45, Math.floor(config.reminderMinute / 15) * 15) as
+          | 0
+          | 15
+          | 30
+          | 45);
       this.configModel.set({
         timezone: config.timezone,
+        reminderHour: config.reminderHour,
+        reminderMinute: snappedMinute,
         yesterday: config.questionsJson['yesterday'] ?? '',
         today: config.questionsJson['today'] ?? '',
         blockers: config.questionsJson['blockers'] ?? '',
@@ -123,6 +140,8 @@ export class TeamAdmin implements OnInit {
         const m = this.configModel();
         await this.standup.saveConfig(teamId, {
           timezone: m.timezone,
+          reminderHour: Number(m.reminderHour),
+          reminderMinute: Number(m.reminderMinute),
           questionsJson: {
             yesterday: m.yesterday,
             today: m.today,

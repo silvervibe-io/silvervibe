@@ -8,6 +8,7 @@ import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   calendarDateInTimezone,
+  isInReminderWindow,
   parseCalendarDate,
 } from '../standups/standup-date.util';
 
@@ -16,6 +17,7 @@ export type StandupReminderRunResult = {
   emailed: number;
   skippedNoEmail: number;
   skippedSubmitted: number;
+  skippedOutsideWindow: number;
   mailErrors: number;
 };
 
@@ -28,7 +30,9 @@ export class JobsService {
     private readonly mail: MailService,
   ) {}
 
-  async runStandupReminders(): Promise<StandupReminderRunResult> {
+  async runStandupReminders(
+    now: Date = new Date(),
+  ): Promise<StandupReminderRunResult> {
     if (!this.prisma.isEnabled()) {
       throw new ServiceUnavailableException(
         'DATABASE_URL is not configured; Neon is required for reminder jobs',
@@ -46,6 +50,7 @@ export class JobsService {
         emailed: 0,
         skippedNoEmail: 0,
         skippedSubmitted: 0,
+        skippedOutsideWindow: 0,
         mailErrors: 0,
       };
     }
@@ -65,11 +70,20 @@ export class JobsService {
     let emailed = 0;
     let skippedNoEmail = 0;
     let skippedSubmitted = 0;
+    let skippedOutsideWindow = 0;
     let mailErrors = 0;
 
     for (const team of teams) {
       const tz = team.standupConfig?.timezone?.trim() || 'UTC';
-      const day = calendarDateInTimezone(tz);
+      const reminderHour = team.standupConfig?.reminderHour ?? 9;
+      const reminderMinute = team.standupConfig?.reminderMinute ?? 0;
+
+      if (!isInReminderWindow(tz, reminderHour, reminderMinute, now)) {
+        skippedOutsideWindow += 1;
+        continue;
+      }
+
+      const day = calendarDateInTimezone(tz, now);
       const entryDate = parseCalendarDate(day);
 
       const submitted = await this.prisma.standupEntry.findMany({
@@ -115,6 +129,7 @@ export class JobsService {
       emailed,
       skippedNoEmail,
       skippedSubmitted,
+      skippedOutsideWindow,
       mailErrors,
     };
   }

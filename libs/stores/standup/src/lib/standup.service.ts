@@ -90,6 +90,8 @@ function mapConfig(dto: StandupConfigDto): StandupConfigView {
   return {
     teamId: dto.teamId,
     timezone: dto.timezone,
+    reminderHour: dto.reminderHour,
+    reminderMinute: dto.reminderMinute,
     questionsJson: asQuestions(dto.questionsJson),
   };
 }
@@ -215,6 +217,8 @@ export class StandupService {
         teamId,
         updateStandupConfigDto: {
           timezone: body.timezone,
+          reminderHour: body.reminderHour,
+          reminderMinute: body.reminderMinute,
           questionsJson: body.questionsJson,
         },
       }),

@@ -53,7 +53,10 @@
     "inviteRevoked": "Invite revoked.",
     "linkCopied": "Invite link copied.",
     "inviteEmailHint": "Θα στείλουμε την πρόσκληση με email όταν είναι ρυθμισμένο το Resend. Μπορείτε πάντα να αντιγράψετε τον σύνδεσμο ως εφεδρικό.",
-    "inviteEmailSent": "Το email πρόσκλησης στάλθηκε. Μπορείτε ακόμα να αντιγράψετε τον σύνδεσμο παρακάτω αν χρειαστεί."
+    "inviteEmailSent": "Το email πρόσκλησης στάλθηκε. Μπορείτε ακόμα να αντιγράψετε τον σύνδεσμο παρακάτω αν χρειαστεί.",
+    "reminderHour": "Ώρα υπενθύμισης",
+    "reminderMinute": "Λεπτό υπενθύμισης",
+    "reminderHint": "Τα email στέλνονται τις καθημερινές σε παράθυρο 15 λεπτών σε αυτή την τοπική ώρα."
   },
   "workspace": {
     "title": "Workspace admin",

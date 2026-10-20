@@ -50,7 +50,8 @@ curl -s https://api.silvervibe.io/api/health
 - [x] `GET https://api.silvervibe.io/api/health` succeeds
 - [x] `RESEND_API_KEY` + `PUBLIC_STANDUP_URL` + `EMAIL_FROM` on the service (#81)
 - [x] Redeployed image with invites + reminders (`silvervibe-api-00005-*`, #81 / #82)
-- [x] `CRON_SECRET` on Cloud Run; Cloud Scheduler job `standup-reminders` enabled (weekdays 09:00 Europe/Amsterdam)
+- [x] `CRON_SECRET` on Cloud Run; Cloud Scheduler job `standup-reminders` enabled
+- [x] Scheduler updated to `*/15 * * * 1-5` (UTC) for per-team reminder times (#86)
 
 ## 3. Inbound mail to `info@silvervibe.io`
 

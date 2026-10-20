@@ -31,6 +31,8 @@ export type StandupQuestions = {
 export type StandupConfigView = {
   teamId: string;
   timezone: string;
+  reminderHour: number;
+  reminderMinute: number;
   questionsJson: StandupQuestions;
 };
 
@@ -42,6 +44,8 @@ export type StandupAnswersInput = {
 
 export type StandupConfigInput = {
   timezone: string;
+  reminderHour: number;
+  reminderMinute: number;
   questionsJson: StandupQuestions;
 };
 

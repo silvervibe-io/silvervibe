@@ -12,5 +12,7 @@
 
 export interface UpdateStandupConfigDto {
   timezone: string;
+  reminderHour: number;
+  reminderMinute: number;
   questionsJson: object;
 }

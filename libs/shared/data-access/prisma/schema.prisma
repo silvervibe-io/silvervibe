@@ -176,12 +176,14 @@ model TeamMember {
 }
 
 model StandupConfig {
-  id            String   @id @default(cuid())
-  teamId        String   @unique @map("team_id")
-  timezone      String   @default("UTC")
-  questionsJson Json     @default("{\"yesterday\":\"What did you do yesterday?\",\"today\":\"What will you do today?\",\"blockers\":\"Any blockers?\"}") @map("questions_json")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id             String   @id @default(cuid())
+  teamId         String   @unique @map("team_id")
+  timezone       String   @default("UTC")
+  reminderHour   Int      @default(9) @map("reminder_hour")
+  reminderMinute Int      @default(0) @map("reminder_minute")
+  questionsJson  Json     @default("{\"yesterday\":\"What did you do yesterday?\",\"today\":\"What will you do today?\",\"blockers\":\"Any blockers?\"}") @map("questions_json")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
 

@@ -53,7 +53,10 @@
     "inviteRevoked": "Invite revoked.",
     "linkCopied": "Invite link copied.",
     "todayEntries": "Today’s entries",
-    "rebuildSummary": "Rebuild summary"
+    "rebuildSummary": "Rebuild summary",
+    "reminderHour": "Reminder hour",
+    "reminderMinute": "Reminder minute",
+    "reminderHint": "Emails go out in a 15-minute window at this local time (weekdays)."
   },
   "invite": {
     "title": "Join team",

@@ -98,15 +98,24 @@ After deploy, schedule weekdays (adjust TZ) against the live API:
 gcloud scheduler jobs create http standup-reminders \
   --project="$PROJECT" \
   --location="$REGION" \
-  --schedule="0 9 * * 1-5" \
-  --time-zone="Europe/Amsterdam" \
+  --schedule="*/15 * * * 1-5" \
+  --time-zone="UTC" \
   --uri="https://api.silvervibe.io/api/jobs/standup-reminders" \
   --http-method=POST \
   --headers="X-Cron-Secret=${CRON_SECRET}"
+
+# If the job already exists:
+gcloud scheduler jobs update http standup-reminders \
+  --project="$PROJECT" \
+  --location="$REGION" \
+  --schedule="*/15 * * * 1-5" \
+  --time-zone="UTC"
 ```
 
 `POST /api/jobs/standup-reminders` emails members who have not **submitted** for
-the team’s local calendar day (see `StandupConfig.timezone`).
+the team’s local calendar day when the team-local clock matches
+`StandupConfig.reminderHour` / `reminderMinute` (15-minute window).
+Scheduler TZ can stay UTC; matching uses each team’s own timezone.
 
 ## Checklist
 
