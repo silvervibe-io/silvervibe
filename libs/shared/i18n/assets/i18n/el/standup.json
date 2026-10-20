@@ -69,7 +69,16 @@
     "create": "Create",
     "toolUpdated": "Tool updated.",
     "teamCreated": "Team created.",
-    "planHint": "Προεπισκόπηση πλάνου {{plan}}: έως {{teams}} ομάδες, {{members}} μέλη ανά ομάδα (μόνο UI — το API κρατά πραγματικούς ρόλους)."
+    "planHint": "Προεπισκόπηση πλάνου {{plan}}: έως {{teams}} ομάδες, {{members}} μέλη ανά ομάδα (μόνο UI — το API κρατά πραγματικούς ρόλους).",
+    "slackTitle": "Slack digest",
+    "slackConnect": "Save Slack webhook",
+    "slackDisconnected": "Slack disconnected.",
+    "slackChannel": "Channel label (optional)",
+    "slackDisconnect": "Disconnect Slack",
+    "slackConnected": "Slack webhook saved.",
+    "slackHint": "Paste a Slack Incoming Webhook URL. When a team summary is rebuilt (submit or Rebuild), it posts to that channel if addons.slack is enabled.",
+    "slackWebhook": "Incoming Webhook URL",
+    "slackStatus": "Status"
   },
   "invite": {
     "title": "Join team",

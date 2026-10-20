@@ -69,7 +69,16 @@
     "create": "Create",
     "toolUpdated": "Tool updated.",
     "teamCreated": "Team created.",
-    "planHint": "Vorschau-Tarif {{plan}}: bis {{teams}} Teams, {{members}} Mitglieder pro Team (nur UI — API nutzt echte Rollen)."
+    "planHint": "Vorschau-Tarif {{plan}}: bis {{teams}} Teams, {{members}} Mitglieder pro Team (nur UI — API nutzt echte Rollen).",
+    "slackTitle": "Slack digest",
+    "slackConnect": "Save Slack webhook",
+    "slackDisconnected": "Slack disconnected.",
+    "slackChannel": "Channel label (optional)",
+    "slackDisconnect": "Disconnect Slack",
+    "slackConnected": "Slack webhook saved.",
+    "slackHint": "Paste a Slack Incoming Webhook URL. When a team summary is rebuilt (submit or Rebuild), it posts to that channel if addons.slack is enabled.",
+    "slackWebhook": "Incoming Webhook URL",
+    "slackStatus": "Status"
   },
   "invite": {
     "title": "Join team",
