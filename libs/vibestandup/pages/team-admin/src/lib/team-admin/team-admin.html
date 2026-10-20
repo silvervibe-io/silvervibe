@@ -50,6 +50,37 @@
           [formField]="configForm.timezone"
         />
       </fieldset>
+      <div class="flex flex-wrap gap-3">
+        <fieldset class="fieldset w-28">
+          <legend class="fieldset-legend">
+            {{ 'standup.team.reminderHour' | transloco }}
+          </legend>
+          <select
+            class="select select-bordered w-full"
+            [formField]="configForm.reminderHour"
+          >
+            @for (h of reminderHourOptions; track h) {
+            <option [value]="h">{{ h }}</option>
+            }
+          </select>
+        </fieldset>
+        <fieldset class="fieldset w-28">
+          <legend class="fieldset-legend">
+            {{ 'standup.team.reminderMinute' | transloco }}
+          </legend>
+          <select
+            class="select select-bordered w-full"
+            [formField]="configForm.reminderMinute"
+          >
+            @for (m of reminderMinuteOptions; track m) {
+            <option [value]="m">{{ m }}</option>
+            }
+          </select>
+        </fieldset>
+      </div>
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.team.reminderHint' | transloco }}
+      </p>
       <fieldset class="fieldset w-full">
         <legend class="fieldset-legend">Yesterday</legend>
         <input

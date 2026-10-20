@@ -53,7 +53,10 @@
     "inviteRevoked": "Invite revoked.",
     "linkCopied": "Invite link copied.",
     "inviteEmailHint": "Enviaremos la invitación por correo cuando Resend esté configurado. Siempre puedes copiar el enlace de respaldo.",
-    "inviteEmailSent": "Correo de invitación enviado. Aún puedes copiar el enlace de abajo si lo necesitas."
+    "inviteEmailSent": "Correo de invitación enviado. Aún puedes copiar el enlace de abajo si lo necesitas.",
+    "reminderHour": "Hora del recordatorio",
+    "reminderMinute": "Minuto del recordatorio",
+    "reminderHint": "Los correos salen entre semana en una ventana de 15 minutos a esta hora local."
   },
   "workspace": {
     "title": "Workspace admin",

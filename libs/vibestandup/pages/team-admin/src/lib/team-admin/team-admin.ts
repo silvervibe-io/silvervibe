@@ -24,6 +24,9 @@ import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 
 type ConfigModel = {
   timezone: string;
+  /** Local hour 0–23 as a string so Signal Forms select/input stay compatible. */
+  reminderHour: string;
+  reminderMinute: string;
   yesterday: string;
   today: string;
   blockers: string;
@@ -60,13 +63,22 @@ export class TeamAdmin implements OnInit {
 
   readonly configModel = signal<ConfigModel>({
     timezone: 'UTC',
+    reminderHour: '9',
+    reminderMinute: '0',
     yesterday: 'What did you do yesterday?',
     today: 'What will you do today?',
     blockers: 'Any blockers?',
   });
 
+  readonly reminderHourOptions = Array.from({ length: 24 }, (_, h) =>
+    String(h),
+  );
+  readonly reminderMinuteOptions = ['0', '15', '30', '45'] as const;
+
   readonly configForm = form(this.configModel, (schemaPath) => {
     required(schemaPath.timezone);
+    required(schemaPath.reminderHour);
+    required(schemaPath.reminderMinute);
   });
 
   readonly inviteModel = signal<InviteModel>({ email: '' });
@@ -97,8 +109,17 @@ export class TeamAdmin implements OnInit {
     await this.standup.loadTeamAdmin(teamId);
     const config = this.standup.config();
     if (config) {
+      const snappedMinute = String(
+        this.reminderMinuteOptions.find(
+          (m) => Number(m) === config.reminderMinute,
+        ) ?? Math.min(45, Math.floor(config.reminderMinute / 15) * 15),
+      );
       this.configModel.set({
         timezone: config.timezone,
+        reminderHour: String(
+          Math.min(23, Math.max(0, Math.trunc(config.reminderHour))),
+        ),
+        reminderMinute: snappedMinute,
         yesterday: config.questionsJson['yesterday'] ?? '',
         today: config.questionsJson['today'] ?? '',
         blockers: config.questionsJson['blockers'] ?? '',
@@ -123,6 +144,14 @@ export class TeamAdmin implements OnInit {
         const m = this.configModel();
         await this.standup.saveConfig(teamId, {
           timezone: m.timezone,
+          reminderHour: Math.min(
+            23,
+            Math.max(0, Math.trunc(Number(m.reminderHour)) || 0),
+          ),
+          reminderMinute: Math.min(
+            45,
+            Math.max(0, Math.trunc(Number(m.reminderMinute)) || 0),
+          ),
           questionsJson: {
             yesterday: m.yesterday,
             today: m.today,

@@ -58,6 +58,8 @@ export class StandupsController {
       teamId,
       user,
       body.timezone,
+      body.reminderHour,
+      body.reminderMinute,
       body.questionsJson,
     );
   }

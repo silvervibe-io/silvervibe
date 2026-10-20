@@ -1,9 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsIn,
+  IsInt,
   IsObject,
   IsString,
+  Max,
   MaxLength,
+  Min,
   MinLength,
 } from 'class-validator';
 
@@ -13,6 +16,12 @@ export class StandupConfigDto {
 
   @ApiProperty()
   timezone!: string;
+
+  @ApiProperty({ minimum: 0, maximum: 23 })
+  reminderHour!: number;
+
+  @ApiProperty({ minimum: 0, maximum: 59 })
+  reminderMinute!: number;
 
   @ApiProperty()
   questionsJson!: Record<string, string>;
@@ -24,6 +33,18 @@ export class UpdateStandupConfigDto {
   @MinLength(1)
   @MaxLength(64)
   timezone!: string;
+
+  @ApiProperty({ minimum: 0, maximum: 23 })
+  @IsInt()
+  @Min(0)
+  @Max(23)
+  reminderHour!: number;
+
+  @ApiProperty({ minimum: 0, maximum: 59 })
+  @IsInt()
+  @Min(0)
+  @Max(59)
+  reminderMinute!: number;
 
   @ApiProperty()
   @IsObject()

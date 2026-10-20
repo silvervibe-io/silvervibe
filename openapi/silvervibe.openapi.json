@@ -1564,6 +1564,16 @@
           "timezone": {
             "type": "string"
           },
+          "reminderHour": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 23
+          },
+          "reminderMinute": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 59
+          },
           "questionsJson": {
             "type": "object"
           }
@@ -1571,6 +1581,8 @@
         "required": [
           "teamId",
           "timezone",
+          "reminderHour",
+          "reminderMinute",
           "questionsJson"
         ]
       },
@@ -1580,12 +1592,24 @@
           "timezone": {
             "type": "string"
           },
+          "reminderHour": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 23
+          },
+          "reminderMinute": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 59
+          },
           "questionsJson": {
             "type": "object"
           }
         },
         "required": [
           "timezone",
+          "reminderHour",
+          "reminderMinute",
           "questionsJson"
         ]
       },

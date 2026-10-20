@@ -89,6 +89,8 @@ export class StandupsService {
     return {
       teamId,
       timezone: config.timezone,
+      reminderHour: config.reminderHour,
+      reminderMinute: config.reminderMinute,
       questionsJson: config.questionsJson as Record<string, string>,
     };
   }
@@ -97,6 +99,8 @@ export class StandupsService {
     teamId: string,
     user: VerifiedUser,
     timezone: string,
+    reminderHour: number,
+    reminderMinute: number,
     questionsJson: Record<string, string>,
   ): Promise<StandupConfigDto> {
     this.ensureDb();
@@ -105,13 +109,21 @@ export class StandupsService {
 
     const config = await this.prisma.standupConfig.upsert({
       where: { teamId },
-      create: { teamId, timezone, questionsJson },
-      update: { timezone, questionsJson },
+      create: {
+        teamId,
+        timezone,
+        reminderHour,
+        reminderMinute,
+        questionsJson,
+      },
+      update: { timezone, reminderHour, reminderMinute, questionsJson },
     });
 
     return {
       teamId,
       timezone: config.timezone,
+      reminderHour: config.reminderHour,
+      reminderMinute: config.reminderMinute,
       questionsJson: config.questionsJson as Record<string, string>,
     };
   }

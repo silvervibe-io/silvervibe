@@ -53,7 +53,10 @@
     "inviteRevoked": "Invite revoked.",
     "linkCopied": "Invite link copied.",
     "inviteEmailHint": "We sturen de uitnodiging per e-mail als Resend is geconfigureerd. Je kunt de link altijd als backup kopiëren.",
-    "inviteEmailSent": "Uitnodigingsmail verstuurd. Je kunt de link hieronder nog kopiëren indien nodig."
+    "inviteEmailSent": "Uitnodigingsmail verstuurd. Je kunt de link hieronder nog kopiëren indien nodig.",
+    "reminderHour": "Herinneringsuur",
+    "reminderMinute": "Herinneringsminuut",
+    "reminderHint": "E-mails gaan op weekdagen in een venster van 15 minuten op dit lokale tijdstip."
   },
   "workspace": {
     "title": "Workspace admin",
