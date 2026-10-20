@@ -88,6 +88,25 @@ export class MailService {
 
     return this.send({ to: params.to, subject, html, text });
   }
+
+  async sendStandupReminder(params: {
+    to: string;
+    teamName: string;
+    entryDate: string;
+    standupUrl: string;
+  }): Promise<SendMailResult> {
+    const subject = `Standup reminder: ${params.teamName} (${params.entryDate})`;
+    const text = [
+      `Please submit your standup for ${params.teamName} (${params.entryDate}).`,
+      '',
+      params.standupUrl,
+    ].join('\n');
+    const html = `
+      <p>Please submit your standup for <strong>${escapeHtml(params.teamName)}</strong> (${escapeHtml(params.entryDate)}).</p>
+      <p><a href="${escapeHtml(params.standupUrl)}">Open VibeStandup</a></p>
+    `.trim();
+    return this.send({ to: params.to, subject, html, text });
+  }
 }
 
 function stripEnvQuotes(value: string): string {

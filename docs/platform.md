@@ -57,6 +57,7 @@ Brand mark / favicon: [brand.md](./brand.md).
 | VibeStandup Pages                 | `vibestandup` app — [vibestandup-pages.md](./vibestandup-pages.md)   |
 | Inbound `info@` email             | Cloudflare Email Routing — [email-routing.md](./email-routing.md)    |
 | Ops follow-ups                    | GrowthBook / API / mail — [ops-followups.md](./ops-followups.md)     |
+| Standup reminders                 | Cron + Resend — [standup-reminders.md](./standup-reminders.md)       |
 
 ## Feature access
 
