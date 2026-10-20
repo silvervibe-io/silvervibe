@@ -1,4 +1,8 @@
-import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 
 import { StandupEntryStatus } from '@prisma/client';
 import { VerifiedUser } from '../auth/firebase-auth.service';
@@ -15,6 +19,8 @@ import { calendarDateInTimezone, parseCalendarDate } from './standup-date.util';
 
 @Injectable()
 export class StandupsService {
+  private readonly logger = new Logger(StandupsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly users: UsersService,
@@ -178,6 +184,17 @@ export class StandupsService {
       },
     });
 
+    if (status === StandupEntryStatus.SUBMITTED) {
+      try {
+        await this.rebuildSummaryForDate(teamId, entryDate);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        this.logger.warn(
+          `Auto-rebuild summary failed for team ${teamId}: ${message}`,
+        );
+      }
+    }
+
     return this.toEntryDto(entry);
   }
 
@@ -231,7 +248,13 @@ export class StandupsService {
     const userId = (await this.users.upsertFromFirebase(user)).id;
     await this.teams.requireTeamAdmin(teamId, userId);
     const entryDate = await this.resolveEntryDate(teamId, dateStr);
+    return this.rebuildSummaryForDate(teamId, entryDate);
+  }
 
+  private async rebuildSummaryForDate(
+    teamId: string,
+    entryDate: Date,
+  ): Promise<StandupSummaryDto> {
     const entries = await this.prisma.standupEntry.findMany({
       where: {
         teamId,
