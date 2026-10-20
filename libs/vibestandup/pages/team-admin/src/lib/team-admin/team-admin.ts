@@ -24,8 +24,9 @@ import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 
 type ConfigModel = {
   timezone: string;
-  reminderHour: number;
-  reminderMinute: number;
+  /** Local hour 0–23 as a string so Signal Forms select/input stay compatible. */
+  reminderHour: string;
+  reminderMinute: string;
   yesterday: string;
   today: string;
   blockers: string;
@@ -62,14 +63,17 @@ export class TeamAdmin implements OnInit {
 
   readonly configModel = signal<ConfigModel>({
     timezone: 'UTC',
-    reminderHour: 9,
-    reminderMinute: 0,
+    reminderHour: '9',
+    reminderMinute: '0',
     yesterday: 'What did you do yesterday?',
     today: 'What will you do today?',
     blockers: 'Any blockers?',
   });
 
-  readonly reminderMinuteOptions = [0, 15, 30, 45] as const;
+  readonly reminderHourOptions = Array.from({ length: 24 }, (_, h) =>
+    String(h),
+  );
+  readonly reminderMinuteOptions = ['0', '15', '30', '45'] as const;
 
   readonly configForm = form(this.configModel, (schemaPath) => {
     required(schemaPath.timezone);
@@ -105,16 +109,16 @@ export class TeamAdmin implements OnInit {
     await this.standup.loadTeamAdmin(teamId);
     const config = this.standup.config();
     if (config) {
-      const snappedMinute =
-        this.reminderMinuteOptions.find((m) => m === config.reminderMinute) ??
-        (Math.min(45, Math.floor(config.reminderMinute / 15) * 15) as
-          | 0
-          | 15
-          | 30
-          | 45);
+      const snappedMinute = String(
+        this.reminderMinuteOptions.find(
+          (m) => Number(m) === config.reminderMinute,
+        ) ?? Math.min(45, Math.floor(config.reminderMinute / 15) * 15),
+      );
       this.configModel.set({
         timezone: config.timezone,
-        reminderHour: config.reminderHour,
+        reminderHour: String(
+          Math.min(23, Math.max(0, Math.trunc(config.reminderHour))),
+        ),
         reminderMinute: snappedMinute,
         yesterday: config.questionsJson['yesterday'] ?? '',
         today: config.questionsJson['today'] ?? '',
@@ -140,8 +144,14 @@ export class TeamAdmin implements OnInit {
         const m = this.configModel();
         await this.standup.saveConfig(teamId, {
           timezone: m.timezone,
-          reminderHour: Number(m.reminderHour),
-          reminderMinute: Number(m.reminderMinute),
+          reminderHour: Math.min(
+            23,
+            Math.max(0, Math.trunc(Number(m.reminderHour)) || 0),
+          ),
+          reminderMinute: Math.min(
+            45,
+            Math.max(0, Math.trunc(Number(m.reminderMinute)) || 0),
+          ),
           questionsJson: {
             yesterday: m.yesterday,
             today: m.today,
