@@ -6,6 +6,7 @@ import { FeatureFlagsModule } from './feature-flags/feature-flags.module';
 import { GithubModule } from './addons/github/github.module';
 import { JiraModule } from './addons/jira/jira.module';
 import { LinearModule } from './addons/linear/linear.module';
+import { JobsModule } from './jobs/jobs.module';
 import { MailModule } from './mail/mail.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SlackModule } from './addons/slack/slack.module';
@@ -19,6 +20,7 @@ import { WorkspacesModule } from './workspaces/workspaces.module';
   imports: [
     PrismaModule,
     MailModule,
+    JobsModule,
     AuthModule,
     UsersModule,
     WorkspacesModule,

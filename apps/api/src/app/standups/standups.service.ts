@@ -11,6 +11,7 @@ import {
   StandupSummaryDto,
   UpsertStandupEntryDto,
 } from './standup.dto';
+import { calendarDateInTimezone, parseCalendarDate } from './standup-date.util';
 
 @Injectable()
 export class StandupsService {
@@ -28,9 +29,18 @@ export class StandupsService {
     }
   }
 
-  private parseDate(dateStr: string | undefined): Date {
-    const iso = dateStr?.trim() || new Date().toISOString().slice(0, 10);
-    return new Date(`${iso}T00:00:00.000Z`);
+  private async resolveEntryDate(
+    teamId: string,
+    dateStr?: string,
+  ): Promise<Date> {
+    if (dateStr?.trim()) {
+      return parseCalendarDate(dateStr);
+    }
+    const config = await this.prisma.standupConfig.findUnique({
+      where: { teamId },
+    });
+    const tz = config?.timezone?.trim() || 'UTC';
+    return parseCalendarDate(calendarDateInTimezone(tz));
   }
 
   private toEntryDto(entry: {
@@ -108,7 +118,7 @@ export class StandupsService {
     this.ensureDb();
     const userId = (await this.users.upsertFromFirebase(user)).id;
     await this.teams.requireTeamMember(teamId, userId);
-    const entryDate = this.parseDate(dateStr);
+    const entryDate = await this.resolveEntryDate(teamId, dateStr);
 
     let entry = await this.prisma.standupEntry.findUnique({
       where: {
@@ -137,7 +147,7 @@ export class StandupsService {
     this.ensureDb();
     const userId = (await this.users.upsertFromFirebase(user)).id;
     await this.teams.requireTeamMember(teamId, userId);
-    const entryDate = this.parseDate(dateStr);
+    const entryDate = await this.resolveEntryDate(teamId, dateStr);
     const status =
       body.status === 'SUBMITTED'
         ? StandupEntryStatus.SUBMITTED
@@ -179,7 +189,7 @@ export class StandupsService {
     this.ensureDb();
     const userId = (await this.users.upsertFromFirebase(user)).id;
     await this.teams.requireTeamAdmin(teamId, userId);
-    const entryDate = this.parseDate(dateStr);
+    const entryDate = await this.resolveEntryDate(teamId, dateStr);
 
     const entries = await this.prisma.standupEntry.findMany({
       where: { teamId, entryDate },
@@ -196,7 +206,7 @@ export class StandupsService {
     this.ensureDb();
     const userId = (await this.users.upsertFromFirebase(user)).id;
     await this.teams.requireTeamMember(teamId, userId);
-    const entryDate = this.parseDate(dateStr);
+    const entryDate = await this.resolveEntryDate(teamId, dateStr);
 
     const summary = await this.prisma.standupSummary.findUnique({
       where: { teamId_entryDate: { teamId, entryDate } },
@@ -220,7 +230,7 @@ export class StandupsService {
     this.ensureDb();
     const userId = (await this.users.upsertFromFirebase(user)).id;
     await this.teams.requireTeamAdmin(teamId, userId);
-    const entryDate = this.parseDate(dateStr);
+    const entryDate = await this.resolveEntryDate(teamId, dateStr);
 
     const entries = await this.prisma.standupEntry.findMany({
       where: {

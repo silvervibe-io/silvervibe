@@ -87,6 +87,27 @@ Point Pages / local env at the public API:
 PUBLIC_API_URL=https://api.silvervibe.io/api
 ```
 
+## Standup reminder cron
+
+After deploy, schedule weekdays (adjust TZ) against the live API:
+
+```bash
+# Secret Manager + Cloud Run env
+# CRON_SECRET=<random>
+# Then:
+gcloud scheduler jobs create http standup-reminders \
+  --project="$PROJECT" \
+  --location="$REGION" \
+  --schedule="0 9 * * 1-5" \
+  --time-zone="Europe/Amsterdam" \
+  --uri="https://api.silvervibe.io/api/jobs/standup-reminders" \
+  --http-method=POST \
+  --headers="X-Cron-Secret=${CRON_SECRET}"
+```
+
+`POST /api/jobs/standup-reminders` emails members who have not **submitted** for
+the team’s local calendar day (see `StandupConfig.timezone`).
+
 ## Checklist
 
 - [ ] Image builds (`nx run api:docker:build`)
@@ -94,3 +115,5 @@ PUBLIC_API_URL=https://api.silvervibe.io/api
 - [ ] Secrets in Secret Manager; Cloud Run revision healthy
 - [ ] `api.silvervibe.io` CNAME + TLS
 - [ ] `GET https://api.silvervibe.io/api/health` succeeds
+- [ ] `RESEND_API_KEY`, `PUBLIC_STANDUP_URL`, `EMAIL_FROM`, `CRON_SECRET` set
+- [ ] Cloud Scheduler job for standup reminders (optional until reminders ship)
