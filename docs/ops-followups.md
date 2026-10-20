@@ -64,7 +64,7 @@ Guide: [email-routing.md](./email-routing.md) (was #12).
 
 - [x] Cloudflare Email Routing MX Active (`route1/2/3.mx.cloudflare.net` + SPF include `_spf.mx.cloudflare.net`)
 - [x] Landing mailto on https://silvervibe.io still points at `info@silvervibe.io`
-- [ ] Test mail received in the destination inbox (Resend smoke sent to `info@`; confirm in personal inbox / not spam)
+- [x] Test mail received in the destination inbox (Resend smoke to `info@` confirmed 2026-10-20)
 
 ## Related hosting (optional same session)
 

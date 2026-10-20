@@ -66,7 +66,7 @@ No app change is required once routing is active.
 ## Checklist
 
 - [x] Email Routing enabled; MX Active (`route*.mx.cloudflare.net`)
-- [ ] Destination address verified (Cloudflare Email Routing → Destination addresses)
-- [ ] Rule for `info@silvervibe.io` → destination
-- [ ] Test message received
+- [x] Destination address verified (inbound smoke delivered)
+- [x] Rule for `info@silvervibe.io` → destination (inbound smoke delivered)
+- [x] Test message received (Resend smoke 2026-10-20)
 - [x] Landing mailto smoke on production (`mailto:info@silvervibe.io`)
