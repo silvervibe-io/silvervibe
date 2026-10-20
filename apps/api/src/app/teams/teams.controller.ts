@@ -1,6 +1,15 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiForbiddenResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -11,10 +20,13 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
 import { VerifiedUser } from '../auth/firebase-auth.service';
 import {
+  AcceptTeamInviteDto,
   CreateTeamDto,
+  CreateTeamInviteDto,
   InviteTeamMemberDto,
   MyTeamDto,
   TeamDto,
+  TeamInviteDto,
   TeamMemberDto,
 } from './team.dto';
 import { TeamsService } from './teams.service';
@@ -41,6 +53,7 @@ export class TeamsController {
   @ApiOperation({ summary: 'Create a team (workspace admin)' })
   @ApiOkResponse({ type: TeamDto })
   @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
   create(
     @Param('workspaceId') workspaceId: string,
     @CurrentUser() user: VerifiedUser,
@@ -61,9 +74,12 @@ export class TeamsController {
   }
 
   @Post('teams/:teamId/members')
-  @ApiOperation({ summary: 'Invite or update a team member (team admin)' })
+  @ApiOperation({
+    summary: 'Add an existing user to a team by Neon id or Firebase UID',
+  })
   @ApiOkResponse({ type: TeamMemberDto })
   @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
   invite(
     @Param('teamId') teamId: string,
     @CurrentUser() user: VerifiedUser,
@@ -75,5 +91,68 @@ export class TeamsController {
       body.userId,
       (body.role as TeamRole | undefined) ?? TeamRole.MEMBER,
     );
+  }
+
+  @Post('teams/:teamId/invites')
+  @ApiOperation({
+    summary: 'Invite a member by email (pending link or immediate add)',
+    description:
+      'If the email already belongs to a Neon user, adds WorkspaceMember + TeamMember immediately. Otherwise creates a pending invite with a shareable accept path.',
+  })
+  @ApiOkResponse({ type: TeamInviteDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  createInvite(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+    @Body() body: CreateTeamInviteDto,
+  ): Promise<TeamInviteDto> {
+    return this.teams.createInviteByEmail(
+      teamId,
+      user,
+      body.email,
+      (body.role as TeamRole | undefined) ?? TeamRole.MEMBER,
+    );
+  }
+
+  @Get('teams/:teamId/invites')
+  @ApiOperation({ summary: 'List pending team invites (team admin)' })
+  @ApiOkResponse({ type: TeamInviteDto, isArray: true })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  listInvites(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<TeamInviteDto[]> {
+    return this.teams.listInvites(teamId, user);
+  }
+
+  @Delete('teams/:teamId/invites/:inviteId')
+  @ApiOperation({ summary: 'Revoke a pending team invite' })
+  @ApiOkResponse({ type: TeamInviteDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  revokeInvite(
+    @Param('teamId') teamId: string,
+    @Param('inviteId') inviteId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<TeamInviteDto> {
+    return this.teams.revokeInvite(teamId, inviteId, user);
+  }
+
+  @Post('invites/:token/accept')
+  @ApiOperation({
+    summary: 'Accept a pending team invite by token',
+    description:
+      'Caller must be signed in with the same email as the invite. Adds workspace + team membership.',
+  })
+  @ApiOkResponse({ type: AcceptTeamInviteDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  acceptInvite(
+    @Param('token') token: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<AcceptTeamInviteDto> {
+    return this.teams.acceptInvite(token, user);
   }
 }

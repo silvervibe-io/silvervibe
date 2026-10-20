@@ -1,22 +1,16 @@
-import { httpResource } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
   inject,
   input,
+  OnInit,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { API_BASE_URL, AuthService } from '@silvervibe/shared/auth';
+import { AuthService } from '@silvervibe/shared/auth';
 import { Shell } from '@silvervibe/shared/ui';
-
-export type MeResponse = {
-  id: string;
-  firebaseUid: string;
-  email: string | null;
-  displayName: string | null;
-};
+import { UserFacade } from '@silvervibe/stores/user';
 
 @Component({
   selector: 'sv-account',
@@ -27,33 +21,32 @@ export type MeResponse = {
     class: 'block min-h-screen',
   },
 })
-export class Account {
+export class Account implements OnInit {
   private readonly auth = inject(AuthService);
+  private readonly users = inject(UserFacade);
   private readonly router = inject(Router);
-  private readonly apiBaseUrl = inject(API_BASE_URL);
   private readonly transloco = inject(TranslocoService);
 
   readonly productTitle = input('Silver Vibe');
   readonly authPath = input('/auth');
 
   readonly user = this.auth.user;
-
-  readonly profile = httpResource<MeResponse>(() => `${this.apiBaseUrl}/me`);
-
-  readonly me = computed(() => this.profile.value() ?? null);
-  readonly loading = computed(() => this.profile.isLoading());
+  readonly me = this.users.profile;
+  readonly loading = this.users.loading;
   readonly error = computed(() => {
-    const err = this.profile.error();
+    const err = this.users.error();
     if (!err) {
       return null;
     }
-    if (err && typeof err === 'object' && 'message' in err) {
-      return String((err as { message: unknown }).message);
-    }
-    return this.transloco.translate('auth.account.loadFailed');
+    return err || this.transloco.translate('auth.account.loadFailed');
   });
 
+  ngOnInit(): void {
+    void this.users.loadMe();
+  }
+
   async signOut(): Promise<void> {
+    this.users.clear();
     await this.auth.signOut();
     void this.router.navigateByUrl(this.authPath());
   }

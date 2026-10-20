@@ -42,7 +42,21 @@
     "inviteUserId": "User id or Firebase UID",
     "invite": "Invite",
     "todayEntries": "Today’s entries",
-    "rebuildSummary": "Rebuild summary"
+    "rebuildSummary": "Rebuild summary",
+    "inviteEmail": "Email",
+    "pendingInvites": "Εκκρεμείς προσκλήσεις",
+    "copyLink": "Αντιγραφή συνδέσμου",
+    "revoke": "Ανάκληση",
+    "shareLink": "Μοιραστείτε αυτόν τον σύνδεσμο",
+    "invitePending": "Η πρόσκληση δημιουργήθηκε, αλλά το email δεν στάλθηκε (ελέγξτε RESEND_API_KEY). Αντιγράψτε τον σύνδεσμο παρακάτω.",
+    "inviteAccepted": "Member added (they already had an account).",
+    "inviteRevoked": "Invite revoked.",
+    "linkCopied": "Invite link copied.",
+    "inviteEmailHint": "Θα στείλουμε την πρόσκληση με email όταν είναι ρυθμισμένο το Resend. Μπορείτε πάντα να αντιγράψετε τον σύνδεσμο ως εφεδρικό.",
+    "inviteEmailSent": "Το email πρόσκλησης στάλθηκε. Μπορείτε ακόμα να αντιγράψετε τον σύνδεσμο παρακάτω αν χρειαστεί.",
+    "reminderHour": "Ώρα υπενθύμισης",
+    "reminderMinute": "Λεπτό υπενθύμισης",
+    "reminderHint": "Τα email στέλνονται τις καθημερινές σε παράθυρο 15 λεπτών σε αυτή την τοπική ώρα."
   },
   "workspace": {
     "title": "Workspace admin",
@@ -56,5 +70,14 @@
     "toolUpdated": "Tool updated.",
     "teamCreated": "Team created.",
     "planHint": "Προεπισκόπηση πλάνου {{plan}}: έως {{teams}} ομάδες, {{members}} μέλη ανά ομάδα (μόνο UI — το API κρατά πραγματικούς ρόλους)."
+  },
+  "invite": {
+    "title": "Join team",
+    "accepting": "Accepting invite…",
+    "success": "You joined the team.",
+    "goStandup": "Open my standup",
+    "signIn": "Sign in",
+    "missingToken": "Invite link is missing a token.",
+    "acceptFailed": "Could not accept this invite."
   }
 }

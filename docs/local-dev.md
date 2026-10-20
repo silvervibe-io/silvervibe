@@ -81,6 +81,19 @@ Without GrowthBook keys, OpenFeature uses in-memory defaults
 Angular apps proxy `/api` to the Nest server when configured
 (`apps/silvervibe/proxy.conf.json`).
 
+Signed-in users create a workspace (organization) from the portal at
+http://localhost:4200/portal — that calls `POST /api/workspaces` and enables
+`vibestandup` for the new OWNER. Tool grant/revoke still needs workspace
+OWNER/ADMIN; see [entitlements.md](./entitlements.md).
+
+Team admins invite members by **email** from VibeStandup team admin
+(`http://localhost:4201/app/team`). If the email is already a Neon user, they
+are added immediately (workspace + team). Otherwise a pending invite is created
+and Nest sends mail via **Resend** when `RESEND_API_KEY` is set (see
+`.env.example`). The accept link (`/invite/<token>`) is always shown so you can
+copy it if mail is off or fails. Free-plan seat limits
+(`maxTeams` / `maxMembersPerTeam`) are enforced in the API.
+
 ## Other apps
 
 ```bash
@@ -90,22 +103,24 @@ npm start ai            # http://localhost:8000/health (Python / uv)
 
 ## Common scripts
 
-| Script                                                      | Purpose                                           |
-| ----------------------------------------------------------- | ------------------------------------------------- |
-| `npm ci`                                                    | Clean install + Prisma generate                   |
-| `npm run prisma:generate`                                   | Regenerate client                                 |
-| `npm run prisma:migrate`                                    | Create/apply migrations locally (needs Neon URLs) |
-| `npm run prisma:migrate:deploy`                             | Apply committed migrations (CI / shared DB)       |
-| `npm run prisma:ping`                                       | Connect + verify core tables                      |
-| `npm run prisma:studio`                                     | Prisma Studio                                     |
-| `npm run firebase:check`                                    | Report which Firebase env vars are set            |
-| `npm run format` / `npm run format:check`                   | Prettier write / check                            |
-| `npm run lint`                                              | ESLint (all projects)                             |
-| `npm test` / `npm run test:silvervibe` / `npm run test:api` | Unit tests                                        |
-| `npm run e2e:silvervibe`                                    | Playwright (starts silvervibe serve)              |
-| `npm run build:silvervibe`                                  | Production build                                  |
-| `npm run openapi`                                           | Write `openapi/silvervibe.openapi.json`           |
-| `npx nx graph`                                              | Dependency graph                                  |
+| Script                                                      | Purpose                                                      |
+| ----------------------------------------------------------- | ------------------------------------------------------------ |
+| `npm ci`                                                    | Clean install + Prisma generate                              |
+| `npm run prisma:generate`                                   | Regenerate client                                            |
+| `npm run prisma:migrate`                                    | Create/apply migrations locally (needs Neon URLs)            |
+| `npm run prisma:migrate:deploy`                             | Apply committed migrations (CI / shared DB)                  |
+| `npm run prisma:ping`                                       | Connect + verify core tables                                 |
+| `npm run prisma:studio`                                     | Prisma Studio                                                |
+| `npm run firebase:check`                                    | Report which Firebase env vars are set                       |
+| `npm run format` / `npm run format:check`                   | Prettier write / check                                       |
+| `npm run lint`                                              | ESLint (all projects)                                        |
+| `npm test` / `npm run test:silvervibe` / `npm run test:api` | Unit tests                                                   |
+| `npm run e2e:silvervibe`                                    | Playwright (starts silvervibe serve)                         |
+| `npm run build:silvervibe`                                  | Production build                                             |
+| `npm run openapi`                                           | Write `openapi/silvervibe.openapi.json`                      |
+| `npm run api-client`                                        | Generate `@silvervibe/shared/api-client` (`api/` + `model/`) |
+| `npm run openapi:client`                                    | `openapi` then `api-client` (needs Java 11+)                 |
+| `npx nx graph`                                              | Dependency graph                                             |
 
 CI mirrors these checks on PRs to `develop` — see [ci.md](./ci.md).
 

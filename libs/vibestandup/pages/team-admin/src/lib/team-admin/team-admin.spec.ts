@@ -1,11 +1,20 @@
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
+import { provideSilvervibeApiClient } from '@silvervibe/shared/api-client';
 import { API_BASE_URL } from '@silvervibe/shared/auth';
-import { StandupStore } from '@silvervibe/stores/standup';
-import { WorkspaceStore } from '@silvervibe/stores/workspace';
+import {
+  PREVIEW_SWITCHER_EMAILS,
+  PREVIEW_SWITCHER_USER_EMAIL,
+} from '@silvervibe/stores/preview';
+import { StandupFacade } from '@silvervibe/stores/standup';
+import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 import { of } from 'rxjs';
 import { TeamAdmin } from './team-admin';
 
@@ -20,8 +29,14 @@ describe('TeamAdmin', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: API_BASE_URL, useValue: '/api' },
-        WorkspaceStore,
-        StandupStore,
+        provideSilvervibeApiClient(),
+        { provide: PREVIEW_SWITCHER_EMAILS, useValue: [] },
+        {
+          provide: PREVIEW_SWITCHER_USER_EMAIL,
+          useValue: signal<string | null>(null),
+        },
+        WorkspaceFacade,
+        StandupFacade,
         ...provideTransloco({
           config: {
             availableLangs: ['en'],
@@ -47,13 +62,36 @@ describe('TeamAdmin', () => {
                     noTeams: 'No teams',
                     config: 'Config',
                     timezone: 'Timezone',
+                    reminderHour: 'Reminder hour',
+                    reminderMinute: 'Reminder minute',
+                    reminderHint: '15-minute window',
                     saveConfig: 'Save',
                     saved: 'Saved',
                     members: 'Members',
                     inviteUserId: 'User id',
+                    inviteEmail: 'Email',
                     invite: 'Invite',
+                    inviteEmailHint: 'Email when configured',
+                    pendingInvites: 'Pending',
+                    copyLink: 'Copy',
+                    revoke: 'Revoke',
+                    shareLink: 'Share',
+                    invitePending: 'Pending',
+                    inviteEmailSent: 'Email sent',
+                    inviteAccepted: 'Accepted',
+                    inviteRevoked: 'Revoked',
+                    linkCopied: 'Copied',
                     todayEntries: 'Today',
                     rebuildSummary: 'Rebuild',
+                  },
+                  invite: {
+                    title: 'Join',
+                    accepting: '…',
+                    success: 'ok',
+                    goStandup: 'go',
+                    signIn: 'in',
+                    missingToken: 'missing',
+                    acceptFailed: 'fail',
                   },
                 },
                 shell: {
@@ -67,6 +105,10 @@ describe('TeamAdmin', () => {
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(TeamAdmin);
+    fixture.detectChanges();
+    TestBed.inject(HttpTestingController)
+      .expectOne('/api/me/workspaces')
+      .flush([]);
     await fixture.whenStable();
     fixture.detectChanges();
   });

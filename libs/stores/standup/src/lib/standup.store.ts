@@ -1,87 +1,25 @@
-import { HttpClient } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
-import { firstValueFrom } from 'rxjs';
-import { API_BASE_URL } from '@silvervibe/shared/auth';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
-
-export type TeamView = {
-  id: string;
-  name: string;
-  slug: string;
-  role: 'ADMIN' | 'MEMBER';
-};
-
-export type StandupEntryView = {
-  id: string;
-  teamId: string;
-  entryDate: string;
-  status: 'DRAFT' | 'SUBMITTED';
-  yesterday: string | null;
-  today: string | null;
-  blockers: string | null;
-};
-
-export type StandupSummaryView = {
-  id: string;
-  teamId: string;
-  entryDate: string;
-  content: string;
-};
-
-export type StandupConfigView = {
-  teamId: string;
-  timezone: string;
-  questionsJson: {
-    yesterday?: string;
-    today?: string;
-    blockers?: string;
-  };
-};
-
-type StandupState = {
-  teams: TeamView[];
-  selectedTeamId: string | null;
-  entry: StandupEntryView | null;
-  summary: StandupSummaryView | null;
-  config: StandupConfigView | null;
-  teamEntries: StandupEntryView[];
-  loading: boolean;
-  error: string | null;
-};
-
-const initialState: StandupState = {
-  teams: [],
-  selectedTeamId: null,
-  entry: null,
-  summary: null,
-  config: null,
-  teamEntries: [],
-  loading: false,
-  error: null,
-};
-
-function todayIsoDate(): string {
-  return new Date().toISOString().slice(0, 10);
-}
+import {
+  STANDUP_INITIAL_STATE,
+  type StandupAnswersInput,
+  type StandupConfigInput,
+} from './standup.models';
+import { StandupService } from './standup.service';
 
 export const StandupStore = signalStore(
   { providedIn: 'root' },
-  withState(initialState),
+  withState(STANDUP_INITIAL_STATE),
   withMethods((store) => {
-    const http = inject(HttpClient);
-    const apiBase = inject(API_BASE_URL);
+    const api = inject(StandupService);
     const preview = inject(PreviewContextStore);
 
     return {
       async loadMyTeams(workspaceId: string): Promise<void> {
         patchState(store, { loading: true, error: null });
         try {
-          const teams = await firstValueFrom(
-            http.get<TeamView[]>(
-              `${apiBase}/workspaces/${workspaceId}/teams/mine`,
-            ),
-          );
+          const teams = await api.listMyTeams(workspaceId);
           const selectedTeamId = store.selectedTeamId() ?? teams[0]?.id ?? null;
           patchState(store, { teams, selectedTeamId, loading: false });
         } catch (err: unknown) {
@@ -107,24 +45,11 @@ export const StandupStore = signalStore(
 
       async loadToday(teamId: string): Promise<void> {
         patchState(store, { loading: true, error: null });
-        const date = todayIsoDate();
         try {
           const [entry, summary, config] = await Promise.all([
-            firstValueFrom(
-              http.get<StandupEntryView>(
-                `${apiBase}/teams/${teamId}/standups/me?date=${date}`,
-              ),
-            ),
-            firstValueFrom(
-              http.get<StandupSummaryView | null>(
-                `${apiBase}/teams/${teamId}/standups/summary?date=${date}`,
-              ),
-            ),
-            firstValueFrom(
-              http.get<StandupConfigView>(
-                `${apiBase}/teams/${teamId}/standup-config`,
-              ),
-            ),
+            api.getTodayEntry(teamId),
+            api.getTodaySummary(teamId),
+            api.getConfig(teamId),
           ]);
           patchState(store, {
             entry,
@@ -143,52 +68,24 @@ export const StandupStore = signalStore(
 
       async saveDraft(
         teamId: string,
-        body: { yesterday: string; today: string; blockers: string },
+        body: StandupAnswersInput,
       ): Promise<void> {
-        const date = todayIsoDate();
-        const entry = await firstValueFrom(
-          http.put<StandupEntryView>(
-            `${apiBase}/teams/${teamId}/standups/me?date=${date}`,
-            { ...body, status: 'DRAFT' },
-          ),
-        );
+        const entry = await api.upsertMine(teamId, body, 'DRAFT');
         patchState(store, { entry });
       },
 
-      async submit(
-        teamId: string,
-        body: { yesterday: string; today: string; blockers: string },
-      ): Promise<void> {
-        const date = todayIsoDate();
-        const entry = await firstValueFrom(
-          http.put<StandupEntryView>(
-            `${apiBase}/teams/${teamId}/standups/me?date=${date}`,
-            { ...body, status: 'SUBMITTED' },
-          ),
-        );
+      async submit(teamId: string, body: StandupAnswersInput): Promise<void> {
+        const entry = await api.upsertMine(teamId, body, 'SUBMITTED');
         patchState(store, { entry });
       },
 
       async loadTeamAdmin(teamId: string): Promise<void> {
         patchState(store, { loading: true, error: null });
-        const date = todayIsoDate();
         try {
           const [config, teamEntries, summary] = await Promise.all([
-            firstValueFrom(
-              http.get<StandupConfigView>(
-                `${apiBase}/teams/${teamId}/standup-config`,
-              ),
-            ),
-            firstValueFrom(
-              http.get<StandupEntryView[]>(
-                `${apiBase}/teams/${teamId}/standups?date=${date}`,
-              ),
-            ),
-            firstValueFrom(
-              http.get<StandupSummaryView | null>(
-                `${apiBase}/teams/${teamId}/standups/summary?date=${date}`,
-              ),
-            ),
+            api.getConfig(teamId),
+            api.listTodayEntries(teamId),
+            api.getTodaySummary(teamId),
           ]);
           patchState(store, {
             config,
@@ -207,28 +104,14 @@ export const StandupStore = signalStore(
 
       async saveConfig(
         teamId: string,
-        body: {
-          timezone: string;
-          questionsJson: StandupConfigView['questionsJson'];
-        },
+        body: StandupConfigInput,
       ): Promise<void> {
-        const config = await firstValueFrom(
-          http.put<StandupConfigView>(
-            `${apiBase}/teams/${teamId}/standup-config`,
-            body,
-          ),
-        );
+        const config = await api.updateConfig(teamId, body);
         patchState(store, { config });
       },
 
       async refreshSummary(teamId: string): Promise<void> {
-        const date = todayIsoDate();
-        const summary = await firstValueFrom(
-          http.post<StandupSummaryView>(
-            `${apiBase}/teams/${teamId}/standups/summary?date=${date}`,
-            {},
-          ),
-        );
+        const summary = await api.rebuildSummary(teamId);
         patchState(store, { summary });
       },
     };

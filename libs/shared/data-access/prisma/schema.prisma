@@ -20,6 +20,12 @@ enum TeamRole {
   MEMBER
 }
 
+enum TeamInviteStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+}
+
 enum StandupEntryStatus {
   DRAFT
   SUBMITTED
@@ -51,6 +57,7 @@ model User {
   memberships     WorkspaceMember[]
   teamMemberships TeamMember[]
   standupEntries  StandupEntry[]
+  invitesSent     TeamInvite[]      @relation("TeamInvitesSent")
 
   @@map("users")
 }
@@ -123,14 +130,35 @@ model Team {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  workspace     Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspace     Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   members       TeamMember[]
+  invites       TeamInvite[]
   standupConfig StandupConfig?
   entries       StandupEntry[]
   summaries     StandupSummary[]
 
   @@unique([workspaceId, slug])
   @@map("teams")
+}
+
+model TeamInvite {
+  id          String           @id @default(cuid())
+  teamId      String           @map("team_id")
+  email       String
+  role        TeamRole         @default(MEMBER)
+  token       String           @unique
+  status      TeamInviteStatus @default(PENDING)
+  expiresAt   DateTime         @map("expires_at")
+  invitedById String           @map("invited_by_id")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  team      Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  invitedBy User @relation("TeamInvitesSent", fields: [invitedById], references: [id], onDelete: Cascade)
+
+  @@index([teamId, status])
+  @@index([email, status])
+  @@map("team_invites")
 }
 
 model TeamMember {
@@ -148,12 +176,14 @@ model TeamMember {
 }
 
 model StandupConfig {
-  id            String   @id @default(cuid())
-  teamId        String   @unique @map("team_id")
-  timezone      String   @default("UTC")
-  questionsJson Json     @default("{\"yesterday\":\"What did you do yesterday?\",\"today\":\"What will you do today?\",\"blockers\":\"Any blockers?\"}") @map("questions_json")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id             String   @id @default(cuid())
+  teamId         String   @unique @map("team_id")
+  timezone       String   @default("UTC")
+  reminderHour   Int      @default(9) @map("reminder_hour")
+  reminderMinute Int      @default(0) @map("reminder_minute")
+  questionsJson  Json     @default("{\"yesterday\":\"What did you do yesterday?\",\"today\":\"What will you do today?\",\"blockers\":\"Any blockers?\"}") @map("questions_json")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
 

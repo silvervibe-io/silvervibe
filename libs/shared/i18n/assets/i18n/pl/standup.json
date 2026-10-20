@@ -42,7 +42,21 @@
     "inviteUserId": "User id or Firebase UID",
     "invite": "Invite",
     "todayEntries": "Today’s entries",
-    "rebuildSummary": "Rebuild summary"
+    "rebuildSummary": "Rebuild summary",
+    "inviteEmail": "E-mail",
+    "pendingInvites": "Oczekujące zaproszenia",
+    "copyLink": "Kopiuj link",
+    "revoke": "Anuluj",
+    "shareLink": "Udostępnij ten link",
+    "invitePending": "Zaproszenie utworzone, ale e-mail nie został wysłany (sprawdź RESEND_API_KEY). Skopiuj link poniżej.",
+    "inviteAccepted": "Member added (they already had an account).",
+    "inviteRevoked": "Invite revoked.",
+    "linkCopied": "Invite link copied.",
+    "inviteEmailHint": "Wyślemy zaproszenie e-mailem, gdy Resend jest skonfigurowany. Link zawsze możesz skopiować jako zapas.",
+    "inviteEmailSent": "E-mail z zaproszeniem wysłany. W razie potrzeby nadal możesz skopiować link poniżej.",
+    "reminderHour": "Godzina przypomnienia",
+    "reminderMinute": "Minuta przypomnienia",
+    "reminderHint": "E-maile wychodzą w dni robocze w 15-minutowym oknie o tej lokalnej godzinie."
   },
   "workspace": {
     "title": "Workspace admin",
@@ -56,5 +70,14 @@
     "toolUpdated": "Tool updated.",
     "teamCreated": "Team created.",
     "planHint": "Podglad planu {{plan}}: do {{teams}} zespolow, {{members}} czlonkow na zespol (tylko UI — API nadal uzywa prawdziwych rol)."
+  },
+  "invite": {
+    "title": "Join team",
+    "accepting": "Accepting invite…",
+    "success": "You joined the team.",
+    "goStandup": "Open my standup",
+    "signIn": "Sign in",
+    "missingToken": "Invite link is missing a token.",
+    "acceptFailed": "Could not accept this invite."
   }
 }

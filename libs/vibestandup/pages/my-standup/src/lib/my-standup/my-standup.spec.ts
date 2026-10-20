@@ -1,16 +1,20 @@
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
+import { provideSilvervibeApiClient } from '@silvervibe/shared/api-client';
 import { API_BASE_URL } from '@silvervibe/shared/auth';
 import {
   PREVIEW_SWITCHER_EMAILS,
   PREVIEW_SWITCHER_USER_EMAIL,
 } from '@silvervibe/stores/preview';
-import { StandupStore } from '@silvervibe/stores/standup';
-import { WorkspaceStore } from '@silvervibe/stores/workspace';
+import { StandupFacade } from '@silvervibe/stores/standup';
+import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 import { of } from 'rxjs';
 import { MyStandup } from './my-standup';
 
@@ -25,13 +29,14 @@ describe('MyStandup', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: API_BASE_URL, useValue: '/api' },
+        provideSilvervibeApiClient(),
         { provide: PREVIEW_SWITCHER_EMAILS, useValue: [] },
         {
           provide: PREVIEW_SWITCHER_USER_EMAIL,
           useValue: signal<string | null>(null),
         },
-        WorkspaceStore,
-        StandupStore,
+        WorkspaceFacade,
+        StandupFacade,
         ...provideTransloco({
           config: {
             availableLangs: ['en'],
@@ -75,6 +80,10 @@ describe('MyStandup', () => {
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(MyStandup);
+    fixture.detectChanges();
+    TestBed.inject(HttpTestingController)
+      .expectOne('/api/me/workspaces')
+      .flush([]);
     await fixture.whenStable();
     fixture.detectChanges();
   });

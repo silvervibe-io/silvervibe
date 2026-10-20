@@ -22,10 +22,12 @@
     } @else if (teams().length === 0) {
     <p>{{ 'standup.team.noTeams' | transloco }}</p>
     } @else {
-    <label class="form-control w-full max-w-xs">
-      <span class="label-text">{{ 'standup.my.team' | transloco }}</span>
+    <fieldset class="fieldset w-full max-w-xs">
+      <legend class="fieldset-legend">
+        {{ 'standup.my.team' | transloco }}
+      </legend>
       <select
-        class="select select-bordered"
+        class="select select-bordered w-full"
         [value]="selectedTeamId() ?? ''"
         (change)="onTeamChange($any($event.target).value)"
       >
@@ -33,42 +35,79 @@
         <option [value]="team.id">{{ team.name }} ({{ team.role }})</option>
         }
       </select>
-    </label>
+    </fieldset>
 
-    <form class="max-w-xl space-y-3" (submit)="saveConfig($event)">
+    <form class="flex max-w-xl flex-col gap-3" (submit)="saveConfig($event)">
       <h2 class="text-xl font-semibold">
         {{ 'standup.team.config' | transloco }}
       </h2>
-      <label class="form-control">
-        <span class="label-text"
-          >{{ 'standup.team.timezone' | transloco }}</span
-        >
-        <input class="input input-bordered" [formField]="configForm.timezone" />
-      </label>
-      <label class="form-control">
-        <span class="label-text">Yesterday</span>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.team.timezone' | transloco }}
+        </legend>
         <input
-          class="input input-bordered"
+          class="input input-bordered w-full"
+          [formField]="configForm.timezone"
+        />
+      </fieldset>
+      <div class="flex flex-wrap gap-3">
+        <fieldset class="fieldset w-28">
+          <legend class="fieldset-legend">
+            {{ 'standup.team.reminderHour' | transloco }}
+          </legend>
+          <select
+            class="select select-bordered w-full"
+            [formField]="configForm.reminderHour"
+          >
+            @for (h of reminderHourOptions; track h) {
+            <option [value]="h">{{ h }}</option>
+            }
+          </select>
+        </fieldset>
+        <fieldset class="fieldset w-28">
+          <legend class="fieldset-legend">
+            {{ 'standup.team.reminderMinute' | transloco }}
+          </legend>
+          <select
+            class="select select-bordered w-full"
+            [formField]="configForm.reminderMinute"
+          >
+            @for (m of reminderMinuteOptions; track m) {
+            <option [value]="m">{{ m }}</option>
+            }
+          </select>
+        </fieldset>
+      </div>
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.team.reminderHint' | transloco }}
+      </p>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">Yesterday</legend>
+        <input
+          class="input input-bordered w-full"
           [formField]="configForm.yesterday"
         />
-      </label>
-      <label class="form-control">
-        <span class="label-text">Today</span>
-        <input class="input input-bordered" [formField]="configForm.today" />
-      </label>
-      <label class="form-control">
-        <span class="label-text">Blockers</span>
-        <input class="input input-bordered" [formField]="configForm.blockers" />
-      </label>
-      <button type="submit" class="btn btn-primary btn-sm">
+      </fieldset>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">Today</legend>
+        <input
+          class="input input-bordered w-full"
+          [formField]="configForm.today"
+        />
+      </fieldset>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">Blockers</legend>
+        <input
+          class="input input-bordered w-full"
+          [formField]="configForm.blockers"
+        />
+      </fieldset>
+      <button type="submit" class="btn btn-primary btn-sm self-start">
         {{ 'standup.team.saveConfig' | transloco }}
       </button>
-      @if (message()) {
-      <p class="text-success text-sm">{{ message()! | transloco }}</p>
-      }
     </form>
 
-    <form class="max-w-xl space-y-3" (submit)="invite($event)">
+    <section class="flex max-w-xl flex-col gap-3">
       <h2 class="text-xl font-semibold">
         {{ 'standup.team.members' | transloco }}
       </h2>
@@ -77,16 +116,75 @@
         <li>{{ m.displayName || m.email || m.userId }} — {{ m.role }}</li>
         }
       </ul>
-      <label class="form-control">
-        <span class="label-text"
-          >{{ 'standup.team.inviteUserId' | transloco }}</span
+
+      <form class="flex flex-col gap-3" (submit)="invite($event)">
+        <fieldset class="fieldset w-full">
+          <legend class="fieldset-legend">
+            {{ 'standup.team.inviteEmail' | transloco }}
+          </legend>
+          <input
+            class="input input-bordered w-full"
+            type="email"
+            autocomplete="email"
+            [formField]="inviteForm.email"
+          />
+          <p class="label text-base-content/70">
+            {{ 'standup.team.inviteEmailHint' | transloco }}
+          </p>
+        </fieldset>
+        <button type="submit" class="btn btn-secondary btn-sm self-start">
+          {{ 'standup.team.invite' | transloco }}
+        </button>
+      </form>
+
+      @if (pendingInvites().length > 0) {
+      <div class="space-y-2">
+        <h3 class="text-lg font-medium">
+          {{ 'standup.team.pendingInvites' | transloco }}
+        </h3>
+        <ul class="space-y-2 text-sm">
+          @for (inv of pendingInvites(); track inv.id) {
+          <li
+            class="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-base-200 px-3 py-2"
+          >
+            <span>{{ inv.email }}</span>
+            <span class="flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs"
+                (click)="copyInviteLink(inv.acceptPath)"
+              >
+                {{ 'standup.team.copyLink' | transloco }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs text-error"
+                (click)="revokeInvite(inv.id)"
+              >
+                {{ 'standup.team.revoke' | transloco }}
+              </button>
+            </span>
+          </li>
+          }
+        </ul>
+      </div>
+      } @if (lastInviteLink()) {
+      <p class="break-all text-sm text-base-content/70">
+        {{ 'standup.team.shareLink' | transloco }}:
+        <a
+          class="link"
+          [href]="lastInviteLink()!"
+          target="_blank"
+          rel="noopener"
+          >{{ lastInviteLink() }}</a
         >
-        <input class="input input-bordered" [formField]="inviteForm.userId" />
-      </label>
-      <button type="submit" class="btn btn-secondary btn-sm">
-        {{ 'standup.team.invite' | transloco }}
-      </button>
-    </form>
+      </p>
+      } @if (message()) {
+      <p class="text-success text-sm">{{ message()! | transloco }}</p>
+      } @if (inviteError()) {
+      <p class="text-error text-sm">{{ inviteError() }}</p>
+      }
+    </section>
 
     <section class="space-y-3">
       <div class="flex items-center gap-3">

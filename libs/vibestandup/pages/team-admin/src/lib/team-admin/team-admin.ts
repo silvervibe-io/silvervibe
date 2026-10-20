@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -6,24 +5,35 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { form, FormField, required, submit } from '@angular/forms/signals';
+import {
+  email,
+  form,
+  FormField,
+  required,
+  submit,
+} from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { API_BASE_URL } from '@silvervibe/shared/auth';
 import { Shell } from '@silvervibe/shared/ui';
-import { StandupStore } from '@silvervibe/stores/standup';
-import { WorkspaceStore } from '@silvervibe/stores/workspace';
-import { firstValueFrom } from 'rxjs';
+import {
+  StandupFacade,
+  type TeamInviteView,
+  type TeamMemberView,
+} from '@silvervibe/stores/standup';
+import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 
 type ConfigModel = {
   timezone: string;
+  /** Local hour 0–23 as a string so Signal Forms select/input stay compatible. */
+  reminderHour: string;
+  reminderMinute: string;
   yesterday: string;
   today: string;
   blockers: string;
 };
 
 type InviteModel = {
-  userId: string;
+  email: string;
 };
 
 @Component({
@@ -36,10 +46,8 @@ type InviteModel = {
   },
 })
 export class TeamAdmin implements OnInit {
-  private readonly workspaces = inject(WorkspaceStore);
-  private readonly standup = inject(StandupStore);
-  private readonly http = inject(HttpClient);
-  private readonly apiBase = inject(API_BASE_URL);
+  private readonly workspaces = inject(WorkspaceFacade);
+  private readonly standup = inject(StandupFacade);
 
   readonly loading = this.standup.loading;
   readonly error = this.standup.error;
@@ -47,31 +55,36 @@ export class TeamAdmin implements OnInit {
   readonly selectedTeamId = this.standup.selectedTeamId;
   readonly teamEntries = this.standup.teamEntries;
   readonly summary = this.standup.summary;
-  readonly members = signal<
-    {
-      id: string;
-      userId: string;
-      role: string;
-      email?: string | null;
-      displayName?: string | null;
-    }[]
-  >([]);
+  readonly members = signal<TeamMemberView[]>([]);
+  readonly pendingInvites = signal<TeamInviteView[]>([]);
   readonly message = signal<string | null>(null);
+  readonly inviteError = signal<string | null>(null);
+  readonly lastInviteLink = signal<string | null>(null);
 
   readonly configModel = signal<ConfigModel>({
     timezone: 'UTC',
+    reminderHour: '9',
+    reminderMinute: '0',
     yesterday: 'What did you do yesterday?',
     today: 'What will you do today?',
     blockers: 'Any blockers?',
   });
 
+  readonly reminderHourOptions = Array.from({ length: 24 }, (_, h) =>
+    String(h),
+  );
+  readonly reminderMinuteOptions = ['0', '15', '30', '45'] as const;
+
   readonly configForm = form(this.configModel, (schemaPath) => {
     required(schemaPath.timezone);
+    required(schemaPath.reminderHour);
+    required(schemaPath.reminderMinute);
   });
 
-  readonly inviteModel = signal<InviteModel>({ userId: '' });
+  readonly inviteModel = signal<InviteModel>({ email: '' });
   readonly inviteForm = form(this.inviteModel, (schemaPath) => {
-    required(schemaPath.userId);
+    required(schemaPath.email);
+    email(schemaPath.email);
   });
 
   async ngOnInit(): Promise<void> {
@@ -96,25 +109,28 @@ export class TeamAdmin implements OnInit {
     await this.standup.loadTeamAdmin(teamId);
     const config = this.standup.config();
     if (config) {
+      const snappedMinute = String(
+        this.reminderMinuteOptions.find(
+          (m) => Number(m) === config.reminderMinute,
+        ) ?? Math.min(45, Math.floor(config.reminderMinute / 15) * 15),
+      );
       this.configModel.set({
         timezone: config.timezone,
+        reminderHour: String(
+          Math.min(23, Math.max(0, Math.trunc(config.reminderHour))),
+        ),
+        reminderMinute: snappedMinute,
         yesterday: config.questionsJson['yesterday'] ?? '',
         today: config.questionsJson['today'] ?? '',
         blockers: config.questionsJson['blockers'] ?? '',
       });
     }
-    const members = await firstValueFrom(
-      this.http.get<
-        {
-          id: string;
-          userId: string;
-          role: string;
-          email?: string | null;
-          displayName?: string | null;
-        }[]
-      >(`${this.apiBase}/teams/${teamId}/members`),
-    );
+    const [members, invites] = await Promise.all([
+      this.standup.listMembers(teamId),
+      this.standup.listInvites(teamId),
+    ]);
     this.members.set(members);
+    this.pendingInvites.set(invites);
   }
 
   async saveConfig(event: Event): Promise<void> {
@@ -128,6 +144,14 @@ export class TeamAdmin implements OnInit {
         const m = this.configModel();
         await this.standup.saveConfig(teamId, {
           timezone: m.timezone,
+          reminderHour: Math.min(
+            23,
+            Math.max(0, Math.trunc(Number(m.reminderHour)) || 0),
+          ),
+          reminderMinute: Math.min(
+            45,
+            Math.max(0, Math.trunc(Number(m.reminderMinute)) || 0),
+          ),
           questionsJson: {
             yesterday: m.yesterday,
             today: m.today,
@@ -146,19 +170,64 @@ export class TeamAdmin implements OnInit {
     if (!teamId) {
       return;
     }
+    this.inviteError.set(null);
+    this.lastInviteLink.set(null);
     await submit(this.inviteForm, {
       action: async () => {
-        await firstValueFrom(
-          this.http.post(`${this.apiBase}/teams/${teamId}/members`, {
-            userId: this.inviteModel().userId,
-            role: 'MEMBER',
-          }),
-        );
-        this.inviteModel.set({ userId: '' });
-        await this.refreshTeam(teamId);
+        try {
+          const result = await this.standup.inviteByEmail(
+            teamId,
+            this.inviteModel().email.trim(),
+          );
+          this.inviteModel.set({ email: '' });
+          if (result.status === 'ACCEPTED') {
+            this.message.set('standup.team.inviteAccepted');
+            this.inviteError.set(null);
+          } else {
+            this.message.set(
+              result.emailSent
+                ? 'standup.team.inviteEmailSent'
+                : 'standup.team.invitePending',
+            );
+            this.inviteError.set(
+              result.emailSent ? null : (result.emailError ?? null),
+            );
+            this.lastInviteLink.set(
+              `${window.location.origin}${result.acceptPath}`,
+            );
+          }
+          await this.refreshTeam(teamId);
+        } catch (err: unknown) {
+          this.inviteError.set(
+            err instanceof Error ? err.message : 'Invite failed',
+          );
+        }
         return undefined;
       },
     });
+  }
+
+  async copyInviteLink(path: string): Promise<void> {
+    const url = path.startsWith('http')
+      ? path
+      : `${window.location.origin}${path}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      this.message.set('standup.team.linkCopied');
+      this.lastInviteLink.set(url);
+    } catch {
+      this.lastInviteLink.set(url);
+    }
+  }
+
+  async revokeInvite(inviteId: string): Promise<void> {
+    const teamId = this.selectedTeamId();
+    if (!teamId) {
+      return;
+    }
+    await this.standup.revokeInvite(teamId, inviteId);
+    this.message.set('standup.team.inviteRevoked');
+    await this.refreshTeam(teamId);
   }
 
   async rebuildSummary(): Promise<void> {

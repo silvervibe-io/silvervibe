@@ -5,6 +5,7 @@ import {
 } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideSilvervibeApiClient } from '@silvervibe/shared/api-client';
 import { API_BASE_URL } from '@silvervibe/shared/auth';
 import {
   PREVIEW_STORAGE_KEY,
@@ -12,10 +13,10 @@ import {
   PREVIEW_SWITCHER_USER_EMAIL,
   PreviewContextStore,
 } from '@silvervibe/stores/preview';
-import { WorkspaceStore } from './workspace.store';
+import { WorkspaceFacade } from './workspace.facade';
 
-describe('WorkspaceStore', () => {
-  let store: WorkspaceStore;
+describe('WorkspaceFacade', () => {
+  let facade: WorkspaceFacade;
   let http: HttpTestingController;
   let preview: PreviewContextStore;
   const userEmail = signal<string | null>(null);
@@ -28,16 +29,17 @@ describe('WorkspaceStore', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: API_BASE_URL, useValue: '/api' },
+        provideSilvervibeApiClient(),
         {
           provide: PREVIEW_SWITCHER_EMAILS,
           useValue: ['founder@silvervibe.io'],
         },
         { provide: PREVIEW_SWITCHER_USER_EMAIL, useValue: userEmail },
         PreviewContextStore,
-        WorkspaceStore,
+        WorkspaceFacade,
       ],
     });
-    store = TestBed.inject(WorkspaceStore);
+    facade = TestBed.inject(WorkspaceFacade);
     preview = TestBed.inject(PreviewContextStore);
     http = TestBed.inject(HttpTestingController);
   });
@@ -48,7 +50,7 @@ describe('WorkspaceStore', () => {
   });
 
   it('loads memberships and selects the first workspace', async () => {
-    const load = store.loadMyWorkspaces();
+    const load = facade.loadMyWorkspaces();
     const req = http.expectOne('/api/me/workspaces');
     req.flush([
       {
@@ -60,10 +62,10 @@ describe('WorkspaceStore', () => {
       },
     ]);
     await load;
-    expect(store.memberships().length).toBe(1);
-    expect(store.selectedWorkspaceId()).toBe('ws1');
-    expect(store.isWorkspaceAdmin()).toBe(true);
-    expect(store.enabledTools()).toEqual([
+    expect(facade.memberships().length).toBe(1);
+    expect(facade.selectedWorkspaceId()).toBe('ws1');
+    expect(facade.isWorkspaceAdmin()).toBe(true);
+    expect(facade.enabledTools()).toEqual([
       { toolKey: 'vibestandup', enabled: true },
     ]);
   });
@@ -72,7 +74,7 @@ describe('WorkspaceStore', () => {
     userEmail.set('founder@silvervibe.io');
     preview.setWorkspaceRole('MEMBER');
 
-    const load = store.loadMyWorkspaces();
+    const load = facade.loadMyWorkspaces();
     const req = http.expectOne('/api/me/workspaces');
     req.flush([
       {
@@ -92,8 +94,35 @@ describe('WorkspaceStore', () => {
     ]);
     await load;
 
-    expect(store.selectedWorkspaceId()).toBe('ws2');
-    expect(store.effectiveWorkspaceRole()).toBe('MEMBER');
-    expect(store.isWorkspaceAdmin()).toBe(false);
+    expect(facade.selectedWorkspaceId()).toBe('ws2');
+    expect(facade.effectiveWorkspaceRole()).toBe('MEMBER');
+    expect(facade.isWorkspaceAdmin()).toBe(false);
+  });
+
+  it('creates a workspace then reloads and selects it', async () => {
+    const create = facade.createWorkspace({ name: 'Acme', slug: 'acme' });
+    const post = http.expectOne('/api/workspaces');
+    expect(post.request.method).toBe('POST');
+    expect(post.request.body).toEqual({ name: 'Acme', slug: 'acme' });
+    post.flush({ id: 'ws-new', name: 'Acme', slug: 'acme' });
+
+    await Promise.resolve();
+
+    const reload = http.expectOne('/api/me/workspaces');
+    reload.flush([
+      {
+        id: 'ws-new',
+        name: 'Acme',
+        slug: 'acme',
+        role: 'OWNER',
+        tools: [{ toolKey: 'vibestandup', enabled: true }],
+      },
+    ]);
+
+    const result = await create;
+    expect(result.id).toBe('ws-new');
+    expect(facade.selectedWorkspaceId()).toBe('ws-new');
+    expect(facade.memberships().length).toBe(1);
+    expect(facade.isWorkspaceAdmin()).toBe(true);
   });
 });

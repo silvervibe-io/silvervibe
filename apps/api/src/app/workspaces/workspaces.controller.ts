@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiForbiddenResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -63,33 +64,38 @@ export class WorkspacesController {
   @ApiOperation({
     summary: 'List workspace tool entitlements',
     description:
-      'Ownership rows from `workspace_tools` (not GrowthBook rollout flags).',
+      'Ownership rows from `workspace_tools` (not GrowthBook rollout flags). Requires workspace membership.',
   })
   @ApiOkResponse({ type: WorkspaceToolDto, isArray: true })
   @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
   async listTools(
     @Param('workspaceId') workspaceId: string,
+    @CurrentUser() user: VerifiedUser,
   ): Promise<WorkspaceToolDto[]> {
-    return this.workspaces.listTools(workspaceId);
+    return this.workspaces.listTools(workspaceId, user);
   }
 
   @Put(':workspaceId/tools/:toolKey')
   @ApiOperation({
     summary: 'Grant or revoke a tool entitlement',
     description:
-      '`enabled: true` grants (upserts); `enabled: false` revokes. `toolKey` must be a known TOOL_KEYS value.',
+      '`enabled: true` grants (upserts); `enabled: false` revokes. `toolKey` must be a known TOOL_KEYS value. Requires workspace OWNER or ADMIN.',
   })
   @ApiOkResponse({ type: WorkspaceToolDto })
   @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
   async setTool(
     @Param('workspaceId') workspaceId: string,
     @Param('toolKey') toolKey: string,
     @Body() body: SetToolEntitlementDto,
+    @CurrentUser() user: VerifiedUser,
   ): Promise<WorkspaceToolDto> {
     return this.workspaces.setToolEntitlement(
       workspaceId,
       toolKey,
       body.enabled,
+      user,
     );
   }
 }

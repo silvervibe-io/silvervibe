@@ -6,6 +6,7 @@ import {
   inject,
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { provideSilvervibeApiClient } from '@silvervibe/shared/api-client';
 import {
   AuthService,
   FeatureFlagsService,
@@ -39,6 +40,7 @@ export const appConfig: ApplicationConfig = {
     provideSilvervibeAuth(environment.firebase, {
       apiBaseUrl: environment.apiBaseUrl,
     }),
+    provideSilvervibeApiClient(),
     {
       provide: STANDUP_APP_ORIGIN,
       useValue: environment.standupAppOrigin,

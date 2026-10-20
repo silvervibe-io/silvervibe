@@ -1,15 +1,20 @@
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
+import { provideSilvervibeApiClient } from '@silvervibe/shared/api-client';
 import { API_BASE_URL, AuthService } from '@silvervibe/shared/auth';
 import {
   PREVIEW_SWITCHER_EMAILS,
   PREVIEW_SWITCHER_USER_EMAIL,
 } from '@silvervibe/stores/preview';
-import { WorkspaceStore } from '@silvervibe/stores/workspace';
+import { UserFacade } from '@silvervibe/stores/user';
+import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 import { of } from 'rxjs';
 import { Portal } from './portal';
 
@@ -24,6 +29,7 @@ describe('Portal', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: API_BASE_URL, useValue: '/api' },
+        provideSilvervibeApiClient(),
         { provide: PREVIEW_SWITCHER_EMAILS, useValue: [] },
         {
           provide: PREVIEW_SWITCHER_USER_EMAIL,
@@ -33,7 +39,8 @@ describe('Portal', () => {
           provide: AuthService,
           useValue: { signOut: async () => undefined, user: () => null },
         },
-        WorkspaceStore,
+        WorkspaceFacade,
+        UserFacade,
         ...provideTransloco({
           config: {
             availableLangs: ['en'],
@@ -61,6 +68,12 @@ describe('Portal', () => {
                   openTool: 'Open',
                   adminHint: 'You are an admin',
                   planHint: 'Preview plan {{plan}}',
+                  createTitle: 'Create a workspace',
+                  addWorkspace: 'Create another workspace',
+                  createName: 'Name',
+                  createSlug: 'Slug',
+                  createSubmit: 'Create',
+                  createSuccess: 'Workspace created.',
                 },
                 shell: {
                   theme: { toDark: 'Dark', toLight: 'Light' },
@@ -79,12 +92,23 @@ describe('Portal', () => {
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(Portal);
+    fixture.detectChanges();
+    TestBed.inject(HttpTestingController)
+      .expectOne('/api/me/workspaces')
+      .flush([]);
     await fixture.whenStable();
+    await Promise.resolve();
     fixture.detectChanges();
   });
 
   it('renders the portal title', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('h1')?.textContent).toContain('Your portal');
+  });
+
+  it('shows the create workspace form when empty', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('form')).toBeTruthy();
+    expect(el.textContent).toContain('Create a workspace');
   });
 });

@@ -1,0 +1,30 @@
+<sv-shell
+  [title]="'Vibe Standup'"
+  [links]="[
+    { label: ('standup.nav.myStandup' | transloco), href: '/app' },
+    { label: ('nav.account' | transloco), href: '/account' }
+  ]"
+>
+  <div class="mx-auto max-w-md space-y-4 py-10">
+    <h1 class="text-3xl font-bold tracking-tight">
+      {{ 'standup.invite.title' | transloco }}
+    </h1>
+
+    @if (busy()) {
+    <p>{{ 'standup.invite.accepting' | transloco }}</p>
+    } @else if (success()) {
+    <p class="text-success">{{ 'standup.invite.success' | transloco }}</p>
+    <a class="btn btn-primary" routerLink="/app"
+      >{{ 'standup.invite.goStandup' | transloco }}</a
+    >
+    } @else if (error()) {
+    <p class="text-error" role="alert">
+      @if (error()!.startsWith('standup.')) { {{ error()! | transloco }} } @else
+      { {{ error() }} }
+    </p>
+    <a class="btn btn-ghost" routerLink="/auth"
+      >{{ 'standup.invite.signIn' | transloco }}</a
+    >
+    }
+  </div>
+</sv-shell>

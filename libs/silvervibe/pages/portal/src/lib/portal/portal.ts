@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,22 +6,23 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { form, FormField, required, submit } from '@angular/forms/signals';
 import { TranslocoPipe } from '@jsverse/transloco';
-import {
-  API_BASE_URL,
-  AuthService,
-  STANDUP_APP_ORIGIN,
-} from '@silvervibe/shared/auth';
+import { AuthService, STANDUP_APP_ORIGIN } from '@silvervibe/shared/auth';
 import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
 import { Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
-import { WorkspaceStore } from '@silvervibe/stores/workspace';
-import { firstValueFrom } from 'rxjs';
+import { UserFacade } from '@silvervibe/stores/user';
+import { WorkspaceFacade } from '@silvervibe/stores/workspace';
+
+type CreateWorkspaceModel = {
+  name: string;
+  slug: string;
+};
 
 @Component({
   selector: 'sv-portal',
-  imports: [RouterLink, Shell, TranslocoPipe],
+  imports: [FormField, Shell, TranslocoPipe],
   templateUrl: './portal.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -30,11 +30,10 @@ import { firstValueFrom } from 'rxjs';
   },
 })
 export class Portal implements OnInit {
-  private readonly workspaces = inject(WorkspaceStore);
+  private readonly workspaces = inject(WorkspaceFacade);
+  private readonly users = inject(UserFacade);
   private readonly preview = inject(PreviewContextStore);
   private readonly auth = inject(AuthService);
-  private readonly http = inject(HttpClient);
-  private readonly apiBase = inject(API_BASE_URL);
   private readonly standupOrigin =
     inject(STANDUP_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4201';
 
@@ -60,6 +59,17 @@ export class Portal implements OnInit {
     };
   });
   readonly openingTool = signal(false);
+  readonly createMessage = signal<string | null>(null);
+  readonly createError = signal<string | null>(null);
+
+  readonly workspaceModel = signal<CreateWorkspaceModel>({
+    name: '',
+    slug: '',
+  });
+  readonly workspaceForm = form(this.workspaceModel, (schemaPath) => {
+    required(schemaPath.name);
+    required(schemaPath.slug);
+  });
 
   ngOnInit(): void {
     void this.workspaces.loadMyWorkspaces();
@@ -69,15 +79,31 @@ export class Portal implements OnInit {
     this.workspaces.selectWorkspace(workspaceId);
   }
 
+  async createWorkspace(event: Event): Promise<void> {
+    event.preventDefault();
+    this.createMessage.set(null);
+    this.createError.set(null);
+    await submit(this.workspaceForm, {
+      action: async () => {
+        try {
+          const body = this.workspaceModel();
+          await this.workspaces.createWorkspace(body);
+          this.workspaceModel.set({ name: '', slug: '' });
+          this.createMessage.set('portal.createSuccess');
+        } catch (err: unknown) {
+          this.createError.set(
+            err instanceof Error ? err.message : 'Failed to create workspace',
+          );
+        }
+        return undefined;
+      },
+    });
+  }
+
   async openVibeStandup(): Promise<void> {
     this.openingTool.set(true);
     try {
-      const { customToken } = await firstValueFrom(
-        this.http.post<{ customToken: string }>(
-          `${this.apiBase}/auth/custom-token`,
-          {},
-        ),
-      );
+      const { customToken } = await this.users.createCustomToken();
       const url = new URL('/auth/handoff', this.standupOrigin);
       url.searchParams.set('token', customToken);
       url.searchParams.set('returnUrl', '/app');

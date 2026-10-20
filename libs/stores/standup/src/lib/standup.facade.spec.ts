@@ -5,6 +5,7 @@ import {
 } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideSilvervibeApiClient } from '@silvervibe/shared/api-client';
 import { API_BASE_URL } from '@silvervibe/shared/auth';
 import {
   PREVIEW_STORAGE_KEY,
@@ -12,10 +13,10 @@ import {
   PREVIEW_SWITCHER_USER_EMAIL,
   PreviewContextStore,
 } from '@silvervibe/stores/preview';
-import { StandupStore } from './standup.store';
+import { StandupFacade } from './standup.facade';
 
-describe('StandupStore', () => {
-  let store: StandupStore;
+describe('StandupFacade', () => {
+  let facade: StandupFacade;
   let http: HttpTestingController;
   let preview: PreviewContextStore;
   const userEmail = signal<string | null>(null);
@@ -28,16 +29,17 @@ describe('StandupStore', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: API_BASE_URL, useValue: '/api' },
+        provideSilvervibeApiClient(),
         {
           provide: PREVIEW_SWITCHER_EMAILS,
           useValue: ['founder@silvervibe.io'],
         },
         { provide: PREVIEW_SWITCHER_USER_EMAIL, useValue: userEmail },
         PreviewContextStore,
-        StandupStore,
+        StandupFacade,
       ],
     });
-    store = TestBed.inject(StandupStore);
+    facade = TestBed.inject(StandupFacade);
     preview = TestBed.inject(PreviewContextStore);
     http = TestBed.inject(HttpTestingController);
   });
@@ -48,24 +50,24 @@ describe('StandupStore', () => {
   });
 
   it('loads teams for a workspace', async () => {
-    const load = store.loadMyTeams('ws1');
+    const load = facade.loadMyTeams('ws1');
     const req = http.expectOne('/api/workspaces/ws1/teams/mine');
     req.flush([{ id: 't1', name: 'Core', slug: 'core', role: 'MEMBER' }]);
     await load;
-    expect(store.teams()).toHaveLength(1);
-    expect(store.selectedTeamId()).toBe('t1');
-    expect(store.isTeamAdmin()).toBe(false);
+    expect(facade.teams()).toHaveLength(1);
+    expect(facade.selectedTeamId()).toBe('t1');
+    expect(facade.isTeamAdmin()).toBe(false);
   });
 
   it('uses preview team admin when preview is active', async () => {
     userEmail.set('founder@silvervibe.io');
     preview.setWorkspaceRole('OWNER');
 
-    const load = store.loadMyTeams('ws1');
+    const load = facade.loadMyTeams('ws1');
     const req = http.expectOne('/api/workspaces/ws1/teams/mine');
     req.flush([{ id: 't1', name: 'Core', slug: 'core', role: 'MEMBER' }]);
     await load;
 
-    expect(store.isTeamAdmin()).toBe(true);
+    expect(facade.isTeamAdmin()).toBe(true);
   });
 });

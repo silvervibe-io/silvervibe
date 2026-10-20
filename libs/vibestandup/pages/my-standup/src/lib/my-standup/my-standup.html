@@ -28,10 +28,12 @@
     } @else if (teams().length === 0) {
     <p>{{ 'standup.my.noTeams' | transloco }}</p>
     } @else {
-    <label class="form-control w-full max-w-xs">
-      <span class="label-text">{{ 'standup.my.team' | transloco }}</span>
+    <fieldset class="fieldset w-full max-w-xs">
+      <legend class="fieldset-legend">
+        {{ 'standup.my.team' | transloco }}
+      </legend>
       <select
-        class="select select-bordered"
+        class="select select-bordered w-full"
         [value]="selectedTeamId() ?? ''"
         (change)="onTeamChange($any($event.target).value)"
       >
@@ -39,42 +41,42 @@
         <option [value]="team.id">{{ team.name }}</option>
         }
       </select>
-    </label>
+    </fieldset>
 
-    <form class="space-y-4 max-w-xl" (submit)="submitEntry($event)">
-      <label class="form-control">
-        <span class="label-text"
-          >{{ config()?.questionsJson?.['yesterday'] || ('standup.my.yesterday'
-          | transloco) }}</span
-        >
+    <form class="flex max-w-xl flex-col gap-4" (submit)="submitEntry($event)">
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ config()?.questionsJson?.['yesterday'] || ('standup.my.yesterday' |
+          transloco) }}
+        </legend>
         <textarea
-          class="textarea textarea-bordered"
+          class="textarea textarea-bordered w-full"
           rows="3"
           [formField]="standupForm.yesterday"
         ></textarea>
-      </label>
-      <label class="form-control">
-        <span class="label-text"
-          >{{ config()?.questionsJson?.['today'] || ('standup.my.today' |
-          transloco) }}</span
-        >
+      </fieldset>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ config()?.questionsJson?.['today'] || ('standup.my.today' |
+          transloco) }}
+        </legend>
         <textarea
-          class="textarea textarea-bordered"
+          class="textarea textarea-bordered w-full"
           rows="3"
           [formField]="standupForm.today"
         ></textarea>
-      </label>
-      <label class="form-control">
-        <span class="label-text"
-          >{{ config()?.questionsJson?.['blockers'] || ('standup.my.blockers' |
-          transloco) }}</span
-        >
+      </fieldset>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ config()?.questionsJson?.['blockers'] || ('standup.my.blockers' |
+          transloco) }}
+        </legend>
         <textarea
-          class="textarea textarea-bordered"
+          class="textarea textarea-bordered w-full"
           rows="2"
           [formField]="standupForm.blockers"
         ></textarea>
-      </label>
+      </fieldset>
       <div class="flex flex-wrap gap-2">
         <button
           type="button"

@@ -24,10 +24,12 @@
     } @else if (!isAdmin()) {
     <p>{{ 'standup.workspace.forbidden' | transloco }}</p>
     } @else {
-    <label class="form-control w-full max-w-xs">
-      <span class="label-text">{{ 'portal.workspace' | transloco }}</span>
+    <fieldset class="fieldset w-full max-w-xs">
+      <legend class="fieldset-legend">
+        {{ 'portal.workspace' | transloco }}
+      </legend>
       <select
-        class="select select-bordered"
+        class="select select-bordered w-full"
         [value]="selected()?.id ?? ''"
         (change)="selectWorkspace($any($event.target).value)"
       >
@@ -38,7 +40,7 @@
         </option>
         }
       </select>
-    </label>
+    </fieldset>
 
     @if (planHint(); as hint) {
     <p class="text-sm text-base-content/60">
@@ -66,23 +68,29 @@
       </ul>
     </section>
 
-    <form class="max-w-md space-y-3" (submit)="createTeam($event)">
+    <form class="flex max-w-md flex-col gap-3" (submit)="createTeam($event)">
       <h2 class="text-xl font-semibold">
         {{ 'standup.workspace.createTeam' | transloco }}
       </h2>
-      <label class="form-control">
-        <span class="label-text"
-          >{{ 'standup.workspace.teamName' | transloco }}</span
-        >
-        <input class="input input-bordered" [formField]="teamForm.name" />
-      </label>
-      <label class="form-control">
-        <span class="label-text"
-          >{{ 'standup.workspace.teamSlug' | transloco }}</span
-        >
-        <input class="input input-bordered" [formField]="teamForm.slug" />
-      </label>
-      <button type="submit" class="btn btn-primary btn-sm">
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.workspace.teamName' | transloco }}
+        </legend>
+        <input
+          class="input input-bordered w-full"
+          [formField]="teamForm.name"
+        />
+      </fieldset>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.workspace.teamSlug' | transloco }}
+        </legend>
+        <input
+          class="input input-bordered w-full"
+          [formField]="teamForm.slug"
+        />
+      </fieldset>
+      <button type="submit" class="btn btn-primary btn-sm self-start">
         {{ 'standup.workspace.create' | transloco }}
       </button>
     </form>

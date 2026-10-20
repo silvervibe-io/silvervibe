@@ -3,12 +3,14 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from './auth.service';
 
 /** Requires a signed-in Firebase user; otherwise redirects to `/auth`. */
-export const authGuard: CanActivateFn = async (_route, _state) => {
+export const authGuard: CanActivateFn = async (_route, state) => {
   const auth = inject(AuthService);
   const router = inject(Router);
   await auth.whenReady();
   if (auth.user()) {
     return true;
   }
-  return router.createUrlTree(['/auth']);
+  return router.createUrlTree(['/auth'], {
+    queryParams: { returnUrl: state.url },
+  });
 };

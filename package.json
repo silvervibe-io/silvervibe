@@ -4,8 +4,8 @@
   "license": "MIT",
   "scripts": {
     "start": "node ./tools/nx-run.mjs serve silvervibe",
-    "start:silvervibe": "nx serve silvervibe",
-    "start:vibestandup": "nx serve vibestandup",
+    "start:silvervibe": "nx serve silvervibe --port=4200",
+    "start:vibestandup": "nx serve vibestandup --port=4201",
     "start:api": "nx serve api",
     "start:ai": "nx serve ai",
     "build": "nx run-many -t build -p silvervibe,vibestandup,api",
@@ -31,6 +31,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "openapi": "nx openapi api",
+    "api-client": "node ./tools/generate-api-client.mjs",
+    "openapi:client": "npm run openapi && npm run api-client",
     "graph": "nx graph",
     "prisma:generate": "prisma generate --schema=libs/shared/data-access/prisma/schema.prisma",
     "prisma:migrate": "prisma migrate dev --schema=libs/shared/data-access/prisma/schema.prisma",
@@ -81,6 +83,7 @@
     "firebase": "^12.19.0",
     "firebase-admin": "^14.5.0",
     "reflect-metadata": "^0.2.0",
+    "resend": "^6.34.1",
     "rxjs": "~7.8.0"
   },
   "devDependencies": {
@@ -112,6 +115,7 @@
     "@nx/webpack": "23.2.1",
     "@nx/workspace": "23.2.1",
     "@nxlv/python": "^23.2.1",
+    "@openapitools/openapi-generator-cli": "^2.16.3",
     "@oxc-project/runtime": "^0.115.0",
     "@playwright/test": "^1.37.0",
     "@schematics/angular": "~22.1.0",

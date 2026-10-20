@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/@openapitools/openapi-generator-cli/config.schema.json",
+  "spaces": 2,
+  "generator-cli": {
+    "version": "7.7.0",
+    "generators": {
+      "silvervibe": {
+        "generatorName": "typescript-angular",
+        "output": "libs/shared/api-client/src/lib/generated",
+        "glob": "openapi/silvervibe.openapi.json",
+        "additionalProperties": {
+          "ngVersion": "21.0.0",
+          "supportsES6": true,
+          "withInterfaces": true,
+          "serviceSuffix": "DataService",
+          "serviceFileSuffix": "-data.service",
+          "modelPackage": "model",
+          "apiPackage": "api",
+          "fileNaming": "kebab-case",
+          "stringEnums": true,
+          "enumPropertyNaming": "original",
+          "useSingleRequestParameter": true,
+          "providedInRoot": true,
+          "hideGenerationTimestamp": true,
+          "legacyDiscriminatorBehavior": true,
+          "disallowAdditionalPropertiesIfNotPresent": false
+        }
+      }
+    }
+  }
+}
