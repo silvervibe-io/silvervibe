@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 
 import { StandupEntryStatus } from '@prisma/client';
+import { SlackService } from '../addons/slack/slack.service';
 import { VerifiedUser } from '../auth/firebase-auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { TeamsService } from '../teams/teams.service';
@@ -25,6 +26,7 @@ export class StandupsService {
     private readonly prisma: PrismaService,
     private readonly users: UsersService,
     private readonly teams: TeamsService,
+    private readonly slack: SlackService,
   ) {}
 
   private ensureDb(): void {
@@ -300,10 +302,31 @@ export class StandupsService {
       update: { content },
     });
 
+    const entryDateIso = summary.entryDate.toISOString().slice(0, 10);
+    try {
+      const team = await this.prisma.team.findUnique({
+        where: { id: teamId },
+        select: { workspaceId: true, name: true },
+      });
+      if (team) {
+        await this.slack.postStandupDigest({
+          workspaceId: team.workspaceId,
+          teamName: team.name,
+          entryDate: entryDateIso,
+          content: summary.content,
+        });
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.warn(
+        `Slack digest after summary rebuild failed for team ${teamId}: ${message}`,
+      );
+    }
+
     return {
       id: summary.id,
       teamId: summary.teamId,
-      entryDate: summary.entryDate.toISOString().slice(0, 10),
+      entryDate: entryDateIso,
       content: summary.content,
     };
   }

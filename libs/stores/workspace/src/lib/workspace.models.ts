@@ -23,6 +23,18 @@ export type CreateTeamInput = {
   slug: string;
 };
 
+export type SlackConnectionView = {
+  status: 'DISCONNECTED' | 'PENDING' | 'CONNECTED' | 'ERROR';
+  configured: boolean;
+  channelLabel: string | null;
+  toolEnabled: boolean;
+};
+
+export type ConnectSlackInput = {
+  incomingWebhookUrl: string;
+  channelLabel?: string;
+};
+
 export type WorkspaceState = {
   memberships: WorkspaceMembershipView[];
   selectedWorkspaceId: string | null;

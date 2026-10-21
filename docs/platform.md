@@ -58,6 +58,7 @@ Brand mark / favicon: [brand.md](./brand.md).
 | Inbound `info@` email             | Cloudflare Email Routing — [email-routing.md](./email-routing.md)    |
 | Ops follow-ups                    | GrowthBook / API / mail — [ops-followups.md](./ops-followups.md)     |
 | Standup reminders                 | Cron + Resend — [standup-reminders.md](./standup-reminders.md)       |
+| Slack standup digest              | Incoming Webhook — [slack-digest.md](./slack-digest.md) (#89)        |
 
 ## Feature access
 
