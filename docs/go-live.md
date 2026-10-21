@@ -43,15 +43,17 @@ Cloudflare already runs `npm ci` before your build command. Do not prefix the bu
    required for Firebase Auth / Google login on the live site. Production build
    runs `sync-firebase-web` and writes `firebase-web.local.ts` from these:
 
-| Variable                | Notes                                  |
-| ----------------------- | -------------------------------------- |
-| `FIREBASE_API_KEY`      | Same as local `.env`                   |
-| `FIREBASE_AUTH_DOMAIN`  | Same as local `.env`                   |
-| `FIREBASE_PROJECT_ID`   | Same as local `.env`                   |
-| `FIREBASE_APP_ID`       | Same as local `.env`                   |
-| `GROWTHBOOK_CLIENT_KEY` | Optional                               |
-| `GROWTHBOOK_API_HOST`   | Optional (`https://cdn.growthbook.io`) |
-| `NODE_VERSION`          | `24.15.0` if not using `.nvmrc`        |
+| Variable                | Notes                                              |
+| ----------------------- | -------------------------------------------------- |
+| `FIREBASE_API_KEY`      | Same as local `.env`                               |
+| `FIREBASE_AUTH_DOMAIN`  | Same as local `.env`                               |
+| `FIREBASE_PROJECT_ID`   | Same as local `.env`                               |
+| `FIREBASE_APP_ID`       | Same as local `.env`                               |
+| `GROWTHBOOK_CLIENT_KEY` | Optional                                           |
+| `GROWTHBOOK_API_HOST`   | Optional (`https://cdn.growthbook.io`)             |
+| `PUBLIC_API_URL`        | `https://api.silvervibe.io/api` (Nest for the SPA) |
+| `PUBLIC_STANDUP_URL`    | `https://standup.silvervibe.io` (portal links)     |
+| `NODE_VERSION`          | `24.15.0` if not using `.nvmrc`                    |
 
 Apply to **Production** (and Preview if you test auth on `*.pages.dev`).
 Redeploy after saving. Without `FIREBASE_*`, the bundled app has empty keys and
