@@ -38,7 +38,7 @@ Cloudflare runs `npm ci` before the build. Do not prefix another `npm ci`.
 2. Cloudflare DNS will create/update the CNAME; wait for TLS **Active**.
 3. Open https://standup.silvervibe.io.
 
-## Build secrets (Firebase / GrowthBook)
+## Build secrets (Firebase / GrowthBook / API URL)
 
 If production builds need web config, set the same env vars as local sync
 ([firebase.md](./firebase.md), [growthbook.md](./growthbook.md)) on **this**
@@ -46,9 +46,11 @@ Pages project:
 
 - `FIREBASE_API_KEY`, `FIREBASE_AUTH_DOMAIN`, `FIREBASE_PROJECT_ID`, `FIREBASE_APP_ID`
 - `GROWTHBOOK_CLIENT_KEY`, `GROWTHBOOK_API_HOST` (optional)
+- **`PUBLIC_API_URL`** = `https://api.silvervibe.io/api` (required — without it the
+  bundle keeps relative `/api` and Pages returns SPA HTML for workspace calls)
 
-Wire them into the build the same way as the base app (sync script or CI inject).
-Do not commit real keys.
+Wire them into the build the same way as the base app (`sync-firebase-web` /
+`sync-angular-env-from-env.mjs`). Do not commit real keys.
 
 ## Local check
 
