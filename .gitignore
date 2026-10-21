@@ -43,6 +43,7 @@ vitest.config.*.timestamp*
 **/environments/firebase-web.local.ts
 **/environments/growthbook.local.ts
 **/environments/preview-switcher.local.ts
+**/environments/public-urls.local.ts
 *.pem
 *.key
 *.p12
