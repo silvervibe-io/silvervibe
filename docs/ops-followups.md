@@ -70,10 +70,10 @@ Guide: [email-routing.md](./email-routing.md) (was #12).
 
 Not required to close #31, but often done together:
 
-| Item                              | Doc                                                  |
-| --------------------------------- | ---------------------------------------------------- |
-| AI → `ai.silvervibe.io`           | [cloud-run-ai.md](./cloud-run-ai.md) (#29)           |
-| Standup → `standup.silvervibe.io` | [vibestandup-pages.md](./vibestandup-pages.md) (#30) |
+| Item                              | Doc                                                                                   |
+| --------------------------------- | ------------------------------------------------------------------------------------- |
+| AI → `ai.silvervibe.io`           | [cloud-run-ai.md](./cloud-run-ai.md) (#29) — live (`GET /health` ok via Worker proxy) |
+| Standup → `standup.silvervibe.io` | [vibestandup-pages.md](./vibestandup-pages.md) (#30)                                  |
 
 ## Done when
 
