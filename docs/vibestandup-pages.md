@@ -70,10 +70,10 @@ npx nx build vibestandup --configuration=production
 
 ## Checklist
 
-- [ ] Second Pages project connected to the repo with vibestandup build settings
-- [ ] Preview deploy from `develop` / a PR looks correct
-- [ ] `standup.silvervibe.io` custom domain + TLS Active
-- [ ] https://standup.silvervibe.io loads the vibestandup app
+- [x] Second Pages project connected to the repo with vibestandup build settings
+- [x] Preview deploy from `develop` / a PR looks correct
+- [x] `standup.silvervibe.io` custom domain + TLS Active
+- [x] https://standup.silvervibe.io loads the vibestandup app (`<title>Vibe Standup</title>`, HTTP 200)
 
 ## Same zone, no extra DNS cost
 
