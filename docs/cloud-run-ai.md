@@ -46,20 +46,28 @@ gcloud run deploy silvervibe-ai \
   --image="$IMAGE" \
   --platform=managed \
   --allow-unauthenticated \
-  --port=8080 \
-  --set-env-vars="PORT=8080"
+  --port=8080
 ```
+
+Do not set `PORT` as an env var — Cloud Run reserves it.
 
 Health probe path: `/health`.
 
 ## DNS (Cloudflare → Cloud Run)
 
-1. Note the `*.run.app` URL from `gcloud run services describe silvervibe-ai`.
-2. Cloudflare DNS → CNAME **`ai`** → that hostname (proxied).
+Same pattern as `api.silvervibe.io`: a Cloudflare Worker proxies the custom
+host to the Cloud Run `*.run.app` URL (Custom Domain + route on the zone).
+
+1. Note the `*.run.app` URL from `gcloud run services describe silvervibe-ai`
+   (example: `silvervibe-ai-sdaothtm5q-ew.a.run.app`).
+2. Deploy Worker `silvervibe-ai-proxy` that rewrites the request hostname to that
+   Cloud Run URL; attach custom domain **`ai.silvervibe.io`** (creates DNS) and
+   route `ai.silvervibe.io/*`.
 3. Confirm:
 
 ```bash
 curl -s https://ai.silvervibe.io/health
+# {"status":"ok"}
 ```
 
 ## Clients
@@ -68,12 +76,14 @@ curl -s https://ai.silvervibe.io/health
 PUBLIC_AI_URL=https://ai.silvervibe.io
 ```
 
+Set the same on Nest Cloud Run (`gcloud run services update silvervibe-api --update-env-vars=PUBLIC_AI_URL=https://ai.silvervibe.io`).
 Local default stays `http://localhost:8000` (see `.env.example`).
 
 ## Checklist
 
-- [ ] Image builds (`nx run ai:docker:build`)
-- [ ] Local container returns `{"status":"ok"}` on `/health`
-- [ ] Cloud Run revision healthy
-- [ ] `ai.silvervibe.io` CNAME + TLS
-- [ ] `GET https://ai.silvervibe.io/health` succeeds
+- [x] Image builds (`nx run ai:docker:build`)
+- [x] Local container returns `{"status":"ok"}` on `/health`
+- [x] Cloud Run revision healthy (`silvervibe-ai`, europe-west1)
+- [x] `ai.silvervibe.io` Worker custom domain + TLS (`silvervibe-ai-proxy`)
+- [x] `GET https://ai.silvervibe.io/health` succeeds
+- [x] Nest `PUBLIC_AI_URL=https://ai.silvervibe.io` on Cloud Run
