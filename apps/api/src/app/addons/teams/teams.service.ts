@@ -62,13 +62,26 @@ export class TeamsService {
 
   private assertWebhookUrl(url: string): string {
     const trimmed = url.trim();
-    const ok =
-      trimmed.startsWith('https://') &&
-      (trimmed.includes('webhook.office.com') ||
-        trimmed.includes('outlook.office.com/webhook'));
-    if (!ok) {
+    let parsed: URL;
+    try {
+      parsed = new URL(trimmed);
+    } catch {
       throw new BadRequestException(
-        'incomingWebhookUrl must be a Microsoft Teams Incoming Webhook (webhook.office.com or outlook.office.com/webhook)',
+        'incomingWebhookUrl must be a valid Microsoft Teams Incoming Webhook URL',
+      );
+    }
+    if (parsed.protocol !== 'https:') {
+      throw new BadRequestException('incomingWebhookUrl must use https');
+    }
+    const host = parsed.hostname.toLowerCase();
+    const isOfficeWebhookHost =
+      host === 'webhook.office.com' || host.endsWith('.webhook.office.com');
+    const isOutlookWebhook =
+      host === 'outlook.office.com' &&
+      parsed.pathname.toLowerCase().startsWith('/webhook');
+    if (!isOfficeWebhookHost && !isOutlookWebhook) {
+      throw new BadRequestException(
+        'incomingWebhookUrl must be a Microsoft Teams Incoming Webhook (*.webhook.office.com or outlook.office.com/webhook)',
       );
     }
     return trimmed;

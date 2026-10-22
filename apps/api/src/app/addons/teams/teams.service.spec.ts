@@ -22,6 +22,28 @@ describe('TeamsService', () => {
     expect(service.status()).toEqual({ name: 'teams', status: 'ready' });
   });
 
+  it('rejects webhook URLs that only mention office hosts in the path', async () => {
+    const service = new TeamsService(
+      {
+        isEnabled: () => true,
+        workspaceMember: {
+          findUnique: jest
+            .fn()
+            .mockResolvedValue({ role: WorkspaceRole.ADMIN }),
+        },
+      } as unknown as PrismaService,
+      {
+        upsertFromFirebase: jest.fn().mockResolvedValue({ id: 'user-1' }),
+      } as unknown as UsersService,
+    );
+
+    await expect(
+      service.connect('ws1', admin, {
+        incomingWebhookUrl: 'https://evil.example/webhook.office.com/hook',
+      }),
+    ).rejects.toThrow(/Incoming Webhook/);
+  });
+
   it('connects an Incoming Webhook and enables addons.teams', async () => {
     const prisma = {
       isEnabled: () => true,
