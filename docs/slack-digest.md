@@ -33,4 +33,4 @@ Issue: [#89](https://github.com/silvervibe-io/silvervibe/issues/89).
 
 - OAuth Slack app / bot tokens
 - Per-team webhooks (workspace-wide webhook posts all teams)
-- Per-member DMs, Teams/Jira digests
+- Per-member DMs, Jira digests (Teams: see [teams-digest.md](./teams-digest.md))

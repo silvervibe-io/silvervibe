@@ -7,9 +7,11 @@ import type {
 import type { PreviewWorkspaceRole } from '@silvervibe/stores/preview';
 import type {
   ConnectSlackInput,
+  ConnectTeamsInput,
   CreateTeamInput,
   CreateWorkspaceInput,
   SlackConnectionView,
+  TeamsConnectionView,
   WorkspaceMembershipView,
   WorkspaceToolView,
 } from './workspace.models';
@@ -85,5 +87,20 @@ export class WorkspaceFacade {
 
   disconnectSlack(workspaceId: string): Promise<SlackConnectionView> {
     return this.api.disconnectSlack(workspaceId);
+  }
+
+  getTeamsConnection(workspaceId: string): Promise<TeamsConnectionView> {
+    return this.api.getTeamsConnection(workspaceId);
+  }
+
+  connectTeams(
+    workspaceId: string,
+    body: ConnectTeamsInput,
+  ): Promise<TeamsConnectionView> {
+    return this.api.connectTeams(workspaceId, body);
+  }
+
+  disconnectTeams(workspaceId: string): Promise<TeamsConnectionView> {
+    return this.api.disconnectTeams(workspaceId);
   }
 }
