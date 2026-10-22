@@ -122,6 +122,60 @@
       }
     </section>
 
+    <section class="flex max-w-xl flex-col gap-3">
+      <h2 class="text-xl font-semibold">
+        {{ 'standup.workspace.teamsTitle' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.workspace.teamsHint' | transloco }}
+      </p>
+      @if (teams(); as conn) {
+      <p class="text-sm">
+        {{ 'standup.workspace.teamsStatus' | transloco }}:
+        <span class="font-medium">{{ conn.status }}</span>
+        @if (conn.channelLabel) {
+        <span class="text-base-content/70"> — {{ conn.channelLabel }}</span>
+        }
+      </p>
+      @if (conn.configured) {
+      <button
+        type="button"
+        class="btn btn-outline btn-sm self-start"
+        (click)="disconnectTeams()"
+      >
+        {{ 'standup.workspace.teamsDisconnect' | transloco }}
+      </button>
+      } }
+      <form class="flex flex-col gap-3" (submit)="connectTeams($event)">
+        <fieldset class="fieldset w-full">
+          <legend class="fieldset-legend">
+            {{ 'standup.workspace.teamsWebhook' | transloco }}
+          </legend>
+          <input
+            class="input input-bordered w-full"
+            type="url"
+            autocomplete="off"
+            [formField]="teamsForm.incomingWebhookUrl"
+          />
+        </fieldset>
+        <fieldset class="fieldset w-full">
+          <legend class="fieldset-legend">
+            {{ 'standup.workspace.teamsChannel' | transloco }}
+          </legend>
+          <input
+            class="input input-bordered w-full"
+            [formField]="teamsForm.channelLabel"
+          />
+        </fieldset>
+        <button type="submit" class="btn btn-secondary btn-sm self-start">
+          {{ 'standup.workspace.teamsConnect' | transloco }}
+        </button>
+      </form>
+      @if (teamsError()) {
+      <p class="text-error text-sm">{{ teamsError() }}</p>
+      }
+    </section>
+
     <form class="flex max-w-md flex-col gap-3" (submit)="createTeam($event)">
       <h2 class="text-xl font-semibold">
         {{ 'standup.workspace.createTeam' | transloco }}

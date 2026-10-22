@@ -6,6 +6,7 @@ import {
 
 import { StandupEntryStatus } from '@prisma/client';
 import { SlackService } from '../addons/slack/slack.service';
+import { TeamsService as MsTeamsService } from '../addons/teams/teams.service';
 import { VerifiedUser } from '../auth/firebase-auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { TeamsService } from '../teams/teams.service';
@@ -27,6 +28,7 @@ export class StandupsService {
     private readonly users: UsersService,
     private readonly teams: TeamsService,
     private readonly slack: SlackService,
+    private readonly msTeams: MsTeamsService,
   ) {}
 
   private ensureDb(): void {
@@ -309,17 +311,19 @@ export class StandupsService {
         select: { workspaceId: true, name: true },
       });
       if (team) {
-        await this.slack.postStandupDigest({
+        const digest = {
           workspaceId: team.workspaceId,
           teamName: team.name,
           entryDate: entryDateIso,
           content: summary.content,
-        });
+        };
+        await this.slack.postStandupDigest(digest);
+        await this.msTeams.postStandupDigest(digest);
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       this.logger.warn(
-        `Slack digest after summary rebuild failed for team ${teamId}: ${message}`,
+        `Digest after summary rebuild failed for team ${teamId}: ${message}`,
       );
     }
 
