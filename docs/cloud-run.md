@@ -51,8 +51,8 @@ gcloud run deploy silvervibe-api \
   --platform=managed \
   --allow-unauthenticated \
   --port=8080 \
-  --set-env-vars="NODE_ENV=production,CORS_ORIGINS=https://silvervibe.io,https://www.silvervibe.io,https://standup.silvervibe.io,PUBLIC_STANDUP_URL=https://standup.silvervibe.io,EMAIL_FROM=invites@silvervibe.io" \
-  --set-secrets="DATABASE_URL=DATABASE_URL:latest,DATABASE_URL_UNPOOLED=DATABASE_URL_UNPOOLED:latest,FIREBASE_PROJECT_ID=FIREBASE_PROJECT_ID:latest,FIREBASE_CLIENT_EMAIL=FIREBASE_CLIENT_EMAIL:latest,FIREBASE_PRIVATE_KEY=FIREBASE_PRIVATE_KEY:latest,GROWTHBOOK_SERVER_KEY=GROWTHBOOK_SERVER_KEY:latest,GROWTHBOOK_API_HOST=GROWTHBOOK_API_HOST:latest,RESEND_API_KEY=RESEND_API_KEY:latest"
+  --set-env-vars="NODE_ENV=production,CORS_ORIGINS=https://silvervibe.io,https://www.silvervibe.io,https://standup.silvervibe.io,PUBLIC_STANDUP_URL=https://standup.silvervibe.io,PUBLIC_API_URL=https://api.silvervibe.io/api,EMAIL_FROM=invites@silvervibe.io" \
+  --set-secrets="DATABASE_URL=DATABASE_URL:latest,DATABASE_URL_UNPOOLED=DATABASE_URL_UNPOOLED:latest,FIREBASE_PROJECT_ID=FIREBASE_PROJECT_ID:latest,FIREBASE_CLIENT_EMAIL=FIREBASE_CLIENT_EMAIL:latest,FIREBASE_PRIVATE_KEY=FIREBASE_PRIVATE_KEY:latest,GROWTHBOOK_SERVER_KEY=GROWTHBOOK_SERVER_KEY:latest,GROWTHBOOK_API_HOST=GROWTHBOOK_API_HOST:latest,RESEND_API_KEY=RESEND_API_KEY:latest,SLACK_CLIENT_ID=SLACK_CLIENT_ID:latest,SLACK_CLIENT_SECRET=SLACK_CLIENT_SECRET:latest"
 ```
 
 Create the Secret Manager secrets first (names above). Prefer attaching a Firebase-capable
