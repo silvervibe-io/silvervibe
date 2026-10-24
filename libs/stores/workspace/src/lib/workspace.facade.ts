@@ -6,11 +6,11 @@ import type {
 } from '@silvervibe/shared/api-client';
 import type { PreviewWorkspaceRole } from '@silvervibe/stores/preview';
 import type {
-  ConnectSlackInput,
   ConnectTeamsInput,
   CreateTeamInput,
   CreateWorkspaceInput,
   SlackConnectionView,
+  SlackOAuthStartView,
   TeamsConnectionView,
   WorkspaceMembershipView,
   WorkspaceToolView,
@@ -78,11 +78,8 @@ export class WorkspaceFacade {
     return this.api.getSlackConnection(workspaceId);
   }
 
-  connectSlack(
-    workspaceId: string,
-    body: ConnectSlackInput,
-  ): Promise<SlackConnectionView> {
-    return this.api.connectSlack(workspaceId, body);
+  startSlackOAuth(workspaceId: string): Promise<SlackOAuthStartView> {
+    return this.api.startSlackOAuth(workspaceId);
   }
 
   disconnectSlack(workspaceId: string): Promise<SlackConnectionView> {

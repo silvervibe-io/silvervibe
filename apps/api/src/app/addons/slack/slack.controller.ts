@@ -5,6 +5,8 @@ import {
   Get,
   Param,
   Put,
+  Query,
+  Redirect,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -19,7 +21,11 @@ import { CurrentUser } from '../../auth/current-user.decorator';
 import { FirebaseAuthGuard } from '../../auth/firebase-auth.guard';
 import { VerifiedUser } from '../../auth/firebase-auth.service';
 import { AddonStatusDto } from '../addon-status.dto';
-import { ConnectSlackDto, SlackConnectionDto } from './slack.dto';
+import {
+  ConnectSlackDto,
+  SlackConnectionDto,
+  SlackOAuthStartDto,
+} from './slack.dto';
 import { SlackService } from './slack.service';
 
 @ApiTags('slack')
@@ -38,7 +44,7 @@ export class SlackController {
   @UseGuards(FirebaseAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Get Slack Incoming Webhook connection for a workspace',
+    summary: 'Get Slack connection for a workspace (secret never returned)',
   })
   @ApiOkResponse({ type: SlackConnectionDto })
   @ApiUnauthorizedResponse()
@@ -50,12 +56,44 @@ export class SlackController {
     return this.slack.getConnection(workspaceId, user);
   }
 
+  @Get('workspaces/:workspaceId/addons/slack/oauth/start')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Start Slack OAuth install; returns authorize URL for the browser',
+  })
+  @ApiOkResponse({ type: SlackOAuthStartDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  startOAuth(
+    @Param('workspaceId') workspaceId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<SlackOAuthStartDto> {
+    return this.slack.startOAuth(workspaceId, user);
+  }
+
+  @Get('addons/slack/oauth/callback')
+  @ApiOperation({
+    summary:
+      'Slack OAuth callback (public); redirects to standup workspace admin',
+  })
+  @Redirect()
+  async oauthCallback(
+    @Query('code') code?: string,
+    @Query('state') state?: string,
+    @Query('error') error?: string,
+  ): Promise<{ url: string; statusCode: number }> {
+    const url = await this.slack.completeOAuthCallback(code, state, error);
+    return { url, statusCode: 302 };
+  }
+
   @Put('workspaces/:workspaceId/addons/slack')
   @UseGuards(FirebaseAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
     summary:
-      'Connect Slack via Incoming Webhook (enables addons.slack entitlement)',
+      'Deprecated: connect Slack via Incoming Webhook. Prefer OAuth start.',
+    deprecated: true,
   })
   @ApiOkResponse({ type: SlackConnectionDto })
   @ApiUnauthorizedResponse()
@@ -71,7 +109,7 @@ export class SlackController {
   @Delete('workspaces/:workspaceId/addons/slack')
   @UseGuards(FirebaseAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Disconnect Slack Incoming Webhook' })
+  @ApiOperation({ summary: 'Disconnect Slack (clears bot token / webhook)' })
   @ApiOkResponse({ type: SlackConnectionDto })
   @ApiUnauthorizedResponse()
   @ApiForbiddenResponse()

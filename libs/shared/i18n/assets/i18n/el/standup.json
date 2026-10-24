@@ -71,13 +71,11 @@
     "teamCreated": "Team created.",
     "planHint": "Προεπισκόπηση πλάνου {{plan}}: έως {{teams}} ομάδες, {{members}} μέλη ανά ομάδα (μόνο UI — το API κρατά πραγματικούς ρόλους).",
     "slackTitle": "Slack digest",
-    "slackConnect": "Save Slack webhook",
+    "slackConnect": "Σύνδεση Slack",
     "slackDisconnected": "Slack disconnected.",
-    "slackChannel": "Channel label (optional)",
     "slackDisconnect": "Disconnect Slack",
-    "slackConnected": "Slack webhook saved.",
-    "slackHint": "Paste a Slack Incoming Webhook URL. When a team summary is rebuilt (submit or Rebuild), it posts to that channel if addons.slack is enabled.",
-    "slackWebhook": "Incoming Webhook URL",
+    "slackConnected": "Το Slack συνδέθηκε.",
+    "slackHint": "Εξουσιοδοτήστε το Slack μία φορά. Επιλέξτε κανάλι κατά την εγκατάσταση· οι συνοψίσεις δημοσιεύονται εκεί αν είναι ενεργό το addons.slack.",
     "slackStatus": "Status",
     "teamsTitle": "Microsoft Teams digest",
     "teamsConnect": "Save Teams webhook",
@@ -87,7 +85,8 @@
     "teamsConnected": "Teams webhook saved.",
     "teamsHint": "Paste a Microsoft Teams Incoming Webhook URL. When a team summary is rebuilt (submit or Rebuild), it posts to that channel if addons.teams is enabled.",
     "teamsWebhook": "Incoming Webhook URL",
-    "teamsStatus": "Status"
+    "teamsStatus": "Status",
+    "slackOAuthUnavailable": "Το Slack OAuth δεν έχει ρυθμιστεί ακόμη στον διακομιστή."
   },
   "invite": {
     "title": "Join team",

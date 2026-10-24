@@ -71,13 +71,11 @@
     "teamCreated": "Team created.",
     "planHint": "Voorbeeldabonnement {{plan}}: max. {{teams}} teams, {{members}} leden per team (alleen UI — API gebruikt echte rollen).",
     "slackTitle": "Slack digest",
-    "slackConnect": "Save Slack webhook",
+    "slackConnect": "Slack verbinden",
     "slackDisconnected": "Slack disconnected.",
-    "slackChannel": "Channel label (optional)",
     "slackDisconnect": "Disconnect Slack",
-    "slackConnected": "Slack webhook saved.",
-    "slackHint": "Paste a Slack Incoming Webhook URL. When a team summary is rebuilt (submit or Rebuild), it posts to that channel if addons.slack is enabled.",
-    "slackWebhook": "Incoming Webhook URL",
+    "slackConnected": "Slack verbonden.",
+    "slackHint": "Autoriseer Slack eenmalig. Kies een kanaal bij installatie; samenvattingen worden daar gepost als addons.slack aan staat.",
     "slackStatus": "Status",
     "teamsTitle": "Microsoft Teams digest",
     "teamsConnect": "Save Teams webhook",
@@ -87,7 +85,8 @@
     "teamsConnected": "Teams webhook saved.",
     "teamsHint": "Paste a Microsoft Teams Incoming Webhook URL. When a team summary is rebuilt (submit or Rebuild), it posts to that channel if addons.teams is enabled.",
     "teamsWebhook": "Incoming Webhook URL",
-    "teamsStatus": "Status"
+    "teamsStatus": "Status",
+    "slackOAuthUnavailable": "Slack OAuth is nog niet geconfigureerd op de server."
   },
   "invite": {
     "title": "Join team",
