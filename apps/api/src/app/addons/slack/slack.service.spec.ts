@@ -74,6 +74,7 @@ describe('SlackService', () => {
     );
     expect(result.authorizeUrl).toContain('client_id=cid');
     expect(result.authorizeUrl).toContain('chat%3Awrite');
+    expect(result.authorizeUrl).toContain('channels%3Ajoin');
     expect(result.authorizeUrl).toContain('state=');
   });
 
@@ -251,13 +252,31 @@ describe('SlackService', () => {
   });
 
   it('completes OAuth callback and redirects to connected', async () => {
+    let pendingMeta: Record<string, unknown> = {};
     const prisma = {
       isEnabled: () => true,
       workspaceMember: {
         findUnique: jest.fn().mockResolvedValue({ role: WorkspaceRole.ADMIN }),
       },
       $transaction: jest.fn().mockResolvedValue([]),
-      addonConnection: { upsert: jest.fn().mockResolvedValue({}) },
+      addonConnection: {
+        upsert: jest
+          .fn()
+          .mockImplementation(
+            async (args: {
+              create: { metadataJson: Record<string, unknown> };
+              update: { metadataJson: Record<string, unknown> };
+            }) => {
+              pendingMeta =
+                args.create.metadataJson ?? args.update.metadataJson;
+              return {};
+            },
+          ),
+        findUnique: jest.fn().mockImplementation(async () => ({
+          status: AddonConnectionStatus.PENDING,
+          metadataJson: pendingMeta,
+        })),
+      },
       workspaceTool: { upsert: jest.fn() },
     };
 
@@ -271,6 +290,7 @@ describe('SlackService', () => {
     const { authorizeUrl } = await service.startOAuth('ws1', admin);
     const state = new URL(authorizeUrl).searchParams.get('state');
     expect(state).toBeTruthy();
+    expect(pendingMeta['oauthNonce']).toBeTruthy();
 
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
@@ -281,6 +301,7 @@ describe('SlackService', () => {
         incoming_webhook: {
           channel: '#standups',
           channel_id: 'C99',
+          url: 'https://hooks.slack.com/services/T/B/x',
         },
       }),
     }) as unknown as typeof fetch;

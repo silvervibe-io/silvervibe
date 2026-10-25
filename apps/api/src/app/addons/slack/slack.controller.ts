@@ -33,6 +33,19 @@ import { SlackService } from './slack.service';
 export class SlackController {
   constructor(private readonly slack: SlackService) {}
 
+  /** Nest may pass repeated query keys as string[]. */
+  private singleQuery(
+    value: string | string[] | undefined,
+  ): string | undefined {
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (Array.isArray(value) && typeof value[0] === 'string') {
+      return value[0];
+    }
+    return undefined;
+  }
+
   @Get('addons/slack/status')
   @ApiOperation({ summary: 'Slack add-on status' })
   @ApiOkResponse({ type: AddonStatusDto })
@@ -79,11 +92,15 @@ export class SlackController {
   })
   @Redirect()
   async oauthCallback(
-    @Query('code') code?: string,
-    @Query('state') state?: string,
-    @Query('error') error?: string,
+    @Query('code') code?: string | string[],
+    @Query('state') state?: string | string[],
+    @Query('error') error?: string | string[],
   ): Promise<{ url: string; statusCode: number }> {
-    const url = await this.slack.completeOAuthCallback(code, state, error);
+    const url = await this.slack.completeOAuthCallback(
+      this.singleQuery(code),
+      this.singleQuery(state),
+      this.singleQuery(error),
+    );
     return { url, statusCode: 302 };
   }
 

@@ -10,7 +10,7 @@ import {
   AddonProvider,
   WorkspaceRole,
 } from '@prisma/client';
-import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { randomBytes } from 'node:crypto';
 import { TOOL_KEYS } from '@silvervibe/shared/feature-flags';
 import { VerifiedUser } from '../../auth/firebase-auth.service';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -27,9 +27,15 @@ type SlackAuthMode = 'oauth' | 'webhook';
 type SlackMetadata = {
   channelLabel?: string;
   channelId?: string;
+  /** Incoming webhook URL from OAuth install; used if chat.postMessage hits not_in_channel. */
+  incomingWebhookUrl?: string;
   teamId?: string;
   teamName?: string;
   authMode?: SlackAuthMode;
+  /** One-time OAuth CSRF nonce stored server-side (not an HMAC of the client secret). */
+  oauthNonce?: string;
+  oauthExp?: number;
+  oauthUserId?: string;
 };
 
 type OAuthStatePayload = {
@@ -41,6 +47,7 @@ type OAuthStatePayload = {
 
 const OAUTH_SCOPES = [
   'chat:write',
+  'channels:join',
   'channels:read',
   'groups:read',
   'incoming-webhook',
@@ -117,13 +124,27 @@ export class SlackService {
     );
   }
 
-  workspaceRedirect(result: 'connected' | 'error', detail?: string): string {
+  workspaceRedirect(result: 'connected' | 'error', detail?: unknown): string {
     const url = new URL('/app/workspace', `${this.standupAppOrigin()}/`);
     url.searchParams.set('slack', result);
-    if (detail) {
-      url.searchParams.set('slackDetail', detail.slice(0, 120));
+    const detailText = this.asSingleString(detail);
+    if (detailText) {
+      url.searchParams.set('slackDetail', detailText.slice(0, 120));
     }
     return url.toString();
+  }
+
+  /** Query/body values may arrive as string | string[]; always take a single string. */
+  private asSingleString(value: unknown): string | undefined {
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      return trimmed.length > 0 ? trimmed : undefined;
+    }
+    if (Array.isArray(value) && typeof value[0] === 'string') {
+      const trimmed = value[0].trim();
+      return trimmed.length > 0 ? trimmed : undefined;
+    }
+    return undefined;
   }
 
   private async requireWorkspaceAdmin(
@@ -164,13 +185,18 @@ export class SlackService {
       return typeof v === 'string' && v.trim() ? v.trim() : undefined;
     };
     const authMode = str('authMode');
+    const oauthExpRaw = obj['oauthExp'];
     return {
       channelLabel: str('channelLabel'),
       channelId: str('channelId'),
+      incomingWebhookUrl: str('incomingWebhookUrl'),
       teamId: str('teamId'),
       teamName: str('teamName'),
       authMode:
         authMode === 'oauth' || authMode === 'webhook' ? authMode : undefined,
+      oauthNonce: str('oauthNonce'),
+      oauthExp: typeof oauthExpRaw === 'number' ? oauthExpRaw : undefined,
+      oauthUserId: str('oauthUserId'),
     };
   }
 
@@ -193,43 +219,30 @@ export class SlackService {
     return 'webhook';
   }
 
-  private signState(payload: OAuthStatePayload): string {
-    const { clientSecret } = this.requireOAuthConfigured();
-    const body = Buffer.from(JSON.stringify(payload), 'utf8').toString(
-      'base64url',
-    );
-    const sig = createHmac('sha256', clientSecret)
-      .update(body)
-      .digest('base64url');
-    return `${body}.${sig}`;
+  private encodeOAuthState(payload: OAuthStatePayload): string {
+    return Buffer.from(JSON.stringify(payload), 'utf8').toString('base64url');
   }
 
-  private verifyState(state: string): OAuthStatePayload {
-    const { clientSecret } = this.requireOAuthConfigured();
-    const parts = state.split('.');
-    if (parts.length !== 2 || !parts[0] || !parts[1]) {
-      throw new BadRequestException('Invalid OAuth state');
-    }
-    const [body, sig] = parts;
-    const expected = createHmac('sha256', clientSecret)
-      .update(body)
-      .digest('base64url');
-    const a = Buffer.from(sig);
-    const b = Buffer.from(expected);
-    if (a.length !== b.length || !timingSafeEqual(a, b)) {
-      throw new BadRequestException('Invalid OAuth state signature');
-    }
+  /**
+   * Validates OAuth `state` against the PENDING AddonConnection nonce in Neon
+   * (CSRF protection without hashing SLACK_CLIENT_SECRET).
+   */
+  private async consumeOAuthState(state: string): Promise<OAuthStatePayload> {
     let payload: OAuthStatePayload;
     try {
       payload = JSON.parse(
-        Buffer.from(body, 'base64url').toString('utf8'),
+        Buffer.from(state, 'base64url').toString('utf8'),
       ) as OAuthStatePayload;
     } catch {
       throw new BadRequestException('Invalid OAuth state payload');
     }
     if (
-      !payload.workspaceId ||
-      !payload.userId ||
+      typeof payload.workspaceId !== 'string' ||
+      !payload.workspaceId.trim() ||
+      typeof payload.userId !== 'string' ||
+      !payload.userId.trim() ||
+      typeof payload.nonce !== 'string' ||
+      !payload.nonce.trim() ||
       typeof payload.exp !== 'number'
     ) {
       throw new BadRequestException('Invalid OAuth state fields');
@@ -237,7 +250,35 @@ export class SlackService {
     if (Date.now() > payload.exp) {
       throw new BadRequestException('OAuth state expired');
     }
-    return payload;
+
+    const connection = await this.prisma.addonConnection.findUnique({
+      where: {
+        workspaceId_provider: {
+          workspaceId: payload.workspaceId,
+          provider: AddonProvider.SLACK,
+        },
+      },
+    });
+    if (!connection || connection.status !== AddonConnectionStatus.PENDING) {
+      throw new BadRequestException('OAuth install is not pending');
+    }
+    const meta = this.asMetadata(connection.metadataJson);
+    if (
+      !meta.oauthNonce ||
+      meta.oauthNonce !== payload.nonce ||
+      meta.oauthUserId !== payload.userId
+    ) {
+      throw new BadRequestException('OAuth state nonce mismatch');
+    }
+    if (typeof meta.oauthExp === 'number' && Date.now() > meta.oauthExp) {
+      throw new BadRequestException('OAuth state expired');
+    }
+    return {
+      workspaceId: payload.workspaceId.trim(),
+      userId: payload.userId.trim(),
+      exp: payload.exp,
+      nonce: payload.nonce.trim(),
+    };
   }
 
   async getConnection(
@@ -289,12 +330,20 @@ export class SlackService {
     const userId = (await this.users.upsertFromFirebase(user)).id;
     await this.requireWorkspaceAdmin(workspaceId, userId);
 
-    const state = this.signState({
+    const nonce = randomBytes(16).toString('hex');
+    const exp = Date.now() + STATE_TTL_MS;
+    const state = this.encodeOAuthState({
       workspaceId,
       userId,
-      exp: Date.now() + STATE_TTL_MS,
-      nonce: randomBytes(8).toString('hex'),
+      exp,
+      nonce,
     });
+    const pendingMeta: SlackMetadata = {
+      authMode: 'oauth',
+      oauthNonce: nonce,
+      oauthExp: exp,
+      oauthUserId: userId,
+    };
 
     await this.prisma.addonConnection.upsert({
       where: {
@@ -307,10 +356,11 @@ export class SlackService {
         workspaceId,
         provider: AddonProvider.SLACK,
         status: AddonConnectionStatus.PENDING,
-        metadataJson: { authMode: 'oauth' },
+        metadataJson: pendingMeta,
       },
       update: {
         status: AddonConnectionStatus.PENDING,
+        metadataJson: pendingMeta,
       },
     });
 
@@ -331,28 +381,31 @@ export class SlackService {
    * Never throws to the browser — errors become ?slack=error redirects.
    */
   async completeOAuthCallback(
-    code: string | undefined,
-    state: string | undefined,
-    errorFromSlack: string | undefined,
+    code: unknown,
+    state: unknown,
+    errorFromSlack: unknown,
   ): Promise<string> {
-    if (errorFromSlack) {
-      this.logger.warn(`Slack OAuth denied: ${errorFromSlack}`);
-      return this.workspaceRedirect('error', errorFromSlack);
+    const errorText = this.asSingleString(errorFromSlack);
+    if (errorText) {
+      this.logger.warn(`Slack OAuth denied: ${errorText}`);
+      return this.workspaceRedirect('error', errorText);
     }
-    if (!code?.trim() || !state?.trim()) {
+    const codeText = this.asSingleString(code);
+    const stateText = this.asSingleString(state);
+    if (!codeText || !stateText) {
       return this.workspaceRedirect('error', 'missing_code_or_state');
     }
 
     try {
       this.ensureDb();
       const { clientId, clientSecret } = this.requireOAuthConfigured();
-      const payload = this.verifyState(state.trim());
+      const payload = await this.consumeOAuthState(stateText);
       await this.requireWorkspaceAdmin(payload.workspaceId, payload.userId);
 
       const body = new URLSearchParams({
         client_id: clientId,
         client_secret: clientSecret,
-        code: code.trim(),
+        code: codeText,
         redirect_uri: this.redirectUri(),
       });
 
@@ -386,6 +439,8 @@ export class SlackService {
       const channelId = tokenJson.incoming_webhook?.channel_id?.trim();
       const channelLabel =
         tokenJson.incoming_webhook?.channel?.trim() || undefined;
+      const incomingWebhookUrl =
+        tokenJson.incoming_webhook?.url?.trim() || undefined;
       if (!channelId) {
         this.logger.warn(
           'Slack OAuth succeeded but no incoming_webhook.channel_id — ask admin to reinstall and pick a channel',
@@ -397,6 +452,7 @@ export class SlackService {
         authMode: 'oauth',
         channelId,
         channelLabel,
+        incomingWebhookUrl,
         teamId: tokenJson.team?.id,
         teamName: tokenJson.team?.name,
       };
@@ -592,12 +648,26 @@ export class SlackService {
 
       const mode = this.detectAuthMode(secretsRef, meta);
       if (mode === 'oauth' && secretsRef.startsWith('xoxb-')) {
-        return this.postViaWebApi(
+        const posted = await this.postViaWebApi(
           secretsRef,
           meta.channelId,
           text,
           params.workspaceId,
         );
+        if (posted) {
+          return true;
+        }
+        if (meta.incomingWebhookUrl) {
+          this.logger.warn(
+            `Slack chat.postMessage failed; falling back to Incoming Webhook for workspace ${params.workspaceId}`,
+          );
+          return this.postViaWebhook(
+            meta.incomingWebhookUrl,
+            text,
+            params.workspaceId,
+          );
+        }
+        return false;
       }
 
       return this.postViaWebhook(secretsRef, text, params.workspaceId);
@@ -623,25 +693,68 @@ export class SlackService {
       return false;
     }
 
-    const res = await fetch('https://slack.com/api/chat.postMessage', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${botToken}`,
-        'Content-Type': 'application/json; charset=utf-8',
-      },
-      body: JSON.stringify({ channel: channelId, text }),
-    });
-    const json = (await res.json().catch(() => ({}))) as {
-      ok?: boolean;
-      error?: string;
+    const postOnce = async (): Promise<{ ok: boolean; error?: string }> => {
+      const res = await fetch('https://slack.com/api/chat.postMessage', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${botToken}`,
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+        body: JSON.stringify({ channel: channelId, text }),
+      });
+      const json = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+      };
+      if (!res.ok || !json.ok) {
+        return { ok: false, error: json.error ?? String(res.status) };
+      }
+      return { ok: true };
     };
-    if (!res.ok || !json.ok) {
+
+    let result = await postOnce();
+    if (!result.ok && result.error === 'not_in_channel') {
+      await this.tryJoinChannel(botToken, channelId, workspaceId);
+      result = await postOnce();
+    }
+    if (!result.ok) {
       this.logger.warn(
-        `Slack chat.postMessage failed for workspace ${workspaceId}: ${json.error ?? res.status}`,
+        `Slack chat.postMessage failed for workspace ${workspaceId}: ${result.error}`,
       );
       return false;
     }
     return true;
+  }
+
+  private async tryJoinChannel(
+    botToken: string,
+    channelId: string,
+    workspaceId: string,
+  ): Promise<void> {
+    try {
+      const res = await fetch('https://slack.com/api/conversations.join', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${botToken}`,
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+        body: JSON.stringify({ channel: channelId }),
+      });
+      const json = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+      };
+      if (!json.ok) {
+        this.logger.warn(
+          `Slack conversations.join failed for workspace ${workspaceId}: ${json.error ?? res.status}`,
+        );
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.warn(
+        `Slack conversations.join error for workspace ${workspaceId}: ${message}`,
+      );
+    }
   }
 
   private async postViaWebhook(

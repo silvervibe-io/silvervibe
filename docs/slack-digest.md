@@ -25,9 +25,12 @@ the admin disconnects and reconnects with OAuth. Prefer OAuth for new workspaces
 2. **OAuth & Permissions** → Redirect URL:
    - Local: `http://localhost:3000/api/addons/slack/oauth/callback`
    - Prod: `https://api.silvervibe.io/api/addons/slack/oauth/callback`
-3. Bot token scopes: `chat:write`, `channels:read`, `groups:read`,
-   `incoming-webhook`.
+3. Bot token scopes: `chat:write`, `channels:join`, `channels:read`,
+   `groups:read`, `incoming-webhook`.
 4. Copy **Client ID** and **Client Secret** into Nest env (never commit).
+5. After Connect Slack, if digests fail with `not_in_channel`, invite the bot
+   into the channel (`/invite @YourApp`) or Disconnect + Connect again (stores
+   the install webhook as a fallback).
 
 Optional: set `SLACK_REDIRECT_URI` if it must differ from
 `${PUBLIC_API_URL}/addons/slack/oauth/callback`.
