@@ -80,13 +80,21 @@
     "teamCreated": "Team created.",
     "planHint": "Preview plan {{plan}}: up to {{teams}} teams, {{members}} members per team (UI only — API still uses real roles).",
     "slackTitle": "Slack digest",
-    "slackConnect": "Save Slack webhook",
+    "slackConnect": "Connect Slack",
     "slackDisconnected": "Slack disconnected.",
-    "slackChannel": "Channel label (optional)",
     "slackDisconnect": "Disconnect Slack",
-    "slackConnected": "Slack webhook saved.",
-    "slackHint": "Paste a Slack Incoming Webhook URL. When a team summary is rebuilt (submit or Rebuild), it posts to that channel if addons.slack is enabled.",
-    "slackWebhook": "Incoming Webhook URL",
-    "slackStatus": "Status"
+    "slackConnected": "Slack connected.",
+    "slackHint": "Authorize Slack once. Pick a channel during install; standup summaries post there when addons.slack is enabled.",
+    "slackStatus": "Status",
+    "teamsTitle": "Microsoft Teams digest",
+    "teamsConnect": "Save Teams webhook",
+    "teamsDisconnected": "Teams disconnected.",
+    "teamsChannel": "Channel label (optional)",
+    "teamsDisconnect": "Disconnect Teams",
+    "teamsConnected": "Teams webhook saved.",
+    "teamsHint": "Paste a Microsoft Teams Incoming Webhook URL. When a team summary is rebuilt (submit or Rebuild), it posts to that channel if addons.teams is enabled.",
+    "teamsWebhook": "Incoming Webhook URL",
+    "teamsStatus": "Status",
+    "slackOAuthUnavailable": "Slack OAuth is not configured on the server yet."
   }
 }

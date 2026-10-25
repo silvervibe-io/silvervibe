@@ -26,11 +26,24 @@ export type CreateTeamInput = {
 export type SlackConnectionView = {
   status: 'DISCONNECTED' | 'PENDING' | 'CONNECTED' | 'ERROR';
   configured: boolean;
+  authMode: 'oauth' | 'webhook' | null;
+  channelLabel: string | null;
+  toolEnabled: boolean;
+  oauthAvailable: boolean;
+};
+
+export type SlackOAuthStartView = {
+  authorizeUrl: string;
+};
+
+export type TeamsConnectionView = {
+  status: 'DISCONNECTED' | 'PENDING' | 'CONNECTED' | 'ERROR';
+  configured: boolean;
   channelLabel: string | null;
   toolEnabled: boolean;
 };
 
-export type ConnectSlackInput = {
+export type ConnectTeamsInput = {
   incomingWebhookUrl: string;
   channelLabel?: string;
 };

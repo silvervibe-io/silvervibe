@@ -16,10 +16,12 @@ import { API_BASE_URL } from '@silvervibe/shared/auth';
 import type { PreviewWorkspaceRole } from '@silvervibe/stores/preview';
 import { firstValueFrom } from 'rxjs';
 import type {
-  ConnectSlackInput,
+  ConnectTeamsInput,
   CreateTeamInput,
   CreateWorkspaceInput,
   SlackConnectionView,
+  SlackOAuthStartView,
+  TeamsConnectionView,
   WorkspaceMembershipView,
   WorkspaceToolView,
 } from './workspace.models';
@@ -105,14 +107,10 @@ export class WorkspaceService {
     );
   }
 
-  connectSlack(
-    workspaceId: string,
-    body: ConnectSlackInput,
-  ): Promise<SlackConnectionView> {
+  startSlackOAuth(workspaceId: string): Promise<SlackOAuthStartView> {
     return firstValueFrom(
-      this.http.put<SlackConnectionView>(
-        `${this.apiBase}/workspaces/${workspaceId}/addons/slack`,
-        body,
+      this.http.get<SlackOAuthStartView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/slack/oauth/start`,
       ),
     );
   }
@@ -121,6 +119,34 @@ export class WorkspaceService {
     return firstValueFrom(
       this.http.delete<SlackConnectionView>(
         `${this.apiBase}/workspaces/${workspaceId}/addons/slack`,
+      ),
+    );
+  }
+
+  getTeamsConnection(workspaceId: string): Promise<TeamsConnectionView> {
+    return firstValueFrom(
+      this.http.get<TeamsConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/teams`,
+      ),
+    );
+  }
+
+  connectTeams(
+    workspaceId: string,
+    body: ConnectTeamsInput,
+  ): Promise<TeamsConnectionView> {
+    return firstValueFrom(
+      this.http.put<TeamsConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/teams`,
+        body,
+      ),
+    );
+  }
+
+  disconnectTeams(workspaceId: string): Promise<TeamsConnectionView> {
+    return firstValueFrom(
+      this.http.delete<TeamsConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/teams`,
       ),
     );
   }

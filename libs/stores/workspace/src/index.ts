@@ -1,9 +1,11 @@
 export { WorkspaceFacade } from './lib/workspace.facade';
 export type {
-  ConnectSlackInput,
+  ConnectTeamsInput,
   CreateTeamInput,
   CreateWorkspaceInput,
   SlackConnectionView,
+  SlackOAuthStartView,
+  TeamsConnectionView,
   WorkspaceMembershipView,
   WorkspaceState,
   WorkspaceToolView,

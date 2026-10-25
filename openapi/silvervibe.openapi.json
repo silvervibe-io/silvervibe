@@ -23,6 +23,34 @@
         ]
       }
     },
+    "/api/jobs/standup-reminders": {
+      "post": {
+        "operationId": "JobsController_runStandupReminders",
+        "parameters": [
+          {
+            "name": "X-Cron-Secret",
+            "in": "header",
+            "description": "Must match CRON_SECRET (or use Authorization: Bearer <secret>)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reminder run counters"
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Email team members who have not submitted standup for the team-local today",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
     "/api/auth/custom-token": {
       "post": {
         "description": "Caller sends a valid ID token; response is a short-lived custom token consumable via `signInWithCustomToken` on another authorized domain.",
@@ -972,6 +1000,397 @@
         ]
       }
     },
+    "/api/addons/slack/status": {
+      "get": {
+        "operationId": "SlackController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddonStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Slack add-on status",
+        "tags": [
+          "slack"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/slack": {
+      "get": {
+        "operationId": "SlackController_getConnection",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SlackConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get Slack connection for a workspace (secret never returned)",
+        "tags": [
+          "slack"
+        ]
+      },
+      "put": {
+        "deprecated": true,
+        "operationId": "SlackController_connect",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectSlackDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SlackConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Deprecated: connect Slack via Incoming Webhook. Prefer OAuth start.",
+        "tags": [
+          "slack"
+        ]
+      },
+      "delete": {
+        "operationId": "SlackController_disconnect",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SlackConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Disconnect Slack (clears bot token / webhook)",
+        "tags": [
+          "slack"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/slack/oauth/start": {
+      "get": {
+        "operationId": "SlackController_startOAuth",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SlackOAuthStartDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Start Slack OAuth install; returns authorize URL for the browser",
+        "tags": [
+          "slack"
+        ]
+      }
+    },
+    "/api/addons/slack/oauth/callback": {
+      "get": {
+        "operationId": "SlackController_oauthCallback",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "error",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Slack OAuth callback (public); redirects to standup workspace admin",
+        "tags": [
+          "slack"
+        ]
+      }
+    },
+    "/api/addons/teams/status": {
+      "get": {
+        "operationId": "TeamsController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddonStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Microsoft Teams add-on status",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/teams": {
+      "get": {
+        "operationId": "TeamsController_getConnection",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamsConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get Teams Incoming Webhook connection for a workspace",
+        "tags": [
+          "teams"
+        ]
+      },
+      "put": {
+        "operationId": "TeamsController_connect",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectTeamsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamsConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Connect Microsoft Teams via Incoming Webhook (enables addons.teams entitlement)",
+        "tags": [
+          "teams"
+        ]
+      },
+      "delete": {
+        "operationId": "TeamsController_disconnect",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamsConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Disconnect Teams Incoming Webhook",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
     "/api/flags/vibestandup": {
       "get": {
         "operationId": "FeatureFlagsController_vibestandup",
@@ -1008,50 +1427,6 @@
         "summary": "Evaluate vibestandup rollout flag",
         "tags": [
           "flags"
-        ]
-      }
-    },
-    "/api/addons/slack/status": {
-      "get": {
-        "operationId": "SlackController_status",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AddonStatusDto"
-                }
-              }
-            }
-          }
-        },
-        "summary": "Slack add-on status",
-        "tags": [
-          "slack"
-        ]
-      }
-    },
-    "/api/addons/teams/status": {
-      "get": {
-        "operationId": "TeamsController_status",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AddonStatusDto"
-                }
-              }
-            }
-          }
-        },
-        "summary": "Microsoft Teams add-on status",
-        "tags": [
-          "teams"
         ]
       }
     },
@@ -1702,21 +2077,6 @@
           "content"
         ]
       },
-      "FlagEvaluationDto": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string"
-          },
-          "enabled": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "key",
-          "enabled"
-        ]
-      },
       "AddonStatusDto": {
         "type": "object",
         "properties": {
@@ -1732,6 +2092,141 @@
         "required": [
           "name",
           "status"
+        ]
+      },
+      "SlackConnectionDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "DISCONNECTED",
+              "PENDING",
+              "CONNECTED",
+              "ERROR"
+            ]
+          },
+          "configured": {
+            "type": "boolean",
+            "description": "True when a bot token or legacy Incoming Webhook is stored (secret never returned)"
+          },
+          "authMode": {
+            "type": "string",
+            "description": "oauth | webhook when configured; null when disconnected",
+            "nullable": true,
+            "enum": [
+              "oauth",
+              "webhook"
+            ]
+          },
+          "channelLabel": {
+            "type": "object",
+            "nullable": true
+          },
+          "toolEnabled": {
+            "type": "boolean",
+            "description": "Whether workspace tool entitlement addons.slack is enabled"
+          },
+          "oauthAvailable": {
+            "type": "boolean",
+            "description": "True when SLACK_CLIENT_ID / SLACK_CLIENT_SECRET are set"
+          }
+        },
+        "required": [
+          "status",
+          "configured",
+          "toolEnabled",
+          "oauthAvailable"
+        ]
+      },
+      "SlackOAuthStartDto": {
+        "type": "object",
+        "properties": {
+          "authorizeUrl": {
+            "type": "string",
+            "description": "Slack OAuth authorize URL to open in the browser"
+          }
+        },
+        "required": [
+          "authorizeUrl"
+        ]
+      },
+      "ConnectSlackDto": {
+        "type": "object",
+        "properties": {
+          "incomingWebhookUrl": {
+            "type": "string",
+            "description": "Slack Incoming Webhook URL (https://hooks.slack.com/...)"
+          },
+          "channelLabel": {
+            "type": "string",
+            "description": "Display label, e.g. #standups"
+          }
+        },
+        "required": [
+          "incomingWebhookUrl"
+        ]
+      },
+      "TeamsConnectionDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "DISCONNECTED",
+              "PENDING",
+              "CONNECTED",
+              "ERROR"
+            ]
+          },
+          "configured": {
+            "type": "boolean",
+            "description": "True when an Incoming Webhook is stored (URL never returned)"
+          },
+          "channelLabel": {
+            "type": "object",
+            "nullable": true
+          },
+          "toolEnabled": {
+            "type": "boolean",
+            "description": "Whether workspace tool entitlement addons.teams is enabled"
+          }
+        },
+        "required": [
+          "status",
+          "configured",
+          "toolEnabled"
+        ]
+      },
+      "ConnectTeamsDto": {
+        "type": "object",
+        "properties": {
+          "incomingWebhookUrl": {
+            "type": "string",
+            "description": "Microsoft Teams Incoming Webhook URL (outlook.office.com or webhook.office.com)"
+          },
+          "channelLabel": {
+            "type": "string",
+            "description": "Display label, e.g. Standups channel"
+          }
+        },
+        "required": [
+          "incomingWebhookUrl"
+        ]
+      },
+      "FlagEvaluationDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "key",
+          "enabled"
         ]
       }
     }
