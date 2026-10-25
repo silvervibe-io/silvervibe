@@ -81,6 +81,8 @@
         <span class="font-medium">{{ conn.status }}</span>
         @if (conn.channelLabel) {
         <span class="text-base-content/70"> — {{ conn.channelLabel }}</span>
+        } @if (conn.authMode) {
+        <span class="text-base-content/50"> ({{ conn.authMode }})</span>
         }
       </p>
       @if (conn.configured) {
@@ -91,33 +93,20 @@
       >
         {{ 'standup.workspace.slackDisconnect' | transloco }}
       </button>
-      } }
-      <form class="flex flex-col gap-3" (submit)="connectSlack($event)">
-        <fieldset class="fieldset w-full">
-          <legend class="fieldset-legend">
-            {{ 'standup.workspace.slackWebhook' | transloco }}
-          </legend>
-          <input
-            class="input input-bordered w-full"
-            type="url"
-            autocomplete="off"
-            [formField]="slackForm.incomingWebhookUrl"
-          />
-        </fieldset>
-        <fieldset class="fieldset w-full">
-          <legend class="fieldset-legend">
-            {{ 'standup.workspace.slackChannel' | transloco }}
-          </legend>
-          <input
-            class="input input-bordered w-full"
-            [formField]="slackForm.channelLabel"
-          />
-        </fieldset>
-        <button type="submit" class="btn btn-secondary btn-sm self-start">
-          {{ 'standup.workspace.slackConnect' | transloco }}
-        </button>
-      </form>
-      @if (slackError()) {
+      } @else if (conn.oauthAvailable) {
+      <button
+        type="button"
+        class="btn btn-secondary btn-sm self-start"
+        [disabled]="slackConnecting()"
+        (click)="connectSlack()"
+      >
+        {{ 'standup.workspace.slackConnect' | transloco }}
+      </button>
+      } @else {
+      <p class="text-sm text-warning">
+        {{ 'standup.workspace.slackOAuthUnavailable' | transloco }}
+      </p>
+      } } @if (slackError()) {
       <p class="text-error text-sm">{{ slackError() }}</p>
       }
     </section>

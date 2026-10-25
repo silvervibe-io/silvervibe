@@ -16,11 +16,11 @@ import { API_BASE_URL } from '@silvervibe/shared/auth';
 import type { PreviewWorkspaceRole } from '@silvervibe/stores/preview';
 import { firstValueFrom } from 'rxjs';
 import type {
-  ConnectSlackInput,
   ConnectTeamsInput,
   CreateTeamInput,
   CreateWorkspaceInput,
   SlackConnectionView,
+  SlackOAuthStartView,
   TeamsConnectionView,
   WorkspaceMembershipView,
   WorkspaceToolView,
@@ -107,14 +107,10 @@ export class WorkspaceService {
     );
   }
 
-  connectSlack(
-    workspaceId: string,
-    body: ConnectSlackInput,
-  ): Promise<SlackConnectionView> {
+  startSlackOAuth(workspaceId: string): Promise<SlackOAuthStartView> {
     return firstValueFrom(
-      this.http.put<SlackConnectionView>(
-        `${this.apiBase}/workspaces/${workspaceId}/addons/slack`,
-        body,
+      this.http.get<SlackOAuthStartView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/slack/oauth/start`,
       ),
     );
   }

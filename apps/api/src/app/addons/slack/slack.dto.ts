@@ -12,9 +12,17 @@ export class SlackConnectionDto {
   status!: 'DISCONNECTED' | 'PENDING' | 'CONNECTED' | 'ERROR';
 
   @ApiProperty({
-    description: 'True when an Incoming Webhook is stored (URL never returned)',
+    description:
+      'True when a bot token or legacy Incoming Webhook is stored (secret never returned)',
   })
   configured!: boolean;
+
+  @ApiPropertyOptional({
+    description: 'oauth | webhook when configured; null when disconnected',
+    nullable: true,
+    enum: ['oauth', 'webhook'],
+  })
+  authMode!: 'oauth' | 'webhook' | null;
 
   @ApiPropertyOptional({ nullable: true })
   channelLabel!: string | null;
@@ -23,8 +31,21 @@ export class SlackConnectionDto {
     description: 'Whether workspace tool entitlement addons.slack is enabled',
   })
   toolEnabled!: boolean;
+
+  @ApiProperty({
+    description: 'True when SLACK_CLIENT_ID / SLACK_CLIENT_SECRET are set',
+  })
+  oauthAvailable!: boolean;
 }
 
+export class SlackOAuthStartDto {
+  @ApiProperty({
+    description: 'Slack OAuth authorize URL to open in the browser',
+  })
+  authorizeUrl!: string;
+}
+
+/** @deprecated Prefer OAuth start; kept for migration of existing webhook installs. */
 export class ConnectSlackDto {
   @ApiProperty({
     description: 'Slack Incoming Webhook URL (https://hooks.slack.com/...)',

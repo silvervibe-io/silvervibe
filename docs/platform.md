@@ -42,24 +42,24 @@ Brand mark / favicon: [brand.md](./brand.md).
 
 ## Code map
 
-| Concern                           | Location                                                             |
-| --------------------------------- | -------------------------------------------------------------------- |
-| Prisma schema                     | `libs/shared/data-access/prisma/schema.prisma`                       |
-| Entitlement helpers               | `@silvervibe/shared/data-access`                                     |
-| Nest workspaces / entitlements    | `apps/api/src/app/workspaces` — [entitlements.md](./entitlements.md) |
-| Shared UI / theme                 | `@silvervibe/shared/ui` — [theme.md](./theme.md)                     |
-| Flag / tool keys                  | `@silvervibe/shared/feature-flags`                                   |
-| Angular Auth + OpenFeature client | `@silvervibe/shared/auth`                                            |
-| Nest Firebase guard / `/api/me`   | `apps/api/src/app/auth`, `users`                                     |
-| Nest OpenFeature                  | `apps/api/src/app/feature-flags`                                     |
-| Nest API Cloud Run                | `apps/api/Dockerfile` — [cloud-run.md](./cloud-run.md)               |
-| LangGraph AI Cloud Run            | `apps/ai/Dockerfile` — [cloud-run-ai.md](./cloud-run-ai.md)          |
-| VibeStandup Pages                 | `vibestandup` app — [vibestandup-pages.md](./vibestandup-pages.md)   |
-| Inbound `info@` email             | Cloudflare Email Routing — [email-routing.md](./email-routing.md)    |
-| Ops follow-ups                    | GrowthBook / API / mail — [ops-followups.md](./ops-followups.md)     |
-| Standup reminders                 | Cron + Resend — [standup-reminders.md](./standup-reminders.md)       |
-| Slack standup digest              | Incoming Webhook — [slack-digest.md](./slack-digest.md) (#89)        |
-| Teams standup digest              | Incoming Webhook — [teams-digest.md](./teams-digest.md) (#101)       |
+| Concern                           | Location                                                                 |
+| --------------------------------- | ------------------------------------------------------------------------ |
+| Prisma schema                     | `libs/shared/data-access/prisma/schema.prisma`                           |
+| Entitlement helpers               | `@silvervibe/shared/data-access`                                         |
+| Nest workspaces / entitlements    | `apps/api/src/app/workspaces` — [entitlements.md](./entitlements.md)     |
+| Shared UI / theme                 | `@silvervibe/shared/ui` — [theme.md](./theme.md)                         |
+| Flag / tool keys                  | `@silvervibe/shared/feature-flags`                                       |
+| Angular Auth + OpenFeature client | `@silvervibe/shared/auth`                                                |
+| Nest Firebase guard / `/api/me`   | `apps/api/src/app/auth`, `users`                                         |
+| Nest OpenFeature                  | `apps/api/src/app/feature-flags`                                         |
+| Nest API Cloud Run                | `apps/api/Dockerfile` — [cloud-run.md](./cloud-run.md)                   |
+| LangGraph AI Cloud Run            | `apps/ai/Dockerfile` — [cloud-run-ai.md](./cloud-run-ai.md)              |
+| VibeStandup Pages                 | `vibestandup` app — [vibestandup-pages.md](./vibestandup-pages.md)       |
+| Inbound `info@` email             | Cloudflare Email Routing — [email-routing.md](./email-routing.md)        |
+| Ops follow-ups                    | GrowthBook / API / mail — [ops-followups.md](./ops-followups.md)         |
+| Standup reminders                 | Cron + Resend — [standup-reminders.md](./standup-reminders.md)           |
+| Slack standup digest              | OAuth + `chat.postMessage` — [slack-digest.md](./slack-digest.md) (#103) |
+| Teams standup digest              | Incoming Webhook — [teams-digest.md](./teams-digest.md) (#101)           |
 
 ## Feature access
 

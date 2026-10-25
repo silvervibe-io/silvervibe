@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { form, FormField, required, submit } from '@angular/forms/signals';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
 import { Shell } from '@silvervibe/shared/ui';
@@ -21,11 +21,6 @@ import {
 type CreateTeamModel = {
   name: string;
   slug: string;
-};
-
-type SlackModel = {
-  incomingWebhookUrl: string;
-  channelLabel: string;
 };
 
 type TeamsModel = {
@@ -45,6 +40,8 @@ type TeamsModel = {
 export class WorkspaceAdmin implements OnInit {
   private readonly workspaces = inject(WorkspaceFacade);
   private readonly preview = inject(PreviewContextStore);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   readonly loading = this.workspaces.loading;
   readonly error = this.workspaces.error;
@@ -70,6 +67,7 @@ export class WorkspaceAdmin implements OnInit {
   readonly message = signal<string | null>(null);
   readonly slack = signal<SlackConnectionView | null>(null);
   readonly slackError = signal<string | null>(null);
+  readonly slackConnecting = signal(false);
   readonly teams = signal<TeamsConnectionView | null>(null);
   readonly teamsError = signal<string | null>(null);
 
@@ -77,14 +75,6 @@ export class WorkspaceAdmin implements OnInit {
   readonly teamForm = form(this.teamModel, (schemaPath) => {
     required(schemaPath.name);
     required(schemaPath.slug);
-  });
-
-  readonly slackModel = signal<SlackModel>({
-    incomingWebhookUrl: '',
-    channelLabel: '',
-  });
-  readonly slackForm = form(this.slackModel, (schemaPath) => {
-    required(schemaPath.incomingWebhookUrl);
   });
 
   readonly teamsModel = signal<TeamsModel>({
@@ -105,6 +95,26 @@ export class WorkspaceAdmin implements OnInit {
     if (ws && this.isAdmin()) {
       await Promise.all([this.refreshSlack(ws.id), this.refreshTeams(ws.id)]);
     }
+    this.applySlackQueryResult();
+  }
+
+  private applySlackQueryResult(): void {
+    const params = this.route.snapshot.queryParamMap;
+    const slack = params.get('slack');
+    if (!slack) {
+      return;
+    }
+    if (slack === 'connected') {
+      this.message.set('standup.workspace.slackConnected');
+    } else if (slack === 'error') {
+      this.slackError.set(params.get('slackDetail') || 'Slack connect failed');
+    }
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { slack: null, slackDetail: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   async selectWorkspace(workspaceId: string): Promise<void> {
@@ -125,10 +135,6 @@ export class WorkspaceAdmin implements OnInit {
     try {
       const conn = await this.workspaces.getSlackConnection(workspaceId);
       this.slack.set(conn);
-      this.slackModel.set({
-        incomingWebhookUrl: '',
-        channelLabel: conn.channelLabel ?? '',
-      });
     } catch (err: unknown) {
       this.slackError.set(
         err instanceof Error ? err.message : 'Failed to load Slack connection',
@@ -162,37 +168,22 @@ export class WorkspaceAdmin implements OnInit {
     this.message.set('standup.workspace.toolUpdated');
   }
 
-  async connectSlack(event: Event): Promise<void> {
-    event.preventDefault();
+  async connectSlack(): Promise<void> {
     const ws = this.selected();
     if (!ws || !this.isAdmin()) {
       return;
     }
     this.slackError.set(null);
-    await submit(this.slackForm, {
-      action: async () => {
-        try {
-          const m = this.slackModel();
-          const conn = await this.workspaces.connectSlack(ws.id, {
-            incomingWebhookUrl: m.incomingWebhookUrl.trim(),
-            channelLabel: m.channelLabel.trim() || undefined,
-          });
-          this.slack.set(conn);
-          this.slackModel.set({
-            incomingWebhookUrl: '',
-            channelLabel: conn.channelLabel ?? '',
-          });
-          await this.workspaces.loadMyWorkspaces();
-          this.workspaces.selectWorkspace(ws.id);
-          this.message.set('standup.workspace.slackConnected');
-        } catch (err: unknown) {
-          this.slackError.set(
-            err instanceof Error ? err.message : 'Slack connect failed',
-          );
-        }
-        return undefined;
-      },
-    });
+    this.slackConnecting.set(true);
+    try {
+      const { authorizeUrl } = await this.workspaces.startSlackOAuth(ws.id);
+      window.location.assign(authorizeUrl);
+    } catch (err: unknown) {
+      this.slackConnecting.set(false);
+      this.slackError.set(
+        err instanceof Error ? err.message : 'Slack connect failed',
+      );
+    }
   }
 
   async disconnectSlack(): Promise<void> {
