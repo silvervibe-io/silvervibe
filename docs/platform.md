@@ -59,7 +59,7 @@ Brand mark / favicon: [brand.md](./brand.md).
 | Ops follow-ups                    | GrowthBook / API / mail — [ops-followups.md](./ops-followups.md)         |
 | Standup reminders                 | Cron + Resend — [standup-reminders.md](./standup-reminders.md)           |
 | Slack standup digest              | OAuth + `chat.postMessage` — [slack-digest.md](./slack-digest.md) (#103) |
-| Teams standup digest              | Incoming Webhook — [teams-digest.md](./teams-digest.md) (#101)           |
+| Teams standup digest              | Deferred (needs M365) — [teams-digest.md](./teams-digest.md) (#108)      |
 
 ## Feature access
 
