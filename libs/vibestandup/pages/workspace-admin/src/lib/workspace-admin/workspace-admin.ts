@@ -172,17 +172,40 @@ export class WorkspaceAdmin implements OnInit {
     }
   }
 
+  private httpErrorMessage(err: unknown, fallback: string): string {
+    if (
+      err &&
+      typeof err === 'object' &&
+      'error' in err &&
+      (err as { error?: unknown }).error &&
+      typeof (err as { error: unknown }).error === 'object'
+    ) {
+      const body = (err as { error: Record<string, unknown> }).error;
+      const msg = body['message'];
+      if (typeof msg === 'string' && msg.trim()) {
+        return msg.trim();
+      }
+    }
+    return err instanceof Error && err.message.trim() ? err.message : fallback;
+  }
+
   private async loadTeamsPicker(workspaceId: string): Promise<void> {
     try {
       const joined = await this.workspaces.listTeamsJoined(workspaceId);
       this.teamsJoined.set(joined);
-      if (joined.length > 0 && !this.selectedMsTeamId()) {
+      if (joined.length === 0) {
+        this.teamsError.set(
+          'No Microsoft Teams found for this account. Create or join a Team in Microsoft Teams, then refresh.',
+        );
+        return;
+      }
+      if (!this.selectedMsTeamId()) {
         this.selectedMsTeamId.set(joined[0].id);
         await this.onMsTeamChange(joined[0].id);
       }
     } catch (err: unknown) {
       this.teamsError.set(
-        err instanceof Error ? err.message : 'Failed to list Microsoft Teams',
+        this.httpErrorMessage(err, 'Failed to list Microsoft Teams'),
       );
     }
   }
@@ -203,7 +226,7 @@ export class WorkspaceAdmin implements OnInit {
       }
     } catch (err: unknown) {
       this.teamsError.set(
-        err instanceof Error ? err.message : 'Failed to list channels',
+        this.httpErrorMessage(err, 'Failed to list channels'),
       );
     }
   }
