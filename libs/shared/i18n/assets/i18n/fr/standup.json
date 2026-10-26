@@ -86,7 +86,18 @@
     "teamsHint": "Paste a Microsoft Teams Incoming Webhook URL. When a team summary is rebuilt (submit or Rebuild), it posts to that channel if addons.teams is enabled.",
     "teamsWebhook": "Incoming Webhook URL",
     "teamsStatus": "Status",
-    "slackOAuthUnavailable": "OAuth Slack n'est pas encore configuré sur le serveur."
+    "slackOAuthUnavailable": "OAuth Slack n'est pas encore configuré sur le serveur.",
+    "linearTitle": "Linear digest",
+    "linearConnect": "Connect Linear",
+    "linearDisconnect": "Disconnect Linear",
+    "linearConnected": "Linear connected. Pick a project for digests.",
+    "linearDisconnected": "Linear disconnected.",
+    "linearProjectSaved": "Linear project saved.",
+    "linearHint": "Authorize Linear once, then pick a project. Standup summaries post as project updates when addons.linear is enabled.",
+    "linearStatus": "Status",
+    "linearProject": "Project for digests",
+    "linearProjectPlaceholder": "Select a project…",
+    "linearOAuthUnavailable": "Linear OAuth is not configured on the server yet."
   },
   "invite": {
     "title": "Join team",

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { LinearModule } from '../addons/linear/linear.module';
 import { SlackModule } from '../addons/slack/slack.module';
 import { TeamsModule as MsTeamsModule } from '../addons/teams/teams.module';
 import { AuthModule } from '../auth/auth.module';
@@ -14,6 +15,7 @@ import { StandupsService } from './standups.service';
     WorkspaceTeamsModule,
     SlackModule,
     MsTeamsModule,
+    LinearModule,
   ],
   controllers: [StandupsController],
   providers: [StandupsService],

@@ -113,6 +113,66 @@
 
     <section class="flex max-w-xl flex-col gap-3">
       <h2 class="text-xl font-semibold">
+        {{ 'standup.workspace.linearTitle' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.workspace.linearHint' | transloco }}
+      </p>
+      @if (linear(); as conn) {
+      <p class="text-sm">
+        {{ 'standup.workspace.linearStatus' | transloco }}:
+        <span class="font-medium">{{ conn.status }}</span>
+        @if (conn.organizationName) {
+        <span class="text-base-content/70"> — {{ conn.organizationName }}</span>
+        } @if (conn.projectName) {
+        <span class="text-base-content/70"> / {{ conn.projectName }}</span>
+        }
+      </p>
+      @if (conn.configured) {
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.workspace.linearProject' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [value]="conn.projectId ?? ''"
+          (change)="selectLinearProject($any($event.target).value)"
+        >
+          <option value="">
+            {{ 'standup.workspace.linearProjectPlaceholder' | transloco }}
+          </option>
+          @for (project of linearProjects(); track project.id) {
+          <option [value]="project.id">{{ project.name }}</option>
+          }
+        </select>
+      </fieldset>
+      <button
+        type="button"
+        class="btn btn-outline btn-sm self-start"
+        (click)="disconnectLinear()"
+      >
+        {{ 'standup.workspace.linearDisconnect' | transloco }}
+      </button>
+      } @else if (conn.oauthAvailable) {
+      <button
+        type="button"
+        class="btn btn-secondary btn-sm self-start"
+        [disabled]="linearConnecting()"
+        (click)="connectLinear()"
+      >
+        {{ 'standup.workspace.linearConnect' | transloco }}
+      </button>
+      } @else {
+      <p class="text-sm text-warning">
+        {{ 'standup.workspace.linearOAuthUnavailable' | transloco }}
+      </p>
+      } } @if (linearError()) {
+      <p class="text-error text-sm">{{ linearError() }}</p>
+      }
+    </section>
+
+    <section class="flex max-w-xl flex-col gap-3">
+      <h2 class="text-xl font-semibold">
         {{ 'standup.workspace.teamsTitle' | transloco }}
       </h2>
       <p class="text-sm text-base-content/70">

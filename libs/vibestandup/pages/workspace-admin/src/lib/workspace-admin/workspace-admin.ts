@@ -14,6 +14,8 @@ import { Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import {
   WorkspaceFacade,
+  type LinearConnectionView,
+  type LinearProjectView,
   type SlackConnectionView,
   type TeamsConnectionView,
 } from '@silvervibe/stores/workspace';
@@ -68,6 +70,10 @@ export class WorkspaceAdmin implements OnInit {
   readonly slack = signal<SlackConnectionView | null>(null);
   readonly slackError = signal<string | null>(null);
   readonly slackConnecting = signal(false);
+  readonly linear = signal<LinearConnectionView | null>(null);
+  readonly linearProjects = signal<LinearProjectView[]>([]);
+  readonly linearError = signal<string | null>(null);
+  readonly linearConnecting = signal(false);
   readonly teams = signal<TeamsConnectionView | null>(null);
   readonly teamsError = signal<string | null>(null);
 
@@ -93,25 +99,48 @@ export class WorkspaceAdmin implements OnInit {
     await this.workspaces.loadMyWorkspaces();
     const ws = this.selected();
     if (ws && this.isAdmin()) {
-      await Promise.all([this.refreshSlack(ws.id), this.refreshTeams(ws.id)]);
+      await Promise.all([
+        this.refreshSlack(ws.id),
+        this.refreshLinear(ws.id),
+        this.refreshTeams(ws.id),
+      ]);
     }
-    this.applySlackQueryResult();
+    this.applyOAuthQueryResults();
   }
 
-  private applySlackQueryResult(): void {
+  private applyOAuthQueryResults(): void {
     const params = this.route.snapshot.queryParamMap;
     const slack = params.get('slack');
-    if (!slack) {
-      return;
+    const linear = params.get('linear');
+    const clear: Record<string, null> = {};
+    if (slack) {
+      if (slack === 'connected') {
+        this.message.set('standup.workspace.slackConnected');
+      } else if (slack === 'error') {
+        this.slackError.set(
+          params.get('slackDetail') || 'Slack connect failed',
+        );
+      }
+      clear['slack'] = null;
+      clear['slackDetail'] = null;
     }
-    if (slack === 'connected') {
-      this.message.set('standup.workspace.slackConnected');
-    } else if (slack === 'error') {
-      this.slackError.set(params.get('slackDetail') || 'Slack connect failed');
+    if (linear) {
+      if (linear === 'connected') {
+        this.message.set('standup.workspace.linearConnected');
+      } else if (linear === 'error') {
+        this.linearError.set(
+          params.get('linearDetail') || 'Linear connect failed',
+        );
+      }
+      clear['linear'] = null;
+      clear['linearDetail'] = null;
+    }
+    if (Object.keys(clear).length === 0) {
+      return;
     }
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { slack: null, slackDetail: null },
+      queryParams: clear,
       queryParamsHandling: 'merge',
       replaceUrl: true,
     });
@@ -121,11 +150,15 @@ export class WorkspaceAdmin implements OnInit {
     this.workspaces.selectWorkspace(workspaceId);
     this.slack.set(null);
     this.slackError.set(null);
+    this.linear.set(null);
+    this.linearProjects.set([]);
+    this.linearError.set(null);
     this.teams.set(null);
     this.teamsError.set(null);
     if (this.isAdmin()) {
       await Promise.all([
         this.refreshSlack(workspaceId),
+        this.refreshLinear(workspaceId),
         this.refreshTeams(workspaceId),
       ]);
     }
@@ -138,6 +171,32 @@ export class WorkspaceAdmin implements OnInit {
     } catch (err: unknown) {
       this.slackError.set(
         err instanceof Error ? err.message : 'Failed to load Slack connection',
+      );
+    }
+  }
+
+  private async refreshLinear(workspaceId: string): Promise<void> {
+    try {
+      const conn = await this.workspaces.getLinearConnection(workspaceId);
+      this.linear.set(conn);
+      if (conn.configured) {
+        try {
+          const projects =
+            await this.workspaces.listLinearProjects(workspaceId);
+          this.linearProjects.set(projects);
+        } catch (err: unknown) {
+          this.linearError.set(
+            err instanceof Error
+              ? err.message
+              : 'Failed to load Linear projects',
+          );
+        }
+      } else {
+        this.linearProjects.set([]);
+      }
+    } catch (err: unknown) {
+      this.linearError.set(
+        err instanceof Error ? err.message : 'Failed to load Linear connection',
       );
     }
   }
@@ -199,6 +258,61 @@ export class WorkspaceAdmin implements OnInit {
     } catch (err: unknown) {
       this.slackError.set(
         err instanceof Error ? err.message : 'Slack disconnect failed',
+      );
+    }
+  }
+
+  async connectLinear(): Promise<void> {
+    const ws = this.selected();
+    if (!ws || !this.isAdmin()) {
+      return;
+    }
+    this.linearError.set(null);
+    this.linearConnecting.set(true);
+    try {
+      const { authorizeUrl } = await this.workspaces.startLinearOAuth(ws.id);
+      window.location.assign(authorizeUrl);
+    } catch (err: unknown) {
+      this.linearConnecting.set(false);
+      this.linearError.set(
+        err instanceof Error ? err.message : 'Linear connect failed',
+      );
+    }
+  }
+
+  async selectLinearProject(projectId: string): Promise<void> {
+    const ws = this.selected();
+    if (!ws || !this.isAdmin() || !projectId.trim()) {
+      return;
+    }
+    this.linearError.set(null);
+    try {
+      const conn = await this.workspaces.selectLinearProject(ws.id, {
+        projectId: projectId.trim(),
+      });
+      this.linear.set(conn);
+      this.message.set('standup.workspace.linearProjectSaved');
+    } catch (err: unknown) {
+      this.linearError.set(
+        err instanceof Error ? err.message : 'Failed to save Linear project',
+      );
+    }
+  }
+
+  async disconnectLinear(): Promise<void> {
+    const ws = this.selected();
+    if (!ws || !this.isAdmin()) {
+      return;
+    }
+    this.linearError.set(null);
+    try {
+      const conn = await this.workspaces.disconnectLinear(ws.id);
+      this.linear.set(conn);
+      this.linearProjects.set([]);
+      this.message.set('standup.workspace.linearDisconnected');
+    } catch (err: unknown) {
+      this.linearError.set(
+        err instanceof Error ? err.message : 'Linear disconnect failed',
       );
     }
   }
