@@ -1,36 +1,28 @@
 # Microsoft Teams standup digest
 
-Issue: [#101](https://github.com/silvervibe-io/silvervibe/issues/101).
+Issues: [#101](https://github.com/silvervibe-io/silvervibe/issues/101) (webhook MVP),
+[#106](https://github.com/silvervibe-io/silvervibe/issues/106) / [#108](https://github.com/silvervibe-io/silvervibe/issues/108) (deferred).
 
-## Behaviour
+## Status: deferred
 
-1. A workspace admin pastes a Microsoft Teams **Incoming Webhook** URL in
-   Workspace admin (optional channel label for display).
-2. Saving enables the `addons.teams` workspace tool entitlement and stores the
-   webhook on `AddonConnection` (provider `TEAMS`). The URL is never returned to
-   the client after save.
-3. When a team standup summary is rebuilt (member **submit** or admin
-   **Rebuild**), Nest posts the summary text to that webhook if
-   `addons.teams` is enabled and the connection status is `CONNECTED`.
-4. Post failures are soft-fail (logged; submit/rebuild still succeed).
+Teams digest is **not offered in product** until Silvervibe has a Microsoft 365
+tenant with Teams (Microsoft Graph channel APIs require an M365 license).
 
-## Setup
+- Workspace admin **hides** the Teams connect UI (#108).
+- Nest still exposes Teams addon routes for a later resume; `postStandupDigest`
+  is a no-op.
+- OAuth work lives on branch `feature/106-teams-oauth-connect` (PR #107 closed).
 
-1. In Teams: channel → Connectors / Workflows → Incoming Webhook; copy the URL
-   (`https://….webhook.office.com/...` or `outlook.office.com/webhook/...`).
-2. VibeStandup → Workspace → paste URL → Save Teams webhook.
-3. Submit a standup (or Rebuild summary) and confirm the channel message.
+## When re-enabling
 
-## API
+1. Microsoft 365 (trial or paid) with Teams for the connecting user.
+2. Resume OAuth from `feature/106-teams-oauth-connect` (or re-open against
+   current `develop`).
+3. Restore Workspace admin Teams section + digest posting.
+4. Follow setup in the OAuth docs on that branch (`TEAMS_CLIENT_ID` /
+   `TEAMS_CLIENT_SECRET`, Entra app, Graph delegated scopes).
 
-| Method   | Path                                        | Notes              |
-| -------- | ------------------------------------------- | ------------------ |
-| `GET`    | `/api/workspaces/:workspaceId/addons/teams` | Status (no secret) |
-| `PUT`    | `/api/workspaces/:workspaceId/addons/teams` | Connect (admin)    |
-| `DELETE` | `/api/workspaces/:workspaceId/addons/teams` | Disconnect (admin) |
+## Legacy webhook (pre-deferral)
 
-## Out of scope (for now)
-
-- OAuth Teams app / bot tokens
-- Per-team webhooks (workspace-wide webhook posts all teams)
-- Adaptive Card rich formatting
+Webhook connect via `PUT /api/workspaces/:id/addons/teams` may still exist in
+Nest for migration, but is not exposed in the UI.

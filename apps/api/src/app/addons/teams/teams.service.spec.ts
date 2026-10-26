@@ -1,8 +1,4 @@
-import {
-  AddonConnectionStatus,
-  AddonProvider,
-  WorkspaceRole,
-} from '@prisma/client';
+import { AddonConnectionStatus, WorkspaceRole } from '@prisma/client';
 import { VerifiedUser } from '../../auth/firebase-auth.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsersService } from '../../users/users.service';
@@ -89,67 +85,12 @@ describe('TeamsService', () => {
     });
   });
 
-  it('posts a digest when tool and connection are ready', async () => {
-    const fetchMock = jest.fn().mockResolvedValue({
-      ok: true,
-      text: async () => '1',
-    });
-    global.fetch = fetchMock as unknown as typeof fetch;
-
-    const prisma = {
-      isEnabled: () => true,
-      workspaceTool: {
-        findUnique: jest.fn().mockResolvedValue({ enabled: true }),
-      },
-      addonConnection: {
-        findUnique: jest.fn().mockResolvedValue({
-          status: AddonConnectionStatus.CONNECTED,
-          secretsRef: sampleWebhook,
-          metadataJson: { channelLabel: 'Standups' },
-          provider: AddonProvider.TEAMS,
-        }),
-      },
-    };
-
-    const service = new TeamsService(
-      prisma as unknown as PrismaService,
-      {} as unknown as UsersService,
-    );
-
-    const ok = await service.postStandupDigest({
-      workspaceId: 'ws1',
-      teamName: 'Alpha',
-      entryDate: '2026-10-22',
-      content: '### Member\n- Today: shipped',
-    });
-
-    expect(ok).toBe(true);
-    expect(fetchMock).toHaveBeenCalledWith(
-      sampleWebhook,
-      expect.objectContaining({
-        method: 'POST',
-        body: expect.stringContaining('Alpha'),
-      }),
-    );
-  });
-
-  it('skips digest when Teams tool is disabled', async () => {
+  it('skips digest while Teams product support is deferred (#108)', async () => {
     const fetchMock = jest.fn();
     global.fetch = fetchMock as unknown as typeof fetch;
 
     const service = new TeamsService(
-      {
-        isEnabled: () => true,
-        workspaceTool: {
-          findUnique: jest.fn().mockResolvedValue({ enabled: false }),
-        },
-        addonConnection: {
-          findUnique: jest.fn().mockResolvedValue({
-            status: AddonConnectionStatus.CONNECTED,
-            secretsRef: sampleWebhook,
-          }),
-        },
-      } as unknown as PrismaService,
+      { isEnabled: () => true } as unknown as PrismaService,
       {} as unknown as UsersService,
     );
 
