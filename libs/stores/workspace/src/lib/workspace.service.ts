@@ -19,6 +19,10 @@ import type {
   ConnectTeamsInput,
   CreateTeamInput,
   CreateWorkspaceInput,
+  LinearConnectionView,
+  LinearOAuthStartView,
+  LinearProjectView,
+  SelectLinearProjectInput,
   SlackConnectionView,
   SlackOAuthStartView,
   TeamsConnectionView,
@@ -147,6 +151,50 @@ export class WorkspaceService {
     return firstValueFrom(
       this.http.delete<TeamsConnectionView>(
         `${this.apiBase}/workspaces/${workspaceId}/addons/teams`,
+      ),
+    );
+  }
+
+  getLinearConnection(workspaceId: string): Promise<LinearConnectionView> {
+    return firstValueFrom(
+      this.http.get<LinearConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/linear`,
+      ),
+    );
+  }
+
+  startLinearOAuth(workspaceId: string): Promise<LinearOAuthStartView> {
+    return firstValueFrom(
+      this.http.get<LinearOAuthStartView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/linear/oauth/start`,
+      ),
+    );
+  }
+
+  listLinearProjects(workspaceId: string): Promise<LinearProjectView[]> {
+    return firstValueFrom(
+      this.http.get<LinearProjectView[]>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/linear/projects`,
+      ),
+    );
+  }
+
+  selectLinearProject(
+    workspaceId: string,
+    body: SelectLinearProjectInput,
+  ): Promise<LinearConnectionView> {
+    return firstValueFrom(
+      this.http.put<LinearConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/linear/project`,
+        body,
+      ),
+    );
+  }
+
+  disconnectLinear(workspaceId: string): Promise<LinearConnectionView> {
+    return firstValueFrom(
+      this.http.delete<LinearConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/linear`,
       ),
     );
   }

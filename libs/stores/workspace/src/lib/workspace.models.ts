@@ -48,6 +48,29 @@ export type ConnectTeamsInput = {
   channelLabel?: string;
 };
 
+export type LinearConnectionView = {
+  status: 'DISCONNECTED' | 'PENDING' | 'CONNECTED' | 'ERROR';
+  configured: boolean;
+  projectId: string | null;
+  projectName: string | null;
+  organizationName: string | null;
+  toolEnabled: boolean;
+  oauthAvailable: boolean;
+};
+
+export type LinearOAuthStartView = {
+  authorizeUrl: string;
+};
+
+export type LinearProjectView = {
+  id: string;
+  name: string;
+};
+
+export type SelectLinearProjectInput = {
+  projectId: string;
+};
+
 export type WorkspaceState = {
   memberships: WorkspaceMembershipView[];
   selectedWorkspaceId: string | null;

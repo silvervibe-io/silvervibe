@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 
 import { StandupEntryStatus } from '@prisma/client';
+import { LinearService } from '../addons/linear/linear.service';
 import { SlackService } from '../addons/slack/slack.service';
 import { TeamsService as MsTeamsService } from '../addons/teams/teams.service';
 import { VerifiedUser } from '../auth/firebase-auth.service';
@@ -29,6 +30,7 @@ export class StandupsService {
     private readonly teams: TeamsService,
     private readonly slack: SlackService,
     private readonly msTeams: MsTeamsService,
+    private readonly linear: LinearService,
   ) {}
 
   private ensureDb(): void {
@@ -319,6 +321,7 @@ export class StandupsService {
         };
         await this.slack.postStandupDigest(digest);
         await this.msTeams.postStandupDigest(digest);
+        await this.linear.postStandupDigest(digest);
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);

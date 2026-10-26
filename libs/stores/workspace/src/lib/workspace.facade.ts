@@ -9,6 +9,10 @@ import type {
   ConnectTeamsInput,
   CreateTeamInput,
   CreateWorkspaceInput,
+  LinearConnectionView,
+  LinearOAuthStartView,
+  LinearProjectView,
+  SelectLinearProjectInput,
   SlackConnectionView,
   SlackOAuthStartView,
   TeamsConnectionView,
@@ -99,5 +103,28 @@ export class WorkspaceFacade {
 
   disconnectTeams(workspaceId: string): Promise<TeamsConnectionView> {
     return this.api.disconnectTeams(workspaceId);
+  }
+
+  getLinearConnection(workspaceId: string): Promise<LinearConnectionView> {
+    return this.api.getLinearConnection(workspaceId);
+  }
+
+  startLinearOAuth(workspaceId: string): Promise<LinearOAuthStartView> {
+    return this.api.startLinearOAuth(workspaceId);
+  }
+
+  listLinearProjects(workspaceId: string): Promise<LinearProjectView[]> {
+    return this.api.listLinearProjects(workspaceId);
+  }
+
+  selectLinearProject(
+    workspaceId: string,
+    body: SelectLinearProjectInput,
+  ): Promise<LinearConnectionView> {
+    return this.api.selectLinearProject(workspaceId, body);
+  }
+
+  disconnectLinear(workspaceId: string): Promise<LinearConnectionView> {
+    return this.api.disconnectLinear(workspaceId);
   }
 }
