@@ -16,16 +16,13 @@ import {
   WorkspaceFacade,
   type SlackConnectionView,
   type TeamsConnectionView,
+  type TeamsGraphChannelView,
+  type TeamsGraphTeamView,
 } from '@silvervibe/stores/workspace';
 
 type CreateTeamModel = {
   name: string;
   slug: string;
-};
-
-type TeamsModel = {
-  incomingWebhookUrl: string;
-  channelLabel: string;
 };
 
 @Component({
@@ -70,19 +67,16 @@ export class WorkspaceAdmin implements OnInit {
   readonly slackConnecting = signal(false);
   readonly teams = signal<TeamsConnectionView | null>(null);
   readonly teamsError = signal<string | null>(null);
+  readonly teamsConnecting = signal(false);
+  readonly teamsJoined = signal<TeamsGraphTeamView[]>([]);
+  readonly teamsChannels = signal<TeamsGraphChannelView[]>([]);
+  readonly selectedMsTeamId = signal('');
+  readonly selectedMsChannelId = signal('');
 
   readonly teamModel = signal<CreateTeamModel>({ name: '', slug: '' });
   readonly teamForm = form(this.teamModel, (schemaPath) => {
     required(schemaPath.name);
     required(schemaPath.slug);
-  });
-
-  readonly teamsModel = signal<TeamsModel>({
-    incomingWebhookUrl: '',
-    channelLabel: '',
-  });
-  readonly teamsForm = form(this.teamsModel, (schemaPath) => {
-    required(schemaPath.incomingWebhookUrl);
   });
 
   ngOnInit(): void {
@@ -95,26 +89,44 @@ export class WorkspaceAdmin implements OnInit {
     if (ws && this.isAdmin()) {
       await Promise.all([this.refreshSlack(ws.id), this.refreshTeams(ws.id)]);
     }
-    this.applySlackQueryResult();
+    this.applyQueryResults();
   }
 
-  private applySlackQueryResult(): void {
+  private applyQueryResults(): void {
     const params = this.route.snapshot.queryParamMap;
     const slack = params.get('slack');
-    if (!slack) {
-      return;
-    }
+    const teams = params.get('teams');
     if (slack === 'connected') {
       this.message.set('standup.workspace.slackConnected');
     } else if (slack === 'error') {
       this.slackError.set(params.get('slackDetail') || 'Slack connect failed');
     }
-    void this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { slack: null, slackDetail: null },
-      queryParamsHandling: 'merge',
-      replaceUrl: true,
-    });
+    if (teams === 'pick' || teams === 'connected') {
+      this.message.set(
+        teams === 'pick'
+          ? 'standup.workspace.teamsPickChannel'
+          : 'standup.workspace.teamsConnected',
+      );
+      const ws = this.selected();
+      if (ws && this.isAdmin()) {
+        void this.loadTeamsPicker(ws.id);
+      }
+    } else if (teams === 'error') {
+      this.teamsError.set(params.get('teamsDetail') || 'Teams connect failed');
+    }
+    if (slack || teams) {
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {
+          slack: null,
+          slackDetail: null,
+          teams: null,
+          teamsDetail: null,
+        },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
   }
 
   async selectWorkspace(workspaceId: string): Promise<void> {
@@ -123,6 +135,10 @@ export class WorkspaceAdmin implements OnInit {
     this.slackError.set(null);
     this.teams.set(null);
     this.teamsError.set(null);
+    this.teamsJoined.set([]);
+    this.teamsChannels.set([]);
+    this.selectedMsTeamId.set('');
+    this.selectedMsChannelId.set('');
     if (this.isAdmin()) {
       await Promise.all([
         this.refreshSlack(workspaceId),
@@ -146,13 +162,48 @@ export class WorkspaceAdmin implements OnInit {
     try {
       const conn = await this.workspaces.getTeamsConnection(workspaceId);
       this.teams.set(conn);
-      this.teamsModel.set({
-        incomingWebhookUrl: '',
-        channelLabel: conn.channelLabel ?? '',
-      });
+      if (conn.needsChannel) {
+        await this.loadTeamsPicker(workspaceId);
+      }
     } catch (err: unknown) {
       this.teamsError.set(
         err instanceof Error ? err.message : 'Failed to load Teams connection',
+      );
+    }
+  }
+
+  private async loadTeamsPicker(workspaceId: string): Promise<void> {
+    try {
+      const joined = await this.workspaces.listTeamsJoined(workspaceId);
+      this.teamsJoined.set(joined);
+      if (joined.length > 0 && !this.selectedMsTeamId()) {
+        this.selectedMsTeamId.set(joined[0].id);
+        await this.onMsTeamChange(joined[0].id);
+      }
+    } catch (err: unknown) {
+      this.teamsError.set(
+        err instanceof Error ? err.message : 'Failed to list Microsoft Teams',
+      );
+    }
+  }
+
+  async onMsTeamChange(teamId: string): Promise<void> {
+    this.selectedMsTeamId.set(teamId);
+    this.selectedMsChannelId.set('');
+    this.teamsChannels.set([]);
+    const ws = this.selected();
+    if (!ws || !teamId) {
+      return;
+    }
+    try {
+      const channels = await this.workspaces.listTeamsChannels(ws.id, teamId);
+      this.teamsChannels.set(channels);
+      if (channels.length > 0) {
+        this.selectedMsChannelId.set(channels[0].id);
+      }
+    } catch (err: unknown) {
+      this.teamsError.set(
+        err instanceof Error ? err.message : 'Failed to list channels',
       );
     }
   }
@@ -203,37 +254,48 @@ export class WorkspaceAdmin implements OnInit {
     }
   }
 
-  async connectTeams(event: Event): Promise<void> {
-    event.preventDefault();
+  async connectTeams(): Promise<void> {
     const ws = this.selected();
     if (!ws || !this.isAdmin()) {
       return;
     }
     this.teamsError.set(null);
-    await submit(this.teamsForm, {
-      action: async () => {
-        try {
-          const m = this.teamsModel();
-          const conn = await this.workspaces.connectTeams(ws.id, {
-            incomingWebhookUrl: m.incomingWebhookUrl.trim(),
-            channelLabel: m.channelLabel.trim() || undefined,
-          });
-          this.teams.set(conn);
-          this.teamsModel.set({
-            incomingWebhookUrl: '',
-            channelLabel: conn.channelLabel ?? '',
-          });
-          await this.workspaces.loadMyWorkspaces();
-          this.workspaces.selectWorkspace(ws.id);
-          this.message.set('standup.workspace.teamsConnected');
-        } catch (err: unknown) {
-          this.teamsError.set(
-            err instanceof Error ? err.message : 'Teams connect failed',
-          );
-        }
-        return undefined;
-      },
-    });
+    this.teamsConnecting.set(true);
+    try {
+      const { authorizeUrl } = await this.workspaces.startTeamsOAuth(ws.id);
+      window.location.assign(authorizeUrl);
+    } catch (err: unknown) {
+      this.teamsConnecting.set(false);
+      this.teamsError.set(
+        err instanceof Error ? err.message : 'Teams connect failed',
+      );
+    }
+  }
+
+  async saveTeamsChannel(): Promise<void> {
+    const ws = this.selected();
+    const teamId = this.selectedMsTeamId();
+    const channelId = this.selectedMsChannelId();
+    if (!ws || !this.isAdmin() || !teamId || !channelId) {
+      return;
+    }
+    this.teamsError.set(null);
+    try {
+      const channel = this.teamsChannels().find((c) => c.id === channelId);
+      const conn = await this.workspaces.selectTeamsChannel(ws.id, {
+        teamId,
+        channelId,
+        channelLabel: channel?.displayName,
+      });
+      this.teams.set(conn);
+      await this.workspaces.loadMyWorkspaces();
+      this.workspaces.selectWorkspace(ws.id);
+      this.message.set('standup.workspace.teamsConnected');
+    } catch (err: unknown) {
+      this.teamsError.set(
+        err instanceof Error ? err.message : 'Failed to save Teams channel',
+      );
+    }
   }
 
   async disconnectTeams(): Promise<void> {
@@ -245,6 +307,8 @@ export class WorkspaceAdmin implements OnInit {
     try {
       const conn = await this.workspaces.disconnectTeams(ws.id);
       this.teams.set(conn);
+      this.teamsJoined.set([]);
+      this.teamsChannels.set([]);
       this.message.set('standup.workspace.teamsDisconnected');
     } catch (err: unknown) {
       this.teamsError.set(

@@ -39,12 +39,30 @@ export type SlackOAuthStartView = {
 export type TeamsConnectionView = {
   status: 'DISCONNECTED' | 'PENDING' | 'CONNECTED' | 'ERROR';
   configured: boolean;
+  authMode: 'oauth' | 'webhook' | null;
   channelLabel: string | null;
+  needsChannel: boolean;
   toolEnabled: boolean;
+  oauthAvailable: boolean;
 };
 
-export type ConnectTeamsInput = {
-  incomingWebhookUrl: string;
+export type TeamsOAuthStartView = {
+  authorizeUrl: string;
+};
+
+export type TeamsGraphTeamView = {
+  id: string;
+  displayName: string;
+};
+
+export type TeamsGraphChannelView = {
+  id: string;
+  displayName: string;
+};
+
+export type SelectTeamsChannelInput = {
+  teamId: string;
+  channelId: string;
   channelLabel?: string;
 };
 

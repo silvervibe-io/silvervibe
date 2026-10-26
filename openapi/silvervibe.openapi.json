@@ -1200,32 +1200,7 @@
     "/api/addons/slack/oauth/callback": {
       "get": {
         "operationId": "SlackController_oauthCallback",
-        "parameters": [
-          {
-            "name": "code",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "state",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "error",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": ""
@@ -1295,12 +1270,13 @@
             "bearer": []
           }
         ],
-        "summary": "Get Teams Incoming Webhook connection for a workspace",
+        "summary": "Get Teams connection for a workspace (secret never returned)",
         "tags": [
           "teams"
         ]
       },
       "put": {
+        "deprecated": true,
         "operationId": "TeamsController_connect",
         "parameters": [
           {
@@ -1345,7 +1321,7 @@
             "bearer": []
           }
         ],
-        "summary": "Connect Microsoft Teams via Incoming Webhook (enables addons.teams entitlement)",
+        "summary": "Deprecated: connect Teams via Incoming Webhook. Prefer OAuth start.",
         "tags": [
           "teams"
         ]
@@ -1385,7 +1361,206 @@
             "bearer": []
           }
         ],
-        "summary": "Disconnect Teams Incoming Webhook",
+        "summary": "Disconnect Teams (clears tokens / webhook)",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/teams/oauth/start": {
+      "get": {
+        "operationId": "TeamsController_startOAuth",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamsOAuthStartDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Start Teams OAuth; returns Microsoft Entra authorize URL",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/addons/teams/oauth/callback": {
+      "get": {
+        "operationId": "TeamsController_oauthCallback",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Teams OAuth callback (public); redirects to standup workspace admin",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/teams/joined-teams": {
+      "get": {
+        "operationId": "TeamsController_listJoinedTeams",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TeamsGraphTeamDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List Microsoft Teams the connecting user joined",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/teams/channels": {
+      "get": {
+        "operationId": "TeamsController_listChannels",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TeamsGraphChannelDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List channels for a Microsoft Team",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/teams/channel": {
+      "put": {
+        "operationId": "TeamsController_selectChannel",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectTeamsChannelDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamsConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Select the Teams team/channel for standup digests (OAuth installs)",
         "tags": [
           "teams"
         ]
@@ -2181,21 +2356,103 @@
           },
           "configured": {
             "type": "boolean",
-            "description": "True when an Incoming Webhook is stored (URL never returned)"
+            "description": "True when OAuth tokens or a legacy Incoming Webhook are stored (secret never returned)"
+          },
+          "authMode": {
+            "type": "string",
+            "description": "oauth | webhook when configured; null when disconnected",
+            "nullable": true,
+            "enum": [
+              "oauth",
+              "webhook"
+            ]
           },
           "channelLabel": {
             "type": "object",
             "nullable": true
           },
+          "needsChannel": {
+            "type": "boolean",
+            "description": "True when OAuth tokens exist but a Teams team/channel has not been chosen yet"
+          },
           "toolEnabled": {
             "type": "boolean",
             "description": "Whether workspace tool entitlement addons.teams is enabled"
+          },
+          "oauthAvailable": {
+            "type": "boolean",
+            "description": "True when TEAMS_CLIENT_ID / TEAMS_CLIENT_SECRET are set on the server"
           }
         },
         "required": [
           "status",
           "configured",
-          "toolEnabled"
+          "needsChannel",
+          "toolEnabled",
+          "oauthAvailable"
+        ]
+      },
+      "TeamsOAuthStartDto": {
+        "type": "object",
+        "properties": {
+          "authorizeUrl": {
+            "type": "string",
+            "description": "Microsoft Entra authorize URL to open in the browser"
+          }
+        },
+        "required": [
+          "authorizeUrl"
+        ]
+      },
+      "TeamsGraphTeamDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "displayName"
+        ]
+      },
+      "TeamsGraphChannelDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "displayName"
+        ]
+      },
+      "SelectTeamsChannelDto": {
+        "type": "object",
+        "properties": {
+          "teamId": {
+            "type": "string",
+            "description": "Microsoft Teams team (group) id"
+          },
+          "channelId": {
+            "type": "string",
+            "description": "Microsoft Teams channel id"
+          },
+          "channelLabel": {
+            "type": "string",
+            "description": "Display label, e.g. General"
+          }
+        },
+        "required": [
+          "teamId",
+          "channelId"
         ]
       },
       "ConnectTeamsDto": {

@@ -87,14 +87,18 @@
     "slackHint": "Authorize Slack once. Pick a channel during install; standup summaries post there when addons.slack is enabled.",
     "slackStatus": "Status",
     "teamsTitle": "Microsoft Teams digest",
-    "teamsConnect": "Save Teams webhook",
     "teamsDisconnected": "Teams disconnected.",
     "teamsChannel": "Channel label (optional)",
     "teamsDisconnect": "Disconnect Teams",
-    "teamsConnected": "Teams webhook saved.",
-    "teamsHint": "Paste a Microsoft Teams Incoming Webhook URL. When a team summary is rebuilt (submit or Rebuild), it posts to that channel if addons.teams is enabled.",
-    "teamsWebhook": "Incoming Webhook URL",
     "teamsStatus": "Status",
-    "slackOAuthUnavailable": "Slack OAuth is not configured on the server yet."
+    "slackOAuthUnavailable": "Slack OAuth is not configured on the server yet.",
+    "teamsSaveChannel": "Save channel",
+    "teamsHint": "Authorize Microsoft Teams once, then pick a team and channel. Standup summaries post there when addons.teams is enabled.",
+    "teamsConnect": "Connect Teams",
+    "teamsMsChannel": "Channel",
+    "teamsConnected": "Teams connected.",
+    "teamsPickChannel": "Choose the Microsoft Team and channel for digests.",
+    "teamsOAuthUnavailable": "Teams OAuth is not configured on the server yet.",
+    "teamsMsTeam": "Microsoft Team"
   }
 }

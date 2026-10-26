@@ -16,12 +16,15 @@ import { API_BASE_URL } from '@silvervibe/shared/auth';
 import type { PreviewWorkspaceRole } from '@silvervibe/stores/preview';
 import { firstValueFrom } from 'rxjs';
 import type {
-  ConnectTeamsInput,
   CreateTeamInput,
   CreateWorkspaceInput,
+  SelectTeamsChannelInput,
   SlackConnectionView,
   SlackOAuthStartView,
   TeamsConnectionView,
+  TeamsGraphChannelView,
+  TeamsGraphTeamView,
+  TeamsOAuthStartView,
   WorkspaceMembershipView,
   WorkspaceToolView,
 } from './workspace.models';
@@ -131,13 +134,41 @@ export class WorkspaceService {
     );
   }
 
-  connectTeams(
+  startTeamsOAuth(workspaceId: string): Promise<TeamsOAuthStartView> {
+    return firstValueFrom(
+      this.http.get<TeamsOAuthStartView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/teams/oauth/start`,
+      ),
+    );
+  }
+
+  listTeamsJoined(workspaceId: string): Promise<TeamsGraphTeamView[]> {
+    return firstValueFrom(
+      this.http.get<TeamsGraphTeamView[]>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/teams/joined-teams`,
+      ),
+    );
+  }
+
+  listTeamsChannels(
     workspaceId: string,
-    body: ConnectTeamsInput,
+    teamId: string,
+  ): Promise<TeamsGraphChannelView[]> {
+    return firstValueFrom(
+      this.http.get<TeamsGraphChannelView[]>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/teams/channels`,
+        { params: { teamId } },
+      ),
+    );
+  }
+
+  selectTeamsChannel(
+    workspaceId: string,
+    body: SelectTeamsChannelInput,
   ): Promise<TeamsConnectionView> {
     return firstValueFrom(
       this.http.put<TeamsConnectionView>(
-        `${this.apiBase}/workspaces/${workspaceId}/addons/teams`,
+        `${this.apiBase}/workspaces/${workspaceId}/addons/teams/channel`,
         body,
       ),
     );

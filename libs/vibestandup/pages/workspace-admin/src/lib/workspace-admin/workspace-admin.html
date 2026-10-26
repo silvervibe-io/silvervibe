@@ -124,9 +124,51 @@
         <span class="font-medium">{{ conn.status }}</span>
         @if (conn.channelLabel) {
         <span class="text-base-content/70"> — {{ conn.channelLabel }}</span>
+        } @if (conn.authMode) {
+        <span class="text-base-content/50"> ({{ conn.authMode }})</span>
         }
       </p>
-      @if (conn.configured) {
+      @if (conn.needsChannel) {
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.workspace.teamsPickChannel' | transloco }}
+      </p>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.workspace.teamsMsTeam' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [value]="selectedMsTeamId()"
+          (change)="onMsTeamChange($any($event.target).value)"
+        >
+          @for (t of teamsJoined(); track t.id) {
+          <option [value]="t.id">{{ t.displayName }}</option>
+          }
+        </select>
+      </fieldset>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.workspace.teamsMsChannel' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [value]="selectedMsChannelId()"
+          (change)="selectedMsChannelId.set($any($event.target).value)"
+        >
+          @for (c of teamsChannels(); track c.id) {
+          <option [value]="c.id">{{ c.displayName }}</option>
+          }
+        </select>
+      </fieldset>
+      <button
+        type="button"
+        class="btn btn-secondary btn-sm self-start"
+        [disabled]="!selectedMsTeamId() || !selectedMsChannelId()"
+        (click)="saveTeamsChannel()"
+      >
+        {{ 'standup.workspace.teamsSaveChannel' | transloco }}
+      </button>
+      } @else if (conn.configured) {
       <button
         type="button"
         class="btn btn-outline btn-sm self-start"
@@ -134,33 +176,20 @@
       >
         {{ 'standup.workspace.teamsDisconnect' | transloco }}
       </button>
-      } }
-      <form class="flex flex-col gap-3" (submit)="connectTeams($event)">
-        <fieldset class="fieldset w-full">
-          <legend class="fieldset-legend">
-            {{ 'standup.workspace.teamsWebhook' | transloco }}
-          </legend>
-          <input
-            class="input input-bordered w-full"
-            type="url"
-            autocomplete="off"
-            [formField]="teamsForm.incomingWebhookUrl"
-          />
-        </fieldset>
-        <fieldset class="fieldset w-full">
-          <legend class="fieldset-legend">
-            {{ 'standup.workspace.teamsChannel' | transloco }}
-          </legend>
-          <input
-            class="input input-bordered w-full"
-            [formField]="teamsForm.channelLabel"
-          />
-        </fieldset>
-        <button type="submit" class="btn btn-secondary btn-sm self-start">
-          {{ 'standup.workspace.teamsConnect' | transloco }}
-        </button>
-      </form>
-      @if (teamsError()) {
+      } @else if (conn.oauthAvailable) {
+      <button
+        type="button"
+        class="btn btn-secondary btn-sm self-start"
+        [disabled]="teamsConnecting()"
+        (click)="connectTeams()"
+      >
+        {{ 'standup.workspace.teamsConnect' | transloco }}
+      </button>
+      } @else {
+      <p class="text-sm text-warning">
+        {{ 'standup.workspace.teamsOAuthUnavailable' | transloco }}
+      </p>
+      } } @if (teamsError()) {
       <p class="text-error text-sm">{{ teamsError() }}</p>
       }
     </section>

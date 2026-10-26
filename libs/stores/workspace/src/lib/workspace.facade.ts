@@ -6,12 +6,15 @@ import type {
 } from '@silvervibe/shared/api-client';
 import type { PreviewWorkspaceRole } from '@silvervibe/stores/preview';
 import type {
-  ConnectTeamsInput,
   CreateTeamInput,
   CreateWorkspaceInput,
+  SelectTeamsChannelInput,
   SlackConnectionView,
   SlackOAuthStartView,
   TeamsConnectionView,
+  TeamsGraphChannelView,
+  TeamsGraphTeamView,
+  TeamsOAuthStartView,
   WorkspaceMembershipView,
   WorkspaceToolView,
 } from './workspace.models';
@@ -90,11 +93,26 @@ export class WorkspaceFacade {
     return this.api.getTeamsConnection(workspaceId);
   }
 
-  connectTeams(
+  startTeamsOAuth(workspaceId: string): Promise<TeamsOAuthStartView> {
+    return this.api.startTeamsOAuth(workspaceId);
+  }
+
+  listTeamsJoined(workspaceId: string): Promise<TeamsGraphTeamView[]> {
+    return this.api.listTeamsJoined(workspaceId);
+  }
+
+  listTeamsChannels(
     workspaceId: string,
-    body: ConnectTeamsInput,
+    teamId: string,
+  ): Promise<TeamsGraphChannelView[]> {
+    return this.api.listTeamsChannels(workspaceId, teamId);
+  }
+
+  selectTeamsChannel(
+    workspaceId: string,
+    body: SelectTeamsChannelInput,
   ): Promise<TeamsConnectionView> {
-    return this.api.connectTeams(workspaceId, body);
+    return this.api.selectTeamsChannel(workspaceId, body);
   }
 
   disconnectTeams(workspaceId: string): Promise<TeamsConnectionView> {
