@@ -221,6 +221,9 @@ export class TeamsService {
   /**
    * Posts standup summary text to the workspace Teams Incoming Webhook.
    * Soft-fail: logs and returns false on any error (never throws to callers).
+   *
+   * Deferred (#108): product UI is hidden until we have Microsoft 365/Teams.
+   * Keep Nest endpoints for a later resume; digests are no-ops for now.
    */
   async postStandupDigest(params: {
     workspaceId: string;
@@ -228,69 +231,11 @@ export class TeamsService {
     entryDate: string;
     content: string;
   }): Promise<boolean> {
-    if (!this.prisma.isEnabled()) {
-      return false;
-    }
-
-    try {
-      const [tool, connection] = await Promise.all([
-        this.prisma.workspaceTool.findUnique({
-          where: {
-            workspaceId_toolKey: {
-              workspaceId: params.workspaceId,
-              toolKey: TOOL_KEYS.addonsTeams,
-            },
-          },
-        }),
-        this.prisma.addonConnection.findUnique({
-          where: {
-            workspaceId_provider: {
-              workspaceId: params.workspaceId,
-              provider: AddonProvider.TEAMS,
-            },
-          },
-        }),
-      ]);
-
-      if (!tool?.enabled) {
-        return false;
-      }
-      if (
-        connection?.status !== AddonConnectionStatus.CONNECTED ||
-        !connection.secretsRef?.trim()
-      ) {
-        return false;
-      }
-
-      const webhookUrl = connection.secretsRef.trim();
-      const meta = this.asMetadata(connection.metadataJson);
-      const channel = meta.channelLabel ? ` (${meta.channelLabel})` : '';
-      const text = [
-        `**VibeStandup — ${params.teamName}${channel}**`,
-        `_${params.entryDate}_`,
-        '',
-        params.content,
-      ].join('\n');
-
-      const res = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
-      });
-      if (!res.ok) {
-        const body = await res.text().catch(() => '');
-        this.logger.warn(
-          `Teams digest post failed (${res.status}) for workspace ${params.workspaceId}: ${body.slice(0, 200)}`,
-        );
-        return false;
-      }
-      return true;
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      this.logger.warn(
-        `Teams digest post error for workspace ${params.workspaceId}: ${message}`,
-      );
-      return false;
-    }
+    void params;
+    // Resume posting from feature/106-teams-oauth-connect when M365/Teams is available.
+    this.logger.debug(
+      'Teams standup digest deferred (#108); skipping postStandupDigest',
+    );
+    return false;
   }
 }

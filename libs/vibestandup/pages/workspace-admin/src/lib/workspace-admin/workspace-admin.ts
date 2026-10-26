@@ -17,17 +17,11 @@ import {
   type LinearConnectionView,
   type LinearProjectView,
   type SlackConnectionView,
-  type TeamsConnectionView,
 } from '@silvervibe/stores/workspace';
 
 type CreateTeamModel = {
   name: string;
   slug: string;
-};
-
-type TeamsModel = {
-  incomingWebhookUrl: string;
-  channelLabel: string;
 };
 
 @Component({
@@ -74,21 +68,11 @@ export class WorkspaceAdmin implements OnInit {
   readonly linearProjects = signal<LinearProjectView[]>([]);
   readonly linearError = signal<string | null>(null);
   readonly linearConnecting = signal(false);
-  readonly teams = signal<TeamsConnectionView | null>(null);
-  readonly teamsError = signal<string | null>(null);
 
   readonly teamModel = signal<CreateTeamModel>({ name: '', slug: '' });
   readonly teamForm = form(this.teamModel, (schemaPath) => {
     required(schemaPath.name);
     required(schemaPath.slug);
-  });
-
-  readonly teamsModel = signal<TeamsModel>({
-    incomingWebhookUrl: '',
-    channelLabel: '',
-  });
-  readonly teamsForm = form(this.teamsModel, (schemaPath) => {
-    required(schemaPath.incomingWebhookUrl);
   });
 
   ngOnInit(): void {
@@ -99,11 +83,7 @@ export class WorkspaceAdmin implements OnInit {
     await this.workspaces.loadMyWorkspaces();
     const ws = this.selected();
     if (ws && this.isAdmin()) {
-      await Promise.all([
-        this.refreshSlack(ws.id),
-        this.refreshLinear(ws.id),
-        this.refreshTeams(ws.id),
-      ]);
+      await Promise.all([this.refreshSlack(ws.id), this.refreshLinear(ws.id)]);
     }
     this.applyOAuthQueryResults();
   }
@@ -153,13 +133,10 @@ export class WorkspaceAdmin implements OnInit {
     this.linear.set(null);
     this.linearProjects.set([]);
     this.linearError.set(null);
-    this.teams.set(null);
-    this.teamsError.set(null);
     if (this.isAdmin()) {
       await Promise.all([
         this.refreshSlack(workspaceId),
         this.refreshLinear(workspaceId),
-        this.refreshTeams(workspaceId),
       ]);
     }
   }
@@ -197,21 +174,6 @@ export class WorkspaceAdmin implements OnInit {
     } catch (err: unknown) {
       this.linearError.set(
         err instanceof Error ? err.message : 'Failed to load Linear connection',
-      );
-    }
-  }
-
-  private async refreshTeams(workspaceId: string): Promise<void> {
-    try {
-      const conn = await this.workspaces.getTeamsConnection(workspaceId);
-      this.teams.set(conn);
-      this.teamsModel.set({
-        incomingWebhookUrl: '',
-        channelLabel: conn.channelLabel ?? '',
-      });
-    } catch (err: unknown) {
-      this.teamsError.set(
-        err instanceof Error ? err.message : 'Failed to load Teams connection',
       );
     }
   }
@@ -313,56 +275,6 @@ export class WorkspaceAdmin implements OnInit {
     } catch (err: unknown) {
       this.linearError.set(
         err instanceof Error ? err.message : 'Linear disconnect failed',
-      );
-    }
-  }
-
-  async connectTeams(event: Event): Promise<void> {
-    event.preventDefault();
-    const ws = this.selected();
-    if (!ws || !this.isAdmin()) {
-      return;
-    }
-    this.teamsError.set(null);
-    await submit(this.teamsForm, {
-      action: async () => {
-        try {
-          const m = this.teamsModel();
-          const conn = await this.workspaces.connectTeams(ws.id, {
-            incomingWebhookUrl: m.incomingWebhookUrl.trim(),
-            channelLabel: m.channelLabel.trim() || undefined,
-          });
-          this.teams.set(conn);
-          this.teamsModel.set({
-            incomingWebhookUrl: '',
-            channelLabel: conn.channelLabel ?? '',
-          });
-          await this.workspaces.loadMyWorkspaces();
-          this.workspaces.selectWorkspace(ws.id);
-          this.message.set('standup.workspace.teamsConnected');
-        } catch (err: unknown) {
-          this.teamsError.set(
-            err instanceof Error ? err.message : 'Teams connect failed',
-          );
-        }
-        return undefined;
-      },
-    });
-  }
-
-  async disconnectTeams(): Promise<void> {
-    const ws = this.selected();
-    if (!ws || !this.isAdmin()) {
-      return;
-    }
-    this.teamsError.set(null);
-    try {
-      const conn = await this.workspaces.disconnectTeams(ws.id);
-      this.teams.set(conn);
-      this.message.set('standup.workspace.teamsDisconnected');
-    } catch (err: unknown) {
-      this.teamsError.set(
-        err instanceof Error ? err.message : 'Teams disconnect failed',
       );
     }
   }
