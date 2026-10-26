@@ -9,9 +9,14 @@ import type {
   ConnectTeamsInput,
   CreateTeamInput,
   CreateWorkspaceInput,
+  GithubConnectionView,
+  GithubIssueView,
+  GithubOAuthStartView,
+  GithubRepoView,
   LinearConnectionView,
   LinearOAuthStartView,
   LinearProjectView,
+  SelectGithubTargetInput,
   SelectLinearProjectInput,
   SlackConnectionView,
   SlackOAuthStartView,
@@ -126,5 +131,36 @@ export class WorkspaceFacade {
 
   disconnectLinear(workspaceId: string): Promise<LinearConnectionView> {
     return this.api.disconnectLinear(workspaceId);
+  }
+
+  getGithubConnection(workspaceId: string): Promise<GithubConnectionView> {
+    return this.api.getGithubConnection(workspaceId);
+  }
+
+  startGithubOAuth(workspaceId: string): Promise<GithubOAuthStartView> {
+    return this.api.startGithubOAuth(workspaceId);
+  }
+
+  listGithubRepos(workspaceId: string): Promise<GithubRepoView[]> {
+    return this.api.listGithubRepos(workspaceId);
+  }
+
+  listGithubIssues(
+    workspaceId: string,
+    owner: string,
+    repo: string,
+  ): Promise<GithubIssueView[]> {
+    return this.api.listGithubIssues(workspaceId, owner, repo);
+  }
+
+  selectGithubTarget(
+    workspaceId: string,
+    body: SelectGithubTargetInput,
+  ): Promise<GithubConnectionView> {
+    return this.api.selectGithubTarget(workspaceId, body);
+  }
+
+  disconnectGithub(workspaceId: string): Promise<GithubConnectionView> {
+    return this.api.disconnectGithub(workspaceId);
   }
 }

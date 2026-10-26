@@ -171,6 +171,87 @@
       }
     </section>
 
+    <section class="flex max-w-xl flex-col gap-3">
+      <h2 class="text-xl font-semibold">
+        {{ 'standup.workspace.githubTitle' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.workspace.githubHint' | transloco }}
+      </p>
+      @if (github(); as conn) {
+      <p class="text-sm">
+        {{ 'standup.workspace.githubStatus' | transloco }}:
+        <span class="font-medium">{{ conn.status }}</span>
+        @if (conn.accountLogin) {
+        <span class="text-base-content/70"> — @{{ conn.accountLogin }}</span>
+        } @if (conn.repoFullName && conn.issueNumber) {
+        <span class="text-base-content/70">
+          / {{ conn.repoFullName }}#{{ conn.issueNumber }}</span
+        >
+        }
+      </p>
+      @if (conn.configured) {
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.workspace.githubRepo' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [value]="githubSelectedRepo()"
+          (change)="onGithubRepoChange($any($event.target).value)"
+        >
+          <option value="">
+            {{ 'standup.workspace.githubRepoPlaceholder' | transloco }}
+          </option>
+          @for (repo of githubRepos(); track repo.fullName) {
+          <option [value]="repo.fullName">{{ repo.fullName }}</option>
+          }
+        </select>
+      </fieldset>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.workspace.githubIssue' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [value]="conn.issueNumber ?? ''"
+          (change)="selectGithubIssue($any($event.target).value)"
+        >
+          <option value="">
+            {{ 'standup.workspace.githubIssuePlaceholder' | transloco }}
+          </option>
+          @for (issue of githubIssues(); track issue.number) {
+          <option [value]="issue.number">
+            #{{ issue.number }} — {{ issue.title }}
+          </option>
+          }
+        </select>
+      </fieldset>
+      <button
+        type="button"
+        class="btn btn-outline btn-sm self-start"
+        (click)="disconnectGithub()"
+      >
+        {{ 'standup.workspace.githubDisconnect' | transloco }}
+      </button>
+      } @else if (conn.oauthAvailable) {
+      <button
+        type="button"
+        class="btn btn-secondary btn-sm self-start"
+        [disabled]="githubConnecting()"
+        (click)="connectGithub()"
+      >
+        {{ 'standup.workspace.githubConnect' | transloco }}
+      </button>
+      } @else {
+      <p class="text-sm text-warning">
+        {{ 'standup.workspace.githubOAuthUnavailable' | transloco }}
+      </p>
+      } } @if (githubError()) {
+      <p class="text-error text-sm">{{ githubError() }}</p>
+      }
+    </section>
+
     <form class="flex max-w-md flex-col gap-3" (submit)="createTeam($event)">
       <h2 class="text-xl font-semibold">
         {{ 'standup.workspace.createTeam' | transloco }}

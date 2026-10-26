@@ -14,6 +14,9 @@ import { Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import {
   WorkspaceFacade,
+  type GithubConnectionView,
+  type GithubIssueView,
+  type GithubRepoView,
   type LinearConnectionView,
   type LinearProjectView,
   type SlackConnectionView,
@@ -68,6 +71,12 @@ export class WorkspaceAdmin implements OnInit {
   readonly linearProjects = signal<LinearProjectView[]>([]);
   readonly linearError = signal<string | null>(null);
   readonly linearConnecting = signal(false);
+  readonly github = signal<GithubConnectionView | null>(null);
+  readonly githubRepos = signal<GithubRepoView[]>([]);
+  readonly githubIssues = signal<GithubIssueView[]>([]);
+  readonly githubSelectedRepo = signal<string>('');
+  readonly githubError = signal<string | null>(null);
+  readonly githubConnecting = signal(false);
 
   readonly teamModel = signal<CreateTeamModel>({ name: '', slug: '' });
   readonly teamForm = form(this.teamModel, (schemaPath) => {
@@ -83,7 +92,11 @@ export class WorkspaceAdmin implements OnInit {
     await this.workspaces.loadMyWorkspaces();
     const ws = this.selected();
     if (ws && this.isAdmin()) {
-      await Promise.all([this.refreshSlack(ws.id), this.refreshLinear(ws.id)]);
+      await Promise.all([
+        this.refreshSlack(ws.id),
+        this.refreshLinear(ws.id),
+        this.refreshGithub(ws.id),
+      ]);
     }
     this.applyOAuthQueryResults();
   }
@@ -92,6 +105,7 @@ export class WorkspaceAdmin implements OnInit {
     const params = this.route.snapshot.queryParamMap;
     const slack = params.get('slack');
     const linear = params.get('linear');
+    const github = params.get('github');
     const clear: Record<string, null> = {};
     if (slack) {
       if (slack === 'connected') {
@@ -115,6 +129,17 @@ export class WorkspaceAdmin implements OnInit {
       clear['linear'] = null;
       clear['linearDetail'] = null;
     }
+    if (github) {
+      if (github === 'connected') {
+        this.message.set('standup.workspace.githubConnected');
+      } else if (github === 'error') {
+        this.githubError.set(
+          params.get('githubDetail') || 'GitHub connect failed',
+        );
+      }
+      clear['github'] = null;
+      clear['githubDetail'] = null;
+    }
     if (Object.keys(clear).length === 0) {
       return;
     }
@@ -133,10 +158,16 @@ export class WorkspaceAdmin implements OnInit {
     this.linear.set(null);
     this.linearProjects.set([]);
     this.linearError.set(null);
+    this.github.set(null);
+    this.githubRepos.set([]);
+    this.githubIssues.set([]);
+    this.githubSelectedRepo.set('');
+    this.githubError.set(null);
     if (this.isAdmin()) {
       await Promise.all([
         this.refreshSlack(workspaceId),
         this.refreshLinear(workspaceId),
+        this.refreshGithub(workspaceId),
       ]);
     }
   }
@@ -275,6 +306,131 @@ export class WorkspaceAdmin implements OnInit {
     } catch (err: unknown) {
       this.linearError.set(
         err instanceof Error ? err.message : 'Linear disconnect failed',
+      );
+    }
+  }
+
+  private async refreshGithub(workspaceId: string): Promise<void> {
+    try {
+      const conn = await this.workspaces.getGithubConnection(workspaceId);
+      this.github.set(conn);
+      if (conn.configured) {
+        try {
+          const repos = await this.workspaces.listGithubRepos(workspaceId);
+          this.githubRepos.set(repos);
+          const selected = conn.repoFullName ?? '';
+          this.githubSelectedRepo.set(selected);
+          if (selected.includes('/')) {
+            const [owner, repo] = selected.split('/', 2);
+            const issues = await this.workspaces.listGithubIssues(
+              workspaceId,
+              owner,
+              repo,
+            );
+            this.githubIssues.set(issues);
+          } else {
+            this.githubIssues.set([]);
+          }
+        } catch (err: unknown) {
+          this.githubError.set(
+            err instanceof Error ? err.message : 'Failed to load GitHub repos',
+          );
+        }
+      } else {
+        this.githubRepos.set([]);
+        this.githubIssues.set([]);
+        this.githubSelectedRepo.set('');
+      }
+    } catch (err: unknown) {
+      this.githubError.set(
+        err instanceof Error ? err.message : 'Failed to load GitHub connection',
+      );
+    }
+  }
+
+  async connectGithub(): Promise<void> {
+    const ws = this.selected();
+    if (!ws || !this.isAdmin()) {
+      return;
+    }
+    this.githubError.set(null);
+    this.githubConnecting.set(true);
+    try {
+      const { authorizeUrl } = await this.workspaces.startGithubOAuth(ws.id);
+      window.location.assign(authorizeUrl);
+    } catch (err: unknown) {
+      this.githubConnecting.set(false);
+      this.githubError.set(
+        err instanceof Error ? err.message : 'GitHub connect failed',
+      );
+    }
+  }
+
+  async onGithubRepoChange(fullName: string): Promise<void> {
+    const ws = this.selected();
+    this.githubSelectedRepo.set(fullName);
+    this.githubIssues.set([]);
+    if (!ws || !this.isAdmin() || !fullName.includes('/')) {
+      return;
+    }
+    this.githubError.set(null);
+    const [owner, repo] = fullName.split('/', 2);
+    try {
+      const issues = await this.workspaces.listGithubIssues(ws.id, owner, repo);
+      this.githubIssues.set(issues);
+    } catch (err: unknown) {
+      this.githubError.set(
+        err instanceof Error ? err.message : 'Failed to load GitHub issues',
+      );
+    }
+  }
+
+  async selectGithubIssue(issueNumberRaw: string): Promise<void> {
+    const ws = this.selected();
+    const fullName = this.githubSelectedRepo();
+    const issueNumber = Number(issueNumberRaw);
+    if (
+      !ws ||
+      !this.isAdmin() ||
+      !fullName.includes('/') ||
+      !Number.isFinite(issueNumber) ||
+      issueNumber < 1
+    ) {
+      return;
+    }
+    this.githubError.set(null);
+    const [owner, repo] = fullName.split('/', 2);
+    try {
+      const conn = await this.workspaces.selectGithubTarget(ws.id, {
+        owner,
+        repo,
+        issueNumber,
+      });
+      this.github.set(conn);
+      this.message.set('standup.workspace.githubTargetSaved');
+    } catch (err: unknown) {
+      this.githubError.set(
+        err instanceof Error ? err.message : 'Failed to save GitHub target',
+      );
+    }
+  }
+
+  async disconnectGithub(): Promise<void> {
+    const ws = this.selected();
+    if (!ws || !this.isAdmin()) {
+      return;
+    }
+    this.githubError.set(null);
+    try {
+      const conn = await this.workspaces.disconnectGithub(ws.id);
+      this.github.set(conn);
+      this.githubRepos.set([]);
+      this.githubIssues.set([]);
+      this.githubSelectedRepo.set('');
+      this.message.set('standup.workspace.githubDisconnected');
+    } catch (err: unknown) {
+      this.githubError.set(
+        err instanceof Error ? err.message : 'GitHub disconnect failed',
       );
     }
   }
