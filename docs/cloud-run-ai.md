@@ -11,7 +11,7 @@ Nest API hosting: [cloud-run.md](./cloud-run.md).
 
 - Google Cloud project with billing (same as Nest API is fine)
 - Artifact Registry repository
-- Optional `OPENAI_API_KEY` for LLM polish on standup summaries (not required for
+- Optional `GEMINI_API_KEY` for LLM polish on standup summaries (not required for
   `/health`, echo, or structured standup digests)
 
 ## Container

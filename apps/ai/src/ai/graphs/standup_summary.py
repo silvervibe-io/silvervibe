@@ -71,52 +71,58 @@ def draft_markdown(state: StandupSummaryState) -> StandupSummaryState:
     return {**state, "draft_markdown": draft, "markdown": draft, "used_llm": False}
 
 
-def _openai_key() -> str | None:
-    key = os.environ.get("OPENAI_API_KEY", "").strip()
-    return key or None
+def _gemini_key() -> str | None:
+    for name in ("GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_AI_API_KEY"):
+        key = os.environ.get(name, "").strip()
+        if key:
+            return key
+    return None
 
 
 def route_after_draft(state: StandupSummaryState) -> str:
-    if _openai_key() and (state.get("entries") or []):
+    if _gemini_key() and (state.get("entries") or []):
         return "polish"
     return "done"
 
 
 def polish_with_llm(state: StandupSummaryState) -> StandupSummaryState:
-    """Optional OpenAI rewrite; keeps draft on any failure."""
-    api_key = _openai_key()
+    """Optional Gemini rewrite; keeps draft on any failure."""
+    api_key = _gemini_key()
     draft = state.get("draft_markdown") or state.get("markdown") or ""
     if not api_key or not draft:
         return {**state, "markdown": draft, "used_llm": False}
 
-    model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini").strip() or "gpt-4o-mini"
+    model = (
+        os.environ.get("GEMINI_MODEL", "").strip()
+        or os.environ.get("GOOGLE_AI_MODEL", "").strip()
+        or "gemini-2.0-flash"
+    )
     system = (
         "You rewrite daily standup digests for engineering teams. "
         "Keep markdown. Preserve every person's facts and names. "
         "Be concise. Do not invent work. Keep the Today / Blockers / Yesterday "
         "structure when those sections have content."
     )
+    user_text = (
+        f"Team: {state['team_name']}\n"
+        f"Date: {state['entry_date']}\n\n"
+        f"Draft digest:\n{draft}"
+    )
     payload = {
-        "model": model,
-        "temperature": 0.2,
-        "messages": [
-            {"role": "system", "content": system},
-            {
-                "role": "user",
-                "content": (
-                    f"Team: {state['team_name']}\n"
-                    f"Date: {state['entry_date']}\n\n"
-                    f"Draft digest:\n{draft}"
-                ),
-            },
-        ],
+        "system_instruction": {"parts": [{"text": system}]},
+        "contents": [{"role": "user", "parts": [{"text": user_text}]}],
+        "generationConfig": {"temperature": 0.2},
     }
+    url = (
+        "https://generativelanguage.googleapis.com/v1beta/models/"
+        f"{model}:generateContent"
+    )
 
     try:
         response = httpx.post(
-            "https://api.openai.com/v1/chat/completions",
+            url,
             headers={
-                "Authorization": f"Bearer {api_key}",
+                "x-goog-api-key": api_key,
                 "Content-Type": "application/json",
             },
             content=json.dumps(payload),
@@ -124,12 +130,14 @@ def polish_with_llm(state: StandupSummaryState) -> StandupSummaryState:
         )
         response.raise_for_status()
         data = response.json()
-        content = (
-            data.get("choices", [{}])[0]
-            .get("message", {})
-            .get("content", "")
+        parts = (
+            data.get("candidates", [{}])[0]
+            .get("content", {})
+            .get("parts", [])
         )
-        polished = (content or "").strip()
+        polished = "".join(
+            part.get("text", "") for part in parts if isinstance(part, dict)
+        ).strip()
         if not polished:
             return {**state, "markdown": draft, "used_llm": False}
         return {**state, "markdown": polished, "used_llm": True}
