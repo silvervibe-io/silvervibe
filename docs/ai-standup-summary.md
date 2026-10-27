@@ -6,19 +6,19 @@ Issue: [#119](https://github.com/silvervibe-io/silvervibe/issues/119)
 
 1. On standup submit / Rebuild, Nest builds a classic per-person markdown
    fallback, then asks LangGraph (`PUBLIC_AI_URL`) for a team digest.
-2. The AI graph groups **Today / Blockers / Yesterday**. If `OPENAI_API_KEY` is
-   set on the AI service, it optionally polishes that draft with OpenAI.
+2. The AI graph groups **Today / Blockers / Yesterday**. If `GEMINI_API_KEY` is
+   set on the AI service, it optionally polishes that draft with Gemini.
 3. Digests (Slack / Linear / GitHub / Jira) post the resulting markdown. AI
    failures soft-fall back to classic markdown.
 
 ## Setup
 
-| Env                  | Where                           | Notes                                                      |
-| -------------------- | ------------------------------- | ---------------------------------------------------------- |
-| `PUBLIC_AI_URL`      | Nest (local `.env` / Cloud Run) | e.g. `http://localhost:8000` or `https://ai.silvervibe.io` |
-| `AI_STANDUP_SUMMARY` | Nest                            | Opt-in: `true` / `1` / `on` to call LangGraph              |
-| `OPENAI_API_KEY`     | AI Cloud Run / local AI process | Optional LLM polish                                        |
-| `OPENAI_MODEL`       | AI (optional)                   | Default `gpt-4o-mini`                                      |
+| Env                  | Where                           | Notes                                                                 |
+| -------------------- | ------------------------------- | --------------------------------------------------------------------- |
+| `PUBLIC_AI_URL`      | Nest (local `.env` / Cloud Run) | e.g. `http://localhost:8000` or `https://ai.silvervibe.io`            |
+| `AI_STANDUP_SUMMARY` | Nest                            | Opt-in: `true` / `1` / `on` to call LangGraph                         |
+| `GEMINI_API_KEY`     | AI Cloud Run / local AI process | Optional LLM polish (Google AI Studio). Also accepts `GOOGLE_API_KEY` |
+| `GEMINI_MODEL`       | AI (optional)                   | Default `gemini-2.0-flash`                                            |
 
 Local:
 
