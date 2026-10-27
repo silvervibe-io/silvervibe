@@ -552,10 +552,17 @@ export class JiraService {
     if (!key) {
       throw new BadRequestException('projectKey is required');
     }
+    // Jira project keys are alphanumeric (+ underscore); reject anything else
+    // rather than relying on partial JQL string escaping.
+    if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(key)) {
+      throw new BadRequestException('Invalid Jira project key');
+    }
 
     const { token, cloudId } = await this.requireCloudContext(workspaceId);
+    // Escape \ then " for JQL string literals (CodeQL incomplete-escaping).
+    const escapedKey = key.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
     const jql = encodeURIComponent(
-      `project = "${key.replace(/"/g, '\\"')}" ORDER BY updated DESC`,
+      `project = "${escapedKey}" ORDER BY updated DESC`,
     );
     const data = await this.jiraGet<{
       issues?: Array<{
