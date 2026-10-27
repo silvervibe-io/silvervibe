@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AiModule } from '../ai/ai.module';
 import { GithubModule } from '../addons/github/github.module';
 import { JiraModule } from '../addons/jira/jira.module';
 import { LinearModule } from '../addons/linear/linear.module';
@@ -15,6 +16,7 @@ import { StandupsService } from './standups.service';
     AuthModule,
     UsersModule,
     WorkspaceTeamsModule,
+    AiModule,
     SlackModule,
     MsTeamsModule,
     LinearModule,
