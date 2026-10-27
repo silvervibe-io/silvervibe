@@ -23,10 +23,17 @@ import type {
   GithubIssueView,
   GithubOAuthStartView,
   GithubRepoView,
+  JiraConnectionView,
+  JiraIssueView,
+  JiraOAuthStartView,
+  JiraProjectView,
+  JiraSiteView,
   LinearConnectionView,
   LinearOAuthStartView,
   LinearProjectView,
   SelectGithubTargetInput,
+  SelectJiraSiteInput,
+  SelectJiraTargetInput,
   SelectLinearProjectInput,
   SlackConnectionView,
   SlackOAuthStartView,
@@ -256,6 +263,81 @@ export class WorkspaceService {
     return firstValueFrom(
       this.http.delete<GithubConnectionView>(
         `${this.apiBase}/workspaces/${workspaceId}/addons/github`,
+      ),
+    );
+  }
+
+  getJiraConnection(workspaceId: string): Promise<JiraConnectionView> {
+    return firstValueFrom(
+      this.http.get<JiraConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/jira`,
+      ),
+    );
+  }
+
+  startJiraOAuth(workspaceId: string): Promise<JiraOAuthStartView> {
+    return firstValueFrom(
+      this.http.get<JiraOAuthStartView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/jira/oauth/start`,
+      ),
+    );
+  }
+
+  listJiraSites(workspaceId: string): Promise<JiraSiteView[]> {
+    return firstValueFrom(
+      this.http.get<JiraSiteView[]>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/jira/sites`,
+      ),
+    );
+  }
+
+  selectJiraSite(
+    workspaceId: string,
+    body: SelectJiraSiteInput,
+  ): Promise<JiraConnectionView> {
+    return firstValueFrom(
+      this.http.put<JiraConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/jira/site`,
+        body,
+      ),
+    );
+  }
+
+  listJiraProjects(workspaceId: string): Promise<JiraProjectView[]> {
+    return firstValueFrom(
+      this.http.get<JiraProjectView[]>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/jira/projects`,
+      ),
+    );
+  }
+
+  listJiraIssues(
+    workspaceId: string,
+    projectKey: string,
+  ): Promise<JiraIssueView[]> {
+    return firstValueFrom(
+      this.http.get<JiraIssueView[]>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/jira/projects/${encodeURIComponent(projectKey)}/issues`,
+      ),
+    );
+  }
+
+  selectJiraTarget(
+    workspaceId: string,
+    body: SelectJiraTargetInput,
+  ): Promise<JiraConnectionView> {
+    return firstValueFrom(
+      this.http.put<JiraConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/jira/target`,
+        body,
+      ),
+    );
+  }
+
+  disconnectJira(workspaceId: string): Promise<JiraConnectionView> {
+    return firstValueFrom(
+      this.http.delete<JiraConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/jira`,
       ),
     );
   }
