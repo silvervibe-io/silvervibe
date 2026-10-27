@@ -13,10 +13,17 @@ import type {
   GithubIssueView,
   GithubOAuthStartView,
   GithubRepoView,
+  JiraConnectionView,
+  JiraIssueView,
+  JiraOAuthStartView,
+  JiraProjectView,
+  JiraSiteView,
   LinearConnectionView,
   LinearOAuthStartView,
   LinearProjectView,
   SelectGithubTargetInput,
+  SelectJiraSiteInput,
+  SelectJiraTargetInput,
   SelectLinearProjectInput,
   SlackConnectionView,
   SlackOAuthStartView,
@@ -162,5 +169,46 @@ export class WorkspaceFacade {
 
   disconnectGithub(workspaceId: string): Promise<GithubConnectionView> {
     return this.api.disconnectGithub(workspaceId);
+  }
+
+  getJiraConnection(workspaceId: string): Promise<JiraConnectionView> {
+    return this.api.getJiraConnection(workspaceId);
+  }
+
+  startJiraOAuth(workspaceId: string): Promise<JiraOAuthStartView> {
+    return this.api.startJiraOAuth(workspaceId);
+  }
+
+  listJiraSites(workspaceId: string): Promise<JiraSiteView[]> {
+    return this.api.listJiraSites(workspaceId);
+  }
+
+  selectJiraSite(
+    workspaceId: string,
+    body: SelectJiraSiteInput,
+  ): Promise<JiraConnectionView> {
+    return this.api.selectJiraSite(workspaceId, body);
+  }
+
+  listJiraProjects(workspaceId: string): Promise<JiraProjectView[]> {
+    return this.api.listJiraProjects(workspaceId);
+  }
+
+  listJiraIssues(
+    workspaceId: string,
+    projectKey: string,
+  ): Promise<JiraIssueView[]> {
+    return this.api.listJiraIssues(workspaceId, projectKey);
+  }
+
+  selectJiraTarget(
+    workspaceId: string,
+    body: SelectJiraTargetInput,
+  ): Promise<JiraConnectionView> {
+    return this.api.selectJiraTarget(workspaceId, body);
+  }
+
+  disconnectJira(workspaceId: string): Promise<JiraConnectionView> {
+    return this.api.disconnectJira(workspaceId);
   }
 }

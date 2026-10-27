@@ -110,7 +110,22 @@
     "githubRepoPlaceholder": "Select a repository…",
     "githubIssue": "Issue for digests",
     "githubIssuePlaceholder": "Select an issue…",
-    "githubOAuthUnavailable": "GitHub OAuth is not configured on the server yet."
+    "githubOAuthUnavailable": "GitHub OAuth is not configured on the server yet.",
+    "jiraTitle": "Jira digest",
+    "jiraConnect": "Connect Jira",
+    "jiraDisconnect": "Disconnect Jira",
+    "jiraConnected": "Jira connected. Pick a site, project, and issue for digests.",
+    "jiraDisconnected": "Jira disconnected.",
+    "jiraTargetSaved": "Jira digest target saved.",
+    "jiraHint": "Authorize Atlassian once, then pick a site, project, and issue. Standup summaries post as issue comments when addons.jira is enabled.",
+    "jiraStatus": "Status",
+    "jiraSite": "Site",
+    "jiraSitePlaceholder": "Select a site…",
+    "jiraProject": "Project",
+    "jiraProjectPlaceholder": "Select a project…",
+    "jiraIssue": "Issue for digests",
+    "jiraIssuePlaceholder": "Select an issue…",
+    "jiraOAuthUnavailable": "Jira OAuth is not configured on the server yet."
   },
   "invite": {
     "title": "Join team",

@@ -103,6 +103,49 @@ export type SelectGithubTargetInput = {
   issueNumber: number;
 };
 
+export type JiraConnectionView = {
+  status: 'DISCONNECTED' | 'PENDING' | 'CONNECTED' | 'ERROR';
+  configured: boolean;
+  cloudId: string | null;
+  siteName: string | null;
+  projectKey: string | null;
+  issueKey: string | null;
+  issueSummary: string | null;
+  toolEnabled: boolean;
+  oauthAvailable: boolean;
+};
+
+export type JiraOAuthStartView = {
+  authorizeUrl: string;
+};
+
+export type JiraSiteView = {
+  cloudId: string;
+  name: string;
+  url: string;
+};
+
+export type JiraProjectView = {
+  id: string;
+  key: string;
+  name: string;
+};
+
+export type JiraIssueView = {
+  key: string;
+  summary: string;
+};
+
+export type SelectJiraSiteInput = {
+  cloudId: string;
+};
+
+export type SelectJiraTargetInput = {
+  cloudId: string;
+  projectKey: string;
+  issueKey: string;
+};
+
 export type WorkspaceState = {
   memberships: WorkspaceMembershipView[];
   selectedWorkspaceId: string | null;

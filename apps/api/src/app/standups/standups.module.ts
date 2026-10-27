@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { GithubModule } from '../addons/github/github.module';
+import { JiraModule } from '../addons/jira/jira.module';
 import { LinearModule } from '../addons/linear/linear.module';
 import { SlackModule } from '../addons/slack/slack.module';
 import { TeamsModule as MsTeamsModule } from '../addons/teams/teams.module';
@@ -18,6 +19,7 @@ import { StandupsService } from './standups.service';
     MsTeamsModule,
     LinearModule,
     GithubModule,
+    JiraModule,
   ],
   controllers: [StandupsController],
   providers: [StandupsService],
