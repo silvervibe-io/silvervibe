@@ -48,6 +48,61 @@ export type ConnectTeamsInput = {
   channelLabel?: string;
 };
 
+export type LinearConnectionView = {
+  status: 'DISCONNECTED' | 'PENDING' | 'CONNECTED' | 'ERROR';
+  configured: boolean;
+  projectId: string | null;
+  projectName: string | null;
+  organizationName: string | null;
+  toolEnabled: boolean;
+  oauthAvailable: boolean;
+};
+
+export type LinearOAuthStartView = {
+  authorizeUrl: string;
+};
+
+export type LinearProjectView = {
+  id: string;
+  name: string;
+};
+
+export type SelectLinearProjectInput = {
+  projectId: string;
+};
+
+export type GithubConnectionView = {
+  status: 'DISCONNECTED' | 'PENDING' | 'CONNECTED' | 'ERROR';
+  configured: boolean;
+  repoFullName: string | null;
+  issueNumber: number | null;
+  issueTitle: string | null;
+  accountLogin: string | null;
+  toolEnabled: boolean;
+  oauthAvailable: boolean;
+};
+
+export type GithubOAuthStartView = {
+  authorizeUrl: string;
+};
+
+export type GithubRepoView = {
+  fullName: string;
+  owner: string;
+  name: string;
+};
+
+export type GithubIssueView = {
+  number: number;
+  title: string;
+};
+
+export type SelectGithubTargetInput = {
+  owner: string;
+  repo: string;
+  issueNumber: number;
+};
+
 export type WorkspaceState = {
   memberships: WorkspaceMembershipView[];
   selectedWorkspaceId: string | null;

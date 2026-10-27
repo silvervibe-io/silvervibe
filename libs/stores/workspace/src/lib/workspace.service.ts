@@ -19,6 +19,15 @@ import type {
   ConnectTeamsInput,
   CreateTeamInput,
   CreateWorkspaceInput,
+  GithubConnectionView,
+  GithubIssueView,
+  GithubOAuthStartView,
+  GithubRepoView,
+  LinearConnectionView,
+  LinearOAuthStartView,
+  LinearProjectView,
+  SelectGithubTargetInput,
+  SelectLinearProjectInput,
   SlackConnectionView,
   SlackOAuthStartView,
   TeamsConnectionView,
@@ -147,6 +156,106 @@ export class WorkspaceService {
     return firstValueFrom(
       this.http.delete<TeamsConnectionView>(
         `${this.apiBase}/workspaces/${workspaceId}/addons/teams`,
+      ),
+    );
+  }
+
+  getLinearConnection(workspaceId: string): Promise<LinearConnectionView> {
+    return firstValueFrom(
+      this.http.get<LinearConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/linear`,
+      ),
+    );
+  }
+
+  startLinearOAuth(workspaceId: string): Promise<LinearOAuthStartView> {
+    return firstValueFrom(
+      this.http.get<LinearOAuthStartView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/linear/oauth/start`,
+      ),
+    );
+  }
+
+  listLinearProjects(workspaceId: string): Promise<LinearProjectView[]> {
+    return firstValueFrom(
+      this.http.get<LinearProjectView[]>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/linear/projects`,
+      ),
+    );
+  }
+
+  selectLinearProject(
+    workspaceId: string,
+    body: SelectLinearProjectInput,
+  ): Promise<LinearConnectionView> {
+    return firstValueFrom(
+      this.http.put<LinearConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/linear/project`,
+        body,
+      ),
+    );
+  }
+
+  disconnectLinear(workspaceId: string): Promise<LinearConnectionView> {
+    return firstValueFrom(
+      this.http.delete<LinearConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/linear`,
+      ),
+    );
+  }
+
+  getGithubConnection(workspaceId: string): Promise<GithubConnectionView> {
+    return firstValueFrom(
+      this.http.get<GithubConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/github`,
+      ),
+    );
+  }
+
+  startGithubOAuth(workspaceId: string): Promise<GithubOAuthStartView> {
+    return firstValueFrom(
+      this.http.get<GithubOAuthStartView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/github/oauth/start`,
+      ),
+    );
+  }
+
+  listGithubRepos(workspaceId: string): Promise<GithubRepoView[]> {
+    return firstValueFrom(
+      this.http.get<GithubRepoView[]>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/github/repos`,
+      ),
+    );
+  }
+
+  listGithubIssues(
+    workspaceId: string,
+    owner: string,
+    repo: string,
+  ): Promise<GithubIssueView[]> {
+    return firstValueFrom(
+      this.http.get<GithubIssueView[]>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/github/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues`,
+      ),
+    );
+  }
+
+  selectGithubTarget(
+    workspaceId: string,
+    body: SelectGithubTargetInput,
+  ): Promise<GithubConnectionView> {
+    return firstValueFrom(
+      this.http.put<GithubConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/github/target`,
+        body,
+      ),
+    );
+  }
+
+  disconnectGithub(workspaceId: string): Promise<GithubConnectionView> {
+    return firstValueFrom(
+      this.http.delete<GithubConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/github`,
       ),
     );
   }
