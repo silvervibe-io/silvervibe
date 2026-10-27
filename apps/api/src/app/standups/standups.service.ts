@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 
 import { StandupEntryStatus } from '@prisma/client';
+import { AiService } from '../ai/ai.service';
 import { GithubService } from '../addons/github/github.service';
 import { JiraService } from '../addons/jira/jira.service';
 import { LinearService } from '../addons/linear/linear.service';
@@ -30,6 +31,7 @@ export class StandupsService {
     private readonly prisma: PrismaService,
     private readonly users: UsersService,
     private readonly teams: TeamsService,
+    private readonly ai: AiService,
     private readonly slack: SlackService,
     private readonly msTeams: MsTeamsService,
     private readonly linear: LinearService,
@@ -273,6 +275,35 @@ export class StandupsService {
     return this.rebuildSummaryForDate(teamId, entryDate);
   }
 
+  private classicMarkdownSummary(
+    entries: Array<{
+      userId: string;
+      yesterday: string | null;
+      today: string | null;
+      blockers: string | null;
+      user: {
+        displayName: string | null;
+        email: string | null;
+      };
+    }>,
+  ): string {
+    const lines = entries.map((e) => {
+      const who = e.user.displayName || e.user.email || e.userId;
+      return [
+        `### ${who}`,
+        e.yesterday ? `- Yesterday: ${e.yesterday}` : null,
+        e.today ? `- Today: ${e.today}` : null,
+        e.blockers ? `- Blockers: ${e.blockers}` : null,
+      ]
+        .filter(Boolean)
+        .join('\n');
+    });
+
+    return lines.length > 0
+      ? lines.join('\n\n')
+      : 'No submitted standups for this day yet.';
+  }
+
   private async rebuildSummaryForDate(
     teamId: string,
     entryDate: Date,
@@ -287,22 +318,25 @@ export class StandupsService {
       orderBy: { submittedAt: 'asc' },
     });
 
-    const lines = entries.map((e) => {
-      const who = e.user.displayName || e.user.email || e.userId;
-      return [
-        `### ${who}`,
-        e.yesterday ? `- Yesterday: ${e.yesterday}` : null,
-        e.today ? `- Today: ${e.today}` : null,
-        e.blockers ? `- Blockers: ${e.blockers}` : null,
-      ]
-        .filter(Boolean)
-        .join('\n');
+    const entryDateIso = entryDate.toISOString().slice(0, 10);
+    const team = await this.prisma.team.findUnique({
+      where: { id: teamId },
+      select: { workspaceId: true, name: true },
     });
+    const teamName = team?.name?.trim() || 'Team';
 
-    const content =
-      lines.length > 0
-        ? lines.join('\n\n')
-        : 'No submitted standups for this day yet.';
+    const classic = this.classicMarkdownSummary(entries);
+    const aiMarkdown = await this.ai.summarizeStandup({
+      teamName,
+      entryDate: entryDateIso,
+      entries: entries.map((e) => ({
+        displayName: e.user.displayName || e.user.email || e.userId,
+        yesterday: e.yesterday,
+        today: e.today,
+        blockers: e.blockers,
+      })),
+    });
+    const content = aiMarkdown ?? classic;
 
     const summary = await this.prisma.standupSummary.upsert({
       where: { teamId_entryDate: { teamId, entryDate } },
@@ -310,12 +344,7 @@ export class StandupsService {
       update: { content },
     });
 
-    const entryDateIso = summary.entryDate.toISOString().slice(0, 10);
     try {
-      const team = await this.prisma.team.findUnique({
-        where: { id: teamId },
-        select: { workspaceId: true, name: true },
-      });
       if (team) {
         const digest = {
           workspaceId: team.workspaceId,
@@ -339,7 +368,7 @@ export class StandupsService {
     return {
       id: summary.id,
       teamId: summary.teamId,
-      entryDate: entryDateIso,
+      entryDate: summary.entryDate.toISOString().slice(0, 10),
       content: summary.content,
     };
   }
