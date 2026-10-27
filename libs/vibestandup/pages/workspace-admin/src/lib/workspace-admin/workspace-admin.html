@@ -252,6 +252,104 @@
       }
     </section>
 
+    <section class="flex max-w-xl flex-col gap-3">
+      <h2 class="text-xl font-semibold">
+        {{ 'standup.workspace.jiraTitle' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.workspace.jiraHint' | transloco }}
+      </p>
+      @if (jira(); as conn) {
+      <p class="text-sm">
+        {{ 'standup.workspace.jiraStatus' | transloco }}:
+        <span class="font-medium">{{ conn.status }}</span>
+        @if (conn.siteName) {
+        <span class="text-base-content/70"> — {{ conn.siteName }}</span>
+        } @if (conn.issueKey) {
+        <span class="text-base-content/70"> / {{ conn.issueKey }}</span>
+        }
+      </p>
+      @if (conn.configured) {
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.workspace.jiraSite' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [value]="conn.cloudId ?? ''"
+          (change)="onJiraSiteChange($any($event.target).value)"
+        >
+          <option value="">
+            {{ 'standup.workspace.jiraSitePlaceholder' | transloco }}
+          </option>
+          @for (site of jiraSites(); track site.cloudId) {
+          <option [value]="site.cloudId">{{ site.name }}</option>
+          }
+        </select>
+      </fieldset>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.workspace.jiraProject' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [value]="jiraSelectedProject()"
+          (change)="onJiraProjectChange($any($event.target).value)"
+        >
+          <option value="">
+            {{ 'standup.workspace.jiraProjectPlaceholder' | transloco }}
+          </option>
+          @for (project of jiraProjects(); track project.key) {
+          <option [value]="project.key">
+            {{ project.key }} — {{ project.name }}
+          </option>
+          }
+        </select>
+      </fieldset>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.workspace.jiraIssue' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [value]="conn.issueKey ?? ''"
+          (change)="selectJiraIssue($any($event.target).value)"
+        >
+          <option value="">
+            {{ 'standup.workspace.jiraIssuePlaceholder' | transloco }}
+          </option>
+          @for (issue of jiraIssues(); track issue.key) {
+          <option [value]="issue.key">
+            {{ issue.key }} — {{ issue.summary }}
+          </option>
+          }
+        </select>
+      </fieldset>
+      <button
+        type="button"
+        class="btn btn-outline btn-sm self-start"
+        (click)="disconnectJira()"
+      >
+        {{ 'standup.workspace.jiraDisconnect' | transloco }}
+      </button>
+      } @else if (conn.oauthAvailable) {
+      <button
+        type="button"
+        class="btn btn-secondary btn-sm self-start"
+        [disabled]="jiraConnecting()"
+        (click)="connectJira()"
+      >
+        {{ 'standup.workspace.jiraConnect' | transloco }}
+      </button>
+      } @else {
+      <p class="text-sm text-warning">
+        {{ 'standup.workspace.jiraOAuthUnavailable' | transloco }}
+      </p>
+      } } @if (jiraError()) {
+      <p class="text-error text-sm">{{ jiraError() }}</p>
+      }
+    </section>
+
     <form class="flex max-w-md flex-col gap-3" (submit)="createTeam($event)">
       <h2 class="text-xl font-semibold">
         {{ 'standup.workspace.createTeam' | transloco }}

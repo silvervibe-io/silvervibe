@@ -6,6 +6,7 @@ import {
 
 import { StandupEntryStatus } from '@prisma/client';
 import { GithubService } from '../addons/github/github.service';
+import { JiraService } from '../addons/jira/jira.service';
 import { LinearService } from '../addons/linear/linear.service';
 import { SlackService } from '../addons/slack/slack.service';
 import { TeamsService as MsTeamsService } from '../addons/teams/teams.service';
@@ -33,6 +34,7 @@ export class StandupsService {
     private readonly msTeams: MsTeamsService,
     private readonly linear: LinearService,
     private readonly github: GithubService,
+    private readonly jira: JiraService,
   ) {}
 
   private ensureDb(): void {
@@ -325,6 +327,7 @@ export class StandupsService {
         await this.msTeams.postStandupDigest(digest);
         await this.linear.postStandupDigest(digest);
         await this.github.postStandupDigest(digest);
+        await this.jira.postStandupDigest(digest);
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);

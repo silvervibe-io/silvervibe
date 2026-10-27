@@ -17,6 +17,10 @@ import {
   type GithubConnectionView,
   type GithubIssueView,
   type GithubRepoView,
+  type JiraConnectionView,
+  type JiraIssueView,
+  type JiraProjectView,
+  type JiraSiteView,
   type LinearConnectionView,
   type LinearProjectView,
   type SlackConnectionView,
@@ -77,6 +81,13 @@ export class WorkspaceAdmin implements OnInit {
   readonly githubSelectedRepo = signal<string>('');
   readonly githubError = signal<string | null>(null);
   readonly githubConnecting = signal(false);
+  readonly jira = signal<JiraConnectionView | null>(null);
+  readonly jiraSites = signal<JiraSiteView[]>([]);
+  readonly jiraProjects = signal<JiraProjectView[]>([]);
+  readonly jiraIssues = signal<JiraIssueView[]>([]);
+  readonly jiraSelectedProject = signal<string>('');
+  readonly jiraError = signal<string | null>(null);
+  readonly jiraConnecting = signal(false);
 
   readonly teamModel = signal<CreateTeamModel>({ name: '', slug: '' });
   readonly teamForm = form(this.teamModel, (schemaPath) => {
@@ -96,6 +107,7 @@ export class WorkspaceAdmin implements OnInit {
         this.refreshSlack(ws.id),
         this.refreshLinear(ws.id),
         this.refreshGithub(ws.id),
+        this.refreshJira(ws.id),
       ]);
     }
     this.applyOAuthQueryResults();
@@ -106,6 +118,7 @@ export class WorkspaceAdmin implements OnInit {
     const slack = params.get('slack');
     const linear = params.get('linear');
     const github = params.get('github');
+    const jira = params.get('jira');
     const clear: Record<string, null> = {};
     if (slack) {
       if (slack === 'connected') {
@@ -140,6 +153,15 @@ export class WorkspaceAdmin implements OnInit {
       clear['github'] = null;
       clear['githubDetail'] = null;
     }
+    if (jira) {
+      if (jira === 'connected') {
+        this.message.set('standup.workspace.jiraConnected');
+      } else if (jira === 'error') {
+        this.jiraError.set(params.get('jiraDetail') || 'Jira connect failed');
+      }
+      clear['jira'] = null;
+      clear['jiraDetail'] = null;
+    }
     if (Object.keys(clear).length === 0) {
       return;
     }
@@ -163,11 +185,18 @@ export class WorkspaceAdmin implements OnInit {
     this.githubIssues.set([]);
     this.githubSelectedRepo.set('');
     this.githubError.set(null);
+    this.jira.set(null);
+    this.jiraSites.set([]);
+    this.jiraProjects.set([]);
+    this.jiraIssues.set([]);
+    this.jiraSelectedProject.set('');
+    this.jiraError.set(null);
     if (this.isAdmin()) {
       await Promise.all([
         this.refreshSlack(workspaceId),
         this.refreshLinear(workspaceId),
         this.refreshGithub(workspaceId),
+        this.refreshJira(workspaceId),
       ]);
     }
   }
@@ -431,6 +460,164 @@ export class WorkspaceAdmin implements OnInit {
     } catch (err: unknown) {
       this.githubError.set(
         err instanceof Error ? err.message : 'GitHub disconnect failed',
+      );
+    }
+  }
+
+  private async refreshJira(workspaceId: string): Promise<void> {
+    try {
+      const conn = await this.workspaces.getJiraConnection(workspaceId);
+      this.jira.set(conn);
+      if (conn.configured) {
+        try {
+          const sites = await this.workspaces.listJiraSites(workspaceId);
+          this.jiraSites.set(sites);
+          if (conn.cloudId) {
+            const projects =
+              await this.workspaces.listJiraProjects(workspaceId);
+            this.jiraProjects.set(projects);
+            const projectKey = conn.projectKey ?? '';
+            this.jiraSelectedProject.set(projectKey);
+            if (projectKey) {
+              const issues = await this.workspaces.listJiraIssues(
+                workspaceId,
+                projectKey,
+              );
+              this.jiraIssues.set(issues);
+            } else {
+              this.jiraIssues.set([]);
+            }
+          } else {
+            this.jiraProjects.set([]);
+            this.jiraIssues.set([]);
+            this.jiraSelectedProject.set('');
+          }
+        } catch (err: unknown) {
+          this.jiraError.set(
+            err instanceof Error ? err.message : 'Failed to load Jira sites',
+          );
+        }
+      } else {
+        this.jiraSites.set([]);
+        this.jiraProjects.set([]);
+        this.jiraIssues.set([]);
+        this.jiraSelectedProject.set('');
+      }
+    } catch (err: unknown) {
+      this.jiraError.set(
+        err instanceof Error ? err.message : 'Failed to load Jira connection',
+      );
+    }
+  }
+
+  async connectJira(): Promise<void> {
+    const ws = this.selected();
+    if (!ws || !this.isAdmin()) {
+      return;
+    }
+    this.jiraError.set(null);
+    this.jiraConnecting.set(true);
+    try {
+      const { authorizeUrl } = await this.workspaces.startJiraOAuth(ws.id);
+      window.location.assign(authorizeUrl);
+    } catch (err: unknown) {
+      this.jiraConnecting.set(false);
+      this.jiraError.set(
+        err instanceof Error ? err.message : 'Jira connect failed',
+      );
+    }
+  }
+
+  async onJiraSiteChange(cloudId: string): Promise<void> {
+    const ws = this.selected();
+    if (!ws || !this.isAdmin() || !cloudId.trim()) {
+      return;
+    }
+    this.jiraError.set(null);
+    this.jiraProjects.set([]);
+    this.jiraIssues.set([]);
+    this.jiraSelectedProject.set('');
+    try {
+      const conn = await this.workspaces.selectJiraSite(ws.id, {
+        cloudId: cloudId.trim(),
+      });
+      this.jira.set(conn);
+      const projects = await this.workspaces.listJiraProjects(ws.id);
+      this.jiraProjects.set(projects);
+    } catch (err: unknown) {
+      this.jiraError.set(
+        err instanceof Error ? err.message : 'Failed to select Jira site',
+      );
+    }
+  }
+
+  async onJiraProjectChange(projectKey: string): Promise<void> {
+    const ws = this.selected();
+    this.jiraSelectedProject.set(projectKey);
+    this.jiraIssues.set([]);
+    if (!ws || !this.isAdmin() || !projectKey.trim()) {
+      return;
+    }
+    this.jiraError.set(null);
+    try {
+      const issues = await this.workspaces.listJiraIssues(
+        ws.id,
+        projectKey.trim(),
+      );
+      this.jiraIssues.set(issues);
+    } catch (err: unknown) {
+      this.jiraError.set(
+        err instanceof Error ? err.message : 'Failed to load Jira issues',
+      );
+    }
+  }
+
+  async selectJiraIssue(issueKey: string): Promise<void> {
+    const ws = this.selected();
+    const conn = this.jira();
+    const projectKey = this.jiraSelectedProject();
+    if (
+      !ws ||
+      !this.isAdmin() ||
+      !conn?.cloudId ||
+      !projectKey.trim() ||
+      !issueKey.trim()
+    ) {
+      return;
+    }
+    this.jiraError.set(null);
+    try {
+      const next = await this.workspaces.selectJiraTarget(ws.id, {
+        cloudId: conn.cloudId,
+        projectKey: projectKey.trim(),
+        issueKey: issueKey.trim(),
+      });
+      this.jira.set(next);
+      this.message.set('standup.workspace.jiraTargetSaved');
+    } catch (err: unknown) {
+      this.jiraError.set(
+        err instanceof Error ? err.message : 'Failed to save Jira target',
+      );
+    }
+  }
+
+  async disconnectJira(): Promise<void> {
+    const ws = this.selected();
+    if (!ws || !this.isAdmin()) {
+      return;
+    }
+    this.jiraError.set(null);
+    try {
+      const conn = await this.workspaces.disconnectJira(ws.id);
+      this.jira.set(conn);
+      this.jiraSites.set([]);
+      this.jiraProjects.set([]);
+      this.jiraIssues.set([]);
+      this.jiraSelectedProject.set('');
+      this.message.set('standup.workspace.jiraDisconnected');
+    } catch (err: unknown) {
+      this.jiraError.set(
+        err instanceof Error ? err.message : 'Jira disconnect failed',
       );
     }
   }
