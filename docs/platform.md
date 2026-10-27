@@ -60,6 +60,7 @@ Brand mark / favicon: [brand.md](./brand.md).
 | Standup reminders                 | Cron + Resend — [standup-reminders.md](./standup-reminders.md)           |
 | Slack standup digest              | OAuth + `chat.postMessage` — [slack-digest.md](./slack-digest.md) (#103) |
 | Linear standup digest             | OAuth + project update — [linear-digest.md](./linear-digest.md) (#110)   |
+| GitHub standup digest             | OAuth + issue comment — [github-digest.md](./github-digest.md) (#113)    |
 | Teams standup digest              | Deferred (needs M365) — [teams-digest.md](./teams-digest.md) (#108)      |
 
 ## Feature access

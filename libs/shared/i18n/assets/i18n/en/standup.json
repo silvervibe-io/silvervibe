@@ -106,6 +106,19 @@
     "linearStatus": "Status",
     "linearProject": "Project for digests",
     "linearProjectPlaceholder": "Select a project…",
-    "linearOAuthUnavailable": "Linear OAuth is not configured on the server yet."
+    "linearOAuthUnavailable": "Linear OAuth is not configured on the server yet.",
+    "githubTitle": "GitHub digest",
+    "githubConnect": "Connect GitHub",
+    "githubDisconnect": "Disconnect GitHub",
+    "githubConnected": "GitHub connected. Pick a repo and issue for digests.",
+    "githubDisconnected": "GitHub disconnected.",
+    "githubTargetSaved": "GitHub digest target saved.",
+    "githubHint": "Authorize GitHub once, then pick a repository and open issue. Standup summaries post as issue comments when addons.github is enabled.",
+    "githubStatus": "Status",
+    "githubRepo": "Repository",
+    "githubRepoPlaceholder": "Select a repository…",
+    "githubIssue": "Issue for digests",
+    "githubIssuePlaceholder": "Select an issue…",
+    "githubOAuthUnavailable": "GitHub OAuth is not configured on the server yet."
   }
 }
