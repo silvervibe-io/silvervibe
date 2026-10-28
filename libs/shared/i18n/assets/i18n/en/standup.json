@@ -56,7 +56,17 @@
     "rebuildSummary": "Rebuild summary",
     "reminderHour": "Reminder hour",
     "reminderMinute": "Reminder minute",
-    "reminderHint": "Emails go out in a 15-minute window at this local time (weekdays)."
+    "reminderHint": "Emails go out in a 15-minute window at this local time (weekdays).",
+    "slackChannelTitle": "Slack digest channel",
+    "slackChannelHint": "Override the workspace Slack channel for this team’s standup digests. Connect Slack in Workspace admin first.",
+    "slackNotConnected": "Slack is not connected for this workspace.",
+    "slackChannel": "Channel",
+    "slackChannelDefault": "Workspace default",
+    "slackChannelOverride": "Team override",
+    "slackChannelSave": "Save channel",
+    "slackChannelClear": "Use workspace default",
+    "slackChannelSaved": "Slack channel saved for this team.",
+    "slackChannelCleared": "Using workspace Slack channel again."
   },
   "invite": {
     "title": "Join team",
@@ -84,7 +94,7 @@
     "slackDisconnected": "Slack disconnected.",
     "slackDisconnect": "Disconnect Slack",
     "slackConnected": "Slack connected.",
-    "slackHint": "Authorize Slack once. Pick a channel during install; standup summaries post there when addons.slack is enabled.",
+    "slackHint": "Authorize Slack once and pick a default channel. Each team can override the channel in Team admin when addons.slack is enabled.",
     "slackStatus": "Status",
     "teamsTitle": "Microsoft Teams digest",
     "teamsConnect": "Save Teams webhook",

@@ -56,7 +56,17 @@
     "inviteEmailSent": "Uitnodigingsmail verstuurd. Je kunt de link hieronder nog kopiëren indien nodig.",
     "reminderHour": "Herinneringsuur",
     "reminderMinute": "Herinneringsminuut",
-    "reminderHint": "E-mails gaan op weekdagen in een venster van 15 minuten op dit lokale tijdstip."
+    "reminderHint": "E-mails gaan op weekdagen in een venster van 15 minuten op dit lokale tijdstip.",
+    "slackChannelTitle": "Slack digest channel",
+    "slackChannelHint": "Override the workspace Slack channel for this team’s standup digests. Connect Slack in Workspace admin first.",
+    "slackNotConnected": "Slack is not connected for this workspace.",
+    "slackChannel": "Channel",
+    "slackChannelDefault": "Workspace default",
+    "slackChannelOverride": "Team override",
+    "slackChannelSave": "Save channel",
+    "slackChannelClear": "Use workspace default",
+    "slackChannelSaved": "Slack channel saved for this team.",
+    "slackChannelCleared": "Using workspace Slack channel again."
   },
   "workspace": {
     "title": "Workspace admin",

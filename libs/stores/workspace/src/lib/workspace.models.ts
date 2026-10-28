@@ -36,6 +36,25 @@ export type SlackOAuthStartView = {
   authorizeUrl: string;
 };
 
+export type SlackChannelOptionView = {
+  id: string;
+  label: string;
+};
+
+export type TeamSlackChannelView = {
+  channelId: string | null;
+  channelLabel: string | null;
+  isOverride: boolean;
+  workspaceChannelId: string | null;
+  workspaceChannelLabel: string | null;
+  slackConnected: boolean;
+};
+
+export type SetTeamSlackChannelInput = {
+  channelId: string;
+  channelLabel?: string;
+};
+
 export type TeamsConnectionView = {
   status: 'DISCONNECTED' | 'PENDING' | 'CONNECTED' | 'ERROR';
   configured: boolean;

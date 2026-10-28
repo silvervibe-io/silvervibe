@@ -11,10 +11,13 @@ Issues: [#89](https://github.com/silvervibe-io/silvervibe/issues/89) (webhook MV
 3. Nest stores the bot token on `AddonConnection` (provider `SLACK`), enables
    `addons.slack`, and redirects back to Workspace admin.
 4. When a team standup summary is rebuilt (member **submit** or admin
-   **Rebuild**), Nest posts via Slack Web API `chat.postMessage` to the chosen
-   channel if `addons.slack` is enabled and the connection status is `CONNECTED`.
+   **Rebuild**), Nest posts via Slack Web API `chat.postMessage` if
+   `addons.slack` is enabled and the connection status is `CONNECTED`.
+   Channel resolution: team override (Team admin) → workspace default from
+   Connect Slack.
 5. Post failures are soft-fail (logged; submit/rebuild still succeed).
-6. **Disconnect** clears the token/channel metadata and stops posts.
+6. **Disconnect** clears the token/channel metadata (including team overrides)
+   and stops posts.
 
 Legacy Incoming Webhook installs (pre-OAuth) still post via the webhook URL until
 the admin disconnects and reconnects with OAuth. Prefer OAuth for new workspaces.
@@ -55,10 +58,13 @@ Optional: set `SLACK_REDIRECT_URI` if it must differ from
 | `GET`    | `/api/addons/slack/oauth/callback`                      | Public; redirects to standup |
 | `PUT`    | `/api/workspaces/:workspaceId/addons/slack`             | Deprecated webhook connect   |
 | `DELETE` | `/api/workspaces/:workspaceId/addons/slack`             | Disconnect (admin)           |
+| `GET`    | `/api/teams/:teamId/addons/slack/channels`              | Channel picker (team admin)  |
+| `GET`    | `/api/teams/:teamId/addons/slack/channel`               | Effective team channel       |
+| `PUT`    | `/api/teams/:teamId/addons/slack/channel`               | Set team override            |
+| `DELETE` | `/api/teams/:teamId/addons/slack/channel`               | Clear override               |
 
 ## Out of scope (follow-ups)
 
-- Per-team Slack channels
-- Channel picker after install (MVP uses channel chosen during OAuth)
+- Channel picker after install (MVP still uses channel chosen during OAuth as workspace default)
 - Slash commands / interactivity beyond posting digests
-- Microsoft Teams OAuth (Teams stays on Incoming Webhook for now)
+- Microsoft Teams OAuth (Teams stays deferred)

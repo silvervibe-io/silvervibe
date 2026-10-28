@@ -109,6 +109,68 @@
 
     <section class="flex max-w-xl flex-col gap-3">
       <h2 class="text-xl font-semibold">
+        {{ 'standup.team.slackChannelTitle' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.team.slackChannelHint' | transloco }}
+      </p>
+      @if (slackChannelError()) {
+      <p class="text-error text-sm">{{ slackChannelError() }}</p>
+      } @if (slackChannel(); as slack) { @if (!slack.slackConnected) {
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.team.slackNotConnected' | transloco }}
+      </p>
+      } @else {
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.team.slackChannel' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [value]="selectedSlackChannelId()"
+          (change)="selectedSlackChannelId.set($any($event.target).value)"
+        >
+          <option value="">
+            {{ 'standup.team.slackChannelDefault' | transloco }} @if
+            (slack.workspaceChannelLabel) { ({{ slack.workspaceChannelLabel }})
+            }
+          </option>
+          @for (ch of slackChannels(); track ch.id) {
+          <option [value]="ch.id">{{ ch.label }}</option>
+          }
+        </select>
+      </fieldset>
+      @if (slack.isOverride && slack.channelLabel) {
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.team.slackChannelOverride' | transloco }}: {{
+        slack.channelLabel }}
+      </p>
+      }
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          [disabled]="slackChannelSaving() || !selectedSlackChannelId()"
+          (click)="saveSlackChannel()"
+        >
+          {{ 'standup.team.slackChannelSave' | transloco }}
+        </button>
+        @if (slack.isOverride) {
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          [disabled]="slackChannelSaving()"
+          (click)="clearSlackChannel()"
+        >
+          {{ 'standup.team.slackChannelClear' | transloco }}
+        </button>
+        }
+      </div>
+      } }
+    </section>
+
+    <section class="flex max-w-xl flex-col gap-3">
+      <h2 class="text-xl font-semibold">
         {{ 'standup.team.members' | transloco }}
       </h2>
       <ul class="space-y-1 text-sm">

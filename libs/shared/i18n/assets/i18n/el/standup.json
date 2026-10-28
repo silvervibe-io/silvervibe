@@ -56,7 +56,17 @@
     "inviteEmailSent": "Το email πρόσκλησης στάλθηκε. Μπορείτε ακόμα να αντιγράψετε τον σύνδεσμο παρακάτω αν χρειαστεί.",
     "reminderHour": "Ώρα υπενθύμισης",
     "reminderMinute": "Λεπτό υπενθύμισης",
-    "reminderHint": "Τα email στέλνονται τις καθημερινές σε παράθυρο 15 λεπτών σε αυτή την τοπική ώρα."
+    "reminderHint": "Τα email στέλνονται τις καθημερινές σε παράθυρο 15 λεπτών σε αυτή την τοπική ώρα.",
+    "slackChannelTitle": "Slack digest channel",
+    "slackChannelHint": "Override the workspace Slack channel for this team’s standup digests. Connect Slack in Workspace admin first.",
+    "slackNotConnected": "Slack is not connected for this workspace.",
+    "slackChannel": "Channel",
+    "slackChannelDefault": "Workspace default",
+    "slackChannelOverride": "Team override",
+    "slackChannelSave": "Save channel",
+    "slackChannelClear": "Use workspace default",
+    "slackChannelSaved": "Slack channel saved for this team.",
+    "slackChannelCleared": "Using workspace Slack channel again."
   },
   "workspace": {
     "title": "Workspace admin",

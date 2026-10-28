@@ -20,7 +20,11 @@ import {
   type TeamInviteView,
   type TeamMemberView,
 } from '@silvervibe/stores/standup';
-import { WorkspaceFacade } from '@silvervibe/stores/workspace';
+import {
+  WorkspaceFacade,
+  type SlackChannelOptionView,
+  type TeamSlackChannelView,
+} from '@silvervibe/stores/workspace';
 
 type ConfigModel = {
   timezone: string;
@@ -60,6 +64,11 @@ export class TeamAdmin implements OnInit {
   readonly message = signal<string | null>(null);
   readonly inviteError = signal<string | null>(null);
   readonly lastInviteLink = signal<string | null>(null);
+  readonly slackChannel = signal<TeamSlackChannelView | null>(null);
+  readonly slackChannels = signal<SlackChannelOptionView[]>([]);
+  readonly slackChannelError = signal<string | null>(null);
+  readonly slackChannelSaving = signal(false);
+  readonly selectedSlackChannelId = signal('');
 
   readonly configModel = signal<ConfigModel>({
     timezone: 'UTC',
@@ -131,6 +140,77 @@ export class TeamAdmin implements OnInit {
     ]);
     this.members.set(members);
     this.pendingInvites.set(invites);
+    await this.refreshSlackChannel(teamId);
+  }
+
+  private async refreshSlackChannel(teamId: string): Promise<void> {
+    this.slackChannelError.set(null);
+    try {
+      const channel = await this.workspaces.getTeamSlackChannel(teamId);
+      this.slackChannel.set(channel);
+      this.selectedSlackChannelId.set(channel.channelId ?? '');
+      if (channel.slackConnected) {
+        const channels = await this.workspaces.listTeamSlackChannels(teamId);
+        this.slackChannels.set(channels);
+      } else {
+        this.slackChannels.set([]);
+      }
+    } catch (err: unknown) {
+      this.slackChannel.set(null);
+      this.slackChannels.set([]);
+      this.slackChannelError.set(
+        err instanceof Error ? err.message : 'Slack channel unavailable',
+      );
+    }
+  }
+
+  async saveSlackChannel(): Promise<void> {
+    const teamId = this.selectedTeamId();
+    const channelId = this.selectedSlackChannelId().trim();
+    if (!teamId || !channelId) {
+      return;
+    }
+    this.slackChannelSaving.set(true);
+    this.slackChannelError.set(null);
+    try {
+      const label =
+        this.slackChannels().find((c) => c.id === channelId)?.label ??
+        undefined;
+      const channel = await this.workspaces.setTeamSlackChannel(teamId, {
+        channelId,
+        channelLabel: label,
+      });
+      this.slackChannel.set(channel);
+      this.selectedSlackChannelId.set(channel.channelId ?? '');
+      this.message.set('standup.team.slackChannelSaved');
+    } catch (err: unknown) {
+      this.slackChannelError.set(
+        err instanceof Error ? err.message : 'Could not save Slack channel',
+      );
+    } finally {
+      this.slackChannelSaving.set(false);
+    }
+  }
+
+  async clearSlackChannel(): Promise<void> {
+    const teamId = this.selectedTeamId();
+    if (!teamId) {
+      return;
+    }
+    this.slackChannelSaving.set(true);
+    this.slackChannelError.set(null);
+    try {
+      const channel = await this.workspaces.clearTeamSlackChannel(teamId);
+      this.slackChannel.set(channel);
+      this.selectedSlackChannelId.set(channel.channelId ?? '');
+      this.message.set('standup.team.slackChannelCleared');
+    } catch (err: unknown) {
+      this.slackChannelError.set(
+        err instanceof Error ? err.message : 'Could not clear Slack channel',
+      );
+    } finally {
+      this.slackChannelSaving.set(false);
+    }
   }
 
   async saveConfig(event: Event): Promise<void> {
