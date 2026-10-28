@@ -42,27 +42,28 @@ Brand mark / favicon: [brand.md](./brand.md).
 
 ## Code map
 
-| Concern                           | Location                                                                 |
-| --------------------------------- | ------------------------------------------------------------------------ |
-| Prisma schema                     | `libs/shared/data-access/prisma/schema.prisma`                           |
-| Entitlement helpers               | `@silvervibe/shared/data-access`                                         |
-| Nest workspaces / entitlements    | `apps/api/src/app/workspaces` — [entitlements.md](./entitlements.md)     |
-| Shared UI / theme                 | `@silvervibe/shared/ui` — [theme.md](./theme.md)                         |
-| Flag / tool keys                  | `@silvervibe/shared/feature-flags`                                       |
-| Angular Auth + OpenFeature client | `@silvervibe/shared/auth`                                                |
-| Nest Firebase guard / `/api/me`   | `apps/api/src/app/auth`, `users`                                         |
-| Nest OpenFeature                  | `apps/api/src/app/feature-flags`                                         |
-| Nest API Cloud Run                | `apps/api/Dockerfile` — [cloud-run.md](./cloud-run.md)                   |
-| LangGraph AI Cloud Run            | `apps/ai/Dockerfile` — [cloud-run-ai.md](./cloud-run-ai.md)              |
-| VibeStandup Pages                 | `vibestandup` app — [vibestandup-pages.md](./vibestandup-pages.md)       |
-| Inbound `info@` email             | Cloudflare Email Routing — [email-routing.md](./email-routing.md)        |
-| Ops follow-ups                    | GrowthBook / API / mail — [ops-followups.md](./ops-followups.md)         |
-| Standup reminders                 | Cron + Resend — [standup-reminders.md](./standup-reminders.md)           |
-| Slack standup digest              | OAuth + `chat.postMessage` — [slack-digest.md](./slack-digest.md) (#103) |
-| Linear standup digest             | OAuth + project update — [linear-digest.md](./linear-digest.md) (#110)   |
-| GitHub standup digest             | OAuth + issue comment — [github-digest.md](./github-digest.md) (#113)    |
-| Jira standup digest               | OAuth 3LO + issue comment — [jira-digest.md](./jira-digest.md) (#116)    |
-| Teams standup digest              | Deferred (needs M365) — [teams-digest.md](./teams-digest.md) (#108)      |
+| Concern                           | Location                                                                   |
+| --------------------------------- | -------------------------------------------------------------------------- |
+| Prisma schema                     | `libs/shared/data-access/prisma/schema.prisma`                             |
+| Entitlement helpers               | `@silvervibe/shared/data-access`                                           |
+| Nest workspaces / entitlements    | `apps/api/src/app/workspaces` — [entitlements.md](./entitlements.md)       |
+| Shared UI / theme                 | `@silvervibe/shared/ui` — [theme.md](./theme.md)                           |
+| Flag / tool keys                  | `@silvervibe/shared/feature-flags`                                         |
+| Angular Auth + OpenFeature client | `@silvervibe/shared/auth`                                                  |
+| Nest Firebase guard / `/api/me`   | `apps/api/src/app/auth`, `users`                                           |
+| Nest OpenFeature                  | `apps/api/src/app/feature-flags`                                           |
+| Nest API Cloud Run                | `apps/api/Dockerfile` — [cloud-run.md](./cloud-run.md)                     |
+| LangGraph AI Cloud Run            | `apps/ai/Dockerfile` — [cloud-run-ai.md](./cloud-run-ai.md)                |
+| VibeStandup Pages                 | `vibestandup` app — [vibestandup-pages.md](./vibestandup-pages.md)         |
+| Inbound `info@` email             | Cloudflare Email Routing — [email-routing.md](./email-routing.md)          |
+| Ops follow-ups                    | GrowthBook / API / mail — [ops-followups.md](./ops-followups.md)           |
+| Standup reminders                 | Cron + Resend — [standup-reminders.md](./standup-reminders.md)             |
+| Slack standup digest              | OAuth + `chat.postMessage` — [slack-digest.md](./slack-digest.md) (#103)   |
+| Linear standup digest             | OAuth + project update — [linear-digest.md](./linear-digest.md) (#110)     |
+| GitHub standup digest             | OAuth + issue comment — [github-digest.md](./github-digest.md) (#113)      |
+| Jira standup digest               | OAuth 3LO + issue comment — [jira-digest.md](./jira-digest.md) (#116)      |
+| AI standup summaries              | LangGraph digest — [ai-standup-summary.md](./ai-standup-summary.md) (#119) |
+| Teams standup digest              | Deferred (needs M365) — [teams-digest.md](./teams-digest.md) (#108)        |
 
 ## Feature access
 

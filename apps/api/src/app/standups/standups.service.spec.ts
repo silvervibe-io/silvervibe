@@ -1,4 +1,5 @@
 import { StandupEntryStatus } from '@prisma/client';
+import { AiService } from '../ai/ai.service';
 import { GithubService } from '../addons/github/github.service';
 import { JiraService } from '../addons/jira/jira.service';
 import { LinearService } from '../addons/linear/linear.service';
@@ -14,6 +15,10 @@ const member: VerifiedUser = {
   uid: 'uid-1',
   email: 'member@example.com',
 };
+
+const aiStub = {
+  summarizeStandup: jest.fn().mockResolvedValue(null),
+} as unknown as AiService;
 
 const slackStub = {
   postStandupDigest: jest.fn().mockResolvedValue(false),
@@ -98,10 +103,12 @@ describe('StandupsService auto-summary', () => {
     const postLinearDigest = jest.fn().mockResolvedValue(true);
     const postGithubDigest = jest.fn().mockResolvedValue(true);
     const postJiraDigest = jest.fn().mockResolvedValue(true);
+    const summarizeStandup = jest.fn().mockResolvedValue(null);
     const service = new StandupsService(
       prisma as unknown as PrismaService,
       users,
       teams,
+      { summarizeStandup } as unknown as AiService,
       { postStandupDigest } as unknown as SlackService,
       { postStandupDigest: postTeamsDigest } as unknown as MsTeamsService,
       { postStandupDigest: postLinearDigest } as unknown as LinearService,
@@ -187,6 +194,7 @@ describe('StandupsService auto-summary', () => {
       {
         requireTeamMember: jest.fn().mockResolvedValue(undefined),
       } as unknown as TeamsService,
+      aiStub,
       slackStub,
       msTeamsStub,
       linearStub,
@@ -203,6 +211,84 @@ describe('StandupsService auto-summary', () => {
       }),
     ).resolves.toMatchObject({ id: 'e1', status: 'SUBMITTED' });
     expect(prisma.standupSummary.upsert).not.toHaveBeenCalled();
+  });
+
+  it('prefers AI markdown when summarizeStandup returns content', async () => {
+    const entryDate = new Date('2026-10-20T00:00:00.000Z');
+    const summaryUpsert = jest.fn().mockResolvedValue({
+      id: 's1',
+      teamId: 'team1',
+      entryDate,
+      content: '## AI digest',
+    });
+    const prisma = {
+      isEnabled: () => true,
+      standupConfig: {
+        findUnique: jest.fn().mockResolvedValue({ timezone: 'UTC' }),
+      },
+      standupEntry: {
+        upsert: jest.fn().mockResolvedValue({
+          id: 'e1',
+          teamId: 'team1',
+          entryDate,
+          status: StandupEntryStatus.SUBMITTED,
+          yesterday: null,
+          today: 'ok',
+          blockers: null,
+        }),
+        findMany: jest.fn().mockResolvedValue([
+          {
+            userId: 'user-1',
+            yesterday: null,
+            today: 'ok',
+            blockers: null,
+            submittedAt: new Date(),
+            user: {
+              displayName: 'Member',
+              email: 'member@example.com',
+              id: 'user-1',
+            },
+          },
+        ]),
+      },
+      standupSummary: { upsert: summaryUpsert },
+      team: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({ workspaceId: 'ws1', name: 'Alpha' }),
+      },
+    };
+
+    const summarizeStandup = jest.fn().mockResolvedValue('## AI digest');
+    const service = new StandupsService(
+      prisma as unknown as PrismaService,
+      {
+        upsertFromFirebase: jest.fn().mockResolvedValue({ id: 'user-1' }),
+      } as unknown as UsersService,
+      {
+        requireTeamMember: jest.fn().mockResolvedValue(undefined),
+      } as unknown as TeamsService,
+      { summarizeStandup } as unknown as AiService,
+      slackStub,
+      msTeamsStub,
+      linearStub,
+      githubStub,
+      jiraStub,
+    );
+
+    await service.upsertMine('team1', member, {
+      status: 'SUBMITTED',
+      yesterday: '',
+      today: 'ok',
+      blockers: '',
+    });
+
+    expect(summarizeStandup).toHaveBeenCalled();
+    expect(summaryUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({ content: '## AI digest' }),
+      }),
+    );
   });
 
   it('does not rebuild summary for drafts', async () => {
@@ -236,6 +322,7 @@ describe('StandupsService auto-summary', () => {
       {
         requireTeamMember: jest.fn().mockResolvedValue(undefined),
       } as unknown as TeamsService,
+      aiStub,
       slackStub,
       msTeamsStub,
       linearStub,
