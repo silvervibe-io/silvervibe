@@ -14,12 +14,93 @@ import { HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { AddonStatusDto } from '../model/models';
+import { LinearConnectionDto } from '../model/models';
+import { LinearOAuthStartDto } from '../model/models';
+import { LinearProjectDto } from '../model/models';
+import { SelectLinearProjectDto } from '../model/models';
 
 import { Configuration } from '../configuration';
+
+export interface LinearControllerDisconnectRequestParams {
+  workspaceId: string;
+}
+
+export interface LinearControllerGetConnectionRequestParams {
+  workspaceId: string;
+}
+
+export interface LinearControllerListProjectsRequestParams {
+  workspaceId: string;
+}
+
+export interface LinearControllerSelectProjectRequestParams {
+  workspaceId: string;
+  selectLinearProjectDto: SelectLinearProjectDto;
+}
+
+export interface LinearControllerStartOAuthRequestParams {
+  workspaceId: string;
+}
 
 export interface LinearDataServiceInterface {
   defaultHeaders: HttpHeaders;
   configuration: Configuration;
+
+  /**
+   * Disconnect Linear (clears OAuth tokens)
+   *
+   * @param requestParameters
+   */
+  linearControllerDisconnect(
+    requestParameters: LinearControllerDisconnectRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<LinearConnectionDto>;
+
+  /**
+   * Get Linear connection for a workspace (secret never returned)
+   *
+   * @param requestParameters
+   */
+  linearControllerGetConnection(
+    requestParameters: LinearControllerGetConnectionRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<LinearConnectionDto>;
+
+  /**
+   * List Linear projects for digest target picker
+   *
+   * @param requestParameters
+   */
+  linearControllerListProjects(
+    requestParameters: LinearControllerListProjectsRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<Array<LinearProjectDto>>;
+
+  /**
+   * Linear OAuth callback (public); redirects to standup workspace admin
+   *
+   */
+  linearControllerOauthCallback(extraHttpRequestParams?: any): Observable<{}>;
+
+  /**
+   * Select Linear project for standup digests
+   *
+   * @param requestParameters
+   */
+  linearControllerSelectProject(
+    requestParameters: LinearControllerSelectProjectRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<LinearConnectionDto>;
+
+  /**
+   * Start Linear OAuth; returns authorize URL for the browser
+   *
+   * @param requestParameters
+   */
+  linearControllerStartOAuth(
+    requestParameters: LinearControllerStartOAuthRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<LinearOAuthStartDto>;
 
   /**
    * Linear add-on status

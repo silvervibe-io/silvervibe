@@ -14,12 +14,110 @@ import { HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { AddonStatusDto } from '../model/models';
+import { GithubConnectionDto } from '../model/models';
+import { GithubIssueDto } from '../model/models';
+import { GithubOAuthStartDto } from '../model/models';
+import { GithubRepoDto } from '../model/models';
+import { SelectGithubTargetDto } from '../model/models';
 
 import { Configuration } from '../configuration';
+
+export interface GithubControllerDisconnectRequestParams {
+  workspaceId: string;
+}
+
+export interface GithubControllerGetConnectionRequestParams {
+  workspaceId: string;
+}
+
+export interface GithubControllerListIssuesRequestParams {
+  workspaceId: string;
+  owner: string;
+  repo: string;
+}
+
+export interface GithubControllerListReposRequestParams {
+  workspaceId: string;
+}
+
+export interface GithubControllerSelectTargetRequestParams {
+  workspaceId: string;
+  selectGithubTargetDto: SelectGithubTargetDto;
+}
+
+export interface GithubControllerStartOAuthRequestParams {
+  workspaceId: string;
+}
 
 export interface GithubDataServiceInterface {
   defaultHeaders: HttpHeaders;
   configuration: Configuration;
+
+  /**
+   * Disconnect GitHub (clears OAuth token)
+   *
+   * @param requestParameters
+   */
+  githubControllerDisconnect(
+    requestParameters: GithubControllerDisconnectRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<GithubConnectionDto>;
+
+  /**
+   * Get GitHub connection for a workspace (secret never returned)
+   *
+   * @param requestParameters
+   */
+  githubControllerGetConnection(
+    requestParameters: GithubControllerGetConnectionRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<GithubConnectionDto>;
+
+  /**
+   * List open issues in a repo for digest target
+   *
+   * @param requestParameters
+   */
+  githubControllerListIssues(
+    requestParameters: GithubControllerListIssuesRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<Array<GithubIssueDto>>;
+
+  /**
+   * List GitHub repos for digest target picker
+   *
+   * @param requestParameters
+   */
+  githubControllerListRepos(
+    requestParameters: GithubControllerListReposRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<Array<GithubRepoDto>>;
+
+  /**
+   * GitHub OAuth callback (public); redirects to standup workspace admin
+   *
+   */
+  githubControllerOauthCallback(extraHttpRequestParams?: any): Observable<{}>;
+
+  /**
+   * Select GitHub repo + issue for standup digest comments
+   *
+   * @param requestParameters
+   */
+  githubControllerSelectTarget(
+    requestParameters: GithubControllerSelectTargetRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<GithubConnectionDto>;
+
+  /**
+   * Start GitHub OAuth; returns authorize URL for the browser
+   *
+   * @param requestParameters
+   */
+  githubControllerStartOAuth(
+    requestParameters: GithubControllerStartOAuthRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<GithubOAuthStartDto>;
 
   /**
    * GitHub add-on status

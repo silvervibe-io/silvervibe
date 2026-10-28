@@ -89,6 +89,16 @@ export class WorkspaceFacade {
     return this.api.setToolEntitlement(workspaceId, toolKey, enabled);
   }
 
+  async setWorkspacePlan(
+    workspaceId: string,
+    planKey: 'free' | 'team',
+  ): Promise<WorkspaceDto> {
+    const workspace = await this.api.setWorkspacePlan(workspaceId, planKey);
+    await this.store.loadMyWorkspaces();
+    this.store.selectWorkspace(workspaceId);
+    return workspace;
+  }
+
   createTeam(workspaceId: string, body: CreateTeamInput): Promise<TeamDto> {
     return this.api.createTeam(workspaceId, body);
   }

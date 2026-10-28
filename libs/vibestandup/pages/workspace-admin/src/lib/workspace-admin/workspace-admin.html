@@ -47,6 +47,28 @@
       {{ 'standup.workspace.planHint' | transloco : { plan: hint.planKey, teams:
       hint.maxTeams, members: hint.maxMembersPerTeam, } }}
     </p>
+    } @if (workspacePlan(); as plan) {
+    <section class="flex max-w-xl flex-col gap-3">
+      <h2 class="text-xl font-semibold">
+        {{ 'standup.workspace.planTitle' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.workspace.planStatus' | transloco : { plan: plan.planKey,
+        teams: plan.maxTeams, members: plan.maxMembersPerTeam, } }}
+      </p>
+      @if (canUpgradeToTeam()) {
+      <button
+        type="button"
+        class="btn btn-secondary btn-sm self-start"
+        [disabled]="planBusy()"
+        (click)="upgradeToTeamPlan()"
+      >
+        {{ 'standup.workspace.upgradeToTeam' | transloco }}
+      </button>
+      } @if (planError()) {
+      <p class="text-error text-sm">{{ planError() }}</p>
+      }
+    </section>
     }
 
     <section class="space-y-3">

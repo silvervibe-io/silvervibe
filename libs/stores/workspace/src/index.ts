@@ -26,6 +26,7 @@ export type {
   TeamSlackChannelView,
   TeamsConnectionView,
   WorkspaceMembershipView,
+  WorkspacePlanKey,
   WorkspaceState,
   WorkspaceToolView,
 } from './lib/workspace.models';

@@ -188,6 +188,59 @@
         ]
       }
     },
+    "/api/workspaces/{workspaceId}/plan": {
+      "put": {
+        "description": "Pre-billing unlock: OWNER may set `free` or `team`. Nest enforces VibeStandup team/member limits from `plans.catalog` for the stored planKey. Not Stripe billing.",
+        "operationId": "WorkspacesController_setPlan",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetWorkspacePlanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Set workspace commercial plan",
+        "tags": [
+          "workspaces"
+        ]
+      }
+    },
     "/api/workspaces/{workspaceId}/tools": {
       "get": {
         "description": "Ownership rows from `workspace_tools` (not GrowthBook rollout flags). Requires workspace membership.",
@@ -1200,27 +1253,26 @@
     "/api/addons/slack/oauth/callback": {
       "get": {
         "operationId": "SlackController_oauthCallback",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Slack OAuth callback (public); redirects to standup workspace admin",
+        "tags": [
+          "slack"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/addons/slack/channels": {
+      "get": {
+        "operationId": "SlackController_listChannelsForTeam",
         "parameters": [
           {
-            "name": "code",
+            "name": "teamId",
             "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "state",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "error",
-            "required": true,
-            "in": "query",
+            "in": "path",
             "schema": {
               "type": "string"
             }
@@ -1228,10 +1280,160 @@
         ],
         "responses": {
           "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SlackChannelsDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
             "description": ""
           }
         },
-        "summary": "Slack OAuth callback (public); redirects to standup workspace admin",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List Slack channels for per-team digest picker",
+        "tags": [
+          "slack"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/addons/slack/channel": {
+      "get": {
+        "operationId": "SlackController_getTeamChannel",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamSlackChannelDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get effective Slack digest channel for a team",
+        "tags": [
+          "slack"
+        ]
+      },
+      "put": {
+        "operationId": "SlackController_setTeamChannel",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetTeamSlackChannelDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamSlackChannelDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Set Slack digest channel override for a team",
+        "tags": [
+          "slack"
+        ]
+      },
+      "delete": {
+        "operationId": "SlackController_clearTeamChannel",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamSlackChannelDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Clear team Slack channel override (use workspace default)",
         "tags": [
           "slack"
         ]
@@ -1391,6 +1593,955 @@
         ]
       }
     },
+    "/api/addons/linear/status": {
+      "get": {
+        "operationId": "LinearController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddonStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Linear add-on status",
+        "tags": [
+          "linear"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/linear": {
+      "get": {
+        "operationId": "LinearController_getConnection",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinearConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get Linear connection for a workspace (secret never returned)",
+        "tags": [
+          "linear"
+        ]
+      },
+      "delete": {
+        "operationId": "LinearController_disconnect",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinearConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Disconnect Linear (clears OAuth tokens)",
+        "tags": [
+          "linear"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/linear/oauth/start": {
+      "get": {
+        "operationId": "LinearController_startOAuth",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinearOAuthStartDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Start Linear OAuth; returns authorize URL for the browser",
+        "tags": [
+          "linear"
+        ]
+      }
+    },
+    "/api/addons/linear/oauth/callback": {
+      "get": {
+        "operationId": "LinearController_oauthCallback",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Linear OAuth callback (public); redirects to standup workspace admin",
+        "tags": [
+          "linear"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/linear/projects": {
+      "get": {
+        "operationId": "LinearController_listProjects",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LinearProjectDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List Linear projects for digest target picker",
+        "tags": [
+          "linear"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/linear/project": {
+      "put": {
+        "operationId": "LinearController_selectProject",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectLinearProjectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinearConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Select Linear project for standup digests",
+        "tags": [
+          "linear"
+        ]
+      }
+    },
+    "/api/addons/github/status": {
+      "get": {
+        "operationId": "GithubController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddonStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "GitHub add-on status",
+        "tags": [
+          "github"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/github": {
+      "get": {
+        "operationId": "GithubController_getConnection",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GithubConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get GitHub connection for a workspace (secret never returned)",
+        "tags": [
+          "github"
+        ]
+      },
+      "delete": {
+        "operationId": "GithubController_disconnect",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GithubConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Disconnect GitHub (clears OAuth token)",
+        "tags": [
+          "github"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/github/oauth/start": {
+      "get": {
+        "operationId": "GithubController_startOAuth",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GithubOAuthStartDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Start GitHub OAuth; returns authorize URL for the browser",
+        "tags": [
+          "github"
+        ]
+      }
+    },
+    "/api/addons/github/oauth/callback": {
+      "get": {
+        "operationId": "GithubController_oauthCallback",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "GitHub OAuth callback (public); redirects to standup workspace admin",
+        "tags": [
+          "github"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/github/repos": {
+      "get": {
+        "operationId": "GithubController_listRepos",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GithubRepoDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List GitHub repos for digest target picker",
+        "tags": [
+          "github"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/github/repos/{owner}/{repo}/issues": {
+      "get": {
+        "operationId": "GithubController_listIssues",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "owner",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GithubIssueDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List open issues in a repo for digest target",
+        "tags": [
+          "github"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/github/target": {
+      "put": {
+        "operationId": "GithubController_selectTarget",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectGithubTargetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GithubConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Select GitHub repo + issue for standup digest comments",
+        "tags": [
+          "github"
+        ]
+      }
+    },
+    "/api/addons/jira/status": {
+      "get": {
+        "operationId": "JiraController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddonStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Jira add-on status",
+        "tags": [
+          "jira"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/jira": {
+      "get": {
+        "operationId": "JiraController_getConnection",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JiraConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get Jira connection for a workspace (secret never returned)",
+        "tags": [
+          "jira"
+        ]
+      },
+      "delete": {
+        "operationId": "JiraController_disconnect",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JiraConnectionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Disconnect Jira (clears OAuth tokens)",
+        "tags": [
+          "jira"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/jira/oauth/start": {
+      "get": {
+        "operationId": "JiraController_startOAuth",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JiraOAuthStartDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Start Jira OAuth (3LO); returns authorize URL for the browser",
+        "tags": [
+          "jira"
+        ]
+      }
+    },
+    "/api/addons/jira/oauth/callback": {
+      "get": {
+        "operationId": "JiraController_oauthCallback",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Jira OAuth callback (public); redirects to standup workspace admin",
+        "tags": [
+          "jira"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/jira/sites": {
+      "get": {
+        "operationId": "JiraController_listSites",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/JiraSiteDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List accessible Jira Cloud sites",
+        "tags": [
+          "jira"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/jira/site": {
+      "put": {
+        "operationId": "JiraController_selectSite",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectJiraSiteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JiraConnectionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Select Jira Cloud site for digests",
+        "tags": [
+          "jira"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/jira/projects": {
+      "get": {
+        "operationId": "JiraController_listProjects",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/JiraProjectDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List Jira projects on the selected site",
+        "tags": [
+          "jira"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/jira/projects/{projectKey}/issues": {
+      "get": {
+        "operationId": "JiraController_listIssues",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectKey",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/JiraIssueDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List recent issues in a Jira project",
+        "tags": [
+          "jira"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/jira/target": {
+      "put": {
+        "operationId": "JiraController_selectTarget",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectJiraTargetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JiraConnectionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Select Jira issue for standup digest comments",
+        "tags": [
+          "jira"
+        ]
+      }
+    },
     "/api/flags/vibestandup": {
       "get": {
         "operationId": "FeatureFlagsController_vibestandup",
@@ -1427,72 +2578,6 @@
         "summary": "Evaluate vibestandup rollout flag",
         "tags": [
           "flags"
-        ]
-      }
-    },
-    "/api/addons/jira/status": {
-      "get": {
-        "operationId": "JiraController_status",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AddonStatusDto"
-                }
-              }
-            }
-          }
-        },
-        "summary": "Jira add-on status",
-        "tags": [
-          "jira"
-        ]
-      }
-    },
-    "/api/addons/linear/status": {
-      "get": {
-        "operationId": "LinearController_status",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AddonStatusDto"
-                }
-              }
-            }
-          }
-        },
-        "summary": "Linear add-on status",
-        "tags": [
-          "linear"
-        ]
-      }
-    },
-    "/api/addons/github/status": {
-      "get": {
-        "operationId": "GithubController_status",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AddonStatusDto"
-                }
-              }
-            }
-          }
-        },
-        "summary": "GitHub add-on status",
-        "tags": [
-          "github"
         ]
       }
     }
@@ -1627,6 +2712,13 @@
           "slug": {
             "type": "string"
           },
+          "planKey": {
+            "type": "string",
+            "enum": [
+              "free",
+              "team"
+            ]
+          },
           "role": {
             "type": "string",
             "enum": [
@@ -1646,6 +2738,7 @@
           "id",
           "name",
           "slug",
+          "planKey",
           "role",
           "tools"
         ]
@@ -1678,12 +2771,36 @@
           },
           "slug": {
             "type": "string"
+          },
+          "planKey": {
+            "type": "string",
+            "enum": [
+              "free",
+              "team"
+            ]
           }
         },
         "required": [
           "id",
           "name",
-          "slug"
+          "slug",
+          "planKey"
+        ]
+      },
+      "SetWorkspacePlanDto": {
+        "type": "object",
+        "properties": {
+          "planKey": {
+            "type": "string",
+            "enum": [
+              "free",
+              "team"
+            ],
+            "description": "Workspace commercial plan (pre-billing unlock). Enforced for team/member limits."
+          }
+        },
+        "required": [
+          "planKey"
         ]
       },
       "WorkspaceToolDto": {
@@ -2167,6 +3284,90 @@
           "incomingWebhookUrl"
         ]
       },
+      "SlackChannelOptionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string",
+            "description": "Display name, e.g. #standups"
+          }
+        },
+        "required": [
+          "id",
+          "label"
+        ]
+      },
+      "SlackChannelsDto": {
+        "type": "object",
+        "properties": {
+          "channels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SlackChannelOptionDto"
+            }
+          }
+        },
+        "required": [
+          "channels"
+        ]
+      },
+      "TeamSlackChannelDto": {
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "object",
+            "description": "Effective channel for this team (override or workspace default)",
+            "nullable": true
+          },
+          "channelLabel": {
+            "type": "object",
+            "nullable": true
+          },
+          "isOverride": {
+            "type": "boolean",
+            "description": "True when this team has an override (not using workspace default)"
+          },
+          "workspaceChannelId": {
+            "type": "object",
+            "description": "Workspace default channel from Connect Slack",
+            "nullable": true
+          },
+          "workspaceChannelLabel": {
+            "type": "object",
+            "nullable": true
+          },
+          "slackConnected": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "channelId",
+          "channelLabel",
+          "isOverride",
+          "workspaceChannelId",
+          "workspaceChannelLabel",
+          "slackConnected"
+        ]
+      },
+      "SetTeamSlackChannelDto": {
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "description": "Slack channel id, e.g. C01234567"
+          },
+          "channelLabel": {
+            "type": "string",
+            "description": "Display label, e.g. #eng-standup"
+          }
+        },
+        "required": [
+          "channelId"
+        ]
+      },
       "TeamsConnectionDto": {
         "type": "object",
         "properties": {
@@ -2212,6 +3413,355 @@
         },
         "required": [
           "incomingWebhookUrl"
+        ]
+      },
+      "LinearConnectionDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "DISCONNECTED",
+              "PENDING",
+              "CONNECTED",
+              "ERROR"
+            ]
+          },
+          "configured": {
+            "type": "boolean",
+            "description": "True when an OAuth access token is stored (secret never returned)"
+          },
+          "projectId": {
+            "type": "object",
+            "nullable": true
+          },
+          "projectName": {
+            "type": "object",
+            "nullable": true
+          },
+          "organizationName": {
+            "type": "object",
+            "nullable": true
+          },
+          "toolEnabled": {
+            "type": "boolean",
+            "description": "Whether workspace tool entitlement addons.linear is enabled"
+          },
+          "oauthAvailable": {
+            "type": "boolean",
+            "description": "True when LINEAR_CLIENT_ID / LINEAR_CLIENT_SECRET are set"
+          }
+        },
+        "required": [
+          "status",
+          "configured",
+          "toolEnabled",
+          "oauthAvailable"
+        ]
+      },
+      "LinearOAuthStartDto": {
+        "type": "object",
+        "properties": {
+          "authorizeUrl": {
+            "type": "string",
+            "description": "Linear OAuth authorize URL to open in the browser"
+          }
+        },
+        "required": [
+          "authorizeUrl"
+        ]
+      },
+      "LinearProjectDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "SelectLinearProjectDto": {
+        "type": "object",
+        "properties": {
+          "projectId": {
+            "type": "string",
+            "description": "Linear project UUID for standup digests"
+          }
+        },
+        "required": [
+          "projectId"
+        ]
+      },
+      "GithubConnectionDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "DISCONNECTED",
+              "PENDING",
+              "CONNECTED",
+              "ERROR"
+            ]
+          },
+          "configured": {
+            "type": "boolean",
+            "description": "True when an OAuth access token is stored (secret never returned)"
+          },
+          "repoFullName": {
+            "type": "object",
+            "nullable": true
+          },
+          "issueNumber": {
+            "type": "object",
+            "nullable": true
+          },
+          "issueTitle": {
+            "type": "object",
+            "nullable": true
+          },
+          "accountLogin": {
+            "type": "object",
+            "nullable": true
+          },
+          "toolEnabled": {
+            "type": "boolean",
+            "description": "Whether workspace tool entitlement addons.github is enabled"
+          },
+          "oauthAvailable": {
+            "type": "boolean",
+            "description": "True when GITHUB_CLIENT_ID / GITHUB_CLIENT_SECRET are set"
+          }
+        },
+        "required": [
+          "status",
+          "configured",
+          "toolEnabled",
+          "oauthAvailable"
+        ]
+      },
+      "GithubOAuthStartDto": {
+        "type": "object",
+        "properties": {
+          "authorizeUrl": {
+            "type": "string",
+            "description": "GitHub OAuth authorize URL to open in the browser"
+          }
+        },
+        "required": [
+          "authorizeUrl"
+        ]
+      },
+      "GithubRepoDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "fullName",
+          "owner",
+          "name"
+        ]
+      },
+      "GithubIssueDto": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "number",
+          "title"
+        ]
+      },
+      "SelectGithubTargetDto": {
+        "type": "object",
+        "properties": {
+          "owner": {
+            "type": "string",
+            "description": "Repository owner (user or org login)"
+          },
+          "repo": {
+            "type": "string",
+            "description": "Repository name"
+          },
+          "issueNumber": {
+            "type": "number",
+            "description": "Issue number that receives standup digest comments"
+          }
+        },
+        "required": [
+          "owner",
+          "repo",
+          "issueNumber"
+        ]
+      },
+      "JiraConnectionDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "DISCONNECTED",
+              "PENDING",
+              "CONNECTED",
+              "ERROR"
+            ]
+          },
+          "configured": {
+            "type": "boolean",
+            "description": "True when an OAuth access token is stored (secret never returned)"
+          },
+          "cloudId": {
+            "type": "object",
+            "nullable": true
+          },
+          "siteName": {
+            "type": "object",
+            "nullable": true
+          },
+          "projectKey": {
+            "type": "object",
+            "nullable": true
+          },
+          "issueKey": {
+            "type": "object",
+            "nullable": true
+          },
+          "issueSummary": {
+            "type": "object",
+            "nullable": true
+          },
+          "toolEnabled": {
+            "type": "boolean",
+            "description": "Whether workspace tool entitlement addons.jira is enabled"
+          },
+          "oauthAvailable": {
+            "type": "boolean",
+            "description": "True when JIRA_CLIENT_ID / JIRA_CLIENT_SECRET are set"
+          }
+        },
+        "required": [
+          "status",
+          "configured",
+          "toolEnabled",
+          "oauthAvailable"
+        ]
+      },
+      "JiraOAuthStartDto": {
+        "type": "object",
+        "properties": {
+          "authorizeUrl": {
+            "type": "string",
+            "description": "Atlassian OAuth authorize URL to open in the browser"
+          }
+        },
+        "required": [
+          "authorizeUrl"
+        ]
+      },
+      "JiraSiteDto": {
+        "type": "object",
+        "properties": {
+          "cloudId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "cloudId",
+          "name",
+          "url"
+        ]
+      },
+      "SelectJiraSiteDto": {
+        "type": "object",
+        "properties": {
+          "cloudId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "cloudId"
+        ]
+      },
+      "JiraProjectDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "name"
+        ]
+      },
+      "JiraIssueDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "summary"
+        ]
+      },
+      "SelectJiraTargetDto": {
+        "type": "object",
+        "properties": {
+          "cloudId": {
+            "type": "string",
+            "description": "Atlassian cloud id (site)"
+          },
+          "projectKey": {
+            "type": "string",
+            "description": "Jira project key, e.g. ENG"
+          },
+          "issueKey": {
+            "type": "string",
+            "description": "Issue key for digest comments, e.g. ENG-12"
+          }
+        },
+        "required": [
+          "cloudId",
+          "projectKey",
+          "issueKey"
         ]
       },
       "FlagEvaluationDto": {

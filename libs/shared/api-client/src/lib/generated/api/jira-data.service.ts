@@ -26,11 +26,35 @@ import { Observable } from 'rxjs';
 
 // @ts-ignore
 import { AddonStatusDto } from '../model/addon-status-dto';
+// @ts-ignore
+import { JiraConnectionDto } from '../model/jira-connection-dto';
+// @ts-ignore
+import { JiraIssueDto } from '../model/jira-issue-dto';
+// @ts-ignore
+import { JiraOAuthStartDto } from '../model/jira-o-auth-start-dto';
+// @ts-ignore
+import { JiraProjectDto } from '../model/jira-project-dto';
+// @ts-ignore
+import { JiraSiteDto } from '../model/jira-site-dto';
+// @ts-ignore
+import { SelectJiraSiteDto } from '../model/select-jira-site-dto';
+// @ts-ignore
+import { SelectJiraTargetDto } from '../model/select-jira-target-dto';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS } from '../variables';
 import { Configuration } from '../configuration';
-import { JiraDataServiceInterface } from './jira-data.serviceInterface';
+import {
+  JiraDataServiceInterface,
+  JiraControllerDisconnectRequestParams,
+  JiraControllerGetConnectionRequestParams,
+  JiraControllerListIssuesRequestParams,
+  JiraControllerListProjectsRequestParams,
+  JiraControllerListSitesRequestParams,
+  JiraControllerSelectSiteRequestParams,
+  JiraControllerSelectTargetRequestParams,
+  JiraControllerStartOAuthRequestParams,
+} from './jira-data.serviceInterface';
 
 @Injectable({
   providedIn: 'root',
@@ -117,6 +141,1115 @@ export class JiraDataService implements JiraDataServiceInterface {
       throw Error('key may not be null if value is not object or array');
     }
     return httpParams;
+  }
+
+  /**
+   * Disconnect Jira (clears OAuth tokens)
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public jiraControllerDisconnect(
+    requestParameters?: JiraControllerDisconnectRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<JiraConnectionDto>;
+  public jiraControllerDisconnect(
+    requestParameters?: JiraControllerDisconnectRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<JiraConnectionDto>>;
+  public jiraControllerDisconnect(
+    requestParameters?: JiraControllerDisconnectRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<JiraConnectionDto>>;
+  public jiraControllerDisconnect(
+    requestParameters?: JiraControllerDisconnectRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const workspaceId = requestParameters?.workspaceId;
+    if (workspaceId === null || workspaceId === undefined) {
+      throw new Error(
+        'Required parameter workspaceId was null or undefined when calling jiraControllerDisconnect.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/workspaces/${this.configuration.encodeParam({ name: 'workspaceId', value: workspaceId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/jira`;
+    return this.httpClient.request<JiraConnectionDto>(
+      'delete',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * Get Jira connection for a workspace (secret never returned)
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public jiraControllerGetConnection(
+    requestParameters?: JiraControllerGetConnectionRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<JiraConnectionDto>;
+  public jiraControllerGetConnection(
+    requestParameters?: JiraControllerGetConnectionRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<JiraConnectionDto>>;
+  public jiraControllerGetConnection(
+    requestParameters?: JiraControllerGetConnectionRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<JiraConnectionDto>>;
+  public jiraControllerGetConnection(
+    requestParameters?: JiraControllerGetConnectionRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const workspaceId = requestParameters?.workspaceId;
+    if (workspaceId === null || workspaceId === undefined) {
+      throw new Error(
+        'Required parameter workspaceId was null or undefined when calling jiraControllerGetConnection.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/workspaces/${this.configuration.encodeParam({ name: 'workspaceId', value: workspaceId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/jira`;
+    return this.httpClient.request<JiraConnectionDto>(
+      'get',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * List recent issues in a Jira project
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public jiraControllerListIssues(
+    requestParameters?: JiraControllerListIssuesRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<Array<JiraIssueDto>>;
+  public jiraControllerListIssues(
+    requestParameters?: JiraControllerListIssuesRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<Array<JiraIssueDto>>>;
+  public jiraControllerListIssues(
+    requestParameters?: JiraControllerListIssuesRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<Array<JiraIssueDto>>>;
+  public jiraControllerListIssues(
+    requestParameters?: JiraControllerListIssuesRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const workspaceId = requestParameters?.workspaceId;
+    if (workspaceId === null || workspaceId === undefined) {
+      throw new Error(
+        'Required parameter workspaceId was null or undefined when calling jiraControllerListIssues.',
+      );
+    }
+    const projectKey = requestParameters?.projectKey;
+    if (projectKey === null || projectKey === undefined) {
+      throw new Error(
+        'Required parameter projectKey was null or undefined when calling jiraControllerListIssues.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/workspaces/${this.configuration.encodeParam({ name: 'workspaceId', value: workspaceId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/jira/projects/${this.configuration.encodeParam({ name: 'projectKey', value: projectKey, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/issues`;
+    return this.httpClient.request<Array<JiraIssueDto>>(
+      'get',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * List Jira projects on the selected site
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public jiraControllerListProjects(
+    requestParameters?: JiraControllerListProjectsRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<Array<JiraProjectDto>>;
+  public jiraControllerListProjects(
+    requestParameters?: JiraControllerListProjectsRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<Array<JiraProjectDto>>>;
+  public jiraControllerListProjects(
+    requestParameters?: JiraControllerListProjectsRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<Array<JiraProjectDto>>>;
+  public jiraControllerListProjects(
+    requestParameters?: JiraControllerListProjectsRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const workspaceId = requestParameters?.workspaceId;
+    if (workspaceId === null || workspaceId === undefined) {
+      throw new Error(
+        'Required parameter workspaceId was null or undefined when calling jiraControllerListProjects.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/workspaces/${this.configuration.encodeParam({ name: 'workspaceId', value: workspaceId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/jira/projects`;
+    return this.httpClient.request<Array<JiraProjectDto>>(
+      'get',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * List accessible Jira Cloud sites
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public jiraControllerListSites(
+    requestParameters?: JiraControllerListSitesRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<Array<JiraSiteDto>>;
+  public jiraControllerListSites(
+    requestParameters?: JiraControllerListSitesRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<Array<JiraSiteDto>>>;
+  public jiraControllerListSites(
+    requestParameters?: JiraControllerListSitesRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<Array<JiraSiteDto>>>;
+  public jiraControllerListSites(
+    requestParameters?: JiraControllerListSitesRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const workspaceId = requestParameters?.workspaceId;
+    if (workspaceId === null || workspaceId === undefined) {
+      throw new Error(
+        'Required parameter workspaceId was null or undefined when calling jiraControllerListSites.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/workspaces/${this.configuration.encodeParam({ name: 'workspaceId', value: workspaceId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/jira/sites`;
+    return this.httpClient.request<Array<JiraSiteDto>>(
+      'get',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * Jira OAuth callback (public); redirects to standup workspace admin
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public jiraControllerOauthCallback(
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: undefined;
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any>;
+  public jiraControllerOauthCallback(
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: undefined;
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<any>>;
+  public jiraControllerOauthCallback(
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: undefined;
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<any>>;
+  public jiraControllerOauthCallback(
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: undefined;
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = [];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/addons/jira/oauth/callback`;
+    return this.httpClient.request<any>(
+      'get',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * Select Jira Cloud site for digests
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public jiraControllerSelectSite(
+    requestParameters?: JiraControllerSelectSiteRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<JiraConnectionDto>;
+  public jiraControllerSelectSite(
+    requestParameters?: JiraControllerSelectSiteRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<JiraConnectionDto>>;
+  public jiraControllerSelectSite(
+    requestParameters?: JiraControllerSelectSiteRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<JiraConnectionDto>>;
+  public jiraControllerSelectSite(
+    requestParameters?: JiraControllerSelectSiteRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const workspaceId = requestParameters?.workspaceId;
+    if (workspaceId === null || workspaceId === undefined) {
+      throw new Error(
+        'Required parameter workspaceId was null or undefined when calling jiraControllerSelectSite.',
+      );
+    }
+    const selectJiraSiteDto = requestParameters?.selectJiraSiteDto;
+    if (selectJiraSiteDto === null || selectJiraSiteDto === undefined) {
+      throw new Error(
+        'Required parameter selectJiraSiteDto was null or undefined when calling jiraControllerSelectSite.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = ['application/json'];
+    const httpContentTypeSelected: string | undefined =
+      this.configuration.selectHeaderContentType(consumes);
+    if (httpContentTypeSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Content-Type',
+        httpContentTypeSelected,
+      );
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/workspaces/${this.configuration.encodeParam({ name: 'workspaceId', value: workspaceId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/jira/site`;
+    return this.httpClient.request<JiraConnectionDto>(
+      'put',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        body: selectJiraSiteDto,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * Select Jira issue for standup digest comments
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public jiraControllerSelectTarget(
+    requestParameters?: JiraControllerSelectTargetRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<JiraConnectionDto>;
+  public jiraControllerSelectTarget(
+    requestParameters?: JiraControllerSelectTargetRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<JiraConnectionDto>>;
+  public jiraControllerSelectTarget(
+    requestParameters?: JiraControllerSelectTargetRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<JiraConnectionDto>>;
+  public jiraControllerSelectTarget(
+    requestParameters?: JiraControllerSelectTargetRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const workspaceId = requestParameters?.workspaceId;
+    if (workspaceId === null || workspaceId === undefined) {
+      throw new Error(
+        'Required parameter workspaceId was null or undefined when calling jiraControllerSelectTarget.',
+      );
+    }
+    const selectJiraTargetDto = requestParameters?.selectJiraTargetDto;
+    if (selectJiraTargetDto === null || selectJiraTargetDto === undefined) {
+      throw new Error(
+        'Required parameter selectJiraTargetDto was null or undefined when calling jiraControllerSelectTarget.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = ['application/json'];
+    const httpContentTypeSelected: string | undefined =
+      this.configuration.selectHeaderContentType(consumes);
+    if (httpContentTypeSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Content-Type',
+        httpContentTypeSelected,
+      );
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/workspaces/${this.configuration.encodeParam({ name: 'workspaceId', value: workspaceId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/jira/target`;
+    return this.httpClient.request<JiraConnectionDto>(
+      'put',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        body: selectJiraTargetDto,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * Start Jira OAuth (3LO); returns authorize URL for the browser
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public jiraControllerStartOAuth(
+    requestParameters?: JiraControllerStartOAuthRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<JiraOAuthStartDto>;
+  public jiraControllerStartOAuth(
+    requestParameters?: JiraControllerStartOAuthRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<JiraOAuthStartDto>>;
+  public jiraControllerStartOAuth(
+    requestParameters?: JiraControllerStartOAuthRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<JiraOAuthStartDto>>;
+  public jiraControllerStartOAuth(
+    requestParameters?: JiraControllerStartOAuthRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const workspaceId = requestParameters?.workspaceId;
+    if (workspaceId === null || workspaceId === undefined) {
+      throw new Error(
+        'Required parameter workspaceId was null or undefined when calling jiraControllerStartOAuth.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/workspaces/${this.configuration.encodeParam({ name: 'workspaceId', value: workspaceId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/jira/oauth/start`;
+    return this.httpClient.request<JiraOAuthStartDto>(
+      'get',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
   }
 
   /**

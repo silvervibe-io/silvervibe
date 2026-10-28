@@ -15,8 +15,13 @@ export interface MeWorkspaceDto {
   id: string;
   name: string;
   slug: string;
+  planKey: MeWorkspaceDtoPlanKeyEnum;
   role: MeWorkspaceDtoRoleEnum;
   tools: Array<MeWorkspaceToolDto>;
+}
+export enum MeWorkspaceDtoPlanKeyEnum {
+  free = 'free',
+  team = 'team',
 }
 export enum MeWorkspaceDtoRoleEnum {
   OWNER = 'OWNER',

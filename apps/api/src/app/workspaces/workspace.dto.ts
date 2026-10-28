@@ -9,4 +9,7 @@ export class WorkspaceDto {
 
   @ApiProperty()
   slug!: string;
+
+  @ApiProperty({ enum: ['free', 'team'] })
+  planKey!: 'free' | 'team';
 }

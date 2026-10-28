@@ -29,6 +29,8 @@ import { AcceptTeamInviteDto } from '../model/accept-team-invite-dto';
 // @ts-ignore
 import { AddonStatusDto } from '../model/addon-status-dto';
 // @ts-ignore
+import { ConnectTeamsDto } from '../model/connect-teams-dto';
+// @ts-ignore
 import { CreateTeamDto } from '../model/create-team-dto';
 // @ts-ignore
 import { CreateTeamInviteDto } from '../model/create-team-invite-dto';
@@ -42,6 +44,8 @@ import { TeamDto } from '../model/team-dto';
 import { TeamInviteDto } from '../model/team-invite-dto';
 // @ts-ignore
 import { TeamMemberDto } from '../model/team-member-dto';
+// @ts-ignore
+import { TeamsConnectionDto } from '../model/teams-connection-dto';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS } from '../variables';
@@ -49,8 +53,11 @@ import { Configuration } from '../configuration';
 import {
   TeamsDataServiceInterface,
   TeamsControllerAcceptInviteRequestParams,
+  TeamsControllerConnectRequestParams,
   TeamsControllerCreateRequestParams,
   TeamsControllerCreateInviteRequestParams,
+  TeamsControllerDisconnectRequestParams,
+  TeamsControllerGetConnectionRequestParams,
   TeamsControllerInviteRequestParams,
   TeamsControllerListInvitesRequestParams,
   TeamsControllerListMembersRequestParams,
@@ -257,6 +264,145 @@ export class TeamsDataService implements TeamsDataServiceInterface {
       `${this.configuration.basePath}${localVarPath}`,
       {
         context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * Connect Microsoft Teams via Incoming Webhook (enables addons.teams entitlement)
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public teamsControllerConnect(
+    requestParameters?: TeamsControllerConnectRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<TeamsConnectionDto>;
+  public teamsControllerConnect(
+    requestParameters?: TeamsControllerConnectRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<TeamsConnectionDto>>;
+  public teamsControllerConnect(
+    requestParameters?: TeamsControllerConnectRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<TeamsConnectionDto>>;
+  public teamsControllerConnect(
+    requestParameters?: TeamsControllerConnectRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const workspaceId = requestParameters?.workspaceId;
+    if (workspaceId === null || workspaceId === undefined) {
+      throw new Error(
+        'Required parameter workspaceId was null or undefined when calling teamsControllerConnect.',
+      );
+    }
+    const connectTeamsDto = requestParameters?.connectTeamsDto;
+    if (connectTeamsDto === null || connectTeamsDto === undefined) {
+      throw new Error(
+        'Required parameter connectTeamsDto was null or undefined when calling teamsControllerConnect.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = ['application/json'];
+    const httpContentTypeSelected: string | undefined =
+      this.configuration.selectHeaderContentType(consumes);
+    if (httpContentTypeSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Content-Type',
+        httpContentTypeSelected,
+      );
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/workspaces/${this.configuration.encodeParam({ name: 'workspaceId', value: workspaceId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/teams`;
+    return this.httpClient.request<TeamsConnectionDto>(
+      'put',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        body: connectTeamsDto,
         responseType: <any>responseType_,
         withCredentials: this.configuration.withCredentials,
         headers: localVarHeaders,
@@ -536,6 +682,248 @@ export class TeamsDataService implements TeamsDataServiceInterface {
       {
         context: localVarHttpContext,
         body: createTeamInviteDto,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * Disconnect Teams Incoming Webhook
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public teamsControllerDisconnect(
+    requestParameters?: TeamsControllerDisconnectRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<TeamsConnectionDto>;
+  public teamsControllerDisconnect(
+    requestParameters?: TeamsControllerDisconnectRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<TeamsConnectionDto>>;
+  public teamsControllerDisconnect(
+    requestParameters?: TeamsControllerDisconnectRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<TeamsConnectionDto>>;
+  public teamsControllerDisconnect(
+    requestParameters?: TeamsControllerDisconnectRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const workspaceId = requestParameters?.workspaceId;
+    if (workspaceId === null || workspaceId === undefined) {
+      throw new Error(
+        'Required parameter workspaceId was null or undefined when calling teamsControllerDisconnect.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/workspaces/${this.configuration.encodeParam({ name: 'workspaceId', value: workspaceId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/teams`;
+    return this.httpClient.request<TeamsConnectionDto>(
+      'delete',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * Get Teams Incoming Webhook connection for a workspace
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public teamsControllerGetConnection(
+    requestParameters?: TeamsControllerGetConnectionRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<TeamsConnectionDto>;
+  public teamsControllerGetConnection(
+    requestParameters?: TeamsControllerGetConnectionRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<TeamsConnectionDto>>;
+  public teamsControllerGetConnection(
+    requestParameters?: TeamsControllerGetConnectionRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<TeamsConnectionDto>>;
+  public teamsControllerGetConnection(
+    requestParameters?: TeamsControllerGetConnectionRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const workspaceId = requestParameters?.workspaceId;
+    if (workspaceId === null || workspaceId === undefined) {
+      throw new Error(
+        'Required parameter workspaceId was null or undefined when calling teamsControllerGetConnection.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/workspaces/${this.configuration.encodeParam({ name: 'workspaceId', value: workspaceId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/teams`;
+    return this.httpClient.request<TeamsConnectionDto>(
+      'get',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
         responseType: <any>responseType_,
         withCredentials: this.configuration.withCredentials,
         headers: localVarHeaders,
