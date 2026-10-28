@@ -9,7 +9,10 @@ import {
 import { form, FormField, required, submit } from '@angular/forms/signals';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
+import {
+  getVibestandupLimits,
+  PLAN_KEYS,
+} from '@silvervibe/shared/feature-flags';
 import { Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import {
@@ -54,6 +57,7 @@ export class WorkspaceAdmin implements OnInit {
   readonly effectiveRole = computed(() =>
     this.workspaces.effectiveWorkspaceRole(),
   );
+  readonly isOwner = computed(() => this.effectiveRole() === 'OWNER');
   readonly previewActive = this.preview.isActive;
   readonly planHint = computed(() => {
     if (!this.preview.isActive()) {
@@ -66,8 +70,30 @@ export class WorkspaceAdmin implements OnInit {
       maxMembersPerTeam: limits.maxMembersPerTeam,
     };
   });
+  readonly workspacePlan = computed(() => {
+    const ws = this.selected();
+    if (!ws) {
+      return null;
+    }
+    const planKey =
+      ws.planKey === PLAN_KEYS.team ? PLAN_KEYS.team : PLAN_KEYS.free;
+    const limits = getVibestandupLimits(planKey);
+    return {
+      planKey,
+      maxTeams: limits.maxTeams,
+      maxMembersPerTeam: limits.maxMembersPerTeam,
+    };
+  });
+  readonly canUpgradeToTeam = computed(
+    () =>
+      this.isOwner() &&
+      !this.previewActive() &&
+      this.workspacePlan()?.planKey === PLAN_KEYS.free,
+  );
   readonly tools = computed(() => this.selected()?.tools ?? []);
   readonly message = signal<string | null>(null);
+  readonly planBusy = signal(false);
+  readonly planError = signal<string | null>(null);
   readonly slack = signal<SlackConnectionView | null>(null);
   readonly slackError = signal<string | null>(null);
   readonly slackConnecting = signal(false);
@@ -247,6 +273,25 @@ export class WorkspaceAdmin implements OnInit {
     await this.workspaces.loadMyWorkspaces();
     this.workspaces.selectWorkspace(ws.id);
     this.message.set('standup.workspace.toolUpdated');
+  }
+
+  async upgradeToTeamPlan(): Promise<void> {
+    const ws = this.selected();
+    if (!ws || !this.canUpgradeToTeam()) {
+      return;
+    }
+    this.planError.set(null);
+    this.planBusy.set(true);
+    try {
+      await this.workspaces.setWorkspacePlan(ws.id, PLAN_KEYS.team);
+      this.message.set('standup.workspace.planUpgraded');
+    } catch (err: unknown) {
+      this.planError.set(
+        err instanceof Error ? err.message : 'Failed to upgrade plan',
+      );
+    } finally {
+      this.planBusy.set(false);
+    }
   }
 
   async connectSlack(): Promise<void> {

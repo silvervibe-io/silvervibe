@@ -3,11 +3,13 @@ import { inject, Injectable } from '@angular/core';
 import {
   AuthDataService,
   MeWorkspaceDtoRoleEnum,
+  SetWorkspacePlanDtoPlanKeyEnum,
   TeamsDataService,
   WorkspacesDataService,
   type CreateTeamDto,
   type CreateWorkspaceDto,
   type MeWorkspaceDto,
+  type SetWorkspacePlanDto,
   type TeamDto,
   type WorkspaceDto,
   type WorkspaceToolDto,
@@ -56,11 +58,16 @@ function mapTool(tool: {
   return { toolKey: tool.toolKey, enabled: tool.enabled };
 }
 
+function mapPlanKey(raw: string | undefined | null): 'free' | 'team' {
+  return raw === 'team' ? 'team' : 'free';
+}
+
 function mapMembership(dto: MeWorkspaceDto): WorkspaceMembershipView {
   return {
     id: dto.id,
     name: dto.name,
     slug: dto.slug,
+    planKey: mapPlanKey(dto.planKey),
     role: mapRole(dto.role),
     tools: (dto.tools ?? []).map(mapTool),
   };
@@ -101,6 +108,24 @@ export class WorkspaceService {
         workspaceId,
         toolKey,
         setToolEntitlementDto: { enabled },
+      }),
+    );
+  }
+
+  setWorkspacePlan(
+    workspaceId: string,
+    planKey: 'free' | 'team',
+  ): Promise<WorkspaceDto> {
+    const setWorkspacePlanDto: SetWorkspacePlanDto = {
+      planKey:
+        planKey === 'team'
+          ? SetWorkspacePlanDtoPlanKeyEnum.team
+          : SetWorkspacePlanDtoPlanKeyEnum.free,
+    };
+    return firstValueFrom(
+      this.workspacesApi.workspacesControllerSetPlan({
+        workspaceId,
+        setWorkspacePlanDto,
       }),
     );
   }

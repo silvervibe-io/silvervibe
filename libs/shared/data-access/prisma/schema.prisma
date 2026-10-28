@@ -66,6 +66,8 @@ model Workspace {
   id        String   @id @default(cuid())
   name      String
   slug      String   @unique
+  /** Commercial plan key from plans.catalog.json (`free` | `team`). */
+  planKey   String   @default("free") @map("plan_key")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

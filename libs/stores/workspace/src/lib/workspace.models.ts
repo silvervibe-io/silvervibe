@@ -5,10 +5,13 @@ export type WorkspaceToolView = {
   enabled: boolean;
 };
 
+export type WorkspacePlanKey = 'free' | 'team';
+
 export type WorkspaceMembershipView = {
   id: string;
   name: string;
   slug: string;
+  planKey: WorkspacePlanKey;
   role: PreviewWorkspaceRole;
   tools: WorkspaceToolView[];
 };

@@ -158,4 +158,52 @@ describe('WorkspacesService', () => {
       NotFoundException,
     );
   });
+
+  it('lets the owner set planKey to team', async () => {
+    const update = jest.fn().mockResolvedValue({
+      id: 'ws1',
+      name: 'Demo',
+      slug: 'demo',
+      planKey: 'team',
+    });
+    const prisma = {
+      isEnabled: () => true,
+      workspaceMember: {
+        findUnique: jest.fn().mockResolvedValue({ role: WorkspaceRole.OWNER }),
+      },
+      workspace: {
+        findUnique: jest.fn().mockResolvedValue({ id: 'ws1' }),
+        update,
+      },
+    };
+    const service = buildService(prisma);
+    await expect(service.setPlan('ws1', 'team', owner)).resolves.toEqual({
+      id: 'ws1',
+      name: 'Demo',
+      slug: 'demo',
+      planKey: 'team',
+    });
+    expect(update).toHaveBeenCalledWith({
+      where: { id: 'ws1' },
+      data: { planKey: 'team' },
+      select: { id: true, name: true, slug: true, planKey: true },
+    });
+  });
+
+  it('forbids non-owners from setting planKey', async () => {
+    const prisma = {
+      isEnabled: () => true,
+      workspaceMember: {
+        findUnique: jest.fn().mockResolvedValue({ role: WorkspaceRole.ADMIN }),
+      },
+      workspace: {
+        findUnique: jest.fn().mockResolvedValue({ id: 'ws1' }),
+        update: jest.fn(),
+      },
+    };
+    const service = buildService(prisma);
+    await expect(service.setPlan('ws1', 'team', member)).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
+  });
 });

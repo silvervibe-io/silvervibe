@@ -14,12 +14,140 @@ import { HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { AddonStatusDto } from '../model/models';
+import { JiraConnectionDto } from '../model/models';
+import { JiraIssueDto } from '../model/models';
+import { JiraOAuthStartDto } from '../model/models';
+import { JiraProjectDto } from '../model/models';
+import { JiraSiteDto } from '../model/models';
+import { SelectJiraSiteDto } from '../model/models';
+import { SelectJiraTargetDto } from '../model/models';
 
 import { Configuration } from '../configuration';
+
+export interface JiraControllerDisconnectRequestParams {
+  workspaceId: string;
+}
+
+export interface JiraControllerGetConnectionRequestParams {
+  workspaceId: string;
+}
+
+export interface JiraControllerListIssuesRequestParams {
+  workspaceId: string;
+  projectKey: string;
+}
+
+export interface JiraControllerListProjectsRequestParams {
+  workspaceId: string;
+}
+
+export interface JiraControllerListSitesRequestParams {
+  workspaceId: string;
+}
+
+export interface JiraControllerSelectSiteRequestParams {
+  workspaceId: string;
+  selectJiraSiteDto: SelectJiraSiteDto;
+}
+
+export interface JiraControllerSelectTargetRequestParams {
+  workspaceId: string;
+  selectJiraTargetDto: SelectJiraTargetDto;
+}
+
+export interface JiraControllerStartOAuthRequestParams {
+  workspaceId: string;
+}
 
 export interface JiraDataServiceInterface {
   defaultHeaders: HttpHeaders;
   configuration: Configuration;
+
+  /**
+   * Disconnect Jira (clears OAuth tokens)
+   *
+   * @param requestParameters
+   */
+  jiraControllerDisconnect(
+    requestParameters: JiraControllerDisconnectRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<JiraConnectionDto>;
+
+  /**
+   * Get Jira connection for a workspace (secret never returned)
+   *
+   * @param requestParameters
+   */
+  jiraControllerGetConnection(
+    requestParameters: JiraControllerGetConnectionRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<JiraConnectionDto>;
+
+  /**
+   * List recent issues in a Jira project
+   *
+   * @param requestParameters
+   */
+  jiraControllerListIssues(
+    requestParameters: JiraControllerListIssuesRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<Array<JiraIssueDto>>;
+
+  /**
+   * List Jira projects on the selected site
+   *
+   * @param requestParameters
+   */
+  jiraControllerListProjects(
+    requestParameters: JiraControllerListProjectsRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<Array<JiraProjectDto>>;
+
+  /**
+   * List accessible Jira Cloud sites
+   *
+   * @param requestParameters
+   */
+  jiraControllerListSites(
+    requestParameters: JiraControllerListSitesRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<Array<JiraSiteDto>>;
+
+  /**
+   * Jira OAuth callback (public); redirects to standup workspace admin
+   *
+   */
+  jiraControllerOauthCallback(extraHttpRequestParams?: any): Observable<{}>;
+
+  /**
+   * Select Jira Cloud site for digests
+   *
+   * @param requestParameters
+   */
+  jiraControllerSelectSite(
+    requestParameters: JiraControllerSelectSiteRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<JiraConnectionDto>;
+
+  /**
+   * Select Jira issue for standup digest comments
+   *
+   * @param requestParameters
+   */
+  jiraControllerSelectTarget(
+    requestParameters: JiraControllerSelectTargetRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<JiraConnectionDto>;
+
+  /**
+   * Start Jira OAuth (3LO); returns authorize URL for the browser
+   *
+   * @param requestParameters
+   */
+  jiraControllerStartOAuth(
+    requestParameters: JiraControllerStartOAuthRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<JiraOAuthStartDto>;
 
   /**
    * Jira add-on status

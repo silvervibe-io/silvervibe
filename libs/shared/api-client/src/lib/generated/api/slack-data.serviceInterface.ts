@@ -14,12 +14,140 @@ import { HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { AddonStatusDto } from '../model/models';
+import { ConnectSlackDto } from '../model/models';
+import { SetTeamSlackChannelDto } from '../model/models';
+import { SlackChannelsDto } from '../model/models';
+import { SlackConnectionDto } from '../model/models';
+import { SlackOAuthStartDto } from '../model/models';
+import { TeamSlackChannelDto } from '../model/models';
 
 import { Configuration } from '../configuration';
+
+export interface SlackControllerClearTeamChannelRequestParams {
+  teamId: string;
+}
+
+export interface SlackControllerConnectRequestParams {
+  workspaceId: string;
+  connectSlackDto: ConnectSlackDto;
+}
+
+export interface SlackControllerDisconnectRequestParams {
+  workspaceId: string;
+}
+
+export interface SlackControllerGetConnectionRequestParams {
+  workspaceId: string;
+}
+
+export interface SlackControllerGetTeamChannelRequestParams {
+  teamId: string;
+}
+
+export interface SlackControllerListChannelsForTeamRequestParams {
+  teamId: string;
+}
+
+export interface SlackControllerSetTeamChannelRequestParams {
+  teamId: string;
+  setTeamSlackChannelDto: SetTeamSlackChannelDto;
+}
+
+export interface SlackControllerStartOAuthRequestParams {
+  workspaceId: string;
+}
 
 export interface SlackDataServiceInterface {
   defaultHeaders: HttpHeaders;
   configuration: Configuration;
+
+  /**
+   * Clear team Slack channel override (use workspace default)
+   *
+   * @param requestParameters
+   */
+  slackControllerClearTeamChannel(
+    requestParameters: SlackControllerClearTeamChannelRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<TeamSlackChannelDto>;
+
+  /**
+     * Deprecated: connect Slack via Incoming Webhook. Prefer OAuth start.
+     * 
+* @param requestParameters
+     
+     * @deprecated
+     */
+  slackControllerConnect(
+    requestParameters: SlackControllerConnectRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<SlackConnectionDto>;
+
+  /**
+   * Disconnect Slack (clears bot token / webhook)
+   *
+   * @param requestParameters
+   */
+  slackControllerDisconnect(
+    requestParameters: SlackControllerDisconnectRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<SlackConnectionDto>;
+
+  /**
+   * Get Slack connection for a workspace (secret never returned)
+   *
+   * @param requestParameters
+   */
+  slackControllerGetConnection(
+    requestParameters: SlackControllerGetConnectionRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<SlackConnectionDto>;
+
+  /**
+   * Get effective Slack digest channel for a team
+   *
+   * @param requestParameters
+   */
+  slackControllerGetTeamChannel(
+    requestParameters: SlackControllerGetTeamChannelRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<TeamSlackChannelDto>;
+
+  /**
+   * List Slack channels for per-team digest picker
+   *
+   * @param requestParameters
+   */
+  slackControllerListChannelsForTeam(
+    requestParameters: SlackControllerListChannelsForTeamRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<SlackChannelsDto>;
+
+  /**
+   * Slack OAuth callback (public); redirects to standup workspace admin
+   *
+   */
+  slackControllerOauthCallback(extraHttpRequestParams?: any): Observable<{}>;
+
+  /**
+   * Set Slack digest channel override for a team
+   *
+   * @param requestParameters
+   */
+  slackControllerSetTeamChannel(
+    requestParameters: SlackControllerSetTeamChannelRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<TeamSlackChannelDto>;
+
+  /**
+   * Start Slack OAuth install; returns authorize URL for the browser
+   *
+   * @param requestParameters
+   */
+  slackControllerStartOAuth(
+    requestParameters: SlackControllerStartOAuthRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<SlackOAuthStartDto>;
 
   /**
    * Slack add-on status

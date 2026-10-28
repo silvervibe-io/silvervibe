@@ -13,6 +13,9 @@ export * from './health-data.serviceInterface';
 export * from './jira-data.service';
 import { JiraDataService } from './jira-data.service';
 export * from './jira-data.serviceInterface';
+export * from './jobs-data.service';
+import { JobsDataService } from './jobs-data.service';
+export * from './jobs-data.serviceInterface';
 export * from './linear-data.service';
 import { LinearDataService } from './linear-data.service';
 export * from './linear-data.serviceInterface';
@@ -34,6 +37,7 @@ export const APIS = [
   GithubDataService,
   HealthDataService,
   JiraDataService,
+  JobsDataService,
   LinearDataService,
   SlackDataService,
   StandupsDataService,

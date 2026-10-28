@@ -135,7 +135,11 @@
     "jiraProjectPlaceholder": "Select a project…",
     "jiraIssue": "Issue for digests",
     "jiraIssuePlaceholder": "Select an issue…",
-    "jiraOAuthUnavailable": "Jira OAuth is not configured on the server yet."
+    "jiraOAuthUnavailable": "Jira OAuth is not configured on the server yet.",
+    "planTitle": "Plano do workspace",
+    "planStatus": "Plano atual {{plan}}: até {{teams}} equipas, {{members}} membros por equipa.",
+    "upgradeToTeam": "Atualizar para Team",
+    "planUpgraded": "Workspace atualizado para o plano Team."
   },
   "invite": {
     "title": "Join team",

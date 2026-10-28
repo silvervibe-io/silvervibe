@@ -91,8 +91,10 @@ Team admins invite members by **email** from VibeStandup team admin
 are added immediately (workspace + team). Otherwise a pending invite is created
 and Nest sends mail via **Resend** when `RESEND_API_KEY` is set (see
 `.env.example`). The accept link (`/invite/<token>`) is always shown so you can
-copy it if mail is off or fails. Free-plan seat limits
-(`maxTeams` / `maxMembersPerTeam`) are enforced in the API.
+copy it if mail is off or fails. Seat limits (`maxTeams` /
+`maxMembersPerTeam`) come from the workspace `planKey` (`free` or `team`) and
+are enforced in the API. Workspace owners can unlock Team from VibeStandup
+workspace admin (`PUT /api/workspaces/:id/plan`) before Stripe exists.
 
 ## Other apps
 

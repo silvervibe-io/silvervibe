@@ -7,7 +7,11 @@ import {
 } from '@nestjs/common';
 import { WorkspaceRole } from '@prisma/client';
 import { enabledToolKeys } from '@silvervibe/shared/data-access';
-import { isKnownToolKey } from '@silvervibe/shared/feature-flags';
+import {
+  isKnownToolKey,
+  PLAN_KEYS,
+  type PlanKey,
+} from '@silvervibe/shared/feature-flags';
 import { VerifiedUser } from '../auth/firebase-auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
@@ -30,6 +34,13 @@ export class WorkspacesService {
   private async resolveUserId(user: VerifiedUser): Promise<string> {
     const record = await this.users.upsertFromFirebase(user);
     return record.id;
+  }
+
+  private asPlanKey(raw: string | null | undefined): PlanKey {
+    if (raw === PLAN_KEYS.team) {
+      return PLAN_KEYS.team;
+    }
+    return PLAN_KEYS.free;
   }
 
   private async requireWorkspaceMember(
@@ -59,12 +70,23 @@ export class WorkspacesService {
     }
   }
 
+  private async requireWorkspaceOwner(
+    workspaceId: string,
+    userId: string,
+  ): Promise<void> {
+    const membership = await this.requireWorkspaceMember(workspaceId, userId);
+    if (membership.role !== WorkspaceRole.OWNER) {
+      throw new ForbiddenException('Workspace owner required');
+    }
+  }
+
   async create(name: string, slug: string, ownerUserId?: string) {
     this.ensureDb();
     return this.prisma.workspace.create({
       data: {
         name,
         slug,
+        planKey: PLAN_KEYS.free,
         ...(ownerUserId
           ? {
               members: {
@@ -88,6 +110,37 @@ export class WorkspacesService {
       throw new NotFoundException(`Workspace ${workspaceId} not found`);
     }
     return workspace;
+  }
+
+  async setPlan(
+    workspaceId: string,
+    planKey: PlanKey,
+    user: VerifiedUser,
+  ): Promise<{
+    id: string;
+    name: string;
+    slug: string;
+    planKey: PlanKey;
+  }> {
+    if (planKey !== PLAN_KEYS.free && planKey !== PLAN_KEYS.team) {
+      throw new BadRequestException(`Unknown planKey "${planKey}"`);
+    }
+    const userId = await this.resolveUserId(user);
+    await this.requireWorkspaceOwner(workspaceId, userId);
+    await this.getOrThrow(workspaceId);
+
+    const workspace = await this.prisma.workspace.update({
+      where: { id: workspaceId },
+      data: { planKey },
+      select: { id: true, name: true, slug: true, planKey: true },
+    });
+
+    return {
+      id: workspace.id,
+      name: workspace.name,
+      slug: workspace.slug,
+      planKey: this.asPlanKey(workspace.planKey),
+    };
   }
 
   private async fetchTools(workspaceId: string) {

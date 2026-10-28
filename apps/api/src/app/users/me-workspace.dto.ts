@@ -18,6 +18,9 @@ export class MeWorkspaceDto {
   @ApiProperty()
   slug!: string;
 
+  @ApiProperty({ enum: ['free', 'team'] })
+  planKey!: 'free' | 'team';
+
   @ApiProperty({ enum: ['OWNER', 'ADMIN', 'MEMBER'] })
   role!: 'OWNER' | 'ADMIN' | 'MEMBER';
 
