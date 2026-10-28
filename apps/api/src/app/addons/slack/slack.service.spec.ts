@@ -220,6 +220,115 @@ describe('SlackService', () => {
     );
   });
 
+  it('posts OAuth digests to a per-team channel override', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ok: true }),
+    });
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const service = new SlackService(
+      {
+        isEnabled: () => true,
+        workspaceTool: {
+          findUnique: jest.fn().mockResolvedValue({ enabled: true }),
+        },
+        addonConnection: {
+          findUnique: jest.fn().mockResolvedValue({
+            status: AddonConnectionStatus.CONNECTED,
+            secretsRef: 'xoxb-test',
+            metadataJson: {
+              authMode: 'oauth',
+              channelId: 'C-default',
+              channelLabel: '#default',
+              teamChannels: {
+                'team-eng': { channelId: 'C-eng', channelLabel: '#eng' },
+              },
+            },
+          }),
+        },
+      } as unknown as PrismaService,
+      {} as unknown as UsersService,
+    );
+
+    const ok = await service.postStandupDigest({
+      workspaceId: 'ws1',
+      teamId: 'team-eng',
+      teamName: 'Eng',
+      entryDate: '2026-10-28',
+      content: 'hi',
+    });
+
+    expect(ok).toBe(true);
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://slack.com/api/chat.postMessage',
+      expect.objectContaining({
+        body: expect.stringContaining('"channel":"C-eng"'),
+      }),
+    );
+  });
+
+  it('lets workspace owners read team Slack channel without team membership', async () => {
+    const service = new SlackService(
+      {
+        isEnabled: () => true,
+        teamMember: { findUnique: jest.fn().mockResolvedValue(null) },
+        team: {
+          findUnique: jest.fn().mockResolvedValue({ workspaceId: 'ws1' }),
+        },
+        workspaceMember: {
+          findUnique: jest
+            .fn()
+            .mockResolvedValue({ role: WorkspaceRole.OWNER }),
+        },
+        addonConnection: {
+          findUnique: jest.fn().mockResolvedValue({
+            status: AddonConnectionStatus.CONNECTED,
+            secretsRef: 'xoxb-test',
+            metadataJson: {
+              channelId: 'C-default',
+              channelLabel: '#default',
+            },
+          }),
+        },
+      } as unknown as PrismaService,
+      {
+        upsertFromFirebase: jest.fn().mockResolvedValue({ id: 'user-1' }),
+      } as unknown as UsersService,
+    );
+
+    await expect(
+      service.getTeamChannel('team-tear', admin),
+    ).resolves.toMatchObject({
+      channelId: 'C-default',
+      slackConnected: true,
+      isOverride: false,
+    });
+  });
+
+  it('resolves workspace default when team has no override', () => {
+    const service = new SlackService(
+      { isEnabled: () => true } as unknown as PrismaService,
+      {} as unknown as UsersService,
+    );
+    expect(
+      service.resolveChannelForTeam(
+        {
+          channelId: 'C-default',
+          channelLabel: '#default',
+          teamChannels: {
+            other: { channelId: 'C-other' },
+          },
+        },
+        'team-eng',
+      ),
+    ).toEqual({
+      channelId: 'C-default',
+      channelLabel: '#default',
+      isOverride: false,
+    });
+  });
+
   it('skips digest when Slack tool is disabled', async () => {
     const fetchMock = jest.fn();
     global.fetch = fetchMock as unknown as typeof fetch;

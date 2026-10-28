@@ -23,8 +23,11 @@ import { VerifiedUser } from '../../auth/firebase-auth.service';
 import { AddonStatusDto } from '../addon-status.dto';
 import {
   ConnectSlackDto,
+  SetTeamSlackChannelDto,
+  SlackChannelsDto,
   SlackConnectionDto,
   SlackOAuthStartDto,
+  TeamSlackChannelDto,
 } from './slack.dto';
 import { SlackService } from './slack.service';
 
@@ -135,5 +138,64 @@ export class SlackController {
     @CurrentUser() user: VerifiedUser,
   ): Promise<SlackConnectionDto> {
     return this.slack.disconnect(workspaceId, user);
+  }
+
+  @Get('teams/:teamId/addons/slack/channels')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'List Slack channels for per-team digest picker' })
+  @ApiOkResponse({ type: SlackChannelsDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  listChannelsForTeam(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<SlackChannelsDto> {
+    return this.slack.listChannelsForTeam(teamId, user);
+  }
+
+  @Get('teams/:teamId/addons/slack/channel')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get effective Slack digest channel for a team' })
+  @ApiOkResponse({ type: TeamSlackChannelDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  getTeamChannel(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<TeamSlackChannelDto> {
+    return this.slack.getTeamChannel(teamId, user);
+  }
+
+  @Put('teams/:teamId/addons/slack/channel')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Set Slack digest channel override for a team' })
+  @ApiOkResponse({ type: TeamSlackChannelDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  setTeamChannel(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+    @Body() body: SetTeamSlackChannelDto,
+  ): Promise<TeamSlackChannelDto> {
+    return this.slack.setTeamChannel(teamId, user, body);
+  }
+
+  @Delete('teams/:teamId/addons/slack/channel')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Clear team Slack channel override (use workspace default)',
+  })
+  @ApiOkResponse({ type: TeamSlackChannelDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  clearTeamChannel(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<TeamSlackChannelDto> {
+    return this.slack.clearTeamChannel(teamId, user);
   }
 }

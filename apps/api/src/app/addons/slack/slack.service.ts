@@ -8,6 +8,7 @@ import {
 import {
   AddonConnectionStatus,
   AddonProvider,
+  TeamRole,
   WorkspaceRole,
 } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
@@ -18,11 +19,20 @@ import { UsersService } from '../../users/users.service';
 import { AddonStatusDto } from '../addon-status.dto';
 import {
   ConnectSlackDto,
+  SetTeamSlackChannelDto,
+  SlackChannelOptionDto,
+  SlackChannelsDto,
   SlackConnectionDto,
   SlackOAuthStartDto,
+  TeamSlackChannelDto,
 } from './slack.dto';
 
 type SlackAuthMode = 'oauth' | 'webhook';
+
+type TeamSlackChannelMeta = {
+  channelId: string;
+  channelLabel?: string;
+};
 
 type SlackMetadata = {
   channelLabel?: string;
@@ -32,6 +42,8 @@ type SlackMetadata = {
   teamId?: string;
   teamName?: string;
   authMode?: SlackAuthMode;
+  /** Per VibeStandup team overrides; workspace channelId remains the default. */
+  teamChannels?: Record<string, TeamSlackChannelMeta>;
   /** One-time OAuth CSRF nonce stored server-side (not an HMAC of the client secret). */
   oauthNonce?: string;
   oauthExp?: number;
@@ -186,18 +198,108 @@ export class SlackService {
     };
     const authMode = str('authMode');
     const oauthExpRaw = obj['oauthExp'];
+    const teamChannelsRaw = obj['teamChannels'];
+    const teamChannels: Record<string, TeamSlackChannelMeta> = {};
+    if (
+      teamChannelsRaw &&
+      typeof teamChannelsRaw === 'object' &&
+      !Array.isArray(teamChannelsRaw)
+    ) {
+      for (const [teamId, value] of Object.entries(
+        teamChannelsRaw as Record<string, unknown>,
+      )) {
+        if (!value || typeof value !== 'object' || Array.isArray(value)) {
+          continue;
+        }
+        const entry = value as Record<string, unknown>;
+        const channelId =
+          typeof entry['channelId'] === 'string'
+            ? entry['channelId'].trim()
+            : '';
+        if (!channelId) {
+          continue;
+        }
+        const channelLabel =
+          typeof entry['channelLabel'] === 'string' &&
+          entry['channelLabel'].trim()
+            ? entry['channelLabel'].trim()
+            : undefined;
+        teamChannels[teamId] = { channelId, channelLabel };
+      }
+    }
     return {
       channelLabel: str('channelLabel'),
       channelId: str('channelId'),
       incomingWebhookUrl: str('incomingWebhookUrl'),
       teamId: str('teamId'),
       teamName: str('teamName'),
+      teamChannels:
+        Object.keys(teamChannels).length > 0 ? teamChannels : undefined,
       authMode:
         authMode === 'oauth' || authMode === 'webhook' ? authMode : undefined,
       oauthNonce: str('oauthNonce'),
       oauthExp: typeof oauthExpRaw === 'number' ? oauthExpRaw : undefined,
       oauthUserId: str('oauthUserId'),
     };
+  }
+
+  /** Team override if set; otherwise workspace default from OAuth. */
+  resolveChannelForTeam(
+    meta: SlackMetadata,
+    teamId?: string,
+  ): { channelId?: string; channelLabel?: string; isOverride: boolean } {
+    if (teamId) {
+      const override = meta.teamChannels?.[teamId];
+      if (override?.channelId) {
+        return {
+          channelId: override.channelId,
+          channelLabel: override.channelLabel,
+          isOverride: true,
+        };
+      }
+    }
+    return {
+      channelId: meta.channelId,
+      channelLabel: meta.channelLabel,
+      isOverride: false,
+    };
+  }
+
+  private async requireTeamAdmin(
+    teamId: string,
+    userId: string,
+  ): Promise<{ workspaceId: string }> {
+    const membership = await this.prisma.teamMember.findUnique({
+      where: { teamId_userId: { teamId, userId } },
+      include: { team: { select: { workspaceId: true } } },
+    });
+    if (membership) {
+      if (membership.role !== TeamRole.ADMIN) {
+        throw new ForbiddenException('Team admin required');
+      }
+      return { workspaceId: membership.team.workspaceId };
+    }
+
+    // Match TeamsService: workspace OWNER/ADMIN can admin any team in the org.
+    const team = await this.prisma.team.findUnique({
+      where: { id: teamId },
+      select: { workspaceId: true },
+    });
+    if (!team) {
+      throw new ForbiddenException('Not a member of this team');
+    }
+    const ws = await this.prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: { workspaceId: team.workspaceId, userId },
+      },
+    });
+    if (
+      ws &&
+      (ws.role === WorkspaceRole.OWNER || ws.role === WorkspaceRole.ADMIN)
+    ) {
+      return { workspaceId: team.workspaceId };
+    }
+    throw new ForbiddenException('Team admin required');
   }
 
   private detectAuthMode(
@@ -596,8 +698,200 @@ export class SlackService {
    * Posts standup summary markdown to Slack (OAuth chat.postMessage or legacy webhook).
    * Soft-fail: logs and returns false on any error (never throws to callers).
    */
+  async listChannelsForTeam(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<SlackChannelsDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+    return this.listChannelsForWorkspace(workspaceId);
+  }
+
+  private async listChannelsForWorkspace(
+    workspaceId: string,
+  ): Promise<SlackChannelsDto> {
+    const connection = await this.prisma.addonConnection.findUnique({
+      where: {
+        workspaceId_provider: {
+          workspaceId,
+          provider: AddonProvider.SLACK,
+        },
+      },
+    });
+    if (
+      connection?.status !== AddonConnectionStatus.CONNECTED ||
+      !connection.secretsRef?.startsWith('xoxb-')
+    ) {
+      throw new BadRequestException(
+        'Slack OAuth must be connected to list channels',
+      );
+    }
+
+    const channels: SlackChannelOptionDto[] = [];
+    let cursor: string | undefined;
+    for (let page = 0; page < 10; page++) {
+      const url = new URL('https://slack.com/api/conversations.list');
+      url.searchParams.set('types', 'public_channel,private_channel');
+      url.searchParams.set('exclude_archived', 'true');
+      url.searchParams.set('limit', '200');
+      if (cursor) {
+        url.searchParams.set('cursor', cursor);
+      }
+      const res = await fetch(url.toString(), {
+        headers: { Authorization: `Bearer ${connection.secretsRef.trim()}` },
+      });
+      const json = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+        channels?: Array<{ id?: string; name?: string; is_channel?: boolean }>;
+        response_metadata?: { next_cursor?: string };
+      };
+      if (!res.ok || !json.ok) {
+        throw new BadRequestException(
+          `Slack conversations.list failed: ${json.error ?? res.status}`,
+        );
+      }
+      for (const ch of json.channels ?? []) {
+        if (!ch.id || !ch.name) {
+          continue;
+        }
+        channels.push({ id: ch.id, label: `#${ch.name}` });
+      }
+      cursor = json.response_metadata?.next_cursor?.trim() || undefined;
+      if (!cursor) {
+        break;
+      }
+    }
+
+    channels.sort((a, b) => a.label.localeCompare(b.label));
+    return { channels };
+  }
+
+  async getTeamChannel(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<TeamSlackChannelDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+
+    const connection = await this.prisma.addonConnection.findUnique({
+      where: {
+        workspaceId_provider: {
+          workspaceId,
+          provider: AddonProvider.SLACK,
+        },
+      },
+    });
+    const meta = this.asMetadata(connection?.metadataJson);
+    const connected =
+      connection?.status === AddonConnectionStatus.CONNECTED &&
+      Boolean(connection.secretsRef?.trim());
+    const resolved = this.resolveChannelForTeam(meta, teamId);
+    return {
+      channelId: resolved.channelId ?? null,
+      channelLabel: resolved.channelLabel ?? null,
+      isOverride: resolved.isOverride,
+      workspaceChannelId: meta.channelId ?? null,
+      workspaceChannelLabel: meta.channelLabel ?? null,
+      slackConnected: connected,
+    };
+  }
+
+  async setTeamChannel(
+    teamId: string,
+    user: VerifiedUser,
+    body: SetTeamSlackChannelDto,
+  ): Promise<TeamSlackChannelDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+
+    const channelId = body.channelId.trim();
+    if (!/^C[A-Z0-9]+$/i.test(channelId)) {
+      throw new BadRequestException('channelId must be a Slack channel id');
+    }
+
+    const connection = await this.prisma.addonConnection.findUnique({
+      where: {
+        workspaceId_provider: {
+          workspaceId,
+          provider: AddonProvider.SLACK,
+        },
+      },
+    });
+    if (
+      connection?.status !== AddonConnectionStatus.CONNECTED ||
+      !connection.secretsRef?.trim()
+    ) {
+      throw new BadRequestException(
+        'Slack is not connected for this workspace',
+      );
+    }
+
+    const meta = this.asMetadata(connection.metadataJson);
+    const teamChannels = { ...(meta.teamChannels ?? {}) };
+    const channelLabel = body.channelLabel?.trim() || undefined;
+    teamChannels[teamId] = { channelId, channelLabel };
+    const nextMeta: SlackMetadata = { ...meta, teamChannels };
+
+    await this.prisma.addonConnection.update({
+      where: { id: connection.id },
+      data: { metadataJson: nextMeta },
+    });
+
+    return this.getTeamChannel(teamId, user);
+  }
+
+  async clearTeamChannel(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<TeamSlackChannelDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+
+    const connection = await this.prisma.addonConnection.findUnique({
+      where: {
+        workspaceId_provider: {
+          workspaceId,
+          provider: AddonProvider.SLACK,
+        },
+      },
+    });
+    if (!connection) {
+      return {
+        channelId: null,
+        channelLabel: null,
+        isOverride: false,
+        workspaceChannelId: null,
+        workspaceChannelLabel: null,
+        slackConnected: false,
+      };
+    }
+
+    const meta = this.asMetadata(connection.metadataJson);
+    if (meta.teamChannels?.[teamId]) {
+      const teamChannels = { ...meta.teamChannels };
+      delete teamChannels[teamId];
+      const nextMeta: SlackMetadata = {
+        ...meta,
+        teamChannels:
+          Object.keys(teamChannels).length > 0 ? teamChannels : undefined,
+      };
+      await this.prisma.addonConnection.update({
+        where: { id: connection.id },
+        data: { metadataJson: nextMeta },
+      });
+    }
+
+    return this.getTeamChannel(teamId, user);
+  }
+
   async postStandupDigest(params: {
     workspaceId: string;
+    teamId?: string;
     teamName: string;
     entryDate: string;
     content: string;
@@ -638,7 +932,8 @@ export class SlackService {
 
       const secretsRef = connection.secretsRef.trim();
       const meta = this.asMetadata(connection.metadataJson);
-      const channel = meta.channelLabel ? ` (${meta.channelLabel})` : '';
+      const target = this.resolveChannelForTeam(meta, params.teamId);
+      const channel = target.channelLabel ? ` (${target.channelLabel})` : '';
       const text = [
         `*VibeStandup — ${params.teamName}${channel}*`,
         `_${params.entryDate}_`,
@@ -650,7 +945,7 @@ export class SlackService {
       if (mode === 'oauth' && secretsRef.startsWith('xoxb-')) {
         const posted = await this.postViaWebApi(
           secretsRef,
-          meta.channelId,
+          target.channelId,
           text,
           params.workspaceId,
         );

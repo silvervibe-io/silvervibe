@@ -25,8 +25,11 @@ import type {
   SelectJiraSiteInput,
   SelectJiraTargetInput,
   SelectLinearProjectInput,
+  SetTeamSlackChannelInput,
+  SlackChannelOptionView,
   SlackConnectionView,
   SlackOAuthStartView,
+  TeamSlackChannelView,
   TeamsConnectionView,
   WorkspaceMembershipView,
   WorkspaceToolView,
@@ -100,6 +103,25 @@ export class WorkspaceFacade {
 
   disconnectSlack(workspaceId: string): Promise<SlackConnectionView> {
     return this.api.disconnectSlack(workspaceId);
+  }
+
+  listTeamSlackChannels(teamId: string): Promise<SlackChannelOptionView[]> {
+    return this.api.listTeamSlackChannels(teamId);
+  }
+
+  getTeamSlackChannel(teamId: string): Promise<TeamSlackChannelView> {
+    return this.api.getTeamSlackChannel(teamId);
+  }
+
+  setTeamSlackChannel(
+    teamId: string,
+    body: SetTeamSlackChannelInput,
+  ): Promise<TeamSlackChannelView> {
+    return this.api.setTeamSlackChannel(teamId, body);
+  }
+
+  clearTeamSlackChannel(teamId: string): Promise<TeamSlackChannelView> {
+    return this.api.clearTeamSlackChannel(teamId);
   }
 
   getTeamsConnection(workspaceId: string): Promise<TeamsConnectionView> {
