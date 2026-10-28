@@ -348,6 +348,7 @@ export class StandupsService {
       if (team) {
         const digest = {
           workspaceId: team.workspaceId,
+          teamId,
           teamName: team.name,
           entryDate: entryDateIso,
           content: summary.content,

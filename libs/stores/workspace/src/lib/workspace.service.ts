@@ -35,8 +35,11 @@ import type {
   SelectJiraSiteInput,
   SelectJiraTargetInput,
   SelectLinearProjectInput,
+  SetTeamSlackChannelInput,
+  SlackChannelOptionView,
   SlackConnectionView,
   SlackOAuthStartView,
+  TeamSlackChannelView,
   TeamsConnectionView,
   WorkspaceMembershipView,
   WorkspaceToolView,
@@ -135,6 +138,42 @@ export class WorkspaceService {
     return firstValueFrom(
       this.http.delete<SlackConnectionView>(
         `${this.apiBase}/workspaces/${workspaceId}/addons/slack`,
+      ),
+    );
+  }
+
+  listTeamSlackChannels(teamId: string): Promise<SlackChannelOptionView[]> {
+    return firstValueFrom(
+      this.http.get<{ channels: SlackChannelOptionView[] }>(
+        `${this.apiBase}/teams/${teamId}/addons/slack/channels`,
+      ),
+    ).then((res) => res.channels);
+  }
+
+  getTeamSlackChannel(teamId: string): Promise<TeamSlackChannelView> {
+    return firstValueFrom(
+      this.http.get<TeamSlackChannelView>(
+        `${this.apiBase}/teams/${teamId}/addons/slack/channel`,
+      ),
+    );
+  }
+
+  setTeamSlackChannel(
+    teamId: string,
+    body: SetTeamSlackChannelInput,
+  ): Promise<TeamSlackChannelView> {
+    return firstValueFrom(
+      this.http.put<TeamSlackChannelView>(
+        `${this.apiBase}/teams/${teamId}/addons/slack/channel`,
+        body,
+      ),
+    );
+  }
+
+  clearTeamSlackChannel(teamId: string): Promise<TeamSlackChannelView> {
+    return firstValueFrom(
+      this.http.delete<TeamSlackChannelView>(
+        `${this.apiBase}/teams/${teamId}/addons/slack/channel`,
       ),
     );
   }

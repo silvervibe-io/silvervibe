@@ -56,7 +56,17 @@
     "inviteEmailSent": "E-mail d’invitation envoyé. Vous pouvez encore copier le lien ci-dessous si besoin.",
     "reminderHour": "Heure du rappel",
     "reminderMinute": "Minute du rappel",
-    "reminderHint": "Les e-mails partent en semaine dans une fenêtre de 15 minutes à cette heure locale."
+    "reminderHint": "Les e-mails partent en semaine dans une fenêtre de 15 minutes à cette heure locale.",
+    "slackChannelTitle": "Slack digest channel",
+    "slackChannelHint": "Override the workspace Slack channel for this team’s standup digests. Connect Slack in Workspace admin first.",
+    "slackNotConnected": "Slack is not connected for this workspace.",
+    "slackChannel": "Channel",
+    "slackChannelDefault": "Workspace default",
+    "slackChannelOverride": "Team override",
+    "slackChannelSave": "Save channel",
+    "slackChannelClear": "Use workspace default",
+    "slackChannelSaved": "Slack channel saved for this team.",
+    "slackChannelCleared": "Using workspace Slack channel again."
   },
   "workspace": {
     "title": "Workspace admin",
