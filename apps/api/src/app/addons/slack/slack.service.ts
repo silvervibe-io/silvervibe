@@ -205,9 +205,17 @@ export class SlackService {
       typeof teamChannelsRaw === 'object' &&
       !Array.isArray(teamChannelsRaw)
     ) {
-      for (const [teamId, value] of Object.entries(
+      for (const [rawTeamId, value] of Object.entries(
         teamChannelsRaw as Record<string, unknown>,
       )) {
+        if (
+          rawTeamId === '__proto__' ||
+          rawTeamId === 'constructor' ||
+          rawTeamId === 'prototype' ||
+          !/^[a-z0-9_-]{8,64}$/i.test(rawTeamId)
+        ) {
+          continue;
+        }
         if (!value || typeof value !== 'object' || Array.isArray(value)) {
           continue;
         }
@@ -224,7 +232,13 @@ export class SlackService {
           entry['channelLabel'].trim()
             ? entry['channelLabel'].trim()
             : undefined;
-        teamChannels[teamId] = { channelId, channelLabel };
+        // Assign only after key validation (avoids prototype pollution).
+        Object.defineProperty(teamChannels, rawTeamId, {
+          value: { channelId, channelLabel },
+          writable: true,
+          enumerable: true,
+          configurable: true,
+        });
       }
     }
     return {
@@ -243,19 +257,71 @@ export class SlackService {
     };
   }
 
+  /** Reject prototype-pollution keys and non-id shapes before object writes. */
+  private assertTeamChannelKey(teamId: string): string {
+    const id = teamId.trim();
+    if (
+      id === '__proto__' ||
+      id === 'constructor' ||
+      id === 'prototype' ||
+      !/^[a-z0-9_-]{8,64}$/i.test(id)
+    ) {
+      throw new BadRequestException('Invalid team id');
+    }
+    return id;
+  }
+
+  /**
+   * Rebuild teamChannels via Map so user-controlled ids are never used as
+   * direct property writes (CodeQL remote property injection).
+   */
+  private withTeamChannelEntry(
+    existing: Record<string, TeamSlackChannelMeta> | undefined,
+    teamId: string,
+    entry: TeamSlackChannelMeta | null,
+  ): Record<string, TeamSlackChannelMeta> | undefined {
+    const key = this.assertTeamChannelKey(teamId);
+    const map = new Map<string, TeamSlackChannelMeta>();
+    for (const [rawKey, value] of Object.entries(existing ?? {})) {
+      if (
+        rawKey === '__proto__' ||
+        rawKey === 'constructor' ||
+        rawKey === 'prototype' ||
+        !/^[a-z0-9_-]{8,64}$/i.test(rawKey)
+      ) {
+        continue;
+      }
+      map.set(rawKey, value);
+    }
+    if (entry === null) {
+      map.delete(key);
+    } else {
+      map.set(key, entry);
+    }
+    if (map.size === 0) {
+      return undefined;
+    }
+    return Object.fromEntries(map);
+  }
+
   /** Team override if set; otherwise workspace default from OAuth. */
   resolveChannelForTeam(
     meta: SlackMetadata,
     teamId?: string,
   ): { channelId?: string; channelLabel?: string; isOverride: boolean } {
     if (teamId) {
-      const override = meta.teamChannels?.[teamId];
-      if (override?.channelId) {
-        return {
-          channelId: override.channelId,
-          channelLabel: override.channelLabel,
-          isOverride: true,
-        };
+      try {
+        const key = this.assertTeamChannelKey(teamId);
+        const override = meta.teamChannels?.[key];
+        if (override?.channelId) {
+          return {
+            channelId: override.channelId,
+            channelLabel: override.channelLabel,
+            isOverride: true,
+          };
+        }
+      } catch {
+        // Invalid team id → treat as no override.
       }
     }
     return {
@@ -831,9 +897,11 @@ export class SlackService {
     }
 
     const meta = this.asMetadata(connection.metadataJson);
-    const teamChannels = { ...(meta.teamChannels ?? {}) };
     const channelLabel = body.channelLabel?.trim() || undefined;
-    teamChannels[teamId] = { channelId, channelLabel };
+    const teamChannels = this.withTeamChannelEntry(meta.teamChannels, teamId, {
+      channelId,
+      channelLabel,
+    });
     const nextMeta: SlackMetadata = { ...meta, teamChannels };
 
     await this.prisma.addonConnection.update({
@@ -872,13 +940,16 @@ export class SlackService {
     }
 
     const meta = this.asMetadata(connection.metadataJson);
-    if (meta.teamChannels?.[teamId]) {
-      const teamChannels = { ...meta.teamChannels };
-      delete teamChannels[teamId];
+    const key = this.assertTeamChannelKey(teamId);
+    if (meta.teamChannels?.[key]) {
+      const teamChannels = this.withTeamChannelEntry(
+        meta.teamChannels,
+        teamId,
+        null,
+      );
       const nextMeta: SlackMetadata = {
         ...meta,
-        teamChannels:
-          Object.keys(teamChannels).length > 0 ? teamChannels : undefined,
+        teamChannels,
       };
       await this.prisma.addonConnection.update({
         where: { id: connection.id },
