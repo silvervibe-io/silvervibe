@@ -684,15 +684,22 @@ export class JiraService {
   async listProjectsForTeam(
     teamId: string,
     user: VerifiedUser,
+    cloudId?: string,
   ): Promise<JiraProjectDto[]> {
     this.ensureDb();
     const userId = (await this.users.upsertFromFirebase(user)).id;
     const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
-    return this.fetchProjects(workspaceId);
+    return this.fetchProjects(workspaceId, cloudId);
   }
 
-  private async fetchProjects(workspaceId: string): Promise<JiraProjectDto[]> {
-    const { token, cloudId } = await this.requireCloudContext(workspaceId);
+  private async fetchProjects(
+    workspaceId: string,
+    cloudIdOverride?: string,
+  ): Promise<JiraProjectDto[]> {
+    const { token, cloudId } = await this.requireCloudContext(
+      workspaceId,
+      cloudIdOverride,
+    );
     const data = await this.jiraGet<{
       values?: Array<{ id: string; key: string; name: string }>;
     }>(token, cloudId, '/rest/api/3/project/search?maxResults=50');
@@ -719,16 +726,18 @@ export class JiraService {
     teamId: string,
     user: VerifiedUser,
     projectKey: string,
+    cloudId?: string,
   ): Promise<JiraIssueDto[]> {
     this.ensureDb();
     const userId = (await this.users.upsertFromFirebase(user)).id;
     const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
-    return this.fetchIssues(workspaceId, projectKey);
+    return this.fetchIssues(workspaceId, projectKey, cloudId);
   }
 
   private async fetchIssues(
     workspaceId: string,
     projectKey: string,
+    cloudIdOverride?: string,
   ): Promise<JiraIssueDto[]> {
     const key = projectKey.trim();
     if (!key) {
@@ -740,7 +749,10 @@ export class JiraService {
       throw new BadRequestException('Invalid Jira project key');
     }
 
-    const { token, cloudId } = await this.requireCloudContext(workspaceId);
+    const { token, cloudId } = await this.requireCloudContext(
+      workspaceId,
+      cloudIdOverride,
+    );
     // Escape \ then " for JQL string literals (CodeQL incomplete-escaping).
     const escapedKey = key.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
     const jql = encodeURIComponent(
@@ -1109,8 +1121,16 @@ export class JiraService {
 
   private async requireCloudContext(
     workspaceId: string,
+    cloudIdOverride?: string,
   ): Promise<{ token: string; cloudId: string }> {
     const token = await this.requireFreshAccessToken(workspaceId);
+    const override = cloudIdOverride?.trim();
+    if (override) {
+      if (!/^[a-z0-9-]{8,64}$/i.test(override)) {
+        throw new BadRequestException('Invalid Jira cloud id');
+      }
+      return { token, cloudId: override };
+    }
     const connection = await this.requireConnectedRow(workspaceId);
     const meta = this.asMetadata(connection.metadataJson);
     if (!meta.cloudId) {

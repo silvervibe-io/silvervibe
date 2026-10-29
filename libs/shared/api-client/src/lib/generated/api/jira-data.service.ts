@@ -822,6 +822,16 @@ export class JiraDataService implements JiraDataServiceInterface {
         'Required parameter projectKey was null or undefined when calling jiraControllerListIssuesForTeam.',
       );
     }
+    const cloudId = requestParameters?.cloudId;
+
+    let localVarQueryParameters = new HttpParams({ encoder: this.encoder });
+    if (cloudId !== undefined && cloudId !== null) {
+      localVarQueryParameters = this.addToHttpParams(
+        localVarQueryParameters,
+        <any>cloudId,
+        'cloudId',
+      );
+    }
 
     let localVarHeaders = this.defaultHeaders;
 
@@ -881,6 +891,7 @@ export class JiraDataService implements JiraDataServiceInterface {
       `${this.configuration.basePath}${localVarPath}`,
       {
         context: localVarHttpContext,
+        params: localVarQueryParameters,
         responseType: <any>responseType_,
         withCredentials: this.configuration.withCredentials,
         headers: localVarHeaders,
@@ -1064,6 +1075,16 @@ export class JiraDataService implements JiraDataServiceInterface {
         'Required parameter teamId was null or undefined when calling jiraControllerListProjectsForTeam.',
       );
     }
+    const cloudId = requestParameters?.cloudId;
+
+    let localVarQueryParameters = new HttpParams({ encoder: this.encoder });
+    if (cloudId !== undefined && cloudId !== null) {
+      localVarQueryParameters = this.addToHttpParams(
+        localVarQueryParameters,
+        <any>cloudId,
+        'cloudId',
+      );
+    }
 
     let localVarHeaders = this.defaultHeaders;
 
@@ -1123,6 +1144,7 @@ export class JiraDataService implements JiraDataServiceInterface {
       `${this.configuration.basePath}${localVarPath}`,
       {
         context: localVarHttpContext,
+        params: localVarQueryParameters,
         responseType: <any>responseType_,
         withCredentials: this.configuration.withCredentials,
         headers: localVarHeaders,

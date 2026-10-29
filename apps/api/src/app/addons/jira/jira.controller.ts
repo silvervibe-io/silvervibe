@@ -14,6 +14,7 @@ import {
   ApiForbiddenResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -202,14 +203,24 @@ export class JiraController {
   @UseGuards(FirebaseAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'List Jira projects for per-team digest picker' })
+  @ApiQuery({
+    name: 'cloudId',
+    required: false,
+    description: 'Atlassian cloud id; defaults to workspace site',
+  })
   @ApiOkResponse({ type: JiraProjectDto, isArray: true })
   @ApiUnauthorizedResponse()
   @ApiForbiddenResponse()
   listProjectsForTeam(
     @Param('teamId') teamId: string,
     @CurrentUser() user: VerifiedUser,
+    @Query('cloudId') cloudId?: string | string[],
   ): Promise<JiraProjectDto[]> {
-    return this.jira.listProjectsForTeam(teamId, user);
+    return this.jira.listProjectsForTeam(
+      teamId,
+      user,
+      this.singleQuery(cloudId),
+    );
   }
 
   @Get('teams/:teamId/addons/jira/projects/:projectKey/issues')
@@ -218,6 +229,11 @@ export class JiraController {
   @ApiOperation({
     summary: 'List Jira issues for per-team digest picker',
   })
+  @ApiQuery({
+    name: 'cloudId',
+    required: false,
+    description: 'Atlassian cloud id; defaults to workspace site',
+  })
   @ApiOkResponse({ type: JiraIssueDto, isArray: true })
   @ApiUnauthorizedResponse()
   @ApiForbiddenResponse()
@@ -225,8 +241,14 @@ export class JiraController {
     @Param('teamId') teamId: string,
     @Param('projectKey') projectKey: string,
     @CurrentUser() user: VerifiedUser,
+    @Query('cloudId') cloudId?: string | string[],
   ): Promise<JiraIssueDto[]> {
-    return this.jira.listIssuesForTeam(teamId, user, projectKey);
+    return this.jira.listIssuesForTeam(
+      teamId,
+      user,
+      projectKey,
+      this.singleQuery(cloudId),
+    );
   }
 
   @Get('teams/:teamId/addons/jira/target')

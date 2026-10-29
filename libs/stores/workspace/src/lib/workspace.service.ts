@@ -293,10 +293,24 @@ export class WorkspaceService {
     );
   }
 
-  listTeamJiraProjects(teamId: string): Promise<JiraProjectView[]> {
+  listTeamJiraSites(teamId: string): Promise<JiraSiteView[]> {
+    return firstValueFrom(
+      this.http.get<JiraSiteView[]>(
+        `${this.apiBase}/teams/${teamId}/addons/jira/sites`,
+      ),
+    );
+  }
+
+  listTeamJiraProjects(
+    teamId: string,
+    cloudId?: string,
+  ): Promise<JiraProjectView[]> {
+    const params = cloudId?.trim()
+      ? `?cloudId=${encodeURIComponent(cloudId.trim())}`
+      : '';
     return firstValueFrom(
       this.http.get<JiraProjectView[]>(
-        `${this.apiBase}/teams/${teamId}/addons/jira/projects`,
+        `${this.apiBase}/teams/${teamId}/addons/jira/projects${params}`,
       ),
     );
   }
@@ -304,10 +318,14 @@ export class WorkspaceService {
   listTeamJiraIssues(
     teamId: string,
     projectKey: string,
+    cloudId?: string,
   ): Promise<JiraIssueView[]> {
+    const params = cloudId?.trim()
+      ? `?cloudId=${encodeURIComponent(cloudId.trim())}`
+      : '';
     return firstValueFrom(
       this.http.get<JiraIssueView[]>(
-        `${this.apiBase}/teams/${teamId}/addons/jira/projects/${encodeURIComponent(projectKey)}/issues`,
+        `${this.apiBase}/teams/${teamId}/addons/jira/projects/${encodeURIComponent(projectKey)}/issues${params}`,
       ),
     );
   }

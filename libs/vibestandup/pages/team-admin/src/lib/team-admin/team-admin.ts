@@ -26,6 +26,7 @@ import {
   type GithubRepoView,
   type JiraIssueView,
   type JiraProjectView,
+  type JiraSiteView,
   type LinearProjectView,
   type SlackChannelOptionView,
   type TeamGithubTargetView,
@@ -93,10 +94,12 @@ export class TeamAdmin implements OnInit {
   readonly selectedGithubIssue = signal('');
 
   readonly jiraTarget = signal<TeamJiraTargetView | null>(null);
+  readonly jiraSites = signal<JiraSiteView[]>([]);
   readonly jiraProjects = signal<JiraProjectView[]>([]);
   readonly jiraIssues = signal<JiraIssueView[]>([]);
   readonly jiraTargetError = signal<string | null>(null);
   readonly jiraTargetSaving = signal(false);
+  readonly selectedJiraCloudId = signal('');
   readonly selectedJiraProject = signal('');
   readonly selectedJiraIssue = signal('');
 
@@ -447,30 +450,68 @@ export class TeamAdmin implements OnInit {
     try {
       const target = await this.workspaces.getTeamJiraTarget(teamId);
       this.jiraTarget.set(target);
+      const cloudId = target.cloudId ?? target.workspaceCloudId ?? '';
+      this.selectedJiraCloudId.set(cloudId);
       this.selectedJiraProject.set(target.projectKey ?? '');
       this.selectedJiraIssue.set(target.issueKey ?? '');
       if (target.jiraConnected) {
-        const projects = await this.workspaces.listTeamJiraProjects(teamId);
-        this.jiraProjects.set(projects);
-        if (target.projectKey) {
-          const issues = await this.workspaces.listTeamJiraIssues(
+        const sites = await this.workspaces.listTeamJiraSites(teamId);
+        this.jiraSites.set(sites);
+        if (cloudId) {
+          const projects = await this.workspaces.listTeamJiraProjects(
             teamId,
-            target.projectKey,
+            cloudId,
           );
-          this.jiraIssues.set(issues);
+          this.jiraProjects.set(projects);
+          if (target.projectKey) {
+            const issues = await this.workspaces.listTeamJiraIssues(
+              teamId,
+              target.projectKey,
+              cloudId,
+            );
+            this.jiraIssues.set(issues);
+          } else {
+            this.jiraIssues.set([]);
+          }
         } else {
+          this.jiraProjects.set([]);
           this.jiraIssues.set([]);
         }
       } else {
+        this.jiraSites.set([]);
         this.jiraProjects.set([]);
         this.jiraIssues.set([]);
       }
     } catch (err: unknown) {
       this.jiraTarget.set(null);
+      this.jiraSites.set([]);
       this.jiraProjects.set([]);
       this.jiraIssues.set([]);
       this.jiraTargetError.set(
         err instanceof Error ? err.message : 'Jira target unavailable',
+      );
+    }
+  }
+
+  async onJiraSiteChange(cloudId: string): Promise<void> {
+    this.selectedJiraCloudId.set(cloudId);
+    this.selectedJiraProject.set('');
+    this.selectedJiraIssue.set('');
+    this.jiraProjects.set([]);
+    this.jiraIssues.set([]);
+    const teamId = this.selectedTeamId();
+    if (!teamId || !cloudId.trim()) {
+      return;
+    }
+    try {
+      const projects = await this.workspaces.listTeamJiraProjects(
+        teamId,
+        cloudId.trim(),
+      );
+      this.jiraProjects.set(projects);
+    } catch (err: unknown) {
+      this.jiraTargetError.set(
+        err instanceof Error ? err.message : 'Could not load Jira projects',
       );
     }
   }
@@ -480,13 +521,15 @@ export class TeamAdmin implements OnInit {
     this.selectedJiraIssue.set('');
     this.jiraIssues.set([]);
     const teamId = this.selectedTeamId();
-    if (!teamId || !projectKey.trim()) {
+    const cloudId = this.selectedJiraCloudId().trim();
+    if (!teamId || !projectKey.trim() || !cloudId) {
       return;
     }
     try {
       const issues = await this.workspaces.listTeamJiraIssues(
         teamId,
         projectKey.trim(),
+        cloudId,
       );
       this.jiraIssues.set(issues);
     } catch (err: unknown) {
@@ -498,11 +541,9 @@ export class TeamAdmin implements OnInit {
 
   async saveJiraTarget(): Promise<void> {
     const teamId = this.selectedTeamId();
-    const target = this.jiraTarget();
     const projectKey = this.selectedJiraProject().trim();
     const issueKey = this.selectedJiraIssue().trim();
-    const cloudId =
-      target?.cloudId?.trim() || target?.workspaceCloudId?.trim() || '';
+    const cloudId = this.selectedJiraCloudId().trim();
     if (!teamId || !cloudId || !projectKey || !issueKey) {
       return;
     }
@@ -515,6 +556,7 @@ export class TeamAdmin implements OnInit {
         issueKey,
       });
       this.jiraTarget.set(next);
+      this.selectedJiraCloudId.set(next.cloudId ?? '');
       this.selectedJiraProject.set(next.projectKey ?? '');
       this.selectedJiraIssue.set(next.issueKey ?? '');
       this.message.set('standup.team.jiraTargetSaved');
@@ -537,9 +579,27 @@ export class TeamAdmin implements OnInit {
     try {
       const next = await this.workspaces.clearTeamJiraTarget(teamId);
       this.jiraTarget.set(next);
+      this.selectedJiraCloudId.set(next.cloudId ?? next.workspaceCloudId ?? '');
       this.selectedJiraProject.set(next.projectKey ?? '');
       this.selectedJiraIssue.set(next.issueKey ?? '');
       this.message.set('standup.team.jiraTargetCleared');
+      if (teamId && this.selectedJiraCloudId()) {
+        const projects = await this.workspaces.listTeamJiraProjects(
+          teamId,
+          this.selectedJiraCloudId(),
+        );
+        this.jiraProjects.set(projects);
+        if (next.projectKey) {
+          const issues = await this.workspaces.listTeamJiraIssues(
+            teamId,
+            next.projectKey,
+            this.selectedJiraCloudId(),
+          );
+          this.jiraIssues.set(issues);
+        } else {
+          this.jiraIssues.set([]);
+        }
+      }
     } catch (err: unknown) {
       this.jiraTargetError.set(
         err instanceof Error ? err.message : 'Could not clear Jira target',

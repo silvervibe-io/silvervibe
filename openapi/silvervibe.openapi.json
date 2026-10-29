@@ -3013,6 +3013,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "cloudId",
+            "required": false,
+            "in": "query",
+            "description": "Atlassian cloud id; defaults to workspace site",
+            "schema": {}
           }
         ],
         "responses": {
@@ -3066,6 +3073,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "cloudId",
+            "required": false,
+            "in": "query",
+            "description": "Atlassian cloud id; defaults to workspace site",
+            "schema": {}
           }
         ],
         "responses": {

@@ -1,9 +1,8 @@
 /**
  * Tree-shakeable re-exports of OpenAPI *DataService classes.
  *
- * OpenAPI Generator normally emits side-effect imports + an `APIS` array that
- * keeps every service alive. `tools/generate-api-client.mjs` rewrites this file
- * after each generation so unused services can drop out of app bundles.
+ * OpenAPI Generator normally emits side-effect imports + an `APIS` array
+ * that keeps every service alive. Rewritten by generate-api-client.mjs.
  */
 export * from './auth-data.service';
 export * from './auth-data.serviceInterface';
