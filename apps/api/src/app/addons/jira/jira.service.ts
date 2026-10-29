@@ -8,6 +8,7 @@ import {
 import {
   AddonConnectionStatus,
   AddonProvider,
+  TeamRole,
   WorkspaceRole,
 } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
@@ -16,7 +17,7 @@ import { VerifiedUser } from '../../auth/firebase-auth.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsersService } from '../../users/users.service';
 import { AddonStatusDto } from '../addon-status.dto';
-import { readTeamTargetEntry } from '../team-target-meta';
+import { readTeamTargetEntry, withTeamTargetEntry } from '../team-target-meta';
 import {
   JiraConnectionDto,
   JiraIssueDto,
@@ -25,6 +26,8 @@ import {
   JiraSiteDto,
   SelectJiraSiteDto,
   SelectJiraTargetDto,
+  SetTeamJiraTargetDto,
+  TeamJiraTargetDto,
 } from './jira.dto';
 
 type JiraTeamTarget = {
@@ -176,6 +179,42 @@ export class JiraService {
     ) {
       throw new ForbiddenException('Workspace admin required');
     }
+  }
+
+  private async requireTeamAdmin(
+    teamId: string,
+    userId: string,
+  ): Promise<{ workspaceId: string }> {
+    const membership = await this.prisma.teamMember.findUnique({
+      where: { teamId_userId: { teamId, userId } },
+      include: { team: { select: { workspaceId: true } } },
+    });
+    if (membership) {
+      if (membership.role !== TeamRole.ADMIN) {
+        throw new ForbiddenException('Team admin required');
+      }
+      return { workspaceId: membership.team.workspaceId };
+    }
+
+    const team = await this.prisma.team.findUnique({
+      where: { id: teamId },
+      select: { workspaceId: true },
+    });
+    if (!team) {
+      throw new ForbiddenException('Not a member of this team');
+    }
+    const ws = await this.prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: { workspaceId: team.workspaceId, userId },
+      },
+    });
+    if (
+      ws &&
+      (ws.role === WorkspaceRole.OWNER || ws.role === WorkspaceRole.ADMIN)
+    ) {
+      return { workspaceId: team.workspaceId };
+    }
+    throw new ForbiddenException('Team admin required');
   }
 
   private asMetadata(raw: unknown): JiraMetadata {
@@ -570,6 +609,20 @@ export class JiraService {
     this.ensureDb();
     const userId = (await this.users.upsertFromFirebase(user)).id;
     await this.requireWorkspaceAdmin(workspaceId, userId);
+    return this.fetchSites(workspaceId);
+  }
+
+  async listSitesForTeam(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<JiraSiteDto[]> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+    return this.fetchSites(workspaceId);
+  }
+
+  private async fetchSites(workspaceId: string): Promise<JiraSiteDto[]> {
     const token = await this.requireFreshAccessToken(workspaceId);
     const sites = await this.fetchAccessibleResources(token);
     return sites.map((s) => ({
@@ -625,7 +678,20 @@ export class JiraService {
     this.ensureDb();
     const userId = (await this.users.upsertFromFirebase(user)).id;
     await this.requireWorkspaceAdmin(workspaceId, userId);
+    return this.fetchProjects(workspaceId);
+  }
 
+  async listProjectsForTeam(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<JiraProjectDto[]> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+    return this.fetchProjects(workspaceId);
+  }
+
+  private async fetchProjects(workspaceId: string): Promise<JiraProjectDto[]> {
     const { token, cloudId } = await this.requireCloudContext(workspaceId);
     const data = await this.jiraGet<{
       values?: Array<{ id: string; key: string; name: string }>;
@@ -646,7 +712,24 @@ export class JiraService {
     this.ensureDb();
     const userId = (await this.users.upsertFromFirebase(user)).id;
     await this.requireWorkspaceAdmin(workspaceId, userId);
+    return this.fetchIssues(workspaceId, projectKey);
+  }
 
+  async listIssuesForTeam(
+    teamId: string,
+    user: VerifiedUser,
+    projectKey: string,
+  ): Promise<JiraIssueDto[]> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+    return this.fetchIssues(workspaceId, projectKey);
+  }
+
+  private async fetchIssues(
+    workspaceId: string,
+    projectKey: string,
+  ): Promise<JiraIssueDto[]> {
     const key = projectKey.trim();
     if (!key) {
       throw new BadRequestException('projectKey is required');
@@ -729,6 +812,137 @@ export class JiraService {
     });
 
     return this.getConnection(workspaceId, user);
+  }
+
+  async getTeamTarget(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<TeamJiraTargetDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+
+    const connection = await this.prisma.addonConnection.findUnique({
+      where: {
+        workspaceId_provider: {
+          workspaceId,
+          provider: AddonProvider.JIRA,
+        },
+      },
+    });
+    const meta = this.asMetadata(connection?.metadataJson);
+    const connected =
+      connection?.status === AddonConnectionStatus.CONNECTED &&
+      Boolean(connection.secretsRef?.trim());
+    const resolved = this.resolveIssueForTeam(meta, teamId);
+    return {
+      cloudId: resolved.cloudId ?? null,
+      siteName: resolved.siteName ?? null,
+      projectKey: resolved.projectKey ?? null,
+      issueKey: resolved.issueKey ?? null,
+      issueSummary: resolved.issueSummary ?? null,
+      isOverride: resolved.isOverride,
+      workspaceCloudId: meta.cloudId ?? null,
+      workspaceSiteName: meta.siteName ?? null,
+      workspaceProjectKey: meta.projectKey ?? null,
+      workspaceIssueKey: meta.issueKey ?? null,
+      workspaceIssueSummary: meta.issueSummary ?? null,
+      jiraConnected: connected,
+    };
+  }
+
+  async setTeamTarget(
+    teamId: string,
+    user: VerifiedUser,
+    body: SetTeamJiraTargetDto,
+  ): Promise<TeamJiraTargetDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+
+    const cloudId = body.cloudId.trim();
+    const projectKey = body.projectKey.trim();
+    const issueKey = body.issueKey.trim();
+    const token = await this.requireFreshAccessToken(workspaceId);
+
+    const issue = await this.jiraGet<{
+      key: string;
+      fields?: { summary?: string; project?: { key?: string; name?: string } };
+    }>(
+      token,
+      cloudId,
+      `/rest/api/3/issue/${encodeURIComponent(issueKey)}?fields=summary,project`,
+    );
+    if (!issue?.key) {
+      throw new BadRequestException('Jira issue not found');
+    }
+
+    const connection = await this.requireConnectedRow(workspaceId);
+    const meta = this.asMetadata(connection.metadataJson);
+    const sites = await this.fetchAccessibleResources(token);
+    const site = sites.find((s) => s.id === cloudId);
+
+    const teamTargets = withTeamTargetEntry(meta.teamTargets, teamId, {
+      cloudId,
+      siteName: site?.name ?? meta.siteName,
+      projectKey: issue.fields?.project?.key ?? projectKey,
+      issueKey: issue.key,
+      issueSummary: issue.fields?.summary,
+    });
+    const nextMeta: JiraMetadata = { ...meta, teamTargets };
+
+    await this.prisma.addonConnection.update({
+      where: { id: connection.id },
+      data: { metadataJson: nextMeta },
+    });
+
+    return this.getTeamTarget(teamId, user);
+  }
+
+  async clearTeamTarget(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<TeamJiraTargetDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+
+    const connection = await this.prisma.addonConnection.findUnique({
+      where: {
+        workspaceId_provider: {
+          workspaceId,
+          provider: AddonProvider.JIRA,
+        },
+      },
+    });
+    if (!connection) {
+      return {
+        cloudId: null,
+        siteName: null,
+        projectKey: null,
+        issueKey: null,
+        issueSummary: null,
+        isOverride: false,
+        workspaceCloudId: null,
+        workspaceSiteName: null,
+        workspaceProjectKey: null,
+        workspaceIssueKey: null,
+        workspaceIssueSummary: null,
+        jiraConnected: false,
+      };
+    }
+
+    const meta = this.asMetadata(connection.metadataJson);
+    if (readTeamTargetEntry(meta.teamTargets, teamId)) {
+      const teamTargets = withTeamTargetEntry(meta.teamTargets, teamId, null);
+      const nextMeta: JiraMetadata = { ...meta, teamTargets };
+      await this.prisma.addonConnection.update({
+        where: { id: connection.id },
+        data: { metadataJson: nextMeta },
+      });
+    }
+
+    return this.getTeamTarget(teamId, user);
   }
 
   async disconnect(

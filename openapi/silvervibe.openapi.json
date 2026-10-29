@@ -1851,6 +1851,183 @@
         ]
       }
     },
+    "/api/teams/{teamId}/addons/linear/projects": {
+      "get": {
+        "operationId": "LinearController_listProjectsForTeam",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LinearProjectDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List Linear projects for per-team digest picker",
+        "tags": [
+          "linear"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/addons/linear/project": {
+      "get": {
+        "operationId": "LinearController_getTeamProject",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamLinearProjectDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get effective Linear digest project for a team",
+        "tags": [
+          "linear"
+        ]
+      },
+      "put": {
+        "operationId": "LinearController_setTeamProject",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetTeamLinearProjectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamLinearProjectDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Set Linear project override for a team",
+        "tags": [
+          "linear"
+        ]
+      },
+      "delete": {
+        "operationId": "LinearController_clearTeamProject",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamLinearProjectDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Clear team Linear project override (use workspace default)",
+        "tags": [
+          "linear"
+        ]
+      }
+    },
     "/api/addons/github/status": {
       "get": {
         "operationId": "GithubController_status",
@@ -2165,6 +2342,244 @@
           }
         ],
         "summary": "Select GitHub repo + issue for standup digest comments",
+        "tags": [
+          "github"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/addons/github/repos": {
+      "get": {
+        "operationId": "GithubController_listReposForTeam",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GithubRepoDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List GitHub repos for per-team digest picker",
+        "tags": [
+          "github"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/addons/github/repos/{owner}/{repo}/issues": {
+      "get": {
+        "operationId": "GithubController_listIssuesForTeam",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "owner",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GithubIssueDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List open issues for per-team GitHub digest picker",
+        "tags": [
+          "github"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/addons/github/target": {
+      "get": {
+        "operationId": "GithubController_getTeamTarget",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamGithubTargetDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get effective GitHub digest target for a team",
+        "tags": [
+          "github"
+        ]
+      },
+      "put": {
+        "operationId": "GithubController_setTeamTarget",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetTeamGithubTargetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamGithubTargetDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Set GitHub digest target override for a team",
+        "tags": [
+          "github"
+        ]
+      },
+      "delete": {
+        "operationId": "GithubController_clearTeamTarget",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamGithubTargetDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Clear team GitHub target override (use workspace default)",
         "tags": [
           "github"
         ]
@@ -2537,6 +2952,281 @@
           }
         ],
         "summary": "Select Jira issue for standup digest comments",
+        "tags": [
+          "jira"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/addons/jira/sites": {
+      "get": {
+        "operationId": "JiraController_listSitesForTeam",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/JiraSiteDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List Jira sites for per-team digest picker",
+        "tags": [
+          "jira"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/addons/jira/projects": {
+      "get": {
+        "operationId": "JiraController_listProjectsForTeam",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/JiraProjectDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List Jira projects for per-team digest picker",
+        "tags": [
+          "jira"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/addons/jira/projects/{projectKey}/issues": {
+      "get": {
+        "operationId": "JiraController_listIssuesForTeam",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectKey",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/JiraIssueDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List Jira issues for per-team digest picker",
+        "tags": [
+          "jira"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/addons/jira/target": {
+      "get": {
+        "operationId": "JiraController_getTeamTarget",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamJiraTargetDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get effective Jira digest target for a team",
+        "tags": [
+          "jira"
+        ]
+      },
+      "put": {
+        "operationId": "JiraController_setTeamTarget",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetTeamJiraTargetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamJiraTargetDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Set Jira digest target override for a team",
+        "tags": [
+          "jira"
+        ]
+      },
+      "delete": {
+        "operationId": "JiraController_clearTeamTarget",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamJiraTargetDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Clear team Jira target override (use workspace default)",
         "tags": [
           "jira"
         ]
@@ -3498,6 +4188,56 @@
           "projectId"
         ]
       },
+      "TeamLinearProjectDto": {
+        "type": "object",
+        "properties": {
+          "projectId": {
+            "type": "object",
+            "description": "Effective Linear project for this team (override or workspace default)",
+            "nullable": true
+          },
+          "projectName": {
+            "type": "object",
+            "nullable": true
+          },
+          "isOverride": {
+            "type": "boolean",
+            "description": "True when this team has an override (not using workspace default)"
+          },
+          "workspaceProjectId": {
+            "type": "object",
+            "description": "Workspace default project from Connect Linear",
+            "nullable": true
+          },
+          "workspaceProjectName": {
+            "type": "object",
+            "nullable": true
+          },
+          "linearConnected": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "projectId",
+          "projectName",
+          "isOverride",
+          "workspaceProjectId",
+          "workspaceProjectName",
+          "linearConnected"
+        ]
+      },
+      "SetTeamLinearProjectDto": {
+        "type": "object",
+        "properties": {
+          "projectId": {
+            "type": "string",
+            "description": "Linear project UUID for this team’s digests"
+          }
+        },
+        "required": [
+          "projectId"
+        ]
+      },
       "GithubConnectionDto": {
         "type": "object",
         "properties": {
@@ -3593,6 +4333,84 @@
         ]
       },
       "SelectGithubTargetDto": {
+        "type": "object",
+        "properties": {
+          "owner": {
+            "type": "string",
+            "description": "Repository owner (user or org login)"
+          },
+          "repo": {
+            "type": "string",
+            "description": "Repository name"
+          },
+          "issueNumber": {
+            "type": "number",
+            "description": "Issue number that receives standup digest comments"
+          }
+        },
+        "required": [
+          "owner",
+          "repo",
+          "issueNumber"
+        ]
+      },
+      "TeamGithubTargetDto": {
+        "type": "object",
+        "properties": {
+          "owner": {
+            "type": "object",
+            "nullable": true
+          },
+          "repo": {
+            "type": "object",
+            "nullable": true
+          },
+          "issueNumber": {
+            "type": "object",
+            "nullable": true
+          },
+          "issueTitle": {
+            "type": "object",
+            "nullable": true
+          },
+          "isOverride": {
+            "type": "boolean",
+            "description": "True when this team has an override (not using workspace default)"
+          },
+          "workspaceOwner": {
+            "type": "object",
+            "nullable": true
+          },
+          "workspaceRepo": {
+            "type": "object",
+            "nullable": true
+          },
+          "workspaceIssueNumber": {
+            "type": "object",
+            "nullable": true
+          },
+          "workspaceIssueTitle": {
+            "type": "object",
+            "nullable": true
+          },
+          "githubConnected": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "owner",
+          "repo",
+          "issueNumber",
+          "issueTitle",
+          "isOverride",
+          "workspaceOwner",
+          "workspaceRepo",
+          "workspaceIssueNumber",
+          "workspaceIssueTitle",
+          "githubConnected"
+        ]
+      },
+      "SetTeamGithubTargetDto": {
         "type": "object",
         "properties": {
           "owner": {
@@ -3743,6 +4561,94 @@
         ]
       },
       "SelectJiraTargetDto": {
+        "type": "object",
+        "properties": {
+          "cloudId": {
+            "type": "string",
+            "description": "Atlassian cloud id (site)"
+          },
+          "projectKey": {
+            "type": "string",
+            "description": "Jira project key, e.g. ENG"
+          },
+          "issueKey": {
+            "type": "string",
+            "description": "Issue key for digest comments, e.g. ENG-12"
+          }
+        },
+        "required": [
+          "cloudId",
+          "projectKey",
+          "issueKey"
+        ]
+      },
+      "TeamJiraTargetDto": {
+        "type": "object",
+        "properties": {
+          "cloudId": {
+            "type": "object",
+            "nullable": true
+          },
+          "siteName": {
+            "type": "object",
+            "nullable": true
+          },
+          "projectKey": {
+            "type": "object",
+            "nullable": true
+          },
+          "issueKey": {
+            "type": "object",
+            "nullable": true
+          },
+          "issueSummary": {
+            "type": "object",
+            "nullable": true
+          },
+          "isOverride": {
+            "type": "boolean",
+            "description": "True when this team has an override (not using workspace default)"
+          },
+          "workspaceCloudId": {
+            "type": "object",
+            "nullable": true
+          },
+          "workspaceSiteName": {
+            "type": "object",
+            "nullable": true
+          },
+          "workspaceProjectKey": {
+            "type": "object",
+            "nullable": true
+          },
+          "workspaceIssueKey": {
+            "type": "object",
+            "nullable": true
+          },
+          "workspaceIssueSummary": {
+            "type": "object",
+            "nullable": true
+          },
+          "jiraConnected": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "cloudId",
+          "siteName",
+          "projectKey",
+          "issueKey",
+          "issueSummary",
+          "isOverride",
+          "workspaceCloudId",
+          "workspaceSiteName",
+          "workspaceProjectKey",
+          "workspaceIssueKey",
+          "workspaceIssueSummary",
+          "jiraConnected"
+        ]
+      },
+      "SetTeamJiraTargetDto": {
         "type": "object",
         "properties": {
           "cloudId": {

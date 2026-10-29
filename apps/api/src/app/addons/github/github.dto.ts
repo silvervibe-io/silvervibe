@@ -80,3 +80,59 @@ export class SelectGithubTargetDto {
   @Min(1)
   issueNumber!: number;
 }
+
+export class TeamGithubTargetDto {
+  @ApiProperty({ nullable: true })
+  owner!: string | null;
+
+  @ApiProperty({ nullable: true })
+  repo!: string | null;
+
+  @ApiProperty({ nullable: true })
+  issueNumber!: number | null;
+
+  @ApiProperty({ nullable: true })
+  issueTitle!: string | null;
+
+  @ApiProperty({
+    description:
+      'True when this team has an override (not using workspace default)',
+  })
+  isOverride!: boolean;
+
+  @ApiProperty({ nullable: true })
+  workspaceOwner!: string | null;
+
+  @ApiProperty({ nullable: true })
+  workspaceRepo!: string | null;
+
+  @ApiProperty({ nullable: true })
+  workspaceIssueNumber!: number | null;
+
+  @ApiProperty({ nullable: true })
+  workspaceIssueTitle!: string | null;
+
+  @ApiProperty()
+  githubConnected!: boolean;
+}
+
+export class SetTeamGithubTargetDto {
+  @ApiProperty({ description: 'Repository owner (user or org login)' })
+  @IsString()
+  @MinLength(1)
+  @MaxLength(100)
+  owner!: string;
+
+  @ApiProperty({ description: 'Repository name' })
+  @IsString()
+  @MinLength(1)
+  @MaxLength(100)
+  repo!: string;
+
+  @ApiProperty({
+    description: 'Issue number that receives standup digest comments',
+  })
+  @IsInt()
+  @Min(1)
+  issueNumber!: number;
+}

@@ -1,6 +1,7 @@
 import {
   AddonConnectionStatus,
   AddonProvider,
+  TeamRole,
   WorkspaceRole,
 } from '@prisma/client';
 import { VerifiedUser } from '../../auth/firebase-auth.service';
@@ -184,5 +185,136 @@ describe('LinearService', () => {
       variables: { input: { projectId: string } };
     };
     expect(body.variables.input.projectId).toBe('team-proj');
+  });
+
+  it('sets and clears a team Linear project override', async () => {
+    const update = jest.fn().mockResolvedValue({});
+    const findUnique = jest
+      .fn()
+      .mockResolvedValueOnce({
+        // getTeamProject after set — connection with override
+        id: 'conn1',
+        status: AddonConnectionStatus.CONNECTED,
+        secretsRef: 'lin_oauth_token',
+        metadataJson: {
+          projectId: 'workspace-proj',
+          projectName: 'Workspace',
+          teamTargets: {
+            team1abcd: { projectId: 'team-proj', projectName: 'Team proj' },
+          },
+          accessExpiresAt: Date.now() + 60 * 60 * 1000,
+        },
+        provider: AddonProvider.LINEAR,
+      })
+      .mockResolvedValue({
+        id: 'conn1',
+        status: AddonConnectionStatus.CONNECTED,
+        secretsRef: 'lin_oauth_token',
+        metadataJson: {
+          projectId: 'workspace-proj',
+          projectName: 'Workspace',
+          accessExpiresAt: Date.now() + 60 * 60 * 1000,
+        },
+        provider: AddonProvider.LINEAR,
+      });
+
+    // Sequence for setTeamProject: requireFreshAccessToken connection,
+    // then find connection to write, then getTeamProject.
+    const connectionFind = jest.fn();
+    let findCalls = 0;
+    connectionFind.mockImplementation(() => {
+      findCalls += 1;
+      if (findCalls <= 2) {
+        return Promise.resolve({
+          id: 'conn1',
+          status: AddonConnectionStatus.CONNECTED,
+          secretsRef: 'lin_oauth_token',
+          metadataJson: {
+            projectId: 'workspace-proj',
+            projectName: 'Workspace',
+            accessExpiresAt: Date.now() + 60 * 60 * 1000,
+          },
+          provider: AddonProvider.LINEAR,
+        });
+      }
+      return findUnique();
+    });
+
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: { project: { id: 'team-proj', name: 'Team proj' } },
+      }),
+    });
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const service = new LinearService(
+      {
+        isEnabled: () => true,
+        teamMember: {
+          findUnique: jest.fn().mockResolvedValue({
+            role: TeamRole.ADMIN,
+            team: { workspaceId: 'ws1' },
+          }),
+        },
+        addonConnection: {
+          findUnique: connectionFind,
+          update,
+        },
+      } as unknown as PrismaService,
+      {
+        upsertFromFirebase: jest.fn().mockResolvedValue({ id: 'user1' }),
+      } as unknown as UsersService,
+    );
+
+    const setResult = await service.setTeamProject('team1abcd', admin, {
+      projectId: 'team-proj',
+    });
+    expect(setResult.isOverride).toBe(true);
+    expect(setResult.projectId).toBe('team-proj');
+    expect(update).toHaveBeenCalled();
+    const written = update.mock.calls[0][0].data.metadataJson as {
+      teamTargets?: Record<string, { projectId: string }>;
+    };
+    expect(written.teamTargets?.['team1abcd']?.projectId).toBe('team-proj');
+
+    // Reset for clear: connection with override, then get after clear.
+    findCalls = 0;
+    connectionFind.mockImplementation(() => {
+      findCalls += 1;
+      if (findCalls === 1) {
+        return Promise.resolve({
+          id: 'conn1',
+          status: AddonConnectionStatus.CONNECTED,
+          secretsRef: 'lin_oauth_token',
+          metadataJson: {
+            projectId: 'workspace-proj',
+            projectName: 'Workspace',
+            teamTargets: {
+              team1abcd: { projectId: 'team-proj', projectName: 'Team proj' },
+            },
+          },
+          provider: AddonProvider.LINEAR,
+        });
+      }
+      return Promise.resolve({
+        id: 'conn1',
+        status: AddonConnectionStatus.CONNECTED,
+        secretsRef: 'lin_oauth_token',
+        metadataJson: {
+          projectId: 'workspace-proj',
+          projectName: 'Workspace',
+        },
+        provider: AddonProvider.LINEAR,
+      });
+    });
+
+    const cleared = await service.clearTeamProject('team1abcd', admin);
+    expect(cleared.isOverride).toBe(false);
+    expect(cleared.projectId).toBe('workspace-proj');
+    const clearedMeta = update.mock.calls[1][0].data.metadataJson as {
+      teamTargets?: Record<string, unknown>;
+    };
+    expect(clearedMeta.teamTargets).toBeUndefined();
   });
 });

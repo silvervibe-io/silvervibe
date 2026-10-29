@@ -19,8 +19,14 @@ import { GithubIssueDto } from '../model/models';
 import { GithubOAuthStartDto } from '../model/models';
 import { GithubRepoDto } from '../model/models';
 import { SelectGithubTargetDto } from '../model/models';
+import { SetTeamGithubTargetDto } from '../model/models';
+import { TeamGithubTargetDto } from '../model/models';
 
 import { Configuration } from '../configuration';
+
+export interface GithubControllerClearTeamTargetRequestParams {
+  teamId: string;
+}
 
 export interface GithubControllerDisconnectRequestParams {
   workspaceId: string;
@@ -30,8 +36,18 @@ export interface GithubControllerGetConnectionRequestParams {
   workspaceId: string;
 }
 
+export interface GithubControllerGetTeamTargetRequestParams {
+  teamId: string;
+}
+
 export interface GithubControllerListIssuesRequestParams {
   workspaceId: string;
+  owner: string;
+  repo: string;
+}
+
+export interface GithubControllerListIssuesForTeamRequestParams {
+  teamId: string;
   owner: string;
   repo: string;
 }
@@ -40,9 +56,18 @@ export interface GithubControllerListReposRequestParams {
   workspaceId: string;
 }
 
+export interface GithubControllerListReposForTeamRequestParams {
+  teamId: string;
+}
+
 export interface GithubControllerSelectTargetRequestParams {
   workspaceId: string;
   selectGithubTargetDto: SelectGithubTargetDto;
+}
+
+export interface GithubControllerSetTeamTargetRequestParams {
+  teamId: string;
+  setTeamGithubTargetDto: SetTeamGithubTargetDto;
 }
 
 export interface GithubControllerStartOAuthRequestParams {
@@ -52,6 +77,16 @@ export interface GithubControllerStartOAuthRequestParams {
 export interface GithubDataServiceInterface {
   defaultHeaders: HttpHeaders;
   configuration: Configuration;
+
+  /**
+   * Clear team GitHub target override (use workspace default)
+   *
+   * @param requestParameters
+   */
+  githubControllerClearTeamTarget(
+    requestParameters: GithubControllerClearTeamTargetRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<TeamGithubTargetDto>;
 
   /**
    * Disconnect GitHub (clears OAuth token)
@@ -74,6 +109,16 @@ export interface GithubDataServiceInterface {
   ): Observable<GithubConnectionDto>;
 
   /**
+   * Get effective GitHub digest target for a team
+   *
+   * @param requestParameters
+   */
+  githubControllerGetTeamTarget(
+    requestParameters: GithubControllerGetTeamTargetRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<TeamGithubTargetDto>;
+
+  /**
    * List open issues in a repo for digest target
    *
    * @param requestParameters
@@ -84,12 +129,32 @@ export interface GithubDataServiceInterface {
   ): Observable<Array<GithubIssueDto>>;
 
   /**
+   * List open issues for per-team GitHub digest picker
+   *
+   * @param requestParameters
+   */
+  githubControllerListIssuesForTeam(
+    requestParameters: GithubControllerListIssuesForTeamRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<Array<GithubIssueDto>>;
+
+  /**
    * List GitHub repos for digest target picker
    *
    * @param requestParameters
    */
   githubControllerListRepos(
     requestParameters: GithubControllerListReposRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<Array<GithubRepoDto>>;
+
+  /**
+   * List GitHub repos for per-team digest picker
+   *
+   * @param requestParameters
+   */
+  githubControllerListReposForTeam(
+    requestParameters: GithubControllerListReposForTeamRequestParams,
     extraHttpRequestParams?: any,
   ): Observable<Array<GithubRepoDto>>;
 
@@ -108,6 +173,16 @@ export interface GithubDataServiceInterface {
     requestParameters: GithubControllerSelectTargetRequestParams,
     extraHttpRequestParams?: any,
   ): Observable<GithubConnectionDto>;
+
+  /**
+   * Set GitHub digest target override for a team
+   *
+   * @param requestParameters
+   */
+  githubControllerSetTeamTarget(
+    requestParameters: GithubControllerSetTeamTargetRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<TeamGithubTargetDto>;
 
   /**
    * Start GitHub OAuth; returns authorize URL for the browser

@@ -171,6 +171,239 @@
 
     <section class="flex max-w-xl flex-col gap-3">
       <h2 class="text-xl font-semibold">
+        {{ 'standup.team.linearTargetTitle' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.team.linearTargetHint' | transloco }}
+      </p>
+      @if (linearTargetError()) {
+      <p class="text-error text-sm">{{ linearTargetError() }}</p>
+      } @if (linearTarget(); as linear) { @if (!linear.linearConnected) {
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.team.linearNotConnected' | transloco }}
+      </p>
+      } @else {
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.team.linearProject' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [value]="selectedLinearProjectId()"
+          (change)="selectedLinearProjectId.set($any($event.target).value)"
+        >
+          <option value="">
+            {{ 'standup.team.targetDefault' | transloco }} @if
+            (linear.workspaceProjectName) { ({{ linear.workspaceProjectName }})
+            }
+          </option>
+          @for (project of linearProjects(); track project.id) {
+          <option [value]="project.id">{{ project.name }}</option>
+          }
+        </select>
+      </fieldset>
+      @if (linear.isOverride && linear.projectName) {
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.team.targetOverride' | transloco }}: {{ linear.projectName
+        }}
+      </p>
+      }
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          [disabled]="linearTargetSaving() || !selectedLinearProjectId()"
+          (click)="saveLinearTarget()"
+        >
+          {{ 'standup.team.targetSave' | transloco }}
+        </button>
+        @if (linear.isOverride) {
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          [disabled]="linearTargetSaving()"
+          (click)="clearLinearTarget()"
+        >
+          {{ 'standup.team.targetClear' | transloco }}
+        </button>
+        }
+      </div>
+      } }
+    </section>
+
+    <section class="flex max-w-xl flex-col gap-3">
+      <h2 class="text-xl font-semibold">
+        {{ 'standup.team.githubTargetTitle' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.team.githubTargetHint' | transloco }}
+      </p>
+      @if (githubTargetError()) {
+      <p class="text-error text-sm">{{ githubTargetError() }}</p>
+      } @if (githubTarget(); as github) { @if (!github.githubConnected) {
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.team.githubNotConnected' | transloco }}
+      </p>
+      } @else {
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.team.githubRepo' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [value]="selectedGithubRepo()"
+          (change)="onGithubRepoChange($any($event.target).value)"
+        >
+          <option value="">
+            {{ 'standup.team.targetDefault' | transloco }} @if
+            (github.workspaceOwner && github.workspaceRepo) { ({{
+            github.workspaceOwner }}/{{ github.workspaceRepo }}) }
+          </option>
+          @for (repo of githubRepos(); track repo.fullName) {
+          <option [value]="repo.fullName">{{ repo.fullName }}</option>
+          }
+        </select>
+      </fieldset>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.team.githubIssue' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [value]="selectedGithubIssue()"
+          (change)="selectedGithubIssue.set($any($event.target).value)"
+        >
+          <option value="">
+            {{ 'standup.team.targetDefault' | transloco }} @if
+            (github.workspaceIssueNumber) { (#{{ github.workspaceIssueNumber }})
+            }
+          </option>
+          @for (issue of githubIssues(); track issue.number) {
+          <option [value]="issue.number">
+            #{{ issue.number }} — {{ issue.title }}
+          </option>
+          }
+        </select>
+      </fieldset>
+      @if (github.isOverride && github.issueNumber) {
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.team.targetOverride' | transloco }}: {{ github.owner }}/{{
+        github.repo }}#{{ github.issueNumber }}
+      </p>
+      }
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          [disabled]="
+            githubTargetSaving() ||
+            !selectedGithubRepo() ||
+            !selectedGithubIssue()
+          "
+          (click)="saveGithubTarget()"
+        >
+          {{ 'standup.team.targetSave' | transloco }}
+        </button>
+        @if (github.isOverride) {
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          [disabled]="githubTargetSaving()"
+          (click)="clearGithubTarget()"
+        >
+          {{ 'standup.team.targetClear' | transloco }}
+        </button>
+        }
+      </div>
+      } }
+    </section>
+
+    <section class="flex max-w-xl flex-col gap-3">
+      <h2 class="text-xl font-semibold">
+        {{ 'standup.team.jiraTargetTitle' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.team.jiraTargetHint' | transloco }}
+      </p>
+      @if (jiraTargetError()) {
+      <p class="text-error text-sm">{{ jiraTargetError() }}</p>
+      } @if (jiraTarget(); as jira) { @if (!jira.jiraConnected) {
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.team.jiraNotConnected' | transloco }}
+      </p>
+      } @else {
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.team.jiraProject' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [value]="selectedJiraProject()"
+          (change)="onJiraProjectChange($any($event.target).value)"
+        >
+          <option value="">
+            {{ 'standup.team.targetDefault' | transloco }} @if
+            (jira.workspaceProjectKey) { ({{ jira.workspaceProjectKey }}) }
+          </option>
+          @for (project of jiraProjects(); track project.key) {
+          <option [value]="project.key">
+            {{ project.key }} — {{ project.name }}
+          </option>
+          }
+        </select>
+      </fieldset>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.team.jiraIssue' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [value]="selectedJiraIssue()"
+          (change)="selectedJiraIssue.set($any($event.target).value)"
+        >
+          <option value="">
+            {{ 'standup.team.targetDefault' | transloco }} @if
+            (jira.workspaceIssueKey) { ({{ jira.workspaceIssueKey }}) }
+          </option>
+          @for (issue of jiraIssues(); track issue.key) {
+          <option [value]="issue.key">
+            {{ issue.key }} — {{ issue.summary }}
+          </option>
+          }
+        </select>
+      </fieldset>
+      @if (jira.isOverride && jira.issueKey) {
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.team.targetOverride' | transloco }}: {{ jira.issueKey }}
+      </p>
+      }
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          [disabled]="
+            jiraTargetSaving() || !selectedJiraProject() || !selectedJiraIssue()
+          "
+          (click)="saveJiraTarget()"
+        >
+          {{ 'standup.team.targetSave' | transloco }}
+        </button>
+        @if (jira.isOverride) {
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          [disabled]="jiraTargetSaving()"
+          (click)="clearJiraTarget()"
+        >
+          {{ 'standup.team.targetClear' | transloco }}
+        </button>
+        }
+      </div>
+      } }
+    </section>
+
+    <section class="flex max-w-xl flex-col gap-3">
+      <h2 class="text-xl font-semibold">
         {{ 'standup.team.members' | transloco }}
       </h2>
       <ul class="space-y-1 text-sm">

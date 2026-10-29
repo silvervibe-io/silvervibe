@@ -27,6 +27,8 @@ import {
   GithubOAuthStartDto,
   GithubRepoDto,
   SelectGithubTargetDto,
+  SetTeamGithubTargetDto,
+  TeamGithubTargetDto,
 } from './github.dto';
 import { GithubService } from './github.service';
 
@@ -164,5 +166,82 @@ export class GithubController {
     @CurrentUser() user: VerifiedUser,
   ): Promise<GithubConnectionDto> {
     return this.github.disconnect(workspaceId, user);
+  }
+
+  @Get('teams/:teamId/addons/github/repos')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'List GitHub repos for per-team digest picker' })
+  @ApiOkResponse({ type: GithubRepoDto, isArray: true })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  listReposForTeam(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<GithubRepoDto[]> {
+    return this.github.listReposForTeam(teamId, user);
+  }
+
+  @Get('teams/:teamId/addons/github/repos/:owner/:repo/issues')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'List open issues for per-team GitHub digest picker',
+  })
+  @ApiOkResponse({ type: GithubIssueDto, isArray: true })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  listIssuesForTeam(
+    @Param('teamId') teamId: string,
+    @Param('owner') owner: string,
+    @Param('repo') repo: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<GithubIssueDto[]> {
+    return this.github.listIssuesForTeam(teamId, user, owner, repo);
+  }
+
+  @Get('teams/:teamId/addons/github/target')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get effective GitHub digest target for a team' })
+  @ApiOkResponse({ type: TeamGithubTargetDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  getTeamTarget(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<TeamGithubTargetDto> {
+    return this.github.getTeamTarget(teamId, user);
+  }
+
+  @Put('teams/:teamId/addons/github/target')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Set GitHub digest target override for a team' })
+  @ApiOkResponse({ type: TeamGithubTargetDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  setTeamTarget(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+    @Body() body: SetTeamGithubTargetDto,
+  ): Promise<TeamGithubTargetDto> {
+    return this.github.setTeamTarget(teamId, user, body);
+  }
+
+  @Delete('teams/:teamId/addons/github/target')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Clear team GitHub target override (use workspace default)',
+  })
+  @ApiOkResponse({ type: TeamGithubTargetDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  clearTeamTarget(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<TeamGithubTargetDto> {
+    return this.github.clearTeamTarget(teamId, user);
   }
 }

@@ -29,6 +29,8 @@ import {
   JiraSiteDto,
   SelectJiraSiteDto,
   SelectJiraTargetDto,
+  SetTeamJiraTargetDto,
+  TeamJiraTargetDto,
 } from './jira.dto';
 import { JiraService } from './jira.service';
 
@@ -180,5 +182,95 @@ export class JiraController {
     @CurrentUser() user: VerifiedUser,
   ): Promise<JiraConnectionDto> {
     return this.jira.disconnect(workspaceId, user);
+  }
+
+  @Get('teams/:teamId/addons/jira/sites')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'List Jira sites for per-team digest picker' })
+  @ApiOkResponse({ type: JiraSiteDto, isArray: true })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  listSitesForTeam(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<JiraSiteDto[]> {
+    return this.jira.listSitesForTeam(teamId, user);
+  }
+
+  @Get('teams/:teamId/addons/jira/projects')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'List Jira projects for per-team digest picker' })
+  @ApiOkResponse({ type: JiraProjectDto, isArray: true })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  listProjectsForTeam(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<JiraProjectDto[]> {
+    return this.jira.listProjectsForTeam(teamId, user);
+  }
+
+  @Get('teams/:teamId/addons/jira/projects/:projectKey/issues')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'List Jira issues for per-team digest picker',
+  })
+  @ApiOkResponse({ type: JiraIssueDto, isArray: true })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  listIssuesForTeam(
+    @Param('teamId') teamId: string,
+    @Param('projectKey') projectKey: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<JiraIssueDto[]> {
+    return this.jira.listIssuesForTeam(teamId, user, projectKey);
+  }
+
+  @Get('teams/:teamId/addons/jira/target')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get effective Jira digest target for a team' })
+  @ApiOkResponse({ type: TeamJiraTargetDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  getTeamTarget(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<TeamJiraTargetDto> {
+    return this.jira.getTeamTarget(teamId, user);
+  }
+
+  @Put('teams/:teamId/addons/jira/target')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Set Jira digest target override for a team' })
+  @ApiOkResponse({ type: TeamJiraTargetDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  setTeamTarget(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+    @Body() body: SetTeamJiraTargetDto,
+  ): Promise<TeamJiraTargetDto> {
+    return this.jira.setTeamTarget(teamId, user, body);
+  }
+
+  @Delete('teams/:teamId/addons/jira/target')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Clear team Jira target override (use workspace default)',
+  })
+  @ApiOkResponse({ type: TeamJiraTargetDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  clearTeamTarget(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<TeamJiraTargetDto> {
+    return this.jira.clearTeamTarget(teamId, user);
   }
 }

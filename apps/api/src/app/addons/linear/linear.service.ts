@@ -8,6 +8,7 @@ import {
 import {
   AddonConnectionStatus,
   AddonProvider,
+  TeamRole,
   WorkspaceRole,
 } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
@@ -16,12 +17,14 @@ import { VerifiedUser } from '../../auth/firebase-auth.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsersService } from '../../users/users.service';
 import { AddonStatusDto } from '../addon-status.dto';
-import { readTeamTargetEntry } from '../team-target-meta';
+import { readTeamTargetEntry, withTeamTargetEntry } from '../team-target-meta';
 import {
   LinearConnectionDto,
   LinearOAuthStartDto,
   LinearProjectDto,
   SelectLinearProjectDto,
+  SetTeamLinearProjectDto,
+  TeamLinearProjectDto,
 } from './linear.dto';
 
 type LinearTeamTarget = {
@@ -161,6 +164,42 @@ export class LinearService {
     ) {
       throw new ForbiddenException('Workspace admin required');
     }
+  }
+
+  private async requireTeamAdmin(
+    teamId: string,
+    userId: string,
+  ): Promise<{ workspaceId: string }> {
+    const membership = await this.prisma.teamMember.findUnique({
+      where: { teamId_userId: { teamId, userId } },
+      include: { team: { select: { workspaceId: true } } },
+    });
+    if (membership) {
+      if (membership.role !== TeamRole.ADMIN) {
+        throw new ForbiddenException('Team admin required');
+      }
+      return { workspaceId: membership.team.workspaceId };
+    }
+
+    const team = await this.prisma.team.findUnique({
+      where: { id: teamId },
+      select: { workspaceId: true },
+    });
+    if (!team) {
+      throw new ForbiddenException('Not a member of this team');
+    }
+    const ws = await this.prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: { workspaceId: team.workspaceId, userId },
+      },
+    });
+    if (
+      ws &&
+      (ws.role === WorkspaceRole.OWNER || ws.role === WorkspaceRole.ADMIN)
+    ) {
+      return { workspaceId: team.workspaceId };
+    }
+    throw new ForbiddenException('Team admin required');
   }
 
   private asMetadata(raw: unknown): LinearMetadata {
@@ -522,7 +561,22 @@ export class LinearService {
     this.ensureDb();
     const userId = (await this.users.upsertFromFirebase(user)).id;
     await this.requireWorkspaceAdmin(workspaceId, userId);
+    return this.fetchProjects(workspaceId);
+  }
 
+  async listProjectsForTeam(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<LinearProjectDto[]> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+    return this.fetchProjects(workspaceId);
+  }
+
+  private async fetchProjects(
+    workspaceId: string,
+  ): Promise<LinearProjectDto[]> {
     const accessToken = await this.requireFreshAccessToken(workspaceId);
     const data = await this.graphql<{
       projects: { nodes: Array<{ id: string; name: string }> };
@@ -584,6 +638,131 @@ export class LinearService {
     });
 
     return this.getConnection(workspaceId, user);
+  }
+
+  async getTeamProject(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<TeamLinearProjectDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+
+    const connection = await this.prisma.addonConnection.findUnique({
+      where: {
+        workspaceId_provider: {
+          workspaceId,
+          provider: AddonProvider.LINEAR,
+        },
+      },
+    });
+    const meta = this.asMetadata(connection?.metadataJson);
+    const connected =
+      connection?.status === AddonConnectionStatus.CONNECTED &&
+      Boolean(connection.secretsRef?.trim());
+    const resolved = this.resolveProjectForTeam(meta, teamId);
+    return {
+      projectId: resolved.projectId ?? null,
+      projectName: resolved.projectName ?? null,
+      isOverride: resolved.isOverride,
+      workspaceProjectId: meta.projectId ?? null,
+      workspaceProjectName: meta.projectName ?? null,
+      linearConnected: connected,
+    };
+  }
+
+  async setTeamProject(
+    teamId: string,
+    user: VerifiedUser,
+    body: SetTeamLinearProjectDto,
+  ): Promise<TeamLinearProjectDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+
+    const projectId = body.projectId.trim();
+    const accessToken = await this.requireFreshAccessToken(workspaceId);
+    const data = await this.graphql<{
+      project: { id: string; name: string } | null;
+    }>(accessToken, {
+      query: `query($id: String!) { project(id: $id) { id name } }`,
+      variables: { id: projectId },
+    });
+    if (!data.project?.id) {
+      throw new BadRequestException('Linear project not found');
+    }
+
+    const connection = await this.prisma.addonConnection.findUnique({
+      where: {
+        workspaceId_provider: {
+          workspaceId,
+          provider: AddonProvider.LINEAR,
+        },
+      },
+    });
+    if (
+      !connection ||
+      connection.status !== AddonConnectionStatus.CONNECTED ||
+      !connection.secretsRef?.trim()
+    ) {
+      throw new BadRequestException(
+        'Linear is not connected for this workspace',
+      );
+    }
+
+    const meta = this.asMetadata(connection.metadataJson);
+    const teamTargets = withTeamTargetEntry(meta.teamTargets, teamId, {
+      projectId: data.project.id,
+      projectName: data.project.name,
+    });
+    const nextMeta: LinearMetadata = { ...meta, teamTargets };
+
+    await this.prisma.addonConnection.update({
+      where: { id: connection.id },
+      data: { metadataJson: nextMeta },
+    });
+
+    return this.getTeamProject(teamId, user);
+  }
+
+  async clearTeamProject(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<TeamLinearProjectDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+
+    const connection = await this.prisma.addonConnection.findUnique({
+      where: {
+        workspaceId_provider: {
+          workspaceId,
+          provider: AddonProvider.LINEAR,
+        },
+      },
+    });
+    if (!connection) {
+      return {
+        projectId: null,
+        projectName: null,
+        isOverride: false,
+        workspaceProjectId: null,
+        workspaceProjectName: null,
+        linearConnected: false,
+      };
+    }
+
+    const meta = this.asMetadata(connection.metadataJson);
+    if (readTeamTargetEntry(meta.teamTargets, teamId)) {
+      const teamTargets = withTeamTargetEntry(meta.teamTargets, teamId, null);
+      const nextMeta: LinearMetadata = { ...meta, teamTargets };
+      await this.prisma.addonConnection.update({
+        where: { id: connection.id },
+        data: { metadataJson: nextMeta },
+      });
+    }
+
+    return this.getTeamProject(teamId, user);
   }
 
   async disconnect(
