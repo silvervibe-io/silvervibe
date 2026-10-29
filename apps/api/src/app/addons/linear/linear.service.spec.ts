@@ -88,6 +88,7 @@ describe('LinearService', () => {
 
     const ok = await service.postStandupDigest({
       workspaceId: 'ws1',
+      teamId: 'team1abcd',
       teamName: 'Alpha',
       entryDate: '2026-10-26',
       content: '### Member\n- Today: shipped',
@@ -128,5 +129,60 @@ describe('LinearService', () => {
     const conn = await service.getConnection('ws1', admin);
     expect(conn.oauthAvailable).toBe(false);
     expect(conn.configured).toBe(false);
+  });
+
+  it('uses team project override when posting digests', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: { projectUpdateCreate: { success: true } },
+      }),
+    });
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const service = new LinearService(
+      {
+        isEnabled: () => true,
+        workspaceTool: {
+          findUnique: jest.fn().mockResolvedValue({ enabled: true }),
+        },
+        addonConnection: {
+          findUnique: jest.fn().mockResolvedValue({
+            id: 'conn1',
+            status: AddonConnectionStatus.CONNECTED,
+            secretsRef: 'lin_oauth_token',
+            metadataJson: {
+              projectId: 'workspace-proj',
+              teamTargets: {
+                team1abcd: {
+                  projectId: 'team-proj',
+                  projectName: 'Team proj',
+                },
+              },
+              accessExpiresAt: Date.now() + 60 * 60 * 1000,
+            },
+            provider: AddonProvider.LINEAR,
+          }),
+        },
+      } as unknown as PrismaService,
+      {} as unknown as UsersService,
+    );
+
+    await expect(
+      service.postStandupDigest({
+        workspaceId: 'ws1',
+        teamId: 'team1abcd',
+        teamName: 'Alpha',
+        entryDate: '2026-10-26',
+        content: 'hi',
+      }),
+    ).resolves.toBe(true);
+
+    const body = JSON.parse(
+      (fetchMock.mock.calls[0][1] as { body: string }).body,
+    ) as {
+      variables: { input: { projectId: string } };
+    };
+    expect(body.variables.input.projectId).toBe('team-proj');
   });
 });

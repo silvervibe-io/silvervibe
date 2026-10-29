@@ -16,6 +16,7 @@ import { VerifiedUser } from '../../auth/firebase-auth.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsersService } from '../../users/users.service';
 import { AddonStatusDto } from '../addon-status.dto';
+import { readTeamTargetEntry } from '../team-target-meta';
 import {
   JiraConnectionDto,
   JiraIssueDto,
@@ -25,6 +26,14 @@ import {
   SelectJiraSiteDto,
   SelectJiraTargetDto,
 } from './jira.dto';
+
+type JiraTeamTarget = {
+  cloudId: string;
+  siteName?: string;
+  projectKey?: string;
+  issueKey: string;
+  issueSummary?: string;
+};
 
 type JiraMetadata = {
   refreshToken?: string;
@@ -36,6 +45,8 @@ type JiraMetadata = {
   projectName?: string;
   issueKey?: string;
   issueSummary?: string;
+  /** Per-team issue overrides; workspace target remains the default. */
+  teamTargets?: Record<string, JiraTeamTarget>;
   oauthNonce?: string;
   oauthExp?: number;
   oauthUserId?: string;
@@ -180,6 +191,60 @@ export class JiraService {
       const v = obj[key];
       return typeof v === 'number' && Number.isFinite(v) ? v : undefined;
     };
+    const teamTargetsRaw = obj['teamTargets'];
+    const teamTargets: Record<string, JiraTeamTarget> = {};
+    if (
+      teamTargetsRaw &&
+      typeof teamTargetsRaw === 'object' &&
+      !Array.isArray(teamTargetsRaw)
+    ) {
+      for (const [rawKey, value] of Object.entries(
+        teamTargetsRaw as Record<string, unknown>,
+      )) {
+        if (
+          rawKey === '__proto__' ||
+          rawKey === 'constructor' ||
+          rawKey === 'prototype' ||
+          !/^[a-z0-9_-]{8,64}$/i.test(rawKey) ||
+          !value ||
+          typeof value !== 'object' ||
+          Array.isArray(value)
+        ) {
+          continue;
+        }
+        const entry = value as Record<string, unknown>;
+        const cloudId =
+          typeof entry['cloudId'] === 'string' && entry['cloudId'].trim()
+            ? entry['cloudId'].trim()
+            : undefined;
+        const issueKey =
+          typeof entry['issueKey'] === 'string' && entry['issueKey'].trim()
+            ? entry['issueKey'].trim()
+            : undefined;
+        if (!cloudId || !issueKey) {
+          continue;
+        }
+        const siteName =
+          typeof entry['siteName'] === 'string' && entry['siteName'].trim()
+            ? entry['siteName'].trim()
+            : undefined;
+        const projectKey =
+          typeof entry['projectKey'] === 'string' && entry['projectKey'].trim()
+            ? entry['projectKey'].trim()
+            : undefined;
+        const issueSummary =
+          typeof entry['issueSummary'] === 'string' &&
+          entry['issueSummary'].trim()
+            ? entry['issueSummary'].trim()
+            : undefined;
+        Object.defineProperty(teamTargets, rawKey, {
+          value: { cloudId, siteName, projectKey, issueKey, issueSummary },
+          writable: true,
+          enumerable: true,
+          configurable: true,
+        });
+      }
+    }
     return {
       refreshToken: str('refreshToken'),
       accessExpiresAt: num('accessExpiresAt'),
@@ -190,9 +255,43 @@ export class JiraService {
       projectName: str('projectName'),
       issueKey: str('issueKey'),
       issueSummary: str('issueSummary'),
+      teamTargets:
+        Object.keys(teamTargets).length > 0 ? teamTargets : undefined,
       oauthNonce: str('oauthNonce'),
       oauthExp: num('oauthExp'),
       oauthUserId: str('oauthUserId'),
+    };
+  }
+
+  resolveIssueForTeam(
+    meta: JiraMetadata,
+    teamId?: string,
+  ): {
+    cloudId?: string;
+    siteName?: string;
+    projectKey?: string;
+    issueKey?: string;
+    issueSummary?: string;
+    isOverride: boolean;
+  } {
+    const override = readTeamTargetEntry(meta.teamTargets, teamId);
+    if (override?.cloudId && override.issueKey) {
+      return {
+        cloudId: override.cloudId,
+        siteName: override.siteName,
+        projectKey: override.projectKey,
+        issueKey: override.issueKey,
+        issueSummary: override.issueSummary,
+        isOverride: true,
+      };
+    }
+    return {
+      cloudId: meta.cloudId,
+      siteName: meta.siteName,
+      projectKey: meta.projectKey,
+      issueKey: meta.issueKey,
+      issueSummary: meta.issueSummary,
+      isOverride: false,
     };
   }
 
@@ -669,6 +768,7 @@ export class JiraService {
    */
   async postStandupDigest(params: {
     workspaceId: string;
+    teamId?: string;
     teamName: string;
     entryDate: string;
     content: string;
@@ -708,7 +808,8 @@ export class JiraService {
       }
 
       const meta = this.asMetadata(connection.metadataJson);
-      if (!meta.cloudId || !meta.issueKey) {
+      const target = this.resolveIssueForTeam(meta, params.teamId);
+      if (!target.cloudId || !target.issueKey) {
         this.logger.debug(
           `Jira digest skipped for workspace ${params.workspaceId}: no issue target`,
         );
@@ -724,7 +825,7 @@ export class JiraService {
       ].join('\n');
 
       const res = await fetch(
-        `https://api.atlassian.com/ex/jira/${encodeURIComponent(meta.cloudId)}/rest/api/3/issue/${encodeURIComponent(meta.issueKey)}/comment`,
+        `https://api.atlassian.com/ex/jira/${encodeURIComponent(target.cloudId)}/rest/api/3/issue/${encodeURIComponent(target.issueKey)}/comment`,
         {
           method: 'POST',
           headers: {
