@@ -34,6 +34,28 @@ type CreateTeamModel = {
   slug: string;
 };
 
+function apiErrorMessage(err: unknown, fallback: string): string {
+  if (err && typeof err === 'object' && 'error' in err) {
+    const body = (err as { error?: unknown }).error;
+    if (typeof body === 'string' && body.trim()) {
+      return body;
+    }
+    if (body && typeof body === 'object' && 'message' in body) {
+      const message = (body as { message?: unknown }).message;
+      if (typeof message === 'string' && message.trim()) {
+        return message;
+      }
+      if (Array.isArray(message) && typeof message[0] === 'string') {
+        return message[0];
+      }
+    }
+  }
+  if (err instanceof Error && err.message.trim()) {
+    return err.message;
+  }
+  return fallback;
+}
+
 @Component({
   selector: 'vs-workspace-admin',
   imports: [FormField, RouterLink, Shell, TranslocoPipe],
@@ -94,6 +116,7 @@ export class WorkspaceAdmin implements OnInit {
   readonly message = signal<string | null>(null);
   readonly planBusy = signal(false);
   readonly planError = signal<string | null>(null);
+  readonly teamError = signal<string | null>(null);
   readonly slack = signal<SlackConnectionView | null>(null);
   readonly slackError = signal<string | null>(null);
   readonly slackConnecting = signal(false);
@@ -286,9 +309,7 @@ export class WorkspaceAdmin implements OnInit {
       await this.workspaces.setWorkspacePlan(ws.id, PLAN_KEYS.team);
       this.message.set('standup.workspace.planUpgraded');
     } catch (err: unknown) {
-      this.planError.set(
-        err instanceof Error ? err.message : 'Failed to upgrade plan',
-      );
+      this.planError.set(apiErrorMessage(err, 'Failed to upgrade plan'));
     } finally {
       this.planBusy.set(false);
     }
@@ -673,14 +694,19 @@ export class WorkspaceAdmin implements OnInit {
     if (!ws || !this.isAdmin()) {
       return;
     }
-    await submit(this.teamForm, {
-      action: async () => {
-        const body = this.teamModel();
-        await this.workspaces.createTeam(ws.id, body);
-        this.teamModel.set({ name: '', slug: '' });
-        this.message.set('standup.workspace.teamCreated');
-        return undefined;
-      },
-    });
+    this.teamError.set(null);
+    try {
+      await submit(this.teamForm, {
+        action: async () => {
+          const body = this.teamModel();
+          await this.workspaces.createTeam(ws.id, body);
+          this.teamModel.set({ name: '', slug: '' });
+          this.message.set('standup.workspace.teamCreated');
+          return undefined;
+        },
+      });
+    } catch (err: unknown) {
+      this.teamError.set(apiErrorMessage(err, 'Failed to create team'));
+    }
   }
 }

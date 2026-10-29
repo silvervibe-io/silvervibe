@@ -21,9 +21,7 @@
     <p>{{ 'standup.loading' | transloco }}</p>
     } @else if (error()) {
     <p class="text-error">{{ error() }}</p>
-    } @else if (!isAdmin()) {
-    <p>{{ 'standup.workspace.forbidden' | transloco }}</p>
-    } @else {
+    } @else { @if (memberships().length) {
     <fieldset class="fieldset w-full max-w-xs">
       <legend class="fieldset-legend">
         {{ 'portal.workspace' | transloco }}
@@ -41,8 +39,9 @@
         }
       </select>
     </fieldset>
-
-    @if (planHint(); as hint) {
+    } @if (!isAdmin()) {
+    <p>{{ 'standup.workspace.forbidden' | transloco }}</p>
+    } @else { @if (planHint(); as hint) {
     <p class="text-sm text-base-content/60">
       {{ 'standup.workspace.planHint' | transloco : { plan: hint.planKey, teams:
       hint.maxTeams, members: hint.maxMembersPerTeam, } }}
@@ -397,10 +396,13 @@
       <button type="submit" class="btn btn-primary btn-sm self-start">
         {{ 'standup.workspace.create' | transloco }}
       </button>
+      @if (teamError()) {
+      <p class="text-error text-sm">{{ teamError() }}</p>
+      }
     </form>
 
     @if (message()) {
     <p class="text-success text-sm">{{ message()! | transloco }}</p>
-    } }
+    } } }
   </div>
 </sv-shell>
