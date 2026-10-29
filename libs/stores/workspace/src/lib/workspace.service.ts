@@ -37,10 +37,16 @@ import type {
   SelectJiraSiteInput,
   SelectJiraTargetInput,
   SelectLinearProjectInput,
+  SetTeamGithubTargetInput,
+  SetTeamJiraTargetInput,
+  SetTeamLinearProjectInput,
   SetTeamSlackChannelInput,
   SlackChannelOptionView,
   SlackConnectionView,
   SlackOAuthStartView,
+  TeamGithubTargetView,
+  TeamJiraTargetView,
+  TeamLinearProjectView,
   TeamSlackChannelView,
   TeamsConnectionView,
   WorkspaceMembershipView,
@@ -199,6 +205,137 @@ export class WorkspaceService {
     return firstValueFrom(
       this.http.delete<TeamSlackChannelView>(
         `${this.apiBase}/teams/${teamId}/addons/slack/channel`,
+      ),
+    );
+  }
+
+  listTeamLinearProjects(teamId: string): Promise<LinearProjectView[]> {
+    return firstValueFrom(
+      this.http.get<LinearProjectView[]>(
+        `${this.apiBase}/teams/${teamId}/addons/linear/projects`,
+      ),
+    );
+  }
+
+  getTeamLinearProject(teamId: string): Promise<TeamLinearProjectView> {
+    return firstValueFrom(
+      this.http.get<TeamLinearProjectView>(
+        `${this.apiBase}/teams/${teamId}/addons/linear/project`,
+      ),
+    );
+  }
+
+  setTeamLinearProject(
+    teamId: string,
+    body: SetTeamLinearProjectInput,
+  ): Promise<TeamLinearProjectView> {
+    return firstValueFrom(
+      this.http.put<TeamLinearProjectView>(
+        `${this.apiBase}/teams/${teamId}/addons/linear/project`,
+        body,
+      ),
+    );
+  }
+
+  clearTeamLinearProject(teamId: string): Promise<TeamLinearProjectView> {
+    return firstValueFrom(
+      this.http.delete<TeamLinearProjectView>(
+        `${this.apiBase}/teams/${teamId}/addons/linear/project`,
+      ),
+    );
+  }
+
+  listTeamGithubRepos(teamId: string): Promise<GithubRepoView[]> {
+    return firstValueFrom(
+      this.http.get<GithubRepoView[]>(
+        `${this.apiBase}/teams/${teamId}/addons/github/repos`,
+      ),
+    );
+  }
+
+  listTeamGithubIssues(
+    teamId: string,
+    owner: string,
+    repo: string,
+  ): Promise<GithubIssueView[]> {
+    return firstValueFrom(
+      this.http.get<GithubIssueView[]>(
+        `${this.apiBase}/teams/${teamId}/addons/github/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues`,
+      ),
+    );
+  }
+
+  getTeamGithubTarget(teamId: string): Promise<TeamGithubTargetView> {
+    return firstValueFrom(
+      this.http.get<TeamGithubTargetView>(
+        `${this.apiBase}/teams/${teamId}/addons/github/target`,
+      ),
+    );
+  }
+
+  setTeamGithubTarget(
+    teamId: string,
+    body: SetTeamGithubTargetInput,
+  ): Promise<TeamGithubTargetView> {
+    return firstValueFrom(
+      this.http.put<TeamGithubTargetView>(
+        `${this.apiBase}/teams/${teamId}/addons/github/target`,
+        body,
+      ),
+    );
+  }
+
+  clearTeamGithubTarget(teamId: string): Promise<TeamGithubTargetView> {
+    return firstValueFrom(
+      this.http.delete<TeamGithubTargetView>(
+        `${this.apiBase}/teams/${teamId}/addons/github/target`,
+      ),
+    );
+  }
+
+  listTeamJiraProjects(teamId: string): Promise<JiraProjectView[]> {
+    return firstValueFrom(
+      this.http.get<JiraProjectView[]>(
+        `${this.apiBase}/teams/${teamId}/addons/jira/projects`,
+      ),
+    );
+  }
+
+  listTeamJiraIssues(
+    teamId: string,
+    projectKey: string,
+  ): Promise<JiraIssueView[]> {
+    return firstValueFrom(
+      this.http.get<JiraIssueView[]>(
+        `${this.apiBase}/teams/${teamId}/addons/jira/projects/${encodeURIComponent(projectKey)}/issues`,
+      ),
+    );
+  }
+
+  getTeamJiraTarget(teamId: string): Promise<TeamJiraTargetView> {
+    return firstValueFrom(
+      this.http.get<TeamJiraTargetView>(
+        `${this.apiBase}/teams/${teamId}/addons/jira/target`,
+      ),
+    );
+  }
+
+  setTeamJiraTarget(
+    teamId: string,
+    body: SetTeamJiraTargetInput,
+  ): Promise<TeamJiraTargetView> {
+    return firstValueFrom(
+      this.http.put<TeamJiraTargetView>(
+        `${this.apiBase}/teams/${teamId}/addons/jira/target`,
+        body,
+      ),
+    );
+  }
+
+  clearTeamJiraTarget(teamId: string): Promise<TeamJiraTargetView> {
+    return firstValueFrom(
+      this.http.delete<TeamJiraTargetView>(
+        `${this.apiBase}/teams/${teamId}/addons/jira/target`,
       ),
     );
   }

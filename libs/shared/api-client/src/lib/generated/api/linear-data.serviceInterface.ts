@@ -18,8 +18,14 @@ import { LinearConnectionDto } from '../model/models';
 import { LinearOAuthStartDto } from '../model/models';
 import { LinearProjectDto } from '../model/models';
 import { SelectLinearProjectDto } from '../model/models';
+import { SetTeamLinearProjectDto } from '../model/models';
+import { TeamLinearProjectDto } from '../model/models';
 
 import { Configuration } from '../configuration';
+
+export interface LinearControllerClearTeamProjectRequestParams {
+  teamId: string;
+}
 
 export interface LinearControllerDisconnectRequestParams {
   workspaceId: string;
@@ -29,13 +35,26 @@ export interface LinearControllerGetConnectionRequestParams {
   workspaceId: string;
 }
 
+export interface LinearControllerGetTeamProjectRequestParams {
+  teamId: string;
+}
+
 export interface LinearControllerListProjectsRequestParams {
   workspaceId: string;
+}
+
+export interface LinearControllerListProjectsForTeamRequestParams {
+  teamId: string;
 }
 
 export interface LinearControllerSelectProjectRequestParams {
   workspaceId: string;
   selectLinearProjectDto: SelectLinearProjectDto;
+}
+
+export interface LinearControllerSetTeamProjectRequestParams {
+  teamId: string;
+  setTeamLinearProjectDto: SetTeamLinearProjectDto;
 }
 
 export interface LinearControllerStartOAuthRequestParams {
@@ -45,6 +64,16 @@ export interface LinearControllerStartOAuthRequestParams {
 export interface LinearDataServiceInterface {
   defaultHeaders: HttpHeaders;
   configuration: Configuration;
+
+  /**
+   * Clear team Linear project override (use workspace default)
+   *
+   * @param requestParameters
+   */
+  linearControllerClearTeamProject(
+    requestParameters: LinearControllerClearTeamProjectRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<TeamLinearProjectDto>;
 
   /**
    * Disconnect Linear (clears OAuth tokens)
@@ -67,12 +96,32 @@ export interface LinearDataServiceInterface {
   ): Observable<LinearConnectionDto>;
 
   /**
+   * Get effective Linear digest project for a team
+   *
+   * @param requestParameters
+   */
+  linearControllerGetTeamProject(
+    requestParameters: LinearControllerGetTeamProjectRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<TeamLinearProjectDto>;
+
+  /**
    * List Linear projects for digest target picker
    *
    * @param requestParameters
    */
   linearControllerListProjects(
     requestParameters: LinearControllerListProjectsRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<Array<LinearProjectDto>>;
+
+  /**
+   * List Linear projects for per-team digest picker
+   *
+   * @param requestParameters
+   */
+  linearControllerListProjectsForTeam(
+    requestParameters: LinearControllerListProjectsForTeamRequestParams,
     extraHttpRequestParams?: any,
   ): Observable<Array<LinearProjectDto>>;
 
@@ -91,6 +140,16 @@ export interface LinearDataServiceInterface {
     requestParameters: LinearControllerSelectProjectRequestParams,
     extraHttpRequestParams?: any,
   ): Observable<LinearConnectionDto>;
+
+  /**
+   * Set Linear project override for a team
+   *
+   * @param requestParameters
+   */
+  linearControllerSetTeamProject(
+    requestParameters: LinearControllerSetTeamProjectRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<TeamLinearProjectDto>;
 
   /**
    * Start Linear OAuth; returns authorize URL for the browser

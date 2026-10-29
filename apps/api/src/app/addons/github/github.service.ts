@@ -8,6 +8,7 @@ import {
 import {
   AddonConnectionStatus,
   AddonProvider,
+  TeamRole,
   WorkspaceRole,
 } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
@@ -16,13 +17,15 @@ import { VerifiedUser } from '../../auth/firebase-auth.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsersService } from '../../users/users.service';
 import { AddonStatusDto } from '../addon-status.dto';
-import { readTeamTargetEntry } from '../team-target-meta';
+import { readTeamTargetEntry, withTeamTargetEntry } from '../team-target-meta';
 import {
   GithubConnectionDto,
   GithubIssueDto,
   GithubOAuthStartDto,
   GithubRepoDto,
   SelectGithubTargetDto,
+  SetTeamGithubTargetDto,
+  TeamGithubTargetDto,
 } from './github.dto';
 
 type GithubTeamTarget = {
@@ -164,6 +167,42 @@ export class GithubService {
     ) {
       throw new ForbiddenException('Workspace admin required');
     }
+  }
+
+  private async requireTeamAdmin(
+    teamId: string,
+    userId: string,
+  ): Promise<{ workspaceId: string }> {
+    const membership = await this.prisma.teamMember.findUnique({
+      where: { teamId_userId: { teamId, userId } },
+      include: { team: { select: { workspaceId: true } } },
+    });
+    if (membership) {
+      if (membership.role !== TeamRole.ADMIN) {
+        throw new ForbiddenException('Team admin required');
+      }
+      return { workspaceId: membership.team.workspaceId };
+    }
+
+    const team = await this.prisma.team.findUnique({
+      where: { id: teamId },
+      select: { workspaceId: true },
+    });
+    if (!team) {
+      throw new ForbiddenException('Not a member of this team');
+    }
+    const ws = await this.prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: { workspaceId: team.workspaceId, userId },
+      },
+    });
+    if (
+      ws &&
+      (ws.role === WorkspaceRole.OWNER || ws.role === WorkspaceRole.ADMIN)
+    ) {
+      return { workspaceId: team.workspaceId };
+    }
+    throw new ForbiddenException('Team admin required');
   }
 
   private asMetadata(raw: unknown): GithubMetadata {
@@ -542,6 +581,20 @@ export class GithubService {
     this.ensureDb();
     const userId = (await this.users.upsertFromFirebase(user)).id;
     await this.requireWorkspaceAdmin(workspaceId, userId);
+    return this.fetchRepos(workspaceId);
+  }
+
+  async listReposForTeam(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<GithubRepoDto[]> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+    return this.fetchRepos(workspaceId);
+  }
+
+  private async fetchRepos(workspaceId: string): Promise<GithubRepoDto[]> {
     const token = await this.requireAccessToken(workspaceId);
 
     const repos = await this.apiGet<
@@ -567,6 +620,26 @@ export class GithubService {
     this.ensureDb();
     const userId = (await this.users.upsertFromFirebase(user)).id;
     await this.requireWorkspaceAdmin(workspaceId, userId);
+    return this.fetchIssues(workspaceId, owner, repo);
+  }
+
+  async listIssuesForTeam(
+    teamId: string,
+    user: VerifiedUser,
+    owner: string,
+    repo: string,
+  ): Promise<GithubIssueDto[]> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+    return this.fetchIssues(workspaceId, owner, repo);
+  }
+
+  private async fetchIssues(
+    workspaceId: string,
+    owner: string,
+    repo: string,
+  ): Promise<GithubIssueDto[]> {
     const token = await this.requireAccessToken(workspaceId);
 
     const ownerTrim = owner.trim();
@@ -639,6 +712,142 @@ export class GithubService {
     });
 
     return this.getConnection(workspaceId, user);
+  }
+
+  async getTeamTarget(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<TeamGithubTargetDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+
+    const connection = await this.prisma.addonConnection.findUnique({
+      where: {
+        workspaceId_provider: {
+          workspaceId,
+          provider: AddonProvider.GITHUB,
+        },
+      },
+    });
+    const meta = this.asMetadata(connection?.metadataJson);
+    const connected =
+      connection?.status === AddonConnectionStatus.CONNECTED &&
+      Boolean(connection.secretsRef?.trim());
+    const resolved = this.resolveIssueForTeam(meta, teamId);
+    return {
+      owner: resolved.owner ?? null,
+      repo: resolved.repo ?? null,
+      issueNumber: resolved.issueNumber ?? null,
+      issueTitle: resolved.issueTitle ?? null,
+      isOverride: resolved.isOverride,
+      workspaceOwner: meta.owner ?? null,
+      workspaceRepo: meta.repo ?? null,
+      workspaceIssueNumber: meta.issueNumber ?? null,
+      workspaceIssueTitle: meta.issueTitle ?? null,
+      githubConnected: connected,
+    };
+  }
+
+  async setTeamTarget(
+    teamId: string,
+    user: VerifiedUser,
+    body: SetTeamGithubTargetDto,
+  ): Promise<TeamGithubTargetDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+
+    const owner = body.owner.trim();
+    const repo = body.repo.trim();
+    const issueNumber = body.issueNumber;
+    const token = await this.requireAccessToken(workspaceId);
+
+    const issue = await this.apiGet<{ number: number; title: string }>(
+      token,
+      `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues/${issueNumber}`,
+    );
+    if (!issue?.number) {
+      throw new BadRequestException('GitHub issue not found');
+    }
+
+    const connection = await this.prisma.addonConnection.findUnique({
+      where: {
+        workspaceId_provider: {
+          workspaceId,
+          provider: AddonProvider.GITHUB,
+        },
+      },
+    });
+    if (
+      !connection ||
+      connection.status !== AddonConnectionStatus.CONNECTED ||
+      !connection.secretsRef?.trim()
+    ) {
+      throw new BadRequestException(
+        'GitHub is not connected for this workspace',
+      );
+    }
+
+    const meta = this.asMetadata(connection.metadataJson);
+    const teamTargets = withTeamTargetEntry(meta.teamTargets, teamId, {
+      owner,
+      repo,
+      issueNumber: issue.number,
+      issueTitle: issue.title,
+    });
+    const nextMeta: GithubMetadata = { ...meta, teamTargets };
+
+    await this.prisma.addonConnection.update({
+      where: { id: connection.id },
+      data: { metadataJson: nextMeta },
+    });
+
+    return this.getTeamTarget(teamId, user);
+  }
+
+  async clearTeamTarget(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<TeamGithubTargetDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+
+    const connection = await this.prisma.addonConnection.findUnique({
+      where: {
+        workspaceId_provider: {
+          workspaceId,
+          provider: AddonProvider.GITHUB,
+        },
+      },
+    });
+    if (!connection) {
+      return {
+        owner: null,
+        repo: null,
+        issueNumber: null,
+        issueTitle: null,
+        isOverride: false,
+        workspaceOwner: null,
+        workspaceRepo: null,
+        workspaceIssueNumber: null,
+        workspaceIssueTitle: null,
+        githubConnected: false,
+      };
+    }
+
+    const meta = this.asMetadata(connection.metadataJson);
+    if (readTeamTargetEntry(meta.teamTargets, teamId)) {
+      const teamTargets = withTeamTargetEntry(meta.teamTargets, teamId, null);
+      const nextMeta: GithubMetadata = { ...meta, teamTargets };
+      await this.prisma.addonConnection.update({
+        where: { id: connection.id },
+        data: { metadataJson: nextMeta },
+      });
+    }
+
+    return this.getTeamTarget(teamId, user);
   }
 
   async disconnect(

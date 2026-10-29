@@ -38,6 +38,15 @@ Issue: [#116](https://github.com/silvervibe-io/silvervibe/issues/116)
 | `GET`    | `/api/workspaces/:workspaceId/addons/jira/projects/:projectKey/issues` | Recent issues                |
 | `PUT`    | `/api/workspaces/:workspaceId/addons/jira/target`                      | Select issue                 |
 | `DELETE` | `/api/workspaces/:workspaceId/addons/jira`                             | Disconnect                   |
+| `GET`    | `/api/teams/:teamId/addons/jira/sites`                                 | Sites (team admin)           |
+| `GET`    | `/api/teams/:teamId/addons/jira/projects`                              | Projects (team admin)        |
+| `GET`    | `/api/teams/:teamId/addons/jira/projects/:projectKey/issues`           | Issues (team admin)          |
+| `GET`    | `/api/teams/:teamId/addons/jira/target`                                | Effective team target        |
+| `PUT`    | `/api/teams/:teamId/addons/jira/target`                                | Set team override            |
+| `DELETE` | `/api/teams/:teamId/addons/jira/target`                                | Clear override               |
+
+Per-team overrides live in connection `metadataJson.teamTargets`. Digests resolve
+the team issue first, then the workspace default.
 
 ## Out of scope (for now)
 

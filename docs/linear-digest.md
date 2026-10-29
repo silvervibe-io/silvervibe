@@ -34,6 +34,14 @@ Scopes requested: `read,write`. Actor: `app` (resources created as the app).
 | `GET`    | `/api/workspaces/:workspaceId/addons/linear/projects`    | Project picker               |
 | `PUT`    | `/api/workspaces/:workspaceId/addons/linear/project`     | Select digest project        |
 | `DELETE` | `/api/workspaces/:workspaceId/addons/linear`             | Disconnect (admin)           |
+| `GET`    | `/api/teams/:teamId/addons/linear/projects`              | Project picker (team admin)  |
+| `GET`    | `/api/teams/:teamId/addons/linear/project`               | Effective team project       |
+| `PUT`    | `/api/teams/:teamId/addons/linear/project`               | Set team override            |
+| `DELETE` | `/api/teams/:teamId/addons/linear/project`               | Clear override               |
+
+Per-team overrides live in connection `metadataJson.teamTargets` (same pattern as
+Slack `teamChannels`). Digests resolve the team project first, then the workspace
+default.
 
 ## Out of scope (for now)
 

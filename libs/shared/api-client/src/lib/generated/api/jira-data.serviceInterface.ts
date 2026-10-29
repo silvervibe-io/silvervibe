@@ -21,8 +21,14 @@ import { JiraProjectDto } from '../model/models';
 import { JiraSiteDto } from '../model/models';
 import { SelectJiraSiteDto } from '../model/models';
 import { SelectJiraTargetDto } from '../model/models';
+import { SetTeamJiraTargetDto } from '../model/models';
+import { TeamJiraTargetDto } from '../model/models';
 
 import { Configuration } from '../configuration';
+
+export interface JiraControllerClearTeamTargetRequestParams {
+  teamId: string;
+}
 
 export interface JiraControllerDisconnectRequestParams {
   workspaceId: string;
@@ -32,8 +38,17 @@ export interface JiraControllerGetConnectionRequestParams {
   workspaceId: string;
 }
 
+export interface JiraControllerGetTeamTargetRequestParams {
+  teamId: string;
+}
+
 export interface JiraControllerListIssuesRequestParams {
   workspaceId: string;
+  projectKey: string;
+}
+
+export interface JiraControllerListIssuesForTeamRequestParams {
+  teamId: string;
   projectKey: string;
 }
 
@@ -41,8 +56,16 @@ export interface JiraControllerListProjectsRequestParams {
   workspaceId: string;
 }
 
+export interface JiraControllerListProjectsForTeamRequestParams {
+  teamId: string;
+}
+
 export interface JiraControllerListSitesRequestParams {
   workspaceId: string;
+}
+
+export interface JiraControllerListSitesForTeamRequestParams {
+  teamId: string;
 }
 
 export interface JiraControllerSelectSiteRequestParams {
@@ -55,6 +78,11 @@ export interface JiraControllerSelectTargetRequestParams {
   selectJiraTargetDto: SelectJiraTargetDto;
 }
 
+export interface JiraControllerSetTeamTargetRequestParams {
+  teamId: string;
+  setTeamJiraTargetDto: SetTeamJiraTargetDto;
+}
+
 export interface JiraControllerStartOAuthRequestParams {
   workspaceId: string;
 }
@@ -62,6 +90,16 @@ export interface JiraControllerStartOAuthRequestParams {
 export interface JiraDataServiceInterface {
   defaultHeaders: HttpHeaders;
   configuration: Configuration;
+
+  /**
+   * Clear team Jira target override (use workspace default)
+   *
+   * @param requestParameters
+   */
+  jiraControllerClearTeamTarget(
+    requestParameters: JiraControllerClearTeamTargetRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<TeamJiraTargetDto>;
 
   /**
    * Disconnect Jira (clears OAuth tokens)
@@ -84,12 +122,32 @@ export interface JiraDataServiceInterface {
   ): Observable<JiraConnectionDto>;
 
   /**
+   * Get effective Jira digest target for a team
+   *
+   * @param requestParameters
+   */
+  jiraControllerGetTeamTarget(
+    requestParameters: JiraControllerGetTeamTargetRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<TeamJiraTargetDto>;
+
+  /**
    * List recent issues in a Jira project
    *
    * @param requestParameters
    */
   jiraControllerListIssues(
     requestParameters: JiraControllerListIssuesRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<Array<JiraIssueDto>>;
+
+  /**
+   * List Jira issues for per-team digest picker
+   *
+   * @param requestParameters
+   */
+  jiraControllerListIssuesForTeam(
+    requestParameters: JiraControllerListIssuesForTeamRequestParams,
     extraHttpRequestParams?: any,
   ): Observable<Array<JiraIssueDto>>;
 
@@ -104,12 +162,32 @@ export interface JiraDataServiceInterface {
   ): Observable<Array<JiraProjectDto>>;
 
   /**
+   * List Jira projects for per-team digest picker
+   *
+   * @param requestParameters
+   */
+  jiraControllerListProjectsForTeam(
+    requestParameters: JiraControllerListProjectsForTeamRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<Array<JiraProjectDto>>;
+
+  /**
    * List accessible Jira Cloud sites
    *
    * @param requestParameters
    */
   jiraControllerListSites(
     requestParameters: JiraControllerListSitesRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<Array<JiraSiteDto>>;
+
+  /**
+   * List Jira sites for per-team digest picker
+   *
+   * @param requestParameters
+   */
+  jiraControllerListSitesForTeam(
+    requestParameters: JiraControllerListSitesForTeamRequestParams,
     extraHttpRequestParams?: any,
   ): Observable<Array<JiraSiteDto>>;
 
@@ -138,6 +216,16 @@ export interface JiraDataServiceInterface {
     requestParameters: JiraControllerSelectTargetRequestParams,
     extraHttpRequestParams?: any,
   ): Observable<JiraConnectionDto>;
+
+  /**
+   * Set Jira digest target override for a team
+   *
+   * @param requestParameters
+   */
+  jiraControllerSetTeamTarget(
+    requestParameters: JiraControllerSetTeamTargetRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<TeamJiraTargetDto>;
 
   /**
    * Start Jira OAuth (3LO); returns authorize URL for the browser

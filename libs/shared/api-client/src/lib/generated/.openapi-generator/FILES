@@ -57,6 +57,9 @@ model/select-github-target-dto.ts
 model/select-jira-site-dto.ts
 model/select-jira-target-dto.ts
 model/select-linear-project-dto.ts
+model/set-team-github-target-dto.ts
+model/set-team-jira-target-dto.ts
+model/set-team-linear-project-dto.ts
 model/set-team-slack-channel-dto.ts
 model/set-tool-entitlement-dto.ts
 model/set-workspace-plan-dto.ts
@@ -68,7 +71,10 @@ model/standup-config-dto.ts
 model/standup-entry-dto.ts
 model/standup-summary-dto.ts
 model/team-dto.ts
+model/team-github-target-dto.ts
 model/team-invite-dto.ts
+model/team-jira-target-dto.ts
+model/team-linear-project-dto.ts
 model/team-member-dto.ts
 model/team-slack-channel-dto.ts
 model/teams-connection-dto.ts

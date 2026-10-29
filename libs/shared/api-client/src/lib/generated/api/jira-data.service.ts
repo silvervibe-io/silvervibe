@@ -40,19 +40,29 @@ import { JiraSiteDto } from '../model/jira-site-dto';
 import { SelectJiraSiteDto } from '../model/select-jira-site-dto';
 // @ts-ignore
 import { SelectJiraTargetDto } from '../model/select-jira-target-dto';
+// @ts-ignore
+import { SetTeamJiraTargetDto } from '../model/set-team-jira-target-dto';
+// @ts-ignore
+import { TeamJiraTargetDto } from '../model/team-jira-target-dto';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS } from '../variables';
 import { Configuration } from '../configuration';
 import {
   JiraDataServiceInterface,
+  JiraControllerClearTeamTargetRequestParams,
   JiraControllerDisconnectRequestParams,
   JiraControllerGetConnectionRequestParams,
+  JiraControllerGetTeamTargetRequestParams,
   JiraControllerListIssuesRequestParams,
+  JiraControllerListIssuesForTeamRequestParams,
   JiraControllerListProjectsRequestParams,
+  JiraControllerListProjectsForTeamRequestParams,
   JiraControllerListSitesRequestParams,
+  JiraControllerListSitesForTeamRequestParams,
   JiraControllerSelectSiteRequestParams,
   JiraControllerSelectTargetRequestParams,
+  JiraControllerSetTeamTargetRequestParams,
   JiraControllerStartOAuthRequestParams,
 } from './jira-data.serviceInterface';
 
@@ -141,6 +151,127 @@ export class JiraDataService implements JiraDataServiceInterface {
       throw Error('key may not be null if value is not object or array');
     }
     return httpParams;
+  }
+
+  /**
+   * Clear team Jira target override (use workspace default)
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public jiraControllerClearTeamTarget(
+    requestParameters?: JiraControllerClearTeamTargetRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<TeamJiraTargetDto>;
+  public jiraControllerClearTeamTarget(
+    requestParameters?: JiraControllerClearTeamTargetRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<TeamJiraTargetDto>>;
+  public jiraControllerClearTeamTarget(
+    requestParameters?: JiraControllerClearTeamTargetRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<TeamJiraTargetDto>>;
+  public jiraControllerClearTeamTarget(
+    requestParameters?: JiraControllerClearTeamTargetRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const teamId = requestParameters?.teamId;
+    if (teamId === null || teamId === undefined) {
+      throw new Error(
+        'Required parameter teamId was null or undefined when calling jiraControllerClearTeamTarget.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/teams/${this.configuration.encodeParam({ name: 'teamId', value: teamId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/jira/target`;
+    return this.httpClient.request<TeamJiraTargetDto>(
+      'delete',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
   }
 
   /**
@@ -386,6 +517,127 @@ export class JiraDataService implements JiraDataServiceInterface {
   }
 
   /**
+   * Get effective Jira digest target for a team
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public jiraControllerGetTeamTarget(
+    requestParameters?: JiraControllerGetTeamTargetRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<TeamJiraTargetDto>;
+  public jiraControllerGetTeamTarget(
+    requestParameters?: JiraControllerGetTeamTargetRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<TeamJiraTargetDto>>;
+  public jiraControllerGetTeamTarget(
+    requestParameters?: JiraControllerGetTeamTargetRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<TeamJiraTargetDto>>;
+  public jiraControllerGetTeamTarget(
+    requestParameters?: JiraControllerGetTeamTargetRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const teamId = requestParameters?.teamId;
+    if (teamId === null || teamId === undefined) {
+      throw new Error(
+        'Required parameter teamId was null or undefined when calling jiraControllerGetTeamTarget.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/teams/${this.configuration.encodeParam({ name: 'teamId', value: teamId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/jira/target`;
+    return this.httpClient.request<TeamJiraTargetDto>(
+      'get',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
    * List recent issues in a Jira project
    * @param requestParameters
    * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -497,6 +749,133 @@ export class JiraDataService implements JiraDataServiceInterface {
     }
 
     let localVarPath = `/api/workspaces/${this.configuration.encodeParam({ name: 'workspaceId', value: workspaceId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/jira/projects/${this.configuration.encodeParam({ name: 'projectKey', value: projectKey, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/issues`;
+    return this.httpClient.request<Array<JiraIssueDto>>(
+      'get',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * List Jira issues for per-team digest picker
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public jiraControllerListIssuesForTeam(
+    requestParameters?: JiraControllerListIssuesForTeamRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<Array<JiraIssueDto>>;
+  public jiraControllerListIssuesForTeam(
+    requestParameters?: JiraControllerListIssuesForTeamRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<Array<JiraIssueDto>>>;
+  public jiraControllerListIssuesForTeam(
+    requestParameters?: JiraControllerListIssuesForTeamRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<Array<JiraIssueDto>>>;
+  public jiraControllerListIssuesForTeam(
+    requestParameters?: JiraControllerListIssuesForTeamRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const teamId = requestParameters?.teamId;
+    if (teamId === null || teamId === undefined) {
+      throw new Error(
+        'Required parameter teamId was null or undefined when calling jiraControllerListIssuesForTeam.',
+      );
+    }
+    const projectKey = requestParameters?.projectKey;
+    if (projectKey === null || projectKey === undefined) {
+      throw new Error(
+        'Required parameter projectKey was null or undefined when calling jiraControllerListIssuesForTeam.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/teams/${this.configuration.encodeParam({ name: 'teamId', value: teamId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/jira/projects/${this.configuration.encodeParam({ name: 'projectKey', value: projectKey, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/issues`;
     return this.httpClient.request<Array<JiraIssueDto>>(
       'get',
       `${this.configuration.basePath}${localVarPath}`,
@@ -634,6 +1013,127 @@ export class JiraDataService implements JiraDataServiceInterface {
   }
 
   /**
+   * List Jira projects for per-team digest picker
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public jiraControllerListProjectsForTeam(
+    requestParameters?: JiraControllerListProjectsForTeamRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<Array<JiraProjectDto>>;
+  public jiraControllerListProjectsForTeam(
+    requestParameters?: JiraControllerListProjectsForTeamRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<Array<JiraProjectDto>>>;
+  public jiraControllerListProjectsForTeam(
+    requestParameters?: JiraControllerListProjectsForTeamRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<Array<JiraProjectDto>>>;
+  public jiraControllerListProjectsForTeam(
+    requestParameters?: JiraControllerListProjectsForTeamRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const teamId = requestParameters?.teamId;
+    if (teamId === null || teamId === undefined) {
+      throw new Error(
+        'Required parameter teamId was null or undefined when calling jiraControllerListProjectsForTeam.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/teams/${this.configuration.encodeParam({ name: 'teamId', value: teamId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/jira/projects`;
+    return this.httpClient.request<Array<JiraProjectDto>>(
+      'get',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
    * List accessible Jira Cloud sites
    * @param requestParameters
    * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -739,6 +1239,127 @@ export class JiraDataService implements JiraDataServiceInterface {
     }
 
     let localVarPath = `/api/workspaces/${this.configuration.encodeParam({ name: 'workspaceId', value: workspaceId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/jira/sites`;
+    return this.httpClient.request<Array<JiraSiteDto>>(
+      'get',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * List Jira sites for per-team digest picker
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public jiraControllerListSitesForTeam(
+    requestParameters?: JiraControllerListSitesForTeamRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<Array<JiraSiteDto>>;
+  public jiraControllerListSitesForTeam(
+    requestParameters?: JiraControllerListSitesForTeamRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<Array<JiraSiteDto>>>;
+  public jiraControllerListSitesForTeam(
+    requestParameters?: JiraControllerListSitesForTeamRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<Array<JiraSiteDto>>>;
+  public jiraControllerListSitesForTeam(
+    requestParameters?: JiraControllerListSitesForTeamRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const teamId = requestParameters?.teamId;
+    if (teamId === null || teamId === undefined) {
+      throw new Error(
+        'Required parameter teamId was null or undefined when calling jiraControllerListSitesForTeam.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/teams/${this.configuration.encodeParam({ name: 'teamId', value: teamId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/jira/sites`;
     return this.httpClient.request<Array<JiraSiteDto>>(
       'get',
       `${this.configuration.basePath}${localVarPath}`,
@@ -1121,6 +1742,145 @@ export class JiraDataService implements JiraDataServiceInterface {
       {
         context: localVarHttpContext,
         body: selectJiraTargetDto,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * Set Jira digest target override for a team
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public jiraControllerSetTeamTarget(
+    requestParameters?: JiraControllerSetTeamTargetRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<TeamJiraTargetDto>;
+  public jiraControllerSetTeamTarget(
+    requestParameters?: JiraControllerSetTeamTargetRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<TeamJiraTargetDto>>;
+  public jiraControllerSetTeamTarget(
+    requestParameters?: JiraControllerSetTeamTargetRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<TeamJiraTargetDto>>;
+  public jiraControllerSetTeamTarget(
+    requestParameters?: JiraControllerSetTeamTargetRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const teamId = requestParameters?.teamId;
+    if (teamId === null || teamId === undefined) {
+      throw new Error(
+        'Required parameter teamId was null or undefined when calling jiraControllerSetTeamTarget.',
+      );
+    }
+    const setTeamJiraTargetDto = requestParameters?.setTeamJiraTargetDto;
+    if (setTeamJiraTargetDto === null || setTeamJiraTargetDto === undefined) {
+      throw new Error(
+        'Required parameter setTeamJiraTargetDto was null or undefined when calling jiraControllerSetTeamTarget.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = ['application/json'];
+    const httpContentTypeSelected: string | undefined =
+      this.configuration.selectHeaderContentType(consumes);
+    if (httpContentTypeSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Content-Type',
+        httpContentTypeSelected,
+      );
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/teams/${this.configuration.encodeParam({ name: 'teamId', value: teamId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/jira/target`;
+    return this.httpClient.request<TeamJiraTargetDto>(
+      'put',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        body: setTeamJiraTargetDto,
         responseType: <any>responseType_,
         withCredentials: this.configuration.withCredentials,
         headers: localVarHeaders,
