@@ -113,6 +113,7 @@ describe('TeamAdmin', () => {
                     jiraTargetTitle: 'Jira',
                     jiraTargetHint: 'Override Jira',
                     jiraNotConnected: 'Jira not connected',
+                    jiraSite: 'Site',
                     jiraProject: 'Project',
                     jiraIssue: 'Issue',
                     jiraTargetSaved: 'Jira saved',

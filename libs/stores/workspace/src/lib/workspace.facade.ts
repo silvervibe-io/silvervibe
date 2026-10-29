@@ -186,15 +186,23 @@ export class WorkspaceFacade {
     return this.api.clearTeamGithubTarget(teamId);
   }
 
-  listTeamJiraProjects(teamId: string): Promise<JiraProjectView[]> {
-    return this.api.listTeamJiraProjects(teamId);
+  listTeamJiraSites(teamId: string): Promise<JiraSiteView[]> {
+    return this.api.listTeamJiraSites(teamId);
+  }
+
+  listTeamJiraProjects(
+    teamId: string,
+    cloudId?: string,
+  ): Promise<JiraProjectView[]> {
+    return this.api.listTeamJiraProjects(teamId, cloudId);
   }
 
   listTeamJiraIssues(
     teamId: string,
     projectKey: string,
+    cloudId?: string,
   ): Promise<JiraIssueView[]> {
-    return this.api.listTeamJiraIssues(teamId, projectKey);
+    return this.api.listTeamJiraIssues(teamId, projectKey, cloudId);
   }
 
   getTeamJiraTarget(teamId: string): Promise<TeamJiraTargetView> {

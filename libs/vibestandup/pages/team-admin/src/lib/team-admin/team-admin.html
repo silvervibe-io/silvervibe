@@ -334,6 +334,24 @@
       } @else {
       <fieldset class="fieldset w-full">
         <legend class="fieldset-legend">
+          {{ 'standup.team.jiraSite' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [value]="selectedJiraCloudId()"
+          (change)="onJiraSiteChange($any($event.target).value)"
+        >
+          <option value="">
+            {{ 'standup.team.targetDefault' | transloco }} @if
+            (jira.workspaceSiteName) { ({{ jira.workspaceSiteName }}) }
+          </option>
+          @for (site of jiraSites(); track site.cloudId) {
+          <option [value]="site.cloudId">{{ site.name }}</option>
+          }
+        </select>
+      </fieldset>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
           {{ 'standup.team.jiraProject' | transloco }}
         </legend>
         <select
@@ -382,7 +400,10 @@
           type="button"
           class="btn btn-primary btn-sm"
           [disabled]="
-            jiraTargetSaving() || !selectedJiraProject() || !selectedJiraIssue()
+            jiraTargetSaving() ||
+            !selectedJiraCloudId() ||
+            !selectedJiraProject() ||
+            !selectedJiraIssue()
           "
           (click)="saveJiraTarget()"
         >

@@ -39,14 +39,16 @@ Issue: [#116](https://github.com/silvervibe-io/silvervibe/issues/116)
 | `PUT`    | `/api/workspaces/:workspaceId/addons/jira/target`                      | Select issue                 |
 | `DELETE` | `/api/workspaces/:workspaceId/addons/jira`                             | Disconnect                   |
 | `GET`    | `/api/teams/:teamId/addons/jira/sites`                                 | Sites (team admin)           |
-| `GET`    | `/api/teams/:teamId/addons/jira/projects`                              | Projects (team admin)        |
-| `GET`    | `/api/teams/:teamId/addons/jira/projects/:projectKey/issues`           | Issues (team admin)          |
+| `GET`    | `/api/teams/:teamId/addons/jira/projects?cloudId=`                     | Projects (optional site)     |
+| `GET`    | `/api/teams/:teamId/addons/jira/projects/:projectKey/issues?cloudId=`  | Issues (optional site)       |
 | `GET`    | `/api/teams/:teamId/addons/jira/target`                                | Effective team target        |
 | `PUT`    | `/api/teams/:teamId/addons/jira/target`                                | Set team override            |
 | `DELETE` | `/api/teams/:teamId/addons/jira/target`                                | Clear override               |
 
-Per-team overrides live in connection `metadataJson.teamTargets`. Digests resolve
-the team issue first, then the workspace default.
+Per-team overrides live in connection `metadataJson.teamTargets` (including
+`cloudId`). Digests resolve the team issue first, then the workspace default.
+Team admin can pick a Cloud site other than the workspace default; omit
+`cloudId` on list endpoints to use the workspace site.
 
 ## Out of scope (for now)
 

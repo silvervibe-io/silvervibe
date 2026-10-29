@@ -50,6 +50,7 @@ export interface JiraControllerListIssuesRequestParams {
 export interface JiraControllerListIssuesForTeamRequestParams {
   teamId: string;
   projectKey: string;
+  cloudId?: any;
 }
 
 export interface JiraControllerListProjectsRequestParams {
@@ -58,6 +59,7 @@ export interface JiraControllerListProjectsRequestParams {
 
 export interface JiraControllerListProjectsForTeamRequestParams {
   teamId: string;
+  cloudId?: any;
 }
 
 export interface JiraControllerListSitesRequestParams {
