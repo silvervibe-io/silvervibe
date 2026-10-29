@@ -35,6 +35,10 @@ VibeStandup `maxTeams` / `maxMembersPerTeam` from
 (not the preview switcher). GrowthBook `vibestandup.multiTeam.enabled` can gate
 extra UX later; plan limits are always Neon + catalog.
 
+Downgrade to `free` is rejected while the workspace exceeds free catalog limits
+(too many teams, or a team over `maxMembersPerTeam` including unexpired pending
+invites). Upgrade to `team` has no usage gate.
+
 Prefer creating workspaces from the Silvervibe **portal** UI (`/portal`) when signed in; the curl examples below remain useful for API smoke checks.
 
 Example:

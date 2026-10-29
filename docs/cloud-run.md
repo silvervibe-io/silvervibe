@@ -119,6 +119,7 @@ Scheduler TZ can stay UTC; matching uses each team’s own timezone.
 
 ## Checklist
 
+- [ ] **Neon migrations applied** on the production branch (`npm run prisma:migrate:deploy` with prod `DATABASE_URL` / `DATABASE_URL_UNPOOLED`) **before** deploying a revision that needs new columns
 - [ ] Image builds (`nx run api:docker:build`)
 - [ ] Local container returns `{"status":"ok"}` on `/api/health`
 - [ ] Secrets in Secret Manager; Cloud Run revision healthy

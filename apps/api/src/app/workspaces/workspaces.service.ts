@@ -5,9 +5,10 @@ import {
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { WorkspaceRole } from '@prisma/client';
+import { TeamInviteStatus, WorkspaceRole } from '@prisma/client';
 import { enabledToolKeys } from '@silvervibe/shared/data-access';
 import {
+  getVibestandupLimits,
   isKnownToolKey,
   PLAN_KEYS,
   type PlanKey,
@@ -112,6 +113,36 @@ export class WorkspacesService {
     return workspace;
   }
 
+  private async assertCanDowngradeToFree(workspaceId: string): Promise<void> {
+    const limits = getVibestandupLimits(PLAN_KEYS.free);
+    const teams = await this.prisma.team.findMany({
+      where: { workspaceId },
+      select: { id: true },
+    });
+    if (teams.length > limits.maxTeams) {
+      throw new BadRequestException(
+        `Cannot set free plan: workspace has ${teams.length} teams (max ${limits.maxTeams}). Remove teams first.`,
+      );
+    }
+    for (const team of teams) {
+      const [memberCount, pendingCount] = await Promise.all([
+        this.prisma.teamMember.count({ where: { teamId: team.id } }),
+        this.prisma.teamInvite.count({
+          where: {
+            teamId: team.id,
+            status: TeamInviteStatus.PENDING,
+            expiresAt: { gt: new Date() },
+          },
+        }),
+      ]);
+      if (memberCount + pendingCount > limits.maxMembersPerTeam) {
+        throw new BadRequestException(
+          `Cannot set free plan: a team has ${memberCount + pendingCount} members/invites (max ${limits.maxMembersPerTeam}).`,
+        );
+      }
+    }
+  }
+
   async setPlan(
     workspaceId: string,
     planKey: PlanKey,
@@ -128,6 +159,10 @@ export class WorkspacesService {
     const userId = await this.resolveUserId(user);
     await this.requireWorkspaceOwner(workspaceId, userId);
     await this.getOrThrow(workspaceId);
+
+    if (planKey === PLAN_KEYS.free) {
+      await this.assertCanDowngradeToFree(workspaceId);
+    }
 
     const workspace = await this.prisma.workspace.update({
       where: { id: workspaceId },

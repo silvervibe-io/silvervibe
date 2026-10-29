@@ -141,4 +141,35 @@ describe('WorkspaceAdmin', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('h1')?.textContent).toContain('Workspace admin');
   });
+
+  it('keeps the workspace selector when selected membership is MEMBER', async () => {
+    const http = TestBed.inject(HttpTestingController);
+    const load = fixture.componentInstance['workspaces'].loadMyWorkspaces();
+    http.expectOne('/api/me/workspaces').flush([
+      {
+        id: 'ws-member',
+        name: 'Member WS',
+        slug: 'member',
+        planKey: 'free',
+        role: 'MEMBER',
+        tools: [],
+      },
+      {
+        id: 'ws-admin',
+        name: 'Admin WS',
+        slug: 'admin',
+        planKey: 'free',
+        role: 'OWNER',
+        tools: [{ toolKey: 'vibestandup', enabled: true }],
+      },
+    ]);
+    await load;
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain('Member WS');
+    expect(el.textContent).toContain('Admin WS');
+    expect(el.querySelector('fieldset select')).toBeTruthy();
+    expect(el.textContent).toContain('Admins only');
+  });
 });

@@ -206,4 +206,28 @@ describe('WorkspacesService', () => {
       ForbiddenException,
     );
   });
+
+  it('rejects downgrade to free when team count exceeds free limits', async () => {
+    const update = jest.fn();
+    const prisma = {
+      isEnabled: () => true,
+      workspaceMember: {
+        findUnique: jest.fn().mockResolvedValue({ role: WorkspaceRole.OWNER }),
+      },
+      workspace: {
+        findUnique: jest.fn().mockResolvedValue({ id: 'ws1' }),
+        update,
+      },
+      team: {
+        findMany: jest.fn().mockResolvedValue([{ id: 't1' }, { id: 't2' }]),
+      },
+      teamMember: { count: jest.fn() },
+      teamInvite: { count: jest.fn() },
+    };
+    const service = buildService(prisma);
+    await expect(service.setPlan('ws1', 'free', owner)).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+    expect(update).not.toHaveBeenCalled();
+  });
 });
