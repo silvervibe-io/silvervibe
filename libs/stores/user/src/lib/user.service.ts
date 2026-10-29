@@ -1,8 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import {
-  AuthDataService,
-  type CustomTokenDto,
-} from '@silvervibe/shared/api-client';
+import type { CustomTokenDto } from '@silvervibe/shared/api-client';
+import { AuthDataService } from '@silvervibe/shared/api-client/api/auth-data.service';
 import { firstValueFrom } from 'rxjs';
 import type { UserProfile } from './user.models';
 

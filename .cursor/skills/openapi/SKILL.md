@@ -10,8 +10,11 @@ description: Generates the Silvervibe OpenAPI document from the NestJS Swagger d
 3. Swagger UI for local use is `http://localhost:3000/api/docs`.
 4. Regenerate the Angular client: `npm run api-client` → `libs/shared/api-client`
    (`@silvervibe/shared/api-client`), with `api/` services and `model/` DTOs.
-5. Prefer importing DTOs / `*DataService` classes from `@silvervibe/shared/api-client`
-   instead of hand-rolling response types. Do not edit `src/lib/generated/**` by hand.
+5. Prefer generated DTOs/enums from `@silvervibe/shared/api-client`. Import
+   `*DataService` classes via deep paths (`@silvervibe/shared/api-client/api/…`)
+   so unused addon clients tree-shake out of initial bundles (#129). Do not edit
+   `src/lib/generated/**` by hand (`generate-api-client.mjs` also strips the
+   generator `APIS` array after each run).
 6. Apps should call `provideSilvervibeApiClient()` next to `provideSilvervibeAuth()`
    so `BASE_PATH` matches `API_BASE_URL`.
 
