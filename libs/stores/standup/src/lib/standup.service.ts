@@ -3,8 +3,6 @@ import {
   CreateTeamInviteDtoRoleEnum,
   MyTeamDtoRoleEnum,
   StandupEntryDtoStatusEnum,
-  StandupsDataService,
-  TeamsDataService,
   TeamInviteDtoStatusEnum,
   UpsertStandupEntryDtoStatusEnum,
   type MyTeamDto,
@@ -14,6 +12,8 @@ import {
   type TeamInviteDto,
   type TeamMemberDto,
 } from '@silvervibe/shared/api-client';
+import { StandupsDataService } from '@silvervibe/shared/api-client/api/standups-data.service';
+import { TeamsDataService } from '@silvervibe/shared/api-client/api/teams-data.service';
 import { firstValueFrom } from 'rxjs';
 import type {
   StandupAnswersInput,

@@ -31,4 +31,18 @@ Requires a **Java 11+** runtime (the generator CLI runs a JAR).
 onto OpenAPI Generator’s `BASE_PATH` (strips the trailing `/api` because OpenAPI
 paths already include Nest’s global prefix).
 
-Do not edit files under `src/lib/generated/` by hand.
+## Tree-shaking (#129)
+
+`tools/generate-api-client.mjs` rewrites `generated/api/api.ts` after each run to
+drop the generator’s `APIS` array (and its side-effect imports).
+
+The package barrel exports **providers + DTOs/enums only**. Import `*DataService`
+classes via deep paths so unused addon clients stay out of initial chunks:
+
+```ts
+import { provideSilvervibeApiClient, type MeDto } from '@silvervibe/shared/api-client';
+import { AuthDataService } from '@silvervibe/shared/api-client/api/auth-data.service';
+```
+
+Do not edit files under `src/lib/generated/` by hand (except via the generator
+script above).

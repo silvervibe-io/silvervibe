@@ -1,11 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import {
-  AuthDataService,
   MeWorkspaceDtoRoleEnum,
   SetWorkspacePlanDtoPlanKeyEnum,
-  TeamsDataService,
-  WorkspacesDataService,
   type CreateTeamDto,
   type CreateWorkspaceDto,
   type MeWorkspaceDto,
@@ -14,6 +11,9 @@ import {
   type WorkspaceDto,
   type WorkspaceToolDto,
 } from '@silvervibe/shared/api-client';
+import { AuthDataService } from '@silvervibe/shared/api-client/api/auth-data.service';
+import { TeamsDataService } from '@silvervibe/shared/api-client/api/teams-data.service';
+import { WorkspacesDataService } from '@silvervibe/shared/api-client/api/workspaces-data.service';
 import { API_BASE_URL } from '@silvervibe/shared/auth';
 import type { PreviewWorkspaceRole } from '@silvervibe/stores/preview';
 import { firstValueFrom } from 'rxjs';
