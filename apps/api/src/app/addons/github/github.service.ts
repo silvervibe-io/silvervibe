@@ -16,6 +16,7 @@ import { VerifiedUser } from '../../auth/firebase-auth.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsersService } from '../../users/users.service';
 import { AddonStatusDto } from '../addon-status.dto';
+import { readTeamTargetEntry } from '../team-target-meta';
 import {
   GithubConnectionDto,
   GithubIssueDto,
@@ -24,12 +25,21 @@ import {
   SelectGithubTargetDto,
 } from './github.dto';
 
+type GithubTeamTarget = {
+  owner: string;
+  repo: string;
+  issueNumber: number;
+  issueTitle?: string;
+};
+
 type GithubMetadata = {
   accountLogin?: string;
   owner?: string;
   repo?: string;
   issueNumber?: number;
   issueTitle?: string;
+  /** Per-team issue overrides; workspace target remains the default. */
+  teamTargets?: Record<string, GithubTeamTarget>;
   oauthNonce?: string;
   oauthExp?: number;
   oauthUserId?: string;
@@ -169,15 +179,96 @@ export class GithubService {
       const v = obj[key];
       return typeof v === 'number' && Number.isFinite(v) ? v : undefined;
     };
+    const teamTargetsRaw = obj['teamTargets'];
+    const teamTargets: Record<string, GithubTeamTarget> = {};
+    if (
+      teamTargetsRaw &&
+      typeof teamTargetsRaw === 'object' &&
+      !Array.isArray(teamTargetsRaw)
+    ) {
+      for (const [rawKey, value] of Object.entries(
+        teamTargetsRaw as Record<string, unknown>,
+      )) {
+        if (
+          rawKey === '__proto__' ||
+          rawKey === 'constructor' ||
+          rawKey === 'prototype' ||
+          !/^[a-z0-9_-]{8,64}$/i.test(rawKey) ||
+          !value ||
+          typeof value !== 'object' ||
+          Array.isArray(value)
+        ) {
+          continue;
+        }
+        const entry = value as Record<string, unknown>;
+        const owner =
+          typeof entry['owner'] === 'string' && entry['owner'].trim()
+            ? entry['owner'].trim()
+            : undefined;
+        const repo =
+          typeof entry['repo'] === 'string' && entry['repo'].trim()
+            ? entry['repo'].trim()
+            : undefined;
+        const issueNumber =
+          typeof entry['issueNumber'] === 'number' &&
+          Number.isFinite(entry['issueNumber'])
+            ? entry['issueNumber']
+            : undefined;
+        if (!owner || !repo || issueNumber === undefined) {
+          continue;
+        }
+        const issueTitle =
+          typeof entry['issueTitle'] === 'string' && entry['issueTitle'].trim()
+            ? entry['issueTitle'].trim()
+            : undefined;
+        Object.defineProperty(teamTargets, rawKey, {
+          value: { owner, repo, issueNumber, issueTitle },
+          writable: true,
+          enumerable: true,
+          configurable: true,
+        });
+      }
+    }
     return {
       accountLogin: str('accountLogin'),
       owner: str('owner'),
       repo: str('repo'),
       issueNumber: num('issueNumber'),
       issueTitle: str('issueTitle'),
+      teamTargets:
+        Object.keys(teamTargets).length > 0 ? teamTargets : undefined,
       oauthNonce: str('oauthNonce'),
       oauthExp: num('oauthExp'),
       oauthUserId: str('oauthUserId'),
+    };
+  }
+
+  resolveIssueForTeam(
+    meta: GithubMetadata,
+    teamId?: string,
+  ): {
+    owner?: string;
+    repo?: string;
+    issueNumber?: number;
+    issueTitle?: string;
+    isOverride: boolean;
+  } {
+    const override = readTeamTargetEntry(meta.teamTargets, teamId);
+    if (override?.owner && override.repo && override.issueNumber) {
+      return {
+        owner: override.owner,
+        repo: override.repo,
+        issueNumber: override.issueNumber,
+        issueTitle: override.issueTitle,
+        isOverride: true,
+      };
+    }
+    return {
+      owner: meta.owner,
+      repo: meta.repo,
+      issueNumber: meta.issueNumber,
+      issueTitle: meta.issueTitle,
+      isOverride: false,
     };
   }
 
@@ -587,6 +678,7 @@ export class GithubService {
    */
   async postStandupDigest(params: {
     workspaceId: string;
+    teamId?: string;
     teamName: string;
     entryDate: string;
     content: string;
@@ -626,7 +718,8 @@ export class GithubService {
       }
 
       const meta = this.asMetadata(connection.metadataJson);
-      if (!meta.owner || !meta.repo || !meta.issueNumber) {
+      const target = this.resolveIssueForTeam(meta, params.teamId);
+      if (!target.owner || !target.repo || !target.issueNumber) {
         this.logger.debug(
           `GitHub digest skipped for workspace ${params.workspaceId}: no issue target`,
         );
@@ -641,7 +734,7 @@ export class GithubService {
       ].join('\n');
 
       const res = await fetch(
-        `${API_BASE}/repos/${encodeURIComponent(meta.owner)}/${encodeURIComponent(meta.repo)}/issues/${meta.issueNumber}/comments`,
+        `${API_BASE}/repos/${encodeURIComponent(target.owner)}/${encodeURIComponent(target.repo)}/issues/${target.issueNumber}/comments`,
         {
           method: 'POST',
           headers: this.apiHeaders(connection.secretsRef.trim()),

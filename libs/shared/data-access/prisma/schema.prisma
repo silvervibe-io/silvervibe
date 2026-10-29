@@ -213,12 +213,14 @@ model StandupEntry {
 }
 
 model StandupSummary {
-  id        String   @id @default(cuid())
-  teamId    String   @map("team_id")
-  entryDate DateTime @map("entry_date") @db.Date
-  content   String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id                 String   @id @default(cuid())
+  teamId             String   @map("team_id")
+  entryDate          DateTime @map("entry_date") @db.Date
+  content            String
+  /// Last successful digest delivery fingerprint: { content, providers: { slack?, teams?, linear?, github?, jira? } }
+  digestDeliveryJson Json?    @map("digest_delivery_json")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
 
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
 

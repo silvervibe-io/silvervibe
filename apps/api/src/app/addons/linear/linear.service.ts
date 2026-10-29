@@ -16,12 +16,18 @@ import { VerifiedUser } from '../../auth/firebase-auth.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsersService } from '../../users/users.service';
 import { AddonStatusDto } from '../addon-status.dto';
+import { readTeamTargetEntry } from '../team-target-meta';
 import {
   LinearConnectionDto,
   LinearOAuthStartDto,
   LinearProjectDto,
   SelectLinearProjectDto,
 } from './linear.dto';
+
+type LinearTeamTarget = {
+  projectId: string;
+  projectName?: string;
+};
 
 type LinearMetadata = {
   refreshToken?: string;
@@ -30,6 +36,8 @@ type LinearMetadata = {
   projectId?: string;
   projectName?: string;
   organizationName?: string;
+  /** Per-team project overrides; workspace projectId remains the default. */
+  teamTargets?: Record<string, LinearTeamTarget>;
   oauthNonce?: string;
   oauthExp?: number;
   oauthUserId?: string;
@@ -168,15 +176,78 @@ export class LinearService {
       const v = obj[key];
       return typeof v === 'number' && Number.isFinite(v) ? v : undefined;
     };
+    const teamTargetsRaw = obj['teamTargets'];
+    const teamTargets: Record<string, LinearTeamTarget> = {};
+    if (
+      teamTargetsRaw &&
+      typeof teamTargetsRaw === 'object' &&
+      !Array.isArray(teamTargetsRaw)
+    ) {
+      for (const [rawKey, value] of Object.entries(
+        teamTargetsRaw as Record<string, unknown>,
+      )) {
+        if (
+          rawKey === '__proto__' ||
+          rawKey === 'constructor' ||
+          rawKey === 'prototype' ||
+          !/^[a-z0-9_-]{8,64}$/i.test(rawKey) ||
+          !value ||
+          typeof value !== 'object' ||
+          Array.isArray(value)
+        ) {
+          continue;
+        }
+        const entry = value as Record<string, unknown>;
+        const projectId =
+          typeof entry['projectId'] === 'string' && entry['projectId'].trim()
+            ? entry['projectId'].trim()
+            : undefined;
+        if (!projectId) {
+          continue;
+        }
+        const projectName =
+          typeof entry['projectName'] === 'string' &&
+          entry['projectName'].trim()
+            ? entry['projectName'].trim()
+            : undefined;
+        Object.defineProperty(teamTargets, rawKey, {
+          value: { projectId, projectName },
+          writable: true,
+          enumerable: true,
+          configurable: true,
+        });
+      }
+    }
     return {
       refreshToken: str('refreshToken'),
       accessExpiresAt: num('accessExpiresAt'),
       projectId: str('projectId'),
       projectName: str('projectName'),
       organizationName: str('organizationName'),
+      teamTargets:
+        Object.keys(teamTargets).length > 0 ? teamTargets : undefined,
       oauthNonce: str('oauthNonce'),
       oauthExp: num('oauthExp'),
       oauthUserId: str('oauthUserId'),
+    };
+  }
+
+  resolveProjectForTeam(
+    meta: LinearMetadata,
+    teamId?: string,
+  ): { projectId?: string; projectName?: string; isOverride: boolean } {
+    const override = readTeamTargetEntry(meta.teamTargets, teamId);
+    if (override?.projectId) {
+      return {
+        projectId: override.projectId,
+        projectName: override.projectName,
+        isOverride: true,
+      };
+    }
+    return {
+      projectId: meta.projectId,
+      projectName: meta.projectName,
+      isOverride: false,
     };
   }
 
@@ -552,6 +623,7 @@ export class LinearService {
    */
   async postStandupDigest(params: {
     workspaceId: string;
+    teamId?: string;
     teamName: string;
     entryDate: string;
     content: string;
@@ -591,7 +663,8 @@ export class LinearService {
       }
 
       const meta = this.asMetadata(connection.metadataJson);
-      if (!meta.projectId) {
+      const target = this.resolveProjectForTeam(meta, params.teamId);
+      if (!target.projectId) {
         this.logger.debug(
           `Linear digest skipped for workspace ${params.workspaceId}: no project selected`,
         );
@@ -601,7 +674,7 @@ export class LinearService {
       const accessToken = await this.requireFreshAccessToken(
         params.workspaceId,
       );
-      const projectLabel = meta.projectName ? ` (${meta.projectName})` : '';
+      const projectLabel = target.projectName ? ` (${target.projectName})` : '';
       const body = [
         `## VibeStandup — ${params.teamName}${projectLabel}`,
         `_${params.entryDate}_`,
@@ -617,7 +690,7 @@ export class LinearService {
         }`,
         variables: {
           input: {
-            projectId: meta.projectId,
+            projectId: target.projectId,
             body,
             health: 'onTrack',
           },

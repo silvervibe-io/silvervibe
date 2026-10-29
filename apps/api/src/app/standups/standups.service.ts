@@ -304,6 +304,51 @@ export class StandupsService {
       : 'No submitted standups for this day yet.';
   }
 
+  private asDigestDelivery(raw: unknown): {
+    content?: string;
+    providers: {
+      slack?: boolean;
+      teams?: boolean;
+      linear?: boolean;
+      github?: boolean;
+      jira?: boolean;
+    };
+  } {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+      return { providers: {} };
+    }
+    const obj = raw as Record<string, unknown>;
+    const content =
+      typeof obj['content'] === 'string' ? obj['content'] : undefined;
+    const providersRaw = obj['providers'];
+    const providers: {
+      slack?: boolean;
+      teams?: boolean;
+      linear?: boolean;
+      github?: boolean;
+      jira?: boolean;
+    } = {};
+    if (
+      providersRaw &&
+      typeof providersRaw === 'object' &&
+      !Array.isArray(providersRaw)
+    ) {
+      const p = providersRaw as Record<string, unknown>;
+      for (const key of [
+        'slack',
+        'teams',
+        'linear',
+        'github',
+        'jira',
+      ] as const) {
+        if (p[key] === true) {
+          providers[key] = true;
+        }
+      }
+    }
+    return { content, providers };
+  }
+
   private async rebuildSummaryForDate(
     teamId: string,
     entryDate: Date,
@@ -338,6 +383,14 @@ export class StandupsService {
     });
     const content = aiMarkdown ?? classic;
 
+    const prior = await this.prisma.standupSummary.findUnique({
+      where: { teamId_entryDate: { teamId, entryDate } },
+      select: { digestDeliveryJson: true },
+    });
+    const priorDelivery = this.asDigestDelivery(prior?.digestDeliveryJson);
+    const contentUnchanged = priorDelivery.content === content;
+    const providers = contentUnchanged ? { ...priorDelivery.providers } : {};
+
     const summary = await this.prisma.standupSummary.upsert({
       where: { teamId_entryDate: { teamId, entryDate } },
       create: { teamId, entryDate, content },
@@ -353,11 +406,31 @@ export class StandupsService {
           entryDate: entryDateIso,
           content: summary.content,
         };
-        await this.slack.postStandupDigest(digest);
-        await this.msTeams.postStandupDigest(digest);
-        await this.linear.postStandupDigest(digest);
-        await this.github.postStandupDigest(digest);
-        await this.jira.postStandupDigest(digest);
+        if (!providers.slack) {
+          providers.slack = await this.slack.postStandupDigest(digest);
+        }
+        if (!providers.teams) {
+          providers.teams = await this.msTeams.postStandupDigest(digest);
+        }
+        if (!providers.linear) {
+          providers.linear = await this.linear.postStandupDigest(digest);
+        }
+        if (!providers.github) {
+          providers.github = await this.github.postStandupDigest(digest);
+        }
+        if (!providers.jira) {
+          providers.jira = await this.jira.postStandupDigest(digest);
+        }
+
+        await this.prisma.standupSummary.update({
+          where: { id: summary.id },
+          data: {
+            digestDeliveryJson: {
+              content: summary.content,
+              providers,
+            },
+          },
+        });
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
