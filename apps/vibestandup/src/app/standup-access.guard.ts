@@ -24,7 +24,8 @@ function accessInput(
 }
 
 /** Blocks team and workspace admin routes the signed-in role cannot use. */
-export const standupAreaGuard: CanActivateFn = async (route) => {
+export const standupAreaGuard: CanActivateFn = async (route, state) => {
+  void state;
   const area = route.data['standupArea'] === 'workspace' ? 'workspace' : 'team';
   const workspaces = inject(WorkspaceFacade);
   const standup = inject(StandupFacade);
