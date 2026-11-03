@@ -1,0 +1,11 @@
+@for (part of parts(); track $index) { @if (part.kind === 'link') {
+<a class="link" [href]="part.href" target="_blank" rel="noopener noreferrer"
+  >{{ part.text }}</a
+>
+} @else if (part.kind === 'person') {
+<span class="font-semibold">{{ part.text }}</span>
+} @else if (part.kind === 'bold') {
+<strong>{{ part.text }}</strong>
+} @else {
+<span>{{ part.text }}</span>
+} }

@@ -18,7 +18,6 @@ import {
   activeMentionToken,
   formatClock,
   issueMention,
-  parseMentionSegments,
   personMention,
   resolveStandupHome,
   standupHomeUrl,
@@ -26,7 +25,6 @@ import {
   submissionPhase,
   StandupFacade,
   type MentionIssueView,
-  type MentionSegment,
   type StandupAccessInput,
   type StandupAnswerValue,
   type StandupQuestion,
@@ -121,10 +119,21 @@ export class MyStandup implements OnInit {
     if (!config) {
       return '';
     }
-    return config.scheduleKind === 'window'
-      ? formatClock(config.windowStartHour, config.windowStartMinute)
-      : formatClock(config.reminderHour, config.reminderMinute);
+    return formatClock(config.windowStartHour, config.windowStartMinute);
   });
+  readonly closesAt = computed(() => {
+    const config = this.config();
+    if (!config) {
+      return '';
+    }
+    return formatClock(config.reminderHour, config.reminderMinute);
+  });
+  readonly summaryHidden = computed(
+    () =>
+      this.config()?.reveal === 'together' &&
+      !this.isTeamAdmin() &&
+      !this.summary(),
+  );
   readonly mentionChoices = computed<MentionChoice[]>(() => {
     this.lang();
     const current = this.mention();
@@ -247,10 +256,6 @@ export class MyStandup implements OnInit {
   mentionFor(questionId: string): MentionSession | null {
     const current = this.mention();
     return current?.questionId === questionId ? current : null;
-  }
-
-  mentionSegments(content: string | null | undefined): MentionSegment[] {
-    return parseMentionSegments(content ?? '');
   }
 
   onAnswerInput(questionId: string, event: Event): void {

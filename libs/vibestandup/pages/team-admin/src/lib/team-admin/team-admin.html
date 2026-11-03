@@ -29,7 +29,51 @@
       </select>
     </fieldset>
 
+    <div role="tablist" class="tabs tabs-box w-fit">
+      <button
+        type="button"
+        role="tab"
+        class="tab"
+        [class.tab-active]="adminSection() === 'standup'"
+        [attr.aria-selected]="adminSection() === 'standup'"
+        (click)="adminSection.set('standup')"
+      >
+        {{ 'standup.team.tabStandup' | transloco }}
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="tab"
+        [class.tab-active]="adminSection() === 'questions'"
+        [attr.aria-selected]="adminSection() === 'questions'"
+        (click)="adminSection.set('questions')"
+      >
+        {{ 'standup.team.tabQuestions' | transloco }}
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="tab"
+        [class.tab-active]="adminSection() === 'digests'"
+        [attr.aria-selected]="adminSection() === 'digests'"
+        (click)="adminSection.set('digests')"
+      >
+        {{ 'standup.team.tabDigests' | transloco }}
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="tab"
+        [class.tab-active]="adminSection() === 'people'"
+        [attr.aria-selected]="adminSection() === 'people'"
+        (click)="adminSection.set('people')"
+      >
+        {{ 'standup.team.tabPeople' | transloco }}
+      </button>
+    </div>
+
     <form class="flex max-w-xl flex-col gap-3" (submit)="saveConfig($event)">
+      @if (adminSection() === 'standup') {
       <h2 class="text-xl font-semibold">
         {{ 'standup.team.config' | transloco }}
       </h2>
@@ -136,6 +180,7 @@
       <p class="text-sm text-base-content/70">
         {{ 'standup.team.reminderHint' | transloco }}
       </p>
+      } @if (adminSection() === 'questions') {
       <h3 class="text-lg font-semibold">
         {{ 'standup.team.questions' | transloco }}
       </h3>
@@ -234,11 +279,14 @@
           {{ 'standup.team.addChoice' | transloco }}
         </button>
       </div>
+      } @if (adminSection() === 'standup' || adminSection() === 'questions') {
       <button type="submit" class="btn btn-primary btn-sm self-start">
         {{ 'standup.team.saveConfig' | transloco }}
       </button>
+      }
     </form>
 
+    @if (adminSection() === 'digests') {
     <section class="flex max-w-xl flex-col gap-3">
       <h2 class="text-xl font-semibold">
         {{ 'standup.team.slackChannelTitle' | transloco }}
@@ -308,9 +356,18 @@
       <p class="text-sm text-base-content/70">
         {{ 'standup.team.linearTargetHint' | transloco }}
       </p>
-      @if (linearTargetError()) {
-      <p class="text-error text-sm">{{ linearTargetError() }}</p>
-      } @if (linearTarget(); as linear) { @if (!linear.linearConnected) {
+      @if (linearTargetError(); as message) {
+      <p class="text-error text-sm">
+        {{ message | transloco: { status: linearErrorStatus() } }}
+      </p>
+      @if (linearReconnect()) {
+      <a
+        class="link text-sm"
+        [routerLink]="['/app/workspace']"
+        [queryParams]="{ workspaceId: workspaceId() }"
+        >{{ 'standup.team.reconnectLink' | transloco }}</a
+      >
+      } } @if (linearTarget(); as linear) { @if (!linear.linearConnected) {
       <p class="text-sm text-base-content/70">
         {{ 'standup.team.linearNotConnected' | transloco }}
       </p>
@@ -370,9 +427,18 @@
       <p class="text-sm text-base-content/70">
         {{ 'standup.team.githubTargetHint' | transloco }}
       </p>
-      @if (githubTargetError()) {
-      <p class="text-error text-sm">{{ githubTargetError() }}</p>
-      } @if (githubTarget(); as github) { @if (!github.githubConnected) {
+      @if (githubTargetError(); as message) {
+      <p class="text-error text-sm">
+        {{ message | transloco: { status: githubErrorStatus() } }}
+      </p>
+      @if (githubReconnect()) {
+      <a
+        class="link text-sm"
+        [routerLink]="['/app/workspace']"
+        [queryParams]="{ workspaceId: workspaceId() }"
+        >{{ 'standup.team.reconnectLink' | transloco }}</a
+      >
+      } } @if (githubTarget(); as github) { @if (!github.githubConnected) {
       <p class="text-sm text-base-content/70">
         {{ 'standup.team.githubNotConnected' | transloco }}
       </p>
@@ -457,9 +523,18 @@
       <p class="text-sm text-base-content/70">
         {{ 'standup.team.jiraTargetHint' | transloco }}
       </p>
-      @if (jiraTargetError()) {
-      <p class="text-error text-sm">{{ jiraTargetError() }}</p>
-      } @if (jiraTarget(); as jira) { @if (!jira.jiraConnected) {
+      @if (jiraTargetError(); as message) {
+      <p class="text-error text-sm">
+        {{ message | transloco: { status: jiraErrorStatus() } }}
+      </p>
+      @if (jiraReconnect()) {
+      <a
+        class="link text-sm"
+        [routerLink]="['/app/workspace']"
+        [queryParams]="{ workspaceId: workspaceId() }"
+        >{{ 'standup.team.reconnectLink' | transloco }}</a
+      >
+      } } @if (jiraTarget(); as jira) { @if (!jira.jiraConnected) {
       <p class="text-sm text-base-content/70">
         {{ 'standup.team.jiraNotConnected' | transloco }}
       </p>
@@ -555,6 +630,7 @@
       } }
     </section>
 
+    } @if (adminSection() === 'people') {
     <section class="flex max-w-xl flex-col gap-3">
       <h2 class="text-xl font-semibold">
         {{ 'standup.team.members' | transloco }}
@@ -637,7 +713,7 @@
       <p class="text-error text-sm">{{ inviteError() }}</p>
       }
     </section>
-
+    } @if (adminSection() === 'standup') {
     <section class="space-y-3">
       <div class="flex items-center gap-3">
         <h2 class="text-xl font-semibold">
@@ -657,19 +733,17 @@
           <span class="font-medium">{{ e.status }}</span>
           —
           <sv-mention-text
-            [segments]="
-              mentionSegments(e.today || e.answersJson['today']?.text || '—')
-            "
+            [text]="e.today || e.answersJson['today']?.text || '—'"
           />
         </li>
         }
       </ul>
       @if (summary(); as s) {
       <div class="rounded-lg bg-base-200 p-4 text-sm">
-        <sv-mention-text [segments]="mentionSegments(s.content)" />
+        <sv-mention-text [text]="s.content" />
       </div>
       }
     </section>
-    }
+    } }
   </div>
 </sv-shell>

@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -16,7 +16,7 @@ import {
 import { StandupFacade } from '@silvervibe/stores/standup';
 import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 import { of } from 'rxjs';
-import { TeamAdmin } from './team-admin';
+import { addonFailure, TeamAdmin } from './team-admin';
 
 describe('TeamAdmin', () => {
   let fixture: ComponentFixture<TeamAdmin>;
@@ -151,6 +151,26 @@ describe('TeamAdmin', () => {
   it('renders the team admin title', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('h1')?.textContent).toContain('Team admin');
+  });
+
+  it('asks to reconnect when a stored token is rejected', () => {
+    expect(
+      addonFailure(
+        new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }),
+        'GitHub target unavailable',
+      ),
+    ).toEqual({
+      message: 'standup.team.reconnectAddon',
+      reconnect: true,
+      status: 401,
+    });
+    expect(
+      addonFailure(new Error('rate limited'), 'GitHub target unavailable'),
+    ).toEqual({ message: 'rate limited', reconnect: false });
+    expect(addonFailure('nope', 'Jira target unavailable')).toEqual({
+      message: 'Jira target unavailable',
+      reconnect: false,
+    });
   });
 
   it('adds a custom text question', () => {
