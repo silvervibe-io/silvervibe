@@ -33,5 +33,12 @@ export {
   isWithinWorkHours,
   localTimeLabel,
 } from './lib/member-clock';
+export {
+  activeMentionToken,
+  issueMention,
+  parseMentionSegments,
+  personMention,
+} from './lib/mentions';
+export type { MentionIssueView, MentionSegment } from './lib/mentions';
 export { formatClock, submissionPhase } from './lib/standup-window';
 export type { SubmissionPhase } from './lib/standup-window';

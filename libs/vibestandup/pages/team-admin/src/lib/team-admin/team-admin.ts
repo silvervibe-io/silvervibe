@@ -17,13 +17,15 @@ import {
 } from '@angular/forms/signals';
 import { ActivatedRoute } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { Shell } from '@silvervibe/shared/ui';
+import { MentionText, Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import {
   isWithinWorkHours,
   localTimeLabel,
+  parseMentionSegments,
   standupShellLinks,
   StandupFacade,
+  type MentionSegment,
   type StandupAccessInput,
   type StandupQuestion,
   type TeamInviteView,
@@ -61,7 +63,7 @@ type InviteModel = {
 
 @Component({
   selector: 'vs-team-admin',
-  imports: [FormField, Shell, TranslocoPipe],
+  imports: [FormField, MentionText, Shell, TranslocoPipe],
   templateUrl: './team-admin.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -670,6 +672,10 @@ export class TeamAdmin implements OnInit {
     } finally {
       this.jiraTargetSaving.set(false);
     }
+  }
+
+  mentionSegments(content: string | null | undefined): MentionSegment[] {
+    return parseMentionSegments(content ?? '');
   }
 
   memberTime(member: TeamMemberView): string {

@@ -317,4 +317,55 @@ describe('LinearService', () => {
     };
     expect(clearedMeta.teamTargets).toBeUndefined();
   });
+
+  it('searches Linear issues by term', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          searchIssues: {
+            nodes: [
+              {
+                identifier: 'LIN-12',
+                title: 'Ship mentions',
+                url: 'https://linear.app/acme/issue/LIN-12',
+              },
+            ],
+          },
+        },
+      }),
+    });
+    global.fetch = fetchMock as unknown as typeof fetch;
+    const service = new LinearService(
+      {
+        isEnabled: () => true,
+        workspaceTool: {
+          findUnique: jest.fn().mockResolvedValue({ enabled: true }),
+        },
+        addonConnection: {
+          findUnique: jest.fn().mockResolvedValue({
+            status: AddonConnectionStatus.CONNECTED,
+            secretsRef: 'lin_oauth_token',
+            metadataJson: { accessExpiresAt: Date.now() + 60 * 60 * 1000 },
+            provider: AddonProvider.LINEAR,
+          }),
+        },
+      } as unknown as PrismaService,
+      {} as unknown as UsersService,
+    );
+
+    await expect(service.searchMentionIssues('ws1', 'ship')).resolves.toEqual([
+      {
+        provider: 'linear',
+        key: 'LIN-12',
+        title: 'Ship mentions',
+        url: 'https://linear.app/acme/issue/LIN-12',
+      },
+    ]);
+    const body = JSON.parse(
+      (fetchMock.mock.calls[0][1] as { body: string }).body,
+    ) as { query: string; variables: { term: string } };
+    expect(body.query).toContain('searchIssues');
+    expect(body.variables.term).toBe('ship');
+  });
 });

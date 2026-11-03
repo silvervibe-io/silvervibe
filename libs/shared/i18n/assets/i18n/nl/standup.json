@@ -33,7 +33,13 @@
     "opensAt": "De standup opent om {{time}}.",
     "closed": "De standup is vandaag gesloten.",
     "other": "Anders",
-    "missing": "Beantwoord de verplichte vragen."
+    "missing": "Beantwoord de verplichte vragen.",
+    "mentionEmpty": "Geen overeenkomsten.",
+    "mentionLoading": "Issues zoeken…",
+    "mentionHint": "Typ minstens twee tekens.",
+    "providerGithub": "GitHub",
+    "providerJira": "Jira",
+    "providerLinear": "Linear"
   },
   "team": {
     "title": "Team admin",

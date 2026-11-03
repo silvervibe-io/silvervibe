@@ -204,6 +204,20 @@ export class UpsertStandupEntryDto {
   status!: 'DRAFT' | 'SUBMITTED';
 }
 
+export class MentionIssueDto {
+  @ApiProperty({ enum: ['github', 'jira', 'linear'] })
+  provider!: 'github' | 'jira' | 'linear';
+
+  @ApiProperty()
+  key!: string;
+
+  @ApiProperty()
+  title!: string;
+
+  @ApiProperty()
+  url!: string;
+}
+
 export class StandupSummaryDto {
   @ApiProperty()
   id!: string;

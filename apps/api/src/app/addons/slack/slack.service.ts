@@ -17,6 +17,7 @@ import { VerifiedUser } from '../../auth/firebase-auth.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsersService } from '../../users/users.service';
 import { AddonStatusDto } from '../addon-status.dto';
+import { mentionsToSlack } from '../../standups/mention-text';
 import {
   ConnectSlackDto,
   SetTeamSlackChannelDto,
@@ -1009,7 +1010,7 @@ export class SlackService {
         `*VibeStandup — ${params.teamName}${channel}*`,
         `_${params.entryDate}_`,
         '',
-        params.content,
+        mentionsToSlack(params.content),
       ].join('\n');
 
       const mode = this.detectAuthMode(secretsRef, meta);

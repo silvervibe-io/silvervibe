@@ -128,4 +128,57 @@ describe('GithubService', () => {
     expect(conn.oauthAvailable).toBe(false);
     expect(conn.configured).toBe(false);
   });
+
+  it('searches issues with is:issue and drops a failed call', async () => {
+    const fetchMock = jest.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        items: [
+          {
+            number: 7,
+            title: 'Ship mentions',
+            html_url: 'https://github.com/acme/app/issues/7',
+            repository_url: 'https://api.github.com/repos/acme/app',
+          },
+        ],
+      }),
+      text: async () => '',
+    });
+    global.fetch = fetchMock as unknown as typeof fetch;
+    const service = new GithubService(
+      {
+        isEnabled: () => true,
+        workspaceTool: {
+          findUnique: jest.fn().mockResolvedValue({ enabled: true }),
+        },
+        addonConnection: {
+          findUnique: jest.fn().mockResolvedValue({
+            status: AddonConnectionStatus.CONNECTED,
+            secretsRef: 'gho_token',
+            provider: AddonProvider.GITHUB,
+          }),
+        },
+      } as unknown as PrismaService,
+      {} as unknown as UsersService,
+    );
+
+    await expect(
+      service.searchMentionIssues('ws1', 'say "hi"'),
+    ).resolves.toEqual([
+      {
+        provider: 'github',
+        key: 'acme/app#7',
+        title: 'Ship mentions',
+        url: 'https://github.com/acme/app/issues/7',
+      },
+    ]);
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain(
+      encodeURIComponent('say "hi" is:issue'),
+    );
+
+    fetchMock.mockRejectedValueOnce(new Error('bad credentials'));
+    await expect(service.searchMentionIssues('ws1', 'ship')).resolves.toEqual(
+      [],
+    );
+  });
 });

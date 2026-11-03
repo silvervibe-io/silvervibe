@@ -655,16 +655,19 @@
         @for (e of teamEntries(); track e.id) {
         <li class="rounded-lg bg-base-200 p-3">
           <span class="font-medium">{{ e.status }}</span>
-          — {{ e.today || e.answersJson['today']?.text || '—' }}
+          —
+          <sv-mention-text
+            [segments]="
+              mentionSegments(e.today || e.answersJson['today']?.text || '—')
+            "
+          />
         </li>
         }
       </ul>
       @if (summary(); as s) {
-      <pre class="whitespace-pre-wrap rounded-lg bg-base-200 p-4 text-sm">
-{{
-        s.content
-      }}</pre
-      >
+      <div class="rounded-lg bg-base-200 p-4 text-sm">
+        <sv-mention-text [segments]="mentionSegments(s.content)" />
+      </div>
       }
     </section>
     }

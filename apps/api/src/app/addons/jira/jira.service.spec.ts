@@ -170,4 +170,50 @@ describe('JiraService', () => {
     expect(conn.oauthAvailable).toBe(false);
     expect(conn.configured).toBe(false);
   });
+
+  it('escapes quotes in the Jira text search', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        issues: [{ key: 'PROJ-12', fields: { summary: 'Ship mentions' } }],
+      }),
+      text: async () => '',
+    });
+    global.fetch = fetchMock as unknown as typeof fetch;
+    const service = new JiraService(
+      {
+        isEnabled: () => true,
+        workspaceTool: {
+          findUnique: jest.fn().mockResolvedValue({ enabled: true }),
+        },
+        addonConnection: {
+          findUnique: jest.fn().mockResolvedValue({
+            status: AddonConnectionStatus.CONNECTED,
+            secretsRef: 'jira_token',
+            metadataJson: {
+              cloudId: 'cloud-1',
+              siteUrl: 'https://acme.atlassian.net',
+              accessExpiresAt: Date.now() + 60 * 60 * 1000,
+            },
+            provider: AddonProvider.JIRA,
+          }),
+        },
+      } as unknown as PrismaService,
+      {} as unknown as UsersService,
+    );
+
+    await expect(
+      service.searchMentionIssues('ws1', 'say "hi"'),
+    ).resolves.toEqual([
+      {
+        provider: 'jira',
+        key: 'PROJ-12',
+        title: 'Ship mentions',
+        url: 'https://acme.atlassian.net/browse/PROJ-12',
+      },
+    ]);
+    const url = String(fetchMock.mock.calls[0]?.[0]);
+    const jql = decodeURIComponent(url.split('jql=')[1]?.split('&')[0] ?? '');
+    expect(jql).toBe('text ~ "say \\"hi\\"" ORDER BY updated DESC');
+  });
 });

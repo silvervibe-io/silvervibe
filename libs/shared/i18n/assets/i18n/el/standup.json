@@ -33,7 +33,13 @@
     "opensAt": "Το standup ανοίγει στις {{time}}.",
     "closed": "Το standup είναι κλειστό για σήμερα.",
     "other": "Άλλο",
-    "missing": "Απαντήστε στις υποχρεωτικές ερωτήσεις."
+    "missing": "Απαντήστε στις υποχρεωτικές ερωτήσεις.",
+    "mentionEmpty": "Δεν βρέθηκαν αποτελέσματα.",
+    "mentionLoading": "Αναζήτηση θεμάτων…",
+    "mentionHint": "Πληκτρολογήστε τουλάχιστον δύο χαρακτήρες.",
+    "providerGithub": "GitHub",
+    "providerJira": "Jira",
+    "providerLinear": "Linear"
   },
   "team": {
     "title": "Team admin",
