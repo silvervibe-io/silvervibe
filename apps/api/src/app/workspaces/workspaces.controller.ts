@@ -21,6 +21,7 @@ import { VerifiedUser } from '../auth/firebase-auth.service';
 import { UsersService } from '../users/users.service';
 import { CreateWorkspaceDto } from './create-workspace.dto';
 import { SetToolEntitlementDto } from './set-tool-entitlement.dto';
+import { SetWorkspacePlanDto } from './set-workspace-plan.dto';
 import { WorkspaceDto } from './workspace.dto';
 import { WorkspaceToolDto } from './workspace-tool.dto';
 import { WorkspacesService } from './workspaces.service';
@@ -57,7 +58,27 @@ export class WorkspacesController {
       id: workspace.id,
       name: workspace.name,
       slug: workspace.slug,
+      planKey: (workspace.planKey === 'team' ? 'team' : 'free') as
+        | 'free'
+        | 'team',
     };
+  }
+
+  @Put(':workspaceId/plan')
+  @ApiOperation({
+    summary: 'Set workspace commercial plan',
+    description:
+      'Pre-billing unlock: OWNER may set `free` or `team`. Nest enforces VibeStandup team/member limits from `plans.catalog` for the stored planKey. Not Stripe billing.',
+  })
+  @ApiOkResponse({ type: WorkspaceDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  async setPlan(
+    @Param('workspaceId') workspaceId: string,
+    @Body() body: SetWorkspacePlanDto,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<WorkspaceDto> {
+    return this.workspaces.setPlan(workspaceId, body.planKey, user);
   }
 
   @Get(':workspaceId/tools')

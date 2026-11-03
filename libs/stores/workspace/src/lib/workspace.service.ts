@@ -1,17 +1,19 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import {
-  AuthDataService,
   MeWorkspaceDtoRoleEnum,
-  TeamsDataService,
-  WorkspacesDataService,
+  SetWorkspacePlanDtoPlanKeyEnum,
   type CreateTeamDto,
   type CreateWorkspaceDto,
   type MeWorkspaceDto,
+  type SetWorkspacePlanDto,
   type TeamDto,
   type WorkspaceDto,
   type WorkspaceToolDto,
 } from '@silvervibe/shared/api-client';
+import { AuthDataService } from '@silvervibe/shared/api-client/api/auth-data.service';
+import { TeamsDataService } from '@silvervibe/shared/api-client/api/teams-data.service';
+import { WorkspacesDataService } from '@silvervibe/shared/api-client/api/workspaces-data.service';
 import { API_BASE_URL } from '@silvervibe/shared/auth';
 import type { PreviewWorkspaceRole } from '@silvervibe/stores/preview';
 import { firstValueFrom } from 'rxjs';
@@ -35,10 +37,16 @@ import type {
   SelectJiraSiteInput,
   SelectJiraTargetInput,
   SelectLinearProjectInput,
+  SetTeamGithubTargetInput,
+  SetTeamJiraTargetInput,
+  SetTeamLinearProjectInput,
   SetTeamSlackChannelInput,
   SlackChannelOptionView,
   SlackConnectionView,
   SlackOAuthStartView,
+  TeamGithubTargetView,
+  TeamJiraTargetView,
+  TeamLinearProjectView,
   TeamSlackChannelView,
   TeamsConnectionView,
   WorkspaceMembershipView,
@@ -56,11 +64,16 @@ function mapTool(tool: {
   return { toolKey: tool.toolKey, enabled: tool.enabled };
 }
 
+function mapPlanKey(raw: string | undefined | null): 'free' | 'team' {
+  return raw === 'team' ? 'team' : 'free';
+}
+
 function mapMembership(dto: MeWorkspaceDto): WorkspaceMembershipView {
   return {
     id: dto.id,
     name: dto.name,
     slug: dto.slug,
+    planKey: mapPlanKey(dto.planKey),
     role: mapRole(dto.role),
     tools: (dto.tools ?? []).map(mapTool),
   };
@@ -101,6 +114,24 @@ export class WorkspaceService {
         workspaceId,
         toolKey,
         setToolEntitlementDto: { enabled },
+      }),
+    );
+  }
+
+  setWorkspacePlan(
+    workspaceId: string,
+    planKey: 'free' | 'team',
+  ): Promise<WorkspaceDto> {
+    const setWorkspacePlanDto: SetWorkspacePlanDto = {
+      planKey:
+        planKey === 'team'
+          ? SetWorkspacePlanDtoPlanKeyEnum.team
+          : SetWorkspacePlanDtoPlanKeyEnum.free,
+    };
+    return firstValueFrom(
+      this.workspacesApi.workspacesControllerSetPlan({
+        workspaceId,
+        setWorkspacePlanDto,
       }),
     );
   }
@@ -174,6 +205,155 @@ export class WorkspaceService {
     return firstValueFrom(
       this.http.delete<TeamSlackChannelView>(
         `${this.apiBase}/teams/${teamId}/addons/slack/channel`,
+      ),
+    );
+  }
+
+  listTeamLinearProjects(teamId: string): Promise<LinearProjectView[]> {
+    return firstValueFrom(
+      this.http.get<LinearProjectView[]>(
+        `${this.apiBase}/teams/${teamId}/addons/linear/projects`,
+      ),
+    );
+  }
+
+  getTeamLinearProject(teamId: string): Promise<TeamLinearProjectView> {
+    return firstValueFrom(
+      this.http.get<TeamLinearProjectView>(
+        `${this.apiBase}/teams/${teamId}/addons/linear/project`,
+      ),
+    );
+  }
+
+  setTeamLinearProject(
+    teamId: string,
+    body: SetTeamLinearProjectInput,
+  ): Promise<TeamLinearProjectView> {
+    return firstValueFrom(
+      this.http.put<TeamLinearProjectView>(
+        `${this.apiBase}/teams/${teamId}/addons/linear/project`,
+        body,
+      ),
+    );
+  }
+
+  clearTeamLinearProject(teamId: string): Promise<TeamLinearProjectView> {
+    return firstValueFrom(
+      this.http.delete<TeamLinearProjectView>(
+        `${this.apiBase}/teams/${teamId}/addons/linear/project`,
+      ),
+    );
+  }
+
+  listTeamGithubRepos(teamId: string): Promise<GithubRepoView[]> {
+    return firstValueFrom(
+      this.http.get<GithubRepoView[]>(
+        `${this.apiBase}/teams/${teamId}/addons/github/repos`,
+      ),
+    );
+  }
+
+  listTeamGithubIssues(
+    teamId: string,
+    owner: string,
+    repo: string,
+  ): Promise<GithubIssueView[]> {
+    return firstValueFrom(
+      this.http.get<GithubIssueView[]>(
+        `${this.apiBase}/teams/${teamId}/addons/github/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues`,
+      ),
+    );
+  }
+
+  getTeamGithubTarget(teamId: string): Promise<TeamGithubTargetView> {
+    return firstValueFrom(
+      this.http.get<TeamGithubTargetView>(
+        `${this.apiBase}/teams/${teamId}/addons/github/target`,
+      ),
+    );
+  }
+
+  setTeamGithubTarget(
+    teamId: string,
+    body: SetTeamGithubTargetInput,
+  ): Promise<TeamGithubTargetView> {
+    return firstValueFrom(
+      this.http.put<TeamGithubTargetView>(
+        `${this.apiBase}/teams/${teamId}/addons/github/target`,
+        body,
+      ),
+    );
+  }
+
+  clearTeamGithubTarget(teamId: string): Promise<TeamGithubTargetView> {
+    return firstValueFrom(
+      this.http.delete<TeamGithubTargetView>(
+        `${this.apiBase}/teams/${teamId}/addons/github/target`,
+      ),
+    );
+  }
+
+  listTeamJiraSites(teamId: string): Promise<JiraSiteView[]> {
+    return firstValueFrom(
+      this.http.get<JiraSiteView[]>(
+        `${this.apiBase}/teams/${teamId}/addons/jira/sites`,
+      ),
+    );
+  }
+
+  listTeamJiraProjects(
+    teamId: string,
+    cloudId?: string,
+  ): Promise<JiraProjectView[]> {
+    const params = cloudId?.trim()
+      ? `?cloudId=${encodeURIComponent(cloudId.trim())}`
+      : '';
+    return firstValueFrom(
+      this.http.get<JiraProjectView[]>(
+        `${this.apiBase}/teams/${teamId}/addons/jira/projects${params}`,
+      ),
+    );
+  }
+
+  listTeamJiraIssues(
+    teamId: string,
+    projectKey: string,
+    cloudId?: string,
+  ): Promise<JiraIssueView[]> {
+    const params = cloudId?.trim()
+      ? `?cloudId=${encodeURIComponent(cloudId.trim())}`
+      : '';
+    return firstValueFrom(
+      this.http.get<JiraIssueView[]>(
+        `${this.apiBase}/teams/${teamId}/addons/jira/projects/${encodeURIComponent(projectKey)}/issues${params}`,
+      ),
+    );
+  }
+
+  getTeamJiraTarget(teamId: string): Promise<TeamJiraTargetView> {
+    return firstValueFrom(
+      this.http.get<TeamJiraTargetView>(
+        `${this.apiBase}/teams/${teamId}/addons/jira/target`,
+      ),
+    );
+  }
+
+  setTeamJiraTarget(
+    teamId: string,
+    body: SetTeamJiraTargetInput,
+  ): Promise<TeamJiraTargetView> {
+    return firstValueFrom(
+      this.http.put<TeamJiraTargetView>(
+        `${this.apiBase}/teams/${teamId}/addons/jira/target`,
+        body,
+      ),
+    );
+  }
+
+  clearTeamJiraTarget(teamId: string): Promise<TeamJiraTargetView> {
+    return firstValueFrom(
+      this.http.delete<TeamJiraTargetView>(
+        `${this.apiBase}/teams/${teamId}/addons/jira/target`,
       ),
     );
   }

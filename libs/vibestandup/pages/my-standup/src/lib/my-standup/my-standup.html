@@ -1,12 +1,4 @@
-<sv-shell
-  [title]="'Vibe Standup'"
-  [links]="[
-    { label: ('standup.nav.myStandup' | transloco), href: '/app' },
-    { label: ('standup.nav.teamAdmin' | transloco), href: '/app/team' },
-    { label: ('standup.nav.workspace' | transloco), href: '/app/workspace' },
-    { label: ('nav.account' | transloco), href: '/account' }
-  ]"
->
+<sv-shell [title]="'Vibe Standup'" [links]="shellLinks()">
   <div class="space-y-6">
     <header class="space-y-1">
       <h1 class="text-3xl font-bold tracking-tight">

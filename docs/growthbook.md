@@ -92,9 +92,14 @@ Prefer `npm run growthbook:generate-features` and create features from
 | ------------------------------- | ------- | ----------------- | -------------------------------------------- |
 | `tools.vibestandup.enabled`     | boolean | `true`            | Roll out Vibe Standup                        |
 | `addons.github.webhooks`        | boolean | `false`           | Roll out GitHub webhook handling             |
-| `vibestandup.multiTeam.enabled` | boolean | `false`           | Roll out multi-team UX beyond free default   |
+| `vibestandup.multiTeam.enabled` | boolean | `false`           | Optional UX gate for multi-team surfaces     |
 | `plans.catalog`                 | JSON    | plan catalog      | Remote-readable plan catalog                 |
 | `vibestandup.limits`            | JSON    | free limits       | Convenience free-tier limits (Neon enforces) |
+
+Hard limits for create-team / invites use Neon `workspaces.plan_key` + the local
+`plans.catalog.json` helpers in Nest — not GrowthBook alone. OWNER
+`PUT /api/workspaces/:id/plan` sets `free`/`team` (pre-billing). See
+[entitlements.md](./entitlements.md).
 
 Publish rules so the SDK connection can see them (dev environment is fine for local).
 

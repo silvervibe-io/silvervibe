@@ -26,6 +26,9 @@
       "@silvervibe/shared/api-client": [
         "./libs/shared/api-client/src/index.ts"
       ],
+      "@silvervibe/shared/api-client/api/*": [
+        "./libs/shared/api-client/src/lib/generated/api/*"
+      ],
       "@silvervibe/shared/auth": ["./libs/shared/auth/src/index.ts"],
       "@silvervibe/shared/feature-auth": [
         "./libs/shared/feature-auth/src/index.ts"

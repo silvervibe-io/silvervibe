@@ -25,10 +25,16 @@ import type {
   SelectJiraSiteInput,
   SelectJiraTargetInput,
   SelectLinearProjectInput,
+  SetTeamGithubTargetInput,
+  SetTeamJiraTargetInput,
+  SetTeamLinearProjectInput,
   SetTeamSlackChannelInput,
   SlackChannelOptionView,
   SlackConnectionView,
   SlackOAuthStartView,
+  TeamGithubTargetView,
+  TeamJiraTargetView,
+  TeamLinearProjectView,
   TeamSlackChannelView,
   TeamsConnectionView,
   WorkspaceMembershipView,
@@ -50,8 +56,8 @@ export class WorkspaceFacade {
   readonly loading = this.store.loading;
   readonly error = this.store.error;
 
-  loadMyWorkspaces(): Promise<void> {
-    return this.store.loadMyWorkspaces();
+  loadMyWorkspaces(preferredWorkspaceId?: string | null): Promise<void> {
+    return this.store.loadMyWorkspaces(preferredWorkspaceId);
   }
 
   selectWorkspace(workspaceId: string): void {
@@ -89,6 +95,16 @@ export class WorkspaceFacade {
     return this.api.setToolEntitlement(workspaceId, toolKey, enabled);
   }
 
+  async setWorkspacePlan(
+    workspaceId: string,
+    planKey: 'free' | 'team',
+  ): Promise<WorkspaceDto> {
+    const workspace = await this.api.setWorkspacePlan(workspaceId, planKey);
+    await this.store.loadMyWorkspaces();
+    this.store.selectWorkspace(workspaceId);
+    return workspace;
+  }
+
   createTeam(workspaceId: string, body: CreateTeamInput): Promise<TeamDto> {
     return this.api.createTeam(workspaceId, body);
   }
@@ -122,6 +138,86 @@ export class WorkspaceFacade {
 
   clearTeamSlackChannel(teamId: string): Promise<TeamSlackChannelView> {
     return this.api.clearTeamSlackChannel(teamId);
+  }
+
+  listTeamLinearProjects(teamId: string): Promise<LinearProjectView[]> {
+    return this.api.listTeamLinearProjects(teamId);
+  }
+
+  getTeamLinearProject(teamId: string): Promise<TeamLinearProjectView> {
+    return this.api.getTeamLinearProject(teamId);
+  }
+
+  setTeamLinearProject(
+    teamId: string,
+    body: SetTeamLinearProjectInput,
+  ): Promise<TeamLinearProjectView> {
+    return this.api.setTeamLinearProject(teamId, body);
+  }
+
+  clearTeamLinearProject(teamId: string): Promise<TeamLinearProjectView> {
+    return this.api.clearTeamLinearProject(teamId);
+  }
+
+  listTeamGithubRepos(teamId: string): Promise<GithubRepoView[]> {
+    return this.api.listTeamGithubRepos(teamId);
+  }
+
+  listTeamGithubIssues(
+    teamId: string,
+    owner: string,
+    repo: string,
+  ): Promise<GithubIssueView[]> {
+    return this.api.listTeamGithubIssues(teamId, owner, repo);
+  }
+
+  getTeamGithubTarget(teamId: string): Promise<TeamGithubTargetView> {
+    return this.api.getTeamGithubTarget(teamId);
+  }
+
+  setTeamGithubTarget(
+    teamId: string,
+    body: SetTeamGithubTargetInput,
+  ): Promise<TeamGithubTargetView> {
+    return this.api.setTeamGithubTarget(teamId, body);
+  }
+
+  clearTeamGithubTarget(teamId: string): Promise<TeamGithubTargetView> {
+    return this.api.clearTeamGithubTarget(teamId);
+  }
+
+  listTeamJiraSites(teamId: string): Promise<JiraSiteView[]> {
+    return this.api.listTeamJiraSites(teamId);
+  }
+
+  listTeamJiraProjects(
+    teamId: string,
+    cloudId?: string,
+  ): Promise<JiraProjectView[]> {
+    return this.api.listTeamJiraProjects(teamId, cloudId);
+  }
+
+  listTeamJiraIssues(
+    teamId: string,
+    projectKey: string,
+    cloudId?: string,
+  ): Promise<JiraIssueView[]> {
+    return this.api.listTeamJiraIssues(teamId, projectKey, cloudId);
+  }
+
+  getTeamJiraTarget(teamId: string): Promise<TeamJiraTargetView> {
+    return this.api.getTeamJiraTarget(teamId);
+  }
+
+  setTeamJiraTarget(
+    teamId: string,
+    body: SetTeamJiraTargetInput,
+  ): Promise<TeamJiraTargetView> {
+    return this.api.setTeamJiraTarget(teamId, body);
+  }
+
+  clearTeamJiraTarget(teamId: string): Promise<TeamJiraTargetView> {
+    return this.api.clearTeamJiraTarget(teamId);
   }
 
   getTeamsConnection(workspaceId: string): Promise<TeamsConnectionView> {

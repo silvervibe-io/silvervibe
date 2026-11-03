@@ -37,6 +37,14 @@ access).
 | `GET`    | `/api/workspaces/:workspaceId/addons/github/repos/:owner/:repo/issues` | Open issues                  |
 | `PUT`    | `/api/workspaces/:workspaceId/addons/github/target`                    | Select repo + issue          |
 | `DELETE` | `/api/workspaces/:workspaceId/addons/github`                           | Disconnect (admin)           |
+| `GET`    | `/api/teams/:teamId/addons/github/repos`                               | Repo picker (team admin)     |
+| `GET`    | `/api/teams/:teamId/addons/github/repos/:owner/:repo/issues`           | Issues (team admin)          |
+| `GET`    | `/api/teams/:teamId/addons/github/target`                              | Effective team target        |
+| `PUT`    | `/api/teams/:teamId/addons/github/target`                              | Set team override            |
+| `DELETE` | `/api/teams/:teamId/addons/github/target`                              | Clear override               |
+
+Per-team overrides live in connection `metadataJson.teamTargets`. Digests resolve
+the team repo/issue first, then the workspace default.
 
 ## Out of scope (for now)
 

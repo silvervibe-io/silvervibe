@@ -29,6 +29,8 @@ import { CreateWorkspaceDto } from '../model/create-workspace-dto';
 // @ts-ignore
 import { SetToolEntitlementDto } from '../model/set-tool-entitlement-dto';
 // @ts-ignore
+import { SetWorkspacePlanDto } from '../model/set-workspace-plan-dto';
+// @ts-ignore
 import { WorkspaceDto } from '../model/workspace-dto';
 // @ts-ignore
 import { WorkspaceToolDto } from '../model/workspace-tool-dto';
@@ -40,6 +42,7 @@ import {
   WorkspacesDataServiceInterface,
   WorkspacesControllerCreateRequestParams,
   WorkspacesControllerListToolsRequestParams,
+  WorkspacesControllerSetPlanRequestParams,
   WorkspacesControllerSetToolRequestParams,
 } from './workspaces-data.serviceInterface';
 
@@ -376,6 +379,146 @@ export class WorkspacesDataService implements WorkspacesDataServiceInterface {
       `${this.configuration.basePath}${localVarPath}`,
       {
         context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * Set workspace commercial plan
+   * Pre-billing unlock: OWNER may set &#x60;free&#x60; or &#x60;team&#x60;. Nest enforces VibeStandup team/member limits from &#x60;plans.catalog&#x60; for the stored planKey. Not Stripe billing.
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public workspacesControllerSetPlan(
+    requestParameters?: WorkspacesControllerSetPlanRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<WorkspaceDto>;
+  public workspacesControllerSetPlan(
+    requestParameters?: WorkspacesControllerSetPlanRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<WorkspaceDto>>;
+  public workspacesControllerSetPlan(
+    requestParameters?: WorkspacesControllerSetPlanRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<WorkspaceDto>>;
+  public workspacesControllerSetPlan(
+    requestParameters?: WorkspacesControllerSetPlanRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const workspaceId = requestParameters?.workspaceId;
+    if (workspaceId === null || workspaceId === undefined) {
+      throw new Error(
+        'Required parameter workspaceId was null or undefined when calling workspacesControllerSetPlan.',
+      );
+    }
+    const setWorkspacePlanDto = requestParameters?.setWorkspacePlanDto;
+    if (setWorkspacePlanDto === null || setWorkspacePlanDto === undefined) {
+      throw new Error(
+        'Required parameter setWorkspacePlanDto was null or undefined when calling workspacesControllerSetPlan.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = ['application/json'];
+    const httpContentTypeSelected: string | undefined =
+      this.configuration.selectHeaderContentType(consumes);
+    if (httpContentTypeSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Content-Type',
+        httpContentTypeSelected,
+      );
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/workspaces/${this.configuration.encodeParam({ name: 'workspaceId', value: workspaceId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/plan`;
+    return this.httpClient.request<WorkspaceDto>(
+      'put',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        body: setWorkspacePlanDto,
         responseType: <any>responseType_,
         withCredentials: this.configuration.withCredentials,
         headers: localVarHeaders,

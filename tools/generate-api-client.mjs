@@ -15,6 +15,7 @@ import { spawnSync } from 'node:child_process';
 import {
   existsSync,
   mkdirSync,
+  readFileSync,
   readdirSync,
   rmSync,
   writeFileSync,
@@ -97,6 +98,51 @@ writeFileSync(
   'utf8',
 );
 
+/**
+ * OpenAPI Generator's `api/api.ts` imports every *DataService into an `APIS`
+ * array. That keeps the whole client graph alive through the package barrel.
+ * Rewrite to pure re-exports so unused addon services can tree-shake.
+ *
+ * Read first (no existsSync) to avoid TOCTOU; skip if the generator omitted it.
+ */
+const apiBarrelPath = join(outDir, 'api', 'api.ts');
+let apiBarrelSource;
+try {
+  apiBarrelSource = readFileSync(apiBarrelPath, 'utf8');
+} catch (err) {
+  const code =
+    err && typeof err === 'object' && 'code' in err
+      ? String(err.code)
+      : undefined;
+  if (code !== 'ENOENT') {
+    throw err;
+  }
+  console.warn('api/api.ts missing after generate; skipped tree-shake slim.');
+}
+
+if (apiBarrelSource !== undefined) {
+  const reExports = [
+    ...apiBarrelSource.matchAll(/^export \* from ('[^']+');$/gm),
+  ].map((m) => m[0]);
+  if (reExports.length === 0) {
+    console.warn(
+      'Could not find export * lines in api/api.ts; left generator output as-is.',
+    );
+  } else {
+    const slim = [
+      '/**',
+      ' * Tree-shakeable re-exports of OpenAPI *DataService classes.',
+      ' *',
+      ' * OpenAPI Generator normally emits side-effect imports + an `APIS` array',
+      ' * that keeps every service alive. Rewritten by generate-api-client.mjs.',
+      ' */',
+      ...reExports,
+      '',
+    ].join('\n');
+    writeFileSync(apiBarrelPath, slim, 'utf8');
+    console.log('Slimmed api/api.ts (removed APIS array for tree-shaking).');
+  }
+}
 console.log(`Wrote Angular client under ${outDir}`);
 console.log('  api/   — DataServices (one file per OpenAPI tag)');
 console.log('  model/ — DTO interfaces (one file per schema)');

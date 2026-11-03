@@ -26,6 +26,8 @@ import {
   LinearOAuthStartDto,
   LinearProjectDto,
   SelectLinearProjectDto,
+  SetTeamLinearProjectDto,
+  TeamLinearProjectDto,
 } from './linear.dto';
 import { LinearService } from './linear.service';
 
@@ -145,5 +147,64 @@ export class LinearController {
     @CurrentUser() user: VerifiedUser,
   ): Promise<LinearConnectionDto> {
     return this.linear.disconnect(workspaceId, user);
+  }
+
+  @Get('teams/:teamId/addons/linear/projects')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'List Linear projects for per-team digest picker' })
+  @ApiOkResponse({ type: LinearProjectDto, isArray: true })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  listProjectsForTeam(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<LinearProjectDto[]> {
+    return this.linear.listProjectsForTeam(teamId, user);
+  }
+
+  @Get('teams/:teamId/addons/linear/project')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get effective Linear digest project for a team' })
+  @ApiOkResponse({ type: TeamLinearProjectDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  getTeamProject(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<TeamLinearProjectDto> {
+    return this.linear.getTeamProject(teamId, user);
+  }
+
+  @Put('teams/:teamId/addons/linear/project')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Set Linear project override for a team' })
+  @ApiOkResponse({ type: TeamLinearProjectDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  setTeamProject(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+    @Body() body: SetTeamLinearProjectDto,
+  ): Promise<TeamLinearProjectDto> {
+    return this.linear.setTeamProject(teamId, user, body);
+  }
+
+  @Delete('teams/:teamId/addons/linear/project')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Clear team Linear project override (use workspace default)',
+  })
+  @ApiOkResponse({ type: TeamLinearProjectDto })
+  @ApiUnauthorizedResponse()
+  @ApiForbiddenResponse()
+  clearTeamProject(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<TeamLinearProjectDto> {
+    return this.linear.clearTeamProject(teamId, user);
   }
 }

@@ -65,6 +65,10 @@ describe('WorkspaceAdmin', () => {
                     create: 'Create',
                     toolUpdated: 'Updated',
                     teamCreated: 'Created',
+                    planTitle: 'Workspace plan',
+                    planStatus: 'Current plan {{plan}}',
+                    upgradeToTeam: 'Upgrade to Team',
+                    planUpgraded: 'Upgraded',
                     slackTitle: 'Slack',
                     slackHint: 'Connect Slack',
                     slackStatus: 'Status',
@@ -136,5 +140,36 @@ describe('WorkspaceAdmin', () => {
   it('renders the workspace admin title', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('h1')?.textContent).toContain('Workspace admin');
+  });
+
+  it('keeps the workspace selector when selected membership is MEMBER', async () => {
+    const http = TestBed.inject(HttpTestingController);
+    const load = fixture.componentInstance['workspaces'].loadMyWorkspaces();
+    http.expectOne('/api/me/workspaces').flush([
+      {
+        id: 'ws-member',
+        name: 'Member WS',
+        slug: 'member',
+        planKey: 'free',
+        role: 'MEMBER',
+        tools: [],
+      },
+      {
+        id: 'ws-admin',
+        name: 'Admin WS',
+        slug: 'admin',
+        planKey: 'free',
+        role: 'OWNER',
+        tools: [{ toolKey: 'vibestandup', enabled: true }],
+      },
+    ]);
+    await load;
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain('Member WS');
+    expect(el.textContent).toContain('Admin WS');
+    expect(el.querySelector('fieldset select')).toBeTruthy();
+    expect(el.textContent).toContain('Admins only');
   });
 });

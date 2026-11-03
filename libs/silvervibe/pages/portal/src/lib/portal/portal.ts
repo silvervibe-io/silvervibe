@@ -7,13 +7,18 @@ import {
   signal,
 } from '@angular/core';
 import { form, FormField, required, submit } from '@angular/forms/signals';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService, STANDUP_APP_ORIGIN } from '@silvervibe/shared/auth';
 import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
 import { Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import { UserFacade } from '@silvervibe/stores/user';
-import { WorkspaceFacade } from '@silvervibe/stores/workspace';
+import {
+  resolvePortalEntry,
+  vibestandupReturnUrl,
+  WorkspaceFacade,
+} from '@silvervibe/stores/workspace';
 
 type CreateWorkspaceModel = {
   name: string;
@@ -34,6 +39,8 @@ export class Portal implements OnInit {
   private readonly users = inject(UserFacade);
   private readonly preview = inject(PreviewContextStore);
   private readonly auth = inject(AuthService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly standupOrigin =
     inject(STANDUP_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4201';
 
@@ -71,8 +78,23 @@ export class Portal implements OnInit {
     required(schemaPath.slug);
   });
 
-  ngOnInit(): void {
-    void this.workspaces.loadMyWorkspaces();
+  async ngOnInit(): Promise<void> {
+    const enter = this.route.snapshot.queryParamMap.get('enter') === '1';
+    await this.workspaces.loadMyWorkspaces();
+    if (!enter) {
+      return;
+    }
+    const decision = resolvePortalEntry(this.workspaces.memberships());
+    if (decision.kind === 'vibestandup') {
+      await this.openVibeStandup(decision.workspaceId);
+      return;
+    }
+    await this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { enter: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   selectWorkspace(workspaceId: string): void {
@@ -100,19 +122,24 @@ export class Portal implements OnInit {
     });
   }
 
-  async openVibeStandup(): Promise<void> {
+  async openVibeStandup(workspaceId?: string): Promise<void> {
+    const id = workspaceId ?? this.selected()?.id;
     this.openingTool.set(true);
     try {
       const { customToken } = await this.users.createCustomToken();
       const url = new URL('/auth/handoff', this.standupOrigin);
       url.searchParams.set('token', customToken);
-      url.searchParams.set('returnUrl', '/app');
-      window.location.assign(url.toString());
+      url.searchParams.set('returnUrl', vibestandupReturnUrl(id));
+      this.assignLocation(url.toString());
     } catch {
-      window.location.assign(`${this.standupOrigin}/auth`);
+      this.assignLocation(`${this.standupOrigin}/auth`);
     } finally {
       this.openingTool.set(false);
     }
+  }
+
+  assignLocation(url: string): void {
+    window.location.assign(url);
   }
 
   async signOut(): Promise<void> {

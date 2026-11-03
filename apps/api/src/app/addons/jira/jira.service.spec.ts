@@ -1,6 +1,7 @@
 import {
   AddonConnectionStatus,
   AddonProvider,
+  TeamRole,
   WorkspaceRole,
 } from '@prisma/client';
 import { VerifiedUser } from '../../auth/firebase-auth.service';
@@ -94,6 +95,54 @@ describe('JiraService', () => {
     expect(fetchMock).toHaveBeenCalledWith(
       'https://api.atlassian.com/ex/jira/cloud1/rest/api/3/issue/ENG-42/comment',
       expect.objectContaining({ method: 'POST' }),
+    );
+  });
+
+  it('lists team projects against an explicit cloudId override', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        values: [{ id: '1', key: 'ENG', name: 'Engineering' }],
+      }),
+    });
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const service = new JiraService(
+      {
+        isEnabled: () => true,
+        teamMember: {
+          findUnique: jest.fn().mockResolvedValue({
+            role: TeamRole.ADMIN,
+            team: { workspaceId: 'ws1' },
+          }),
+        },
+        addonConnection: {
+          findUnique: jest.fn().mockResolvedValue({
+            id: 'conn1',
+            status: AddonConnectionStatus.CONNECTED,
+            secretsRef: 'atlassian_token',
+            metadataJson: {
+              cloudId: 'workspace-cloud',
+              accessExpiresAt: Date.now() + 60 * 60 * 1000,
+            },
+            provider: AddonProvider.JIRA,
+          }),
+        },
+      } as unknown as PrismaService,
+      {
+        upsertFromFirebase: jest.fn().mockResolvedValue({ id: 'user1' }),
+      } as unknown as UsersService,
+    );
+
+    const projects = await service.listProjectsForTeam(
+      'team1abcd',
+      admin,
+      'other-cloud-id',
+    );
+    expect(projects).toEqual([{ id: '1', key: 'ENG', name: 'Engineering' }]);
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://api.atlassian.com/ex/jira/other-cloud-id/rest/api/3/project/search?maxResults=50',
+      expect.any(Object),
     );
   });
 

@@ -1,3 +1,4 @@
+import { Component } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import {
   HttpTestingController,
@@ -5,7 +6,8 @@ import {
 } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 import { provideTransloco } from '@jsverse/transloco';
 import { provideSilvervibeApiClient } from '@silvervibe/shared/api-client';
 import { API_BASE_URL } from '@silvervibe/shared/auth';
@@ -91,5 +93,108 @@ describe('MyStandup', () => {
   it('renders the my standup title', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('h1')?.textContent).toContain('My standup');
+  });
+});
+
+@Component({
+  selector: 'vs-home-stub',
+  template: 'home',
+  standalone: true,
+})
+class HomeStub {}
+
+describe('MyStandup enter', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      providers: [
+        provideRouter([
+          { path: 'app', component: MyStandup },
+          { path: 'app/workspace', component: HomeStub },
+          { path: 'app/team', component: HomeStub },
+        ]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: API_BASE_URL, useValue: '/api' },
+        provideSilvervibeApiClient(),
+        { provide: PREVIEW_SWITCHER_EMAILS, useValue: [] },
+        {
+          provide: PREVIEW_SWITCHER_USER_EMAIL,
+          useValue: signal<string | null>(null),
+        },
+        WorkspaceFacade,
+        StandupFacade,
+        ...provideTransloco({
+          config: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+            reRenderOnLangChange: true,
+            prodMode: true,
+          },
+          loader: class {
+            getTranslation() {
+              return of({
+                nav: { account: 'Account' },
+                standup: {
+                  loading: 'Loading',
+                  nav: {
+                    myStandup: 'My standup',
+                    teamAdmin: 'Team',
+                    workspace: 'Workspace',
+                  },
+                  my: {
+                    title: 'My standup',
+                    lead: 'Share updates',
+                    noTeams: 'No teams',
+                    team: 'Team',
+                    yesterday: 'Yesterday',
+                    today: 'Today',
+                    blockers: 'Blockers',
+                    saveDraft: 'Save draft',
+                    submit: 'Submit',
+                    submitted: 'Submitted',
+                    summary: 'Summary',
+                  },
+                },
+                shell: { theme: { toDark: 'Dark', toLight: 'Light' } },
+                common: { language: { label: 'Language', en: 'English' } },
+              });
+            }
+          },
+        }),
+      ],
+    }).compileComponents();
+  });
+
+  it('sends a workspace admin to workspace admin when enter=1', async () => {
+    const harness = await RouterTestingHarness.create(
+      '/app?enter=1&workspaceId=ws2',
+    );
+    const http = TestBed.inject(HttpTestingController);
+    http.expectOne('/api/me/workspaces').flush([
+      {
+        id: 'ws1',
+        name: 'Acme',
+        slug: 'acme',
+        role: 'MEMBER',
+        tools: [],
+      },
+      {
+        id: 'ws2',
+        name: 'Other',
+        slug: 'other',
+        role: 'OWNER',
+        tools: [{ toolKey: 'vibestandup', enabled: true }],
+      },
+    ]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const teams = http.match((req) => req.url.includes('/teams/mine'));
+    expect(teams.map((req) => req.request.url)).toEqual([
+      '/api/workspaces/ws2/teams/mine',
+    ]);
+    teams[0]?.flush([{ id: 't1', name: 'Team', slug: 'team', role: 'MEMBER' }]);
+    await harness.fixture.whenStable();
+    expect(TestBed.inject(Router).url).toContain('/app/workspace');
+    expect(TestBed.inject(Router).url).toContain('workspaceId=ws2');
+    http.verify();
   });
 });

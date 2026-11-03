@@ -5,9 +5,14 @@ import {
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { WorkspaceRole } from '@prisma/client';
+import { TeamInviteStatus, WorkspaceRole } from '@prisma/client';
 import { enabledToolKeys } from '@silvervibe/shared/data-access';
-import { isKnownToolKey } from '@silvervibe/shared/feature-flags';
+import {
+  getVibestandupLimits,
+  isKnownToolKey,
+  PLAN_KEYS,
+  type PlanKey,
+} from '@silvervibe/shared/feature-flags';
 import { VerifiedUser } from '../auth/firebase-auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
@@ -30,6 +35,13 @@ export class WorkspacesService {
   private async resolveUserId(user: VerifiedUser): Promise<string> {
     const record = await this.users.upsertFromFirebase(user);
     return record.id;
+  }
+
+  private asPlanKey(raw: string | null | undefined): PlanKey {
+    if (raw === PLAN_KEYS.team) {
+      return PLAN_KEYS.team;
+    }
+    return PLAN_KEYS.free;
   }
 
   private async requireWorkspaceMember(
@@ -59,12 +71,23 @@ export class WorkspacesService {
     }
   }
 
+  private async requireWorkspaceOwner(
+    workspaceId: string,
+    userId: string,
+  ): Promise<void> {
+    const membership = await this.requireWorkspaceMember(workspaceId, userId);
+    if (membership.role !== WorkspaceRole.OWNER) {
+      throw new ForbiddenException('Workspace owner required');
+    }
+  }
+
   async create(name: string, slug: string, ownerUserId?: string) {
     this.ensureDb();
     return this.prisma.workspace.create({
       data: {
         name,
         slug,
+        planKey: PLAN_KEYS.free,
         ...(ownerUserId
           ? {
               members: {
@@ -88,6 +111,71 @@ export class WorkspacesService {
       throw new NotFoundException(`Workspace ${workspaceId} not found`);
     }
     return workspace;
+  }
+
+  private async assertCanDowngradeToFree(workspaceId: string): Promise<void> {
+    const limits = getVibestandupLimits(PLAN_KEYS.free);
+    const teams = await this.prisma.team.findMany({
+      where: { workspaceId },
+      select: { id: true },
+    });
+    if (teams.length > limits.maxTeams) {
+      throw new BadRequestException(
+        `Cannot set free plan: workspace has ${teams.length} teams (max ${limits.maxTeams}). Remove teams first.`,
+      );
+    }
+    for (const team of teams) {
+      const [memberCount, pendingCount] = await Promise.all([
+        this.prisma.teamMember.count({ where: { teamId: team.id } }),
+        this.prisma.teamInvite.count({
+          where: {
+            teamId: team.id,
+            status: TeamInviteStatus.PENDING,
+            expiresAt: { gt: new Date() },
+          },
+        }),
+      ]);
+      if (memberCount + pendingCount > limits.maxMembersPerTeam) {
+        throw new BadRequestException(
+          `Cannot set free plan: a team has ${memberCount + pendingCount} members/invites (max ${limits.maxMembersPerTeam}).`,
+        );
+      }
+    }
+  }
+
+  async setPlan(
+    workspaceId: string,
+    planKey: PlanKey,
+    user: VerifiedUser,
+  ): Promise<{
+    id: string;
+    name: string;
+    slug: string;
+    planKey: PlanKey;
+  }> {
+    if (planKey !== PLAN_KEYS.free && planKey !== PLAN_KEYS.team) {
+      throw new BadRequestException(`Unknown planKey "${planKey}"`);
+    }
+    const userId = await this.resolveUserId(user);
+    await this.requireWorkspaceOwner(workspaceId, userId);
+    await this.getOrThrow(workspaceId);
+
+    if (planKey === PLAN_KEYS.free) {
+      await this.assertCanDowngradeToFree(workspaceId);
+    }
+
+    const workspace = await this.prisma.workspace.update({
+      where: { id: workspaceId },
+      data: { planKey },
+      select: { id: true, name: true, slug: true, planKey: true },
+    });
+
+    return {
+      id: workspace.id,
+      name: workspace.name,
+      slug: workspace.slug,
+      planKey: this.asPlanKey(workspace.planKey),
+    };
   }
 
   private async fetchTools(workspaceId: string) {

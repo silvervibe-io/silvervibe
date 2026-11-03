@@ -6,12 +6,21 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { form, FormField, required, submit } from '@angular/forms/signals';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { TranslocoPipe } from '@jsverse/transloco';
-import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
+import { ActivatedRoute, Router } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import {
+  getVibestandupLimits,
+  PLAN_KEYS,
+} from '@silvervibe/shared/feature-flags';
 import { Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
+import {
+  standupShellLinks,
+  StandupFacade,
+  type StandupAccessInput,
+} from '@silvervibe/stores/standup';
 import {
   WorkspaceFacade,
   type GithubConnectionView,
@@ -31,9 +40,31 @@ type CreateTeamModel = {
   slug: string;
 };
 
+function apiErrorMessage(err: unknown, fallback: string): string {
+  if (err && typeof err === 'object' && 'error' in err) {
+    const body = (err as { error?: unknown }).error;
+    if (typeof body === 'string' && body.trim()) {
+      return body;
+    }
+    if (body && typeof body === 'object' && 'message' in body) {
+      const message = (body as { message?: unknown }).message;
+      if (typeof message === 'string' && message.trim()) {
+        return message;
+      }
+      if (Array.isArray(message) && typeof message[0] === 'string') {
+        return message[0];
+      }
+    }
+  }
+  if (err instanceof Error && err.message.trim()) {
+    return err.message;
+  }
+  return fallback;
+}
+
 @Component({
   selector: 'vs-workspace-admin',
-  imports: [FormField, RouterLink, Shell, TranslocoPipe],
+  imports: [FormField, Shell, TranslocoPipe],
   templateUrl: './workspace-admin.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -42,9 +73,14 @@ type CreateTeamModel = {
 })
 export class WorkspaceAdmin implements OnInit {
   private readonly workspaces = inject(WorkspaceFacade);
+  private readonly standup = inject(StandupFacade);
   private readonly preview = inject(PreviewContextStore);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly transloco = inject(TranslocoService);
+  private readonly lang = toSignal(this.transloco.langChanges$, {
+    initialValue: this.transloco.getActiveLang(),
+  });
 
   readonly loading = this.workspaces.loading;
   readonly error = this.workspaces.error;
@@ -54,6 +90,18 @@ export class WorkspaceAdmin implements OnInit {
   readonly effectiveRole = computed(() =>
     this.workspaces.effectiveWorkspaceRole(),
   );
+  readonly shellLinks = computed(() => {
+    this.lang();
+    this.workspaces.memberships();
+    this.workspaces.selectedWorkspaceId();
+    this.standup.teams();
+    this.preview.isActive();
+    this.preview.workspaceRole();
+    return standupShellLinks(this.navInput(), (key) =>
+      this.transloco.translate(key),
+    );
+  });
+  readonly isOwner = computed(() => this.effectiveRole() === 'OWNER');
   readonly previewActive = this.preview.isActive;
   readonly planHint = computed(() => {
     if (!this.preview.isActive()) {
@@ -66,8 +114,31 @@ export class WorkspaceAdmin implements OnInit {
       maxMembersPerTeam: limits.maxMembersPerTeam,
     };
   });
+  readonly workspacePlan = computed(() => {
+    const ws = this.selected();
+    if (!ws) {
+      return null;
+    }
+    const planKey =
+      ws.planKey === PLAN_KEYS.team ? PLAN_KEYS.team : PLAN_KEYS.free;
+    const limits = getVibestandupLimits(planKey);
+    return {
+      planKey,
+      maxTeams: limits.maxTeams,
+      maxMembersPerTeam: limits.maxMembersPerTeam,
+    };
+  });
+  readonly canUpgradeToTeam = computed(
+    () =>
+      this.isOwner() &&
+      !this.previewActive() &&
+      this.workspacePlan()?.planKey === PLAN_KEYS.free,
+  );
   readonly tools = computed(() => this.selected()?.tools ?? []);
   readonly message = signal<string | null>(null);
+  readonly planBusy = signal(false);
+  readonly planError = signal<string | null>(null);
+  readonly teamError = signal<string | null>(null);
   readonly slack = signal<SlackConnectionView | null>(null);
   readonly slackError = signal<string | null>(null);
   readonly slackConnecting = signal(false);
@@ -100,7 +171,9 @@ export class WorkspaceAdmin implements OnInit {
   }
 
   private async bootstrap(): Promise<void> {
-    await this.workspaces.loadMyWorkspaces();
+    await this.workspaces.loadMyWorkspaces(
+      this.route.snapshot.queryParamMap.get('workspaceId'),
+    );
     const ws = this.selected();
     if (ws && this.isAdmin()) {
       await Promise.all([
@@ -111,6 +184,15 @@ export class WorkspaceAdmin implements OnInit {
       ]);
     }
     this.applyOAuthQueryResults();
+  }
+
+  private navInput(): StandupAccessInput {
+    return {
+      workspaceRole: this.workspaces.effectiveWorkspaceRole(),
+      teamRoles: this.preview.isActive()
+        ? [this.preview.teamRole()]
+        : this.standup.teams().map((team) => team.role),
+    };
   }
 
   private applyOAuthQueryResults(): void {
@@ -247,6 +329,23 @@ export class WorkspaceAdmin implements OnInit {
     await this.workspaces.loadMyWorkspaces();
     this.workspaces.selectWorkspace(ws.id);
     this.message.set('standup.workspace.toolUpdated');
+  }
+
+  async upgradeToTeamPlan(): Promise<void> {
+    const ws = this.selected();
+    if (!ws || !this.canUpgradeToTeam()) {
+      return;
+    }
+    this.planError.set(null);
+    this.planBusy.set(true);
+    try {
+      await this.workspaces.setWorkspacePlan(ws.id, PLAN_KEYS.team);
+      this.message.set('standup.workspace.planUpgraded');
+    } catch (err: unknown) {
+      this.planError.set(apiErrorMessage(err, 'Failed to upgrade plan'));
+    } finally {
+      this.planBusy.set(false);
+    }
   }
 
   async connectSlack(): Promise<void> {
@@ -628,14 +727,19 @@ export class WorkspaceAdmin implements OnInit {
     if (!ws || !this.isAdmin()) {
       return;
     }
-    await submit(this.teamForm, {
-      action: async () => {
-        const body = this.teamModel();
-        await this.workspaces.createTeam(ws.id, body);
-        this.teamModel.set({ name: '', slug: '' });
-        this.message.set('standup.workspace.teamCreated');
-        return undefined;
-      },
-    });
+    this.teamError.set(null);
+    try {
+      await submit(this.teamForm, {
+        action: async () => {
+          const body = this.teamModel();
+          await this.workspaces.createTeam(ws.id, body);
+          this.teamModel.set({ name: '', slug: '' });
+          this.message.set('standup.workspace.teamCreated');
+          return undefined;
+        },
+      });
+    } catch (err: unknown) {
+      this.teamError.set(apiErrorMessage(err, 'Failed to create team'));
+    }
   }
 }

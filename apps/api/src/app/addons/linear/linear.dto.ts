@@ -53,3 +53,41 @@ export class SelectLinearProjectDto {
   @MaxLength(64)
   projectId!: string;
 }
+
+export class TeamLinearProjectDto {
+  @ApiProperty({
+    description:
+      'Effective Linear project for this team (override or workspace default)',
+    nullable: true,
+  })
+  projectId!: string | null;
+
+  @ApiProperty({ nullable: true })
+  projectName!: string | null;
+
+  @ApiProperty({
+    description:
+      'True when this team has an override (not using workspace default)',
+  })
+  isOverride!: boolean;
+
+  @ApiProperty({
+    description: 'Workspace default project from Connect Linear',
+    nullable: true,
+  })
+  workspaceProjectId!: string | null;
+
+  @ApiProperty({ nullable: true })
+  workspaceProjectName!: string | null;
+
+  @ApiProperty()
+  linearConnected!: boolean;
+}
+
+export class SetTeamLinearProjectDto {
+  @ApiProperty({ description: 'Linear project UUID for this team’s digests' })
+  @IsString()
+  @MinLength(8)
+  @MaxLength(64)
+  projectId!: string;
+}

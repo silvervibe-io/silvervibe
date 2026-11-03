@@ -8,7 +8,7 @@
   "noTools": "No tools enabled for this workspace.",
   "openTool": "Open",
   "adminHint": "You can manage tools and teams as a workspace admin.",
-  "planHint": "Preview plan {{plan}}: up to {{teams}} teams, {{members}} members per team (UI only — API still uses real roles).",
+  "planHint": "Preview plan {{plan}}: up to {{teams}} teams, {{members}} members per team (preview only — Nest still enforces the workspace planKey).",
   "createTitle": "Create a workspace",
   "addWorkspace": "Create another workspace",
   "createName": "Name",

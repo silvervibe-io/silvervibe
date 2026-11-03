@@ -1,12 +1,4 @@
-<sv-shell
-  [title]="'Vibe Standup'"
-  [links]="[
-    { label: ('standup.nav.myStandup' | transloco), href: '/app' },
-    { label: ('standup.nav.teamAdmin' | transloco), href: '/app/team' },
-    { label: ('standup.nav.workspace' | transloco), href: '/app/workspace' },
-    { label: ('nav.account' | transloco), href: '/account' }
-  ]"
->
+<sv-shell [title]="'Vibe Standup'" [links]="shellLinks()">
   <div class="space-y-8">
     <header>
       <h1 class="text-3xl font-bold tracking-tight">
@@ -21,9 +13,7 @@
     <p>{{ 'standup.loading' | transloco }}</p>
     } @else if (error()) {
     <p class="text-error">{{ error() }}</p>
-    } @else if (!isAdmin()) {
-    <p>{{ 'standup.workspace.forbidden' | transloco }}</p>
-    } @else {
+    } @else { @if (memberships().length) {
     <fieldset class="fieldset w-full max-w-xs">
       <legend class="fieldset-legend">
         {{ 'portal.workspace' | transloco }}
@@ -41,12 +31,35 @@
         }
       </select>
     </fieldset>
-
-    @if (planHint(); as hint) {
+    } @if (!isAdmin()) {
+    <p>{{ 'standup.workspace.forbidden' | transloco }}</p>
+    } @else { @if (planHint(); as hint) {
     <p class="text-sm text-base-content/60">
       {{ 'standup.workspace.planHint' | transloco : { plan: hint.planKey, teams:
       hint.maxTeams, members: hint.maxMembersPerTeam, } }}
     </p>
+    } @if (workspacePlan(); as plan) {
+    <section class="flex max-w-xl flex-col gap-3">
+      <h2 class="text-xl font-semibold">
+        {{ 'standup.workspace.planTitle' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.workspace.planStatus' | transloco : { plan: plan.planKey,
+        teams: plan.maxTeams, members: plan.maxMembersPerTeam, } }}
+      </p>
+      @if (canUpgradeToTeam()) {
+      <button
+        type="button"
+        class="btn btn-secondary btn-sm self-start"
+        [disabled]="planBusy()"
+        (click)="upgradeToTeamPlan()"
+      >
+        {{ 'standup.workspace.upgradeToTeam' | transloco }}
+      </button>
+      } @if (planError()) {
+      <p class="text-error text-sm">{{ planError() }}</p>
+      }
+    </section>
     }
 
     <section class="space-y-3">
@@ -375,10 +388,13 @@
       <button type="submit" class="btn btn-primary btn-sm self-start">
         {{ 'standup.workspace.create' | transloco }}
       </button>
+      @if (teamError()) {
+      <p class="text-error text-sm">{{ teamError() }}</p>
+      }
     </form>
 
     @if (message()) {
     <p class="text-success text-sm">{{ message()! | transloco }}</p>
-    } }
+    } } }
   </div>
 </sv-shell>

@@ -15,6 +15,7 @@ import { Observable } from 'rxjs';
 
 import { CreateWorkspaceDto } from '../model/models';
 import { SetToolEntitlementDto } from '../model/models';
+import { SetWorkspacePlanDto } from '../model/models';
 import { WorkspaceDto } from '../model/models';
 import { WorkspaceToolDto } from '../model/models';
 
@@ -26,6 +27,11 @@ export interface WorkspacesControllerCreateRequestParams {
 
 export interface WorkspacesControllerListToolsRequestParams {
   workspaceId: string;
+}
+
+export interface WorkspacesControllerSetPlanRequestParams {
+  workspaceId: string;
+  setWorkspacePlanDto: SetWorkspacePlanDto;
 }
 
 export interface WorkspacesControllerSetToolRequestParams {
@@ -57,6 +63,16 @@ export interface WorkspacesDataServiceInterface {
     requestParameters: WorkspacesControllerListToolsRequestParams,
     extraHttpRequestParams?: any,
   ): Observable<Array<WorkspaceToolDto>>;
+
+  /**
+   * Set workspace commercial plan
+   * Pre-billing unlock: OWNER may set &#x60;free&#x60; or &#x60;team&#x60;. Nest enforces VibeStandup team/member limits from &#x60;plans.catalog&#x60; for the stored planKey. Not Stripe billing.
+   * @param requestParameters
+   */
+  workspacesControllerSetPlan(
+    requestParameters: WorkspacesControllerSetPlanRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<WorkspaceDto>;
 
   /**
    * Grant or revoke a tool entitlement

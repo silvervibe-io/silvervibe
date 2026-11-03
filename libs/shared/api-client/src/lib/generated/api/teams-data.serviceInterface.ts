@@ -15,6 +15,7 @@ import { Observable } from 'rxjs';
 
 import { AcceptTeamInviteDto } from '../model/models';
 import { AddonStatusDto } from '../model/models';
+import { ConnectTeamsDto } from '../model/models';
 import { CreateTeamDto } from '../model/models';
 import { CreateTeamInviteDto } from '../model/models';
 import { InviteTeamMemberDto } from '../model/models';
@@ -22,11 +23,17 @@ import { MyTeamDto } from '../model/models';
 import { TeamDto } from '../model/models';
 import { TeamInviteDto } from '../model/models';
 import { TeamMemberDto } from '../model/models';
+import { TeamsConnectionDto } from '../model/models';
 
 import { Configuration } from '../configuration';
 
 export interface TeamsControllerAcceptInviteRequestParams {
   token: string;
+}
+
+export interface TeamsControllerConnectRequestParams {
+  workspaceId: string;
+  connectTeamsDto: ConnectTeamsDto;
 }
 
 export interface TeamsControllerCreateRequestParams {
@@ -37,6 +44,14 @@ export interface TeamsControllerCreateRequestParams {
 export interface TeamsControllerCreateInviteRequestParams {
   teamId: string;
   createTeamInviteDto: CreateTeamInviteDto;
+}
+
+export interface TeamsControllerDisconnectRequestParams {
+  workspaceId: string;
+}
+
+export interface TeamsControllerGetConnectionRequestParams {
+  workspaceId: string;
 }
 
 export interface TeamsControllerInviteRequestParams {
@@ -76,6 +91,16 @@ export interface TeamsDataServiceInterface {
   ): Observable<AcceptTeamInviteDto>;
 
   /**
+   * Connect Microsoft Teams via Incoming Webhook (enables addons.teams entitlement)
+   *
+   * @param requestParameters
+   */
+  teamsControllerConnect(
+    requestParameters: TeamsControllerConnectRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<TeamsConnectionDto>;
+
+  /**
    * Create a team (workspace admin)
    *
    * @param requestParameters
@@ -94,6 +119,26 @@ export interface TeamsDataServiceInterface {
     requestParameters: TeamsControllerCreateInviteRequestParams,
     extraHttpRequestParams?: any,
   ): Observable<TeamInviteDto>;
+
+  /**
+   * Disconnect Teams Incoming Webhook
+   *
+   * @param requestParameters
+   */
+  teamsControllerDisconnect(
+    requestParameters: TeamsControllerDisconnectRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<TeamsConnectionDto>;
+
+  /**
+   * Get Teams Incoming Webhook connection for a workspace
+   *
+   * @param requestParameters
+   */
+  teamsControllerGetConnection(
+    requestParameters: TeamsControllerGetConnectionRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<TeamsConnectionDto>;
 
   /**
    * Add an existing user to a team by Neon id or Firebase UID

@@ -7,7 +7,11 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { TeamInviteStatus, TeamRole, WorkspaceRole } from '@prisma/client';
-import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
+import {
+  getVibestandupLimits,
+  PLAN_KEYS,
+  type PlanKey,
+} from '@silvervibe/shared/feature-flags';
 import { randomBytes } from 'crypto';
 import { VerifiedUser } from '../auth/firebase-auth.service';
 import { MailService } from '../mail/mail.service';
@@ -183,8 +187,23 @@ export class TeamsService {
     }
   }
 
+  private asPlanKey(raw: string | null | undefined): PlanKey {
+    if (raw === PLAN_KEYS.team) {
+      return PLAN_KEYS.team;
+    }
+    return PLAN_KEYS.free;
+  }
+
+  private async limitsForWorkspace(workspaceId: string) {
+    const workspace = await this.prisma.workspace.findUnique({
+      where: { id: workspaceId },
+      select: { planKey: true },
+    });
+    return getVibestandupLimits(this.asPlanKey(workspace?.planKey));
+  }
+
   private async assertCanAddTeam(workspaceId: string): Promise<void> {
-    const limits = getVibestandupLimits();
+    const limits = await this.limitsForWorkspace(workspaceId);
     const count = await this.prisma.team.count({ where: { workspaceId } });
     if (count >= limits.maxTeams) {
       throw new BadRequestException(
@@ -194,7 +213,14 @@ export class TeamsService {
   }
 
   private async assertCanAddMember(teamId: string): Promise<void> {
-    const limits = getVibestandupLimits();
+    const team = await this.prisma.team.findUnique({
+      where: { id: teamId },
+      select: { workspaceId: true },
+    });
+    if (!team) {
+      throw new NotFoundException(`Team ${teamId} not found`);
+    }
+    const limits = await this.limitsForWorkspace(team.workspaceId);
     const [memberCount, pendingCount] = await Promise.all([
       this.prisma.teamMember.count({ where: { teamId } }),
       this.prisma.teamInvite.count({

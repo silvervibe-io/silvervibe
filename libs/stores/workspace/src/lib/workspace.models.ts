@@ -5,10 +5,13 @@ export type WorkspaceToolView = {
   enabled: boolean;
 };
 
+export type WorkspacePlanKey = 'free' | 'team';
+
 export type WorkspaceMembershipView = {
   id: string;
   name: string;
   slug: string;
+  planKey: WorkspacePlanKey;
   role: PreviewWorkspaceRole;
   tools: WorkspaceToolView[];
 };
@@ -53,6 +56,59 @@ export type TeamSlackChannelView = {
 export type SetTeamSlackChannelInput = {
   channelId: string;
   channelLabel?: string;
+};
+
+export type TeamLinearProjectView = {
+  projectId: string | null;
+  projectName: string | null;
+  isOverride: boolean;
+  workspaceProjectId: string | null;
+  workspaceProjectName: string | null;
+  linearConnected: boolean;
+};
+
+export type SetTeamLinearProjectInput = {
+  projectId: string;
+};
+
+export type TeamGithubTargetView = {
+  owner: string | null;
+  repo: string | null;
+  issueNumber: number | null;
+  issueTitle: string | null;
+  isOverride: boolean;
+  workspaceOwner: string | null;
+  workspaceRepo: string | null;
+  workspaceIssueNumber: number | null;
+  workspaceIssueTitle: string | null;
+  githubConnected: boolean;
+};
+
+export type SetTeamGithubTargetInput = {
+  owner: string;
+  repo: string;
+  issueNumber: number;
+};
+
+export type TeamJiraTargetView = {
+  cloudId: string | null;
+  siteName: string | null;
+  projectKey: string | null;
+  issueKey: string | null;
+  issueSummary: string | null;
+  isOverride: boolean;
+  workspaceCloudId: string | null;
+  workspaceSiteName: string | null;
+  workspaceProjectKey: string | null;
+  workspaceIssueKey: string | null;
+  workspaceIssueSummary: string | null;
+  jiraConnected: boolean;
+};
+
+export type SetTeamJiraTargetInput = {
+  cloudId: string;
+  projectKey: string;
+  issueKey: string;
 };
 
 export type TeamsConnectionView = {

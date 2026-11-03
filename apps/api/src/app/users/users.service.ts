@@ -56,6 +56,9 @@ export class UsersService {
       id: m.workspace.id,
       name: m.workspace.name,
       slug: m.workspace.slug,
+      planKey: (m.workspace.planKey === 'team' ? 'team' : 'free') as
+        | 'free'
+        | 'team',
       role: m.role,
       tools: m.workspace.tools,
     }));

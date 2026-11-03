@@ -51,6 +51,9 @@ describe('TeamsService invites and plan limits', () => {
     });
     const prisma = {
       isEnabled: () => true,
+      workspace: {
+        findUnique: jest.fn().mockResolvedValue({ planKey: 'free' }),
+      },
       teamMember: {
         findUnique: jest.fn().mockResolvedValue({
           role: TeamRole.ADMIN,
@@ -96,6 +99,9 @@ describe('TeamsService invites and plan limits', () => {
   it('adds workspace + team membership immediately when email exists', async () => {
     const prisma = {
       isEnabled: () => true,
+      workspace: {
+        findUnique: jest.fn().mockResolvedValue({ planKey: 'free' }),
+      },
       teamMember: {
         findUnique: jest
           .fn()
@@ -177,11 +183,14 @@ describe('TeamsService invites and plan limits', () => {
     );
   });
 
-  it('enforces max teams on create', async () => {
+  it('enforces max teams on create for free plan', async () => {
     const prisma = {
       isEnabled: () => true,
       workspaceMember: {
         findUnique: jest.fn().mockResolvedValue({ role: WorkspaceRole.OWNER }),
+      },
+      workspace: {
+        findUnique: jest.fn().mockResolvedValue({ planKey: 'free' }),
       },
       team: { count: jest.fn().mockResolvedValue(1) },
     };
@@ -189,6 +198,36 @@ describe('TeamsService invites and plan limits', () => {
     await expect(
       service.create('ws1', admin, 'Second', 'second'),
     ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('allows a second team when workspace plan is team', async () => {
+    const create = jest.fn().mockResolvedValue({
+      id: 'team2',
+      workspaceId: 'ws1',
+      name: 'Second',
+      slug: 'second',
+    });
+    const prisma = {
+      isEnabled: () => true,
+      workspaceMember: {
+        findUnique: jest.fn().mockResolvedValue({ role: WorkspaceRole.OWNER }),
+      },
+      workspace: {
+        findUnique: jest.fn().mockResolvedValue({ planKey: 'team' }),
+      },
+      team: {
+        count: jest.fn().mockResolvedValue(1),
+        create,
+      },
+    };
+    const service = build(prisma);
+    const result = await service.create('ws1', admin, 'Second', 'second');
+    expect(result).toEqual({
+      id: 'team2',
+      name: 'Second',
+      slug: 'second',
+    });
+    expect(create).toHaveBeenCalled();
   });
 
   it('returns not found for unknown invite token', async () => {

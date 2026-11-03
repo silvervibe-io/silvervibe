@@ -66,12 +66,15 @@ describe('StandupsService auto-summary', () => {
         },
       },
     ]);
+    const summaryContent = '### Member\n- Today: shipped auto-summary';
     const summaryUpsert = jest.fn().mockResolvedValue({
       id: 's1',
       teamId: 'team1',
       entryDate,
-      content: '### Member\n- Today: shipped auto-summary',
+      content: summaryContent,
     });
+    const summaryUpdate = jest.fn().mockResolvedValue({});
+    const summaryFindUnique = jest.fn().mockResolvedValue(null);
 
     const prisma = {
       isEnabled: () => true,
@@ -79,7 +82,11 @@ describe('StandupsService auto-summary', () => {
         findUnique: jest.fn().mockResolvedValue({ timezone: 'UTC' }),
       },
       standupEntry: { upsert, findMany },
-      standupSummary: { upsert: summaryUpsert },
+      standupSummary: {
+        upsert: summaryUpsert,
+        findUnique: summaryFindUnique,
+        update: summaryUpdate,
+      },
       team: {
         findUnique: jest
           .fn()
@@ -159,9 +166,120 @@ describe('StandupsService auto-summary', () => {
     expect(postJiraDigest).toHaveBeenCalledWith(
       expect.objectContaining({
         workspaceId: 'ws1',
+        teamId: 'team1',
         teamName: 'Alpha',
       }),
     );
+    expect(summaryUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 's1' },
+        data: {
+          digestDeliveryJson: {
+            content: summaryContent,
+            providers: {
+              slack: true,
+              teams: true,
+              linear: true,
+              github: true,
+              jira: true,
+            },
+          },
+        },
+      }),
+    );
+  });
+
+  it('skips digests already delivered for unchanged summary content', async () => {
+    const entryDate = new Date('2026-10-20T00:00:00.000Z');
+    const content = '### Member\n- Yesterday: y\n- Today: same';
+    const prisma = {
+      isEnabled: () => true,
+      standupConfig: {
+        findUnique: jest.fn().mockResolvedValue({ timezone: 'UTC' }),
+      },
+      standupEntry: {
+        upsert: jest.fn().mockResolvedValue({
+          id: 'e1',
+          teamId: 'team1',
+          entryDate,
+          status: StandupEntryStatus.SUBMITTED,
+          yesterday: 'y',
+          today: 'same',
+          blockers: null,
+        }),
+        findMany: jest.fn().mockResolvedValue([
+          {
+            userId: 'user-1',
+            yesterday: 'y',
+            today: 'same',
+            blockers: null,
+            submittedAt: new Date(),
+            user: {
+              displayName: 'Member',
+              email: 'member@example.com',
+              id: 'user-1',
+            },
+          },
+        ]),
+      },
+      standupSummary: {
+        findUnique: jest.fn().mockResolvedValue({
+          digestDeliveryJson: {
+            content,
+            providers: {
+              slack: true,
+              teams: true,
+              linear: true,
+              github: true,
+              jira: true,
+            },
+          },
+        }),
+        upsert: jest.fn().mockResolvedValue({
+          id: 's1',
+          teamId: 'team1',
+          entryDate,
+          content,
+        }),
+        update: jest.fn().mockResolvedValue({}),
+      },
+      team: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({ workspaceId: 'ws1', name: 'Alpha' }),
+      },
+    };
+
+    const postStandupDigest = jest.fn().mockResolvedValue(true);
+    const service = new StandupsService(
+      prisma as unknown as PrismaService,
+      {
+        upsertFromFirebase: jest.fn().mockResolvedValue({
+          id: 'user-1',
+          email: member.email,
+        }),
+      } as unknown as UsersService,
+      {
+        requireTeamMember: jest.fn().mockResolvedValue(undefined),
+      } as unknown as TeamsService,
+      {
+        summarizeStandup: jest.fn().mockResolvedValue(null),
+      } as unknown as AiService,
+      { postStandupDigest } as unknown as SlackService,
+      { postStandupDigest: jest.fn() } as unknown as MsTeamsService,
+      { postStandupDigest: jest.fn() } as unknown as LinearService,
+      { postStandupDigest: jest.fn() } as unknown as GithubService,
+      { postStandupDigest: jest.fn() } as unknown as JiraService,
+    );
+
+    await service.upsertMine('team1', member, {
+      status: 'SUBMITTED',
+      yesterday: 'y',
+      today: 'same',
+      blockers: '',
+    });
+
+    expect(postStandupDigest).not.toHaveBeenCalled();
   });
 
   it('still returns the entry when summary rebuild fails', async () => {
@@ -251,7 +369,11 @@ describe('StandupsService auto-summary', () => {
           },
         ]),
       },
-      standupSummary: { upsert: summaryUpsert },
+      standupSummary: {
+        upsert: summaryUpsert,
+        findUnique: jest.fn().mockResolvedValue(null),
+        update: jest.fn().mockResolvedValue({}),
+      },
       team: {
         findUnique: jest
           .fn()

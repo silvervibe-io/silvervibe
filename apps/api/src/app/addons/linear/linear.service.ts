@@ -8,6 +8,7 @@ import {
 import {
   AddonConnectionStatus,
   AddonProvider,
+  TeamRole,
   WorkspaceRole,
 } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
@@ -16,12 +17,20 @@ import { VerifiedUser } from '../../auth/firebase-auth.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsersService } from '../../users/users.service';
 import { AddonStatusDto } from '../addon-status.dto';
+import { readTeamTargetEntry, withTeamTargetEntry } from '../team-target-meta';
 import {
   LinearConnectionDto,
   LinearOAuthStartDto,
   LinearProjectDto,
   SelectLinearProjectDto,
+  SetTeamLinearProjectDto,
+  TeamLinearProjectDto,
 } from './linear.dto';
+
+type LinearTeamTarget = {
+  projectId: string;
+  projectName?: string;
+};
 
 type LinearMetadata = {
   refreshToken?: string;
@@ -30,6 +39,8 @@ type LinearMetadata = {
   projectId?: string;
   projectName?: string;
   organizationName?: string;
+  /** Per-team project overrides; workspace projectId remains the default. */
+  teamTargets?: Record<string, LinearTeamTarget>;
   oauthNonce?: string;
   oauthExp?: number;
   oauthUserId?: string;
@@ -155,6 +166,42 @@ export class LinearService {
     }
   }
 
+  private async requireTeamAdmin(
+    teamId: string,
+    userId: string,
+  ): Promise<{ workspaceId: string }> {
+    const membership = await this.prisma.teamMember.findUnique({
+      where: { teamId_userId: { teamId, userId } },
+      include: { team: { select: { workspaceId: true } } },
+    });
+    if (membership) {
+      if (membership.role !== TeamRole.ADMIN) {
+        throw new ForbiddenException('Team admin required');
+      }
+      return { workspaceId: membership.team.workspaceId };
+    }
+
+    const team = await this.prisma.team.findUnique({
+      where: { id: teamId },
+      select: { workspaceId: true },
+    });
+    if (!team) {
+      throw new ForbiddenException('Not a member of this team');
+    }
+    const ws = await this.prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: { workspaceId: team.workspaceId, userId },
+      },
+    });
+    if (
+      ws &&
+      (ws.role === WorkspaceRole.OWNER || ws.role === WorkspaceRole.ADMIN)
+    ) {
+      return { workspaceId: team.workspaceId };
+    }
+    throw new ForbiddenException('Team admin required');
+  }
+
   private asMetadata(raw: unknown): LinearMetadata {
     if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
       return {};
@@ -168,15 +215,78 @@ export class LinearService {
       const v = obj[key];
       return typeof v === 'number' && Number.isFinite(v) ? v : undefined;
     };
+    const teamTargetsRaw = obj['teamTargets'];
+    const teamTargets: Record<string, LinearTeamTarget> = {};
+    if (
+      teamTargetsRaw &&
+      typeof teamTargetsRaw === 'object' &&
+      !Array.isArray(teamTargetsRaw)
+    ) {
+      for (const [rawKey, value] of Object.entries(
+        teamTargetsRaw as Record<string, unknown>,
+      )) {
+        if (
+          rawKey === '__proto__' ||
+          rawKey === 'constructor' ||
+          rawKey === 'prototype' ||
+          !/^[a-z0-9_-]{8,64}$/i.test(rawKey) ||
+          !value ||
+          typeof value !== 'object' ||
+          Array.isArray(value)
+        ) {
+          continue;
+        }
+        const entry = value as Record<string, unknown>;
+        const projectId =
+          typeof entry['projectId'] === 'string' && entry['projectId'].trim()
+            ? entry['projectId'].trim()
+            : undefined;
+        if (!projectId) {
+          continue;
+        }
+        const projectName =
+          typeof entry['projectName'] === 'string' &&
+          entry['projectName'].trim()
+            ? entry['projectName'].trim()
+            : undefined;
+        Object.defineProperty(teamTargets, rawKey, {
+          value: { projectId, projectName },
+          writable: true,
+          enumerable: true,
+          configurable: true,
+        });
+      }
+    }
     return {
       refreshToken: str('refreshToken'),
       accessExpiresAt: num('accessExpiresAt'),
       projectId: str('projectId'),
       projectName: str('projectName'),
       organizationName: str('organizationName'),
+      teamTargets:
+        Object.keys(teamTargets).length > 0 ? teamTargets : undefined,
       oauthNonce: str('oauthNonce'),
       oauthExp: num('oauthExp'),
       oauthUserId: str('oauthUserId'),
+    };
+  }
+
+  resolveProjectForTeam(
+    meta: LinearMetadata,
+    teamId?: string,
+  ): { projectId?: string; projectName?: string; isOverride: boolean } {
+    const override = readTeamTargetEntry(meta.teamTargets, teamId);
+    if (override?.projectId) {
+      return {
+        projectId: override.projectId,
+        projectName: override.projectName,
+        isOverride: true,
+      };
+    }
+    return {
+      projectId: meta.projectId,
+      projectName: meta.projectName,
+      isOverride: false,
     };
   }
 
@@ -451,7 +561,22 @@ export class LinearService {
     this.ensureDb();
     const userId = (await this.users.upsertFromFirebase(user)).id;
     await this.requireWorkspaceAdmin(workspaceId, userId);
+    return this.fetchProjects(workspaceId);
+  }
 
+  async listProjectsForTeam(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<LinearProjectDto[]> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+    return this.fetchProjects(workspaceId);
+  }
+
+  private async fetchProjects(
+    workspaceId: string,
+  ): Promise<LinearProjectDto[]> {
     const accessToken = await this.requireFreshAccessToken(workspaceId);
     const data = await this.graphql<{
       projects: { nodes: Array<{ id: string; name: string }> };
@@ -515,6 +640,131 @@ export class LinearService {
     return this.getConnection(workspaceId, user);
   }
 
+  async getTeamProject(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<TeamLinearProjectDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+
+    const connection = await this.prisma.addonConnection.findUnique({
+      where: {
+        workspaceId_provider: {
+          workspaceId,
+          provider: AddonProvider.LINEAR,
+        },
+      },
+    });
+    const meta = this.asMetadata(connection?.metadataJson);
+    const connected =
+      connection?.status === AddonConnectionStatus.CONNECTED &&
+      Boolean(connection.secretsRef?.trim());
+    const resolved = this.resolveProjectForTeam(meta, teamId);
+    return {
+      projectId: resolved.projectId ?? null,
+      projectName: resolved.projectName ?? null,
+      isOverride: resolved.isOverride,
+      workspaceProjectId: meta.projectId ?? null,
+      workspaceProjectName: meta.projectName ?? null,
+      linearConnected: connected,
+    };
+  }
+
+  async setTeamProject(
+    teamId: string,
+    user: VerifiedUser,
+    body: SetTeamLinearProjectDto,
+  ): Promise<TeamLinearProjectDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+
+    const projectId = body.projectId.trim();
+    const accessToken = await this.requireFreshAccessToken(workspaceId);
+    const data = await this.graphql<{
+      project: { id: string; name: string } | null;
+    }>(accessToken, {
+      query: `query($id: String!) { project(id: $id) { id name } }`,
+      variables: { id: projectId },
+    });
+    if (!data.project?.id) {
+      throw new BadRequestException('Linear project not found');
+    }
+
+    const connection = await this.prisma.addonConnection.findUnique({
+      where: {
+        workspaceId_provider: {
+          workspaceId,
+          provider: AddonProvider.LINEAR,
+        },
+      },
+    });
+    if (
+      !connection ||
+      connection.status !== AddonConnectionStatus.CONNECTED ||
+      !connection.secretsRef?.trim()
+    ) {
+      throw new BadRequestException(
+        'Linear is not connected for this workspace',
+      );
+    }
+
+    const meta = this.asMetadata(connection.metadataJson);
+    const teamTargets = withTeamTargetEntry(meta.teamTargets, teamId, {
+      projectId: data.project.id,
+      projectName: data.project.name,
+    });
+    const nextMeta: LinearMetadata = { ...meta, teamTargets };
+
+    await this.prisma.addonConnection.update({
+      where: { id: connection.id },
+      data: { metadataJson: nextMeta },
+    });
+
+    return this.getTeamProject(teamId, user);
+  }
+
+  async clearTeamProject(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<TeamLinearProjectDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.requireTeamAdmin(teamId, userId);
+
+    const connection = await this.prisma.addonConnection.findUnique({
+      where: {
+        workspaceId_provider: {
+          workspaceId,
+          provider: AddonProvider.LINEAR,
+        },
+      },
+    });
+    if (!connection) {
+      return {
+        projectId: null,
+        projectName: null,
+        isOverride: false,
+        workspaceProjectId: null,
+        workspaceProjectName: null,
+        linearConnected: false,
+      };
+    }
+
+    const meta = this.asMetadata(connection.metadataJson);
+    if (readTeamTargetEntry(meta.teamTargets, teamId)) {
+      const teamTargets = withTeamTargetEntry(meta.teamTargets, teamId, null);
+      const nextMeta: LinearMetadata = { ...meta, teamTargets };
+      await this.prisma.addonConnection.update({
+        where: { id: connection.id },
+        data: { metadataJson: nextMeta },
+      });
+    }
+
+    return this.getTeamProject(teamId, user);
+  }
+
   async disconnect(
     workspaceId: string,
     user: VerifiedUser,
@@ -552,6 +802,7 @@ export class LinearService {
    */
   async postStandupDigest(params: {
     workspaceId: string;
+    teamId?: string;
     teamName: string;
     entryDate: string;
     content: string;
@@ -591,7 +842,8 @@ export class LinearService {
       }
 
       const meta = this.asMetadata(connection.metadataJson);
-      if (!meta.projectId) {
+      const target = this.resolveProjectForTeam(meta, params.teamId);
+      if (!target.projectId) {
         this.logger.debug(
           `Linear digest skipped for workspace ${params.workspaceId}: no project selected`,
         );
@@ -601,7 +853,7 @@ export class LinearService {
       const accessToken = await this.requireFreshAccessToken(
         params.workspaceId,
       );
-      const projectLabel = meta.projectName ? ` (${meta.projectName})` : '';
+      const projectLabel = target.projectName ? ` (${target.projectName})` : '';
       const body = [
         `## VibeStandup — ${params.teamName}${projectLabel}`,
         `_${params.entryDate}_`,
@@ -617,7 +869,7 @@ export class LinearService {
         }`,
         variables: {
           input: {
-            projectId: meta.projectId,
+            projectId: target.projectId,
             body,
             health: 'onTrack',
           },

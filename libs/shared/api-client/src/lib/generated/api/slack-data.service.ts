@@ -26,11 +26,33 @@ import { Observable } from 'rxjs';
 
 // @ts-ignore
 import { AddonStatusDto } from '../model/addon-status-dto';
+// @ts-ignore
+import { ConnectSlackDto } from '../model/connect-slack-dto';
+// @ts-ignore
+import { SetTeamSlackChannelDto } from '../model/set-team-slack-channel-dto';
+// @ts-ignore
+import { SlackChannelsDto } from '../model/slack-channels-dto';
+// @ts-ignore
+import { SlackConnectionDto } from '../model/slack-connection-dto';
+// @ts-ignore
+import { SlackOAuthStartDto } from '../model/slack-o-auth-start-dto';
+// @ts-ignore
+import { TeamSlackChannelDto } from '../model/team-slack-channel-dto';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS } from '../variables';
 import { Configuration } from '../configuration';
-import { SlackDataServiceInterface } from './slack-data.serviceInterface';
+import {
+  SlackDataServiceInterface,
+  SlackControllerClearTeamChannelRequestParams,
+  SlackControllerConnectRequestParams,
+  SlackControllerDisconnectRequestParams,
+  SlackControllerGetConnectionRequestParams,
+  SlackControllerGetTeamChannelRequestParams,
+  SlackControllerListChannelsForTeamRequestParams,
+  SlackControllerSetTeamChannelRequestParams,
+  SlackControllerStartOAuthRequestParams,
+} from './slack-data.serviceInterface';
 
 @Injectable({
   providedIn: 'root',
@@ -117,6 +139,1113 @@ export class SlackDataService implements SlackDataServiceInterface {
       throw Error('key may not be null if value is not object or array');
     }
     return httpParams;
+  }
+
+  /**
+   * Clear team Slack channel override (use workspace default)
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public slackControllerClearTeamChannel(
+    requestParameters?: SlackControllerClearTeamChannelRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<TeamSlackChannelDto>;
+  public slackControllerClearTeamChannel(
+    requestParameters?: SlackControllerClearTeamChannelRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<TeamSlackChannelDto>>;
+  public slackControllerClearTeamChannel(
+    requestParameters?: SlackControllerClearTeamChannelRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<TeamSlackChannelDto>>;
+  public slackControllerClearTeamChannel(
+    requestParameters?: SlackControllerClearTeamChannelRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const teamId = requestParameters?.teamId;
+    if (teamId === null || teamId === undefined) {
+      throw new Error(
+        'Required parameter teamId was null or undefined when calling slackControllerClearTeamChannel.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/teams/${this.configuration.encodeParam({ name: 'teamId', value: teamId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/slack/channel`;
+    return this.httpClient.request<TeamSlackChannelDto>(
+      'delete',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * Deprecated: connect Slack via Incoming Webhook. Prefer OAuth start.
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   * @deprecated
+   */
+  public slackControllerConnect(
+    requestParameters?: SlackControllerConnectRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<SlackConnectionDto>;
+  public slackControllerConnect(
+    requestParameters?: SlackControllerConnectRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<SlackConnectionDto>>;
+  public slackControllerConnect(
+    requestParameters?: SlackControllerConnectRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<SlackConnectionDto>>;
+  public slackControllerConnect(
+    requestParameters?: SlackControllerConnectRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const workspaceId = requestParameters?.workspaceId;
+    if (workspaceId === null || workspaceId === undefined) {
+      throw new Error(
+        'Required parameter workspaceId was null or undefined when calling slackControllerConnect.',
+      );
+    }
+    const connectSlackDto = requestParameters?.connectSlackDto;
+    if (connectSlackDto === null || connectSlackDto === undefined) {
+      throw new Error(
+        'Required parameter connectSlackDto was null or undefined when calling slackControllerConnect.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = ['application/json'];
+    const httpContentTypeSelected: string | undefined =
+      this.configuration.selectHeaderContentType(consumes);
+    if (httpContentTypeSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Content-Type',
+        httpContentTypeSelected,
+      );
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/workspaces/${this.configuration.encodeParam({ name: 'workspaceId', value: workspaceId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/slack`;
+    return this.httpClient.request<SlackConnectionDto>(
+      'put',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        body: connectSlackDto,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * Disconnect Slack (clears bot token / webhook)
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public slackControllerDisconnect(
+    requestParameters?: SlackControllerDisconnectRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<SlackConnectionDto>;
+  public slackControllerDisconnect(
+    requestParameters?: SlackControllerDisconnectRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<SlackConnectionDto>>;
+  public slackControllerDisconnect(
+    requestParameters?: SlackControllerDisconnectRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<SlackConnectionDto>>;
+  public slackControllerDisconnect(
+    requestParameters?: SlackControllerDisconnectRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const workspaceId = requestParameters?.workspaceId;
+    if (workspaceId === null || workspaceId === undefined) {
+      throw new Error(
+        'Required parameter workspaceId was null or undefined when calling slackControllerDisconnect.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/workspaces/${this.configuration.encodeParam({ name: 'workspaceId', value: workspaceId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/slack`;
+    return this.httpClient.request<SlackConnectionDto>(
+      'delete',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * Get Slack connection for a workspace (secret never returned)
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public slackControllerGetConnection(
+    requestParameters?: SlackControllerGetConnectionRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<SlackConnectionDto>;
+  public slackControllerGetConnection(
+    requestParameters?: SlackControllerGetConnectionRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<SlackConnectionDto>>;
+  public slackControllerGetConnection(
+    requestParameters?: SlackControllerGetConnectionRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<SlackConnectionDto>>;
+  public slackControllerGetConnection(
+    requestParameters?: SlackControllerGetConnectionRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const workspaceId = requestParameters?.workspaceId;
+    if (workspaceId === null || workspaceId === undefined) {
+      throw new Error(
+        'Required parameter workspaceId was null or undefined when calling slackControllerGetConnection.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/workspaces/${this.configuration.encodeParam({ name: 'workspaceId', value: workspaceId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/slack`;
+    return this.httpClient.request<SlackConnectionDto>(
+      'get',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * Get effective Slack digest channel for a team
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public slackControllerGetTeamChannel(
+    requestParameters?: SlackControllerGetTeamChannelRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<TeamSlackChannelDto>;
+  public slackControllerGetTeamChannel(
+    requestParameters?: SlackControllerGetTeamChannelRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<TeamSlackChannelDto>>;
+  public slackControllerGetTeamChannel(
+    requestParameters?: SlackControllerGetTeamChannelRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<TeamSlackChannelDto>>;
+  public slackControllerGetTeamChannel(
+    requestParameters?: SlackControllerGetTeamChannelRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const teamId = requestParameters?.teamId;
+    if (teamId === null || teamId === undefined) {
+      throw new Error(
+        'Required parameter teamId was null or undefined when calling slackControllerGetTeamChannel.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/teams/${this.configuration.encodeParam({ name: 'teamId', value: teamId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/slack/channel`;
+    return this.httpClient.request<TeamSlackChannelDto>(
+      'get',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * List Slack channels for per-team digest picker
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public slackControllerListChannelsForTeam(
+    requestParameters?: SlackControllerListChannelsForTeamRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<SlackChannelsDto>;
+  public slackControllerListChannelsForTeam(
+    requestParameters?: SlackControllerListChannelsForTeamRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<SlackChannelsDto>>;
+  public slackControllerListChannelsForTeam(
+    requestParameters?: SlackControllerListChannelsForTeamRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<SlackChannelsDto>>;
+  public slackControllerListChannelsForTeam(
+    requestParameters?: SlackControllerListChannelsForTeamRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const teamId = requestParameters?.teamId;
+    if (teamId === null || teamId === undefined) {
+      throw new Error(
+        'Required parameter teamId was null or undefined when calling slackControllerListChannelsForTeam.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/teams/${this.configuration.encodeParam({ name: 'teamId', value: teamId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/slack/channels`;
+    return this.httpClient.request<SlackChannelsDto>(
+      'get',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * Slack OAuth callback (public); redirects to standup workspace admin
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public slackControllerOauthCallback(
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: undefined;
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any>;
+  public slackControllerOauthCallback(
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: undefined;
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<any>>;
+  public slackControllerOauthCallback(
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: undefined;
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<any>>;
+  public slackControllerOauthCallback(
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: undefined;
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = [];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/addons/slack/oauth/callback`;
+    return this.httpClient.request<any>(
+      'get',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * Set Slack digest channel override for a team
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public slackControllerSetTeamChannel(
+    requestParameters?: SlackControllerSetTeamChannelRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<TeamSlackChannelDto>;
+  public slackControllerSetTeamChannel(
+    requestParameters?: SlackControllerSetTeamChannelRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<TeamSlackChannelDto>>;
+  public slackControllerSetTeamChannel(
+    requestParameters?: SlackControllerSetTeamChannelRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<TeamSlackChannelDto>>;
+  public slackControllerSetTeamChannel(
+    requestParameters?: SlackControllerSetTeamChannelRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const teamId = requestParameters?.teamId;
+    if (teamId === null || teamId === undefined) {
+      throw new Error(
+        'Required parameter teamId was null or undefined when calling slackControllerSetTeamChannel.',
+      );
+    }
+    const setTeamSlackChannelDto = requestParameters?.setTeamSlackChannelDto;
+    if (
+      setTeamSlackChannelDto === null ||
+      setTeamSlackChannelDto === undefined
+    ) {
+      throw new Error(
+        'Required parameter setTeamSlackChannelDto was null or undefined when calling slackControllerSetTeamChannel.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = ['application/json'];
+    const httpContentTypeSelected: string | undefined =
+      this.configuration.selectHeaderContentType(consumes);
+    if (httpContentTypeSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Content-Type',
+        httpContentTypeSelected,
+      );
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/teams/${this.configuration.encodeParam({ name: 'teamId', value: teamId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/slack/channel`;
+    return this.httpClient.request<TeamSlackChannelDto>(
+      'put',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        body: setTeamSlackChannelDto,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
+  }
+
+  /**
+   * Start Slack OAuth install; returns authorize URL for the browser
+   * @param requestParameters
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public slackControllerStartOAuth(
+    requestParameters?: SlackControllerStartOAuthRequestParams,
+    observe?: 'body',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<SlackOAuthStartDto>;
+  public slackControllerStartOAuth(
+    requestParameters?: SlackControllerStartOAuthRequestParams,
+    observe?: 'response',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpResponse<SlackOAuthStartDto>>;
+  public slackControllerStartOAuth(
+    requestParameters?: SlackControllerStartOAuthRequestParams,
+    observe?: 'events',
+    reportProgress?: boolean,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<HttpEvent<SlackOAuthStartDto>>;
+  public slackControllerStartOAuth(
+    requestParameters?: SlackControllerStartOAuthRequestParams,
+    observe: any = 'body',
+    reportProgress: boolean = false,
+    options?: {
+      httpHeaderAccept?: 'application/json';
+      context?: HttpContext;
+      transferCache?: boolean;
+    },
+  ): Observable<any> {
+    const workspaceId = requestParameters?.workspaceId;
+    if (workspaceId === null || workspaceId === undefined) {
+      throw new Error(
+        'Required parameter workspaceId was null or undefined when calling slackControllerStartOAuth.',
+      );
+    }
+
+    let localVarHeaders = this.defaultHeaders;
+
+    let localVarCredential: string | undefined;
+    // authentication (bearer) required
+    localVarCredential = this.configuration.lookupCredential('bearer');
+    if (localVarCredential) {
+      localVarHeaders = localVarHeaders.set(
+        'Authorization',
+        'Bearer ' + localVarCredential,
+      );
+    }
+
+    let localVarHttpHeaderAcceptSelected: string | undefined =
+      options && options.httpHeaderAccept;
+    if (localVarHttpHeaderAcceptSelected === undefined) {
+      // to determine the Accept header
+      const httpHeaderAccepts: string[] = ['application/json'];
+      localVarHttpHeaderAcceptSelected =
+        this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    }
+    if (localVarHttpHeaderAcceptSelected !== undefined) {
+      localVarHeaders = localVarHeaders.set(
+        'Accept',
+        localVarHttpHeaderAcceptSelected,
+      );
+    }
+
+    let localVarHttpContext: HttpContext | undefined =
+      options && options.context;
+    if (localVarHttpContext === undefined) {
+      localVarHttpContext = new HttpContext();
+    }
+
+    let localVarTransferCache: boolean | undefined =
+      options && options.transferCache;
+    if (localVarTransferCache === undefined) {
+      localVarTransferCache = true;
+    }
+
+    let responseType_: 'text' | 'json' | 'blob' = 'json';
+    if (localVarHttpHeaderAcceptSelected) {
+      if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+        responseType_ = 'text';
+      } else if (
+        this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
+      ) {
+        responseType_ = 'json';
+      } else {
+        responseType_ = 'blob';
+      }
+    }
+
+    let localVarPath = `/api/workspaces/${this.configuration.encodeParam({ name: 'workspaceId', value: workspaceId, in: 'path', style: 'simple', explode: false, dataType: 'string', dataFormat: undefined })}/addons/slack/oauth/start`;
+    return this.httpClient.request<SlackOAuthStartDto>(
+      'get',
+      `${this.configuration.basePath}${localVarPath}`,
+      {
+        context: localVarHttpContext,
+        responseType: <any>responseType_,
+        withCredentials: this.configuration.withCredentials,
+        headers: localVarHeaders,
+        observe: observe,
+        transferCache: localVarTransferCache,
+        reportProgress: reportProgress,
+      },
+    );
   }
 
   /**

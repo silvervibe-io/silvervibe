@@ -1,3 +1,5 @@
+export { resolvePortalEntry, vibestandupReturnUrl } from './lib/portal-entry';
+export type { PortalEntry } from './lib/portal-entry';
 export { WorkspaceFacade } from './lib/workspace.facade';
 export type {
   ConnectTeamsInput,
@@ -19,13 +21,20 @@ export type {
   SelectJiraSiteInput,
   SelectJiraTargetInput,
   SelectLinearProjectInput,
+  SetTeamGithubTargetInput,
+  SetTeamJiraTargetInput,
+  SetTeamLinearProjectInput,
   SetTeamSlackChannelInput,
   SlackChannelOptionView,
   SlackConnectionView,
   SlackOAuthStartView,
+  TeamGithubTargetView,
+  TeamJiraTargetView,
+  TeamLinearProjectView,
   TeamSlackChannelView,
   TeamsConnectionView,
   WorkspaceMembershipView,
+  WorkspacePlanKey,
   WorkspaceState,
   WorkspaceToolView,
 } from './lib/workspace.models';

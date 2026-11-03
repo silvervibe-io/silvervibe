@@ -14,4 +14,9 @@ export interface WorkspaceDto {
   id: string;
   name: string;
   slug: string;
+  planKey: WorkspaceDtoPlanKeyEnum;
+}
+export enum WorkspaceDtoPlanKeyEnum {
+  free = 'free',
+  team = 'team',
 }
