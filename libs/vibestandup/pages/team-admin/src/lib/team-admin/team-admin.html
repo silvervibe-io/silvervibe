@@ -42,10 +42,57 @@
           [formField]="configForm.timezone"
         />
       </fieldset>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.team.scheduleKind' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [formField]="configForm.scheduleKind"
+        >
+          <option value="deadline">
+            {{ 'standup.team.deadline' | transloco }}
+          </option>
+          <option value="window">
+            {{ 'standup.team.window' | transloco }}
+          </option>
+        </select>
+      </fieldset>
+      @if (configModel().scheduleKind === 'window') {
       <div class="flex flex-wrap gap-3">
         <fieldset class="fieldset w-28">
           <legend class="fieldset-legend">
-            {{ 'standup.team.reminderHour' | transloco }}
+            {{ 'standup.team.windowStart' | transloco }}
+          </legend>
+          <select
+            class="select select-bordered w-full"
+            [formField]="configForm.windowStartHour"
+          >
+            @for (h of reminderHourOptions; track h) {
+            <option [value]="h">{{ h }}</option>
+            }
+          </select>
+        </fieldset>
+        <fieldset class="fieldset w-28">
+          <legend class="fieldset-legend">
+            {{ 'standup.team.reminderMinute' | transloco }}
+          </legend>
+          <select
+            class="select select-bordered w-full"
+            [formField]="configForm.windowStartMinute"
+          >
+            @for (m of reminderMinuteOptions; track m) {
+            <option [value]="m">{{ m }}</option>
+            }
+          </select>
+        </fieldset>
+      </div>
+      }
+      <div class="flex flex-wrap gap-3">
+        <fieldset class="fieldset w-28">
+          <legend class="fieldset-legend">
+            {{ (configModel().scheduleKind === 'window' ?
+            'standup.team.windowEnd' : 'standup.team.before' ) | transloco }}
           </legend>
           <select
             class="select select-bordered w-full"
@@ -70,30 +117,123 @@
           </select>
         </fieldset>
       </div>
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.team.reveal' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [formField]="configForm.reveal"
+        >
+          <option value="live">
+            {{ 'standup.team.revealLive' | transloco }}
+          </option>
+          <option value="together">
+            {{ 'standup.team.revealTogether' | transloco }}
+          </option>
+        </select>
+      </fieldset>
       <p class="text-sm text-base-content/70">
         {{ 'standup.team.reminderHint' | transloco }}
       </p>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">Yesterday</legend>
+      <h3 class="text-lg font-semibold">
+        {{ 'standup.team.questions' | transloco }}
+      </h3>
+      @for (question of questions(); track question.id; let index = $index) {
+      <div class="rounded-lg bg-base-200 p-3">
+        <div class="flex flex-wrap items-center gap-3">
+          <label class="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              class="checkbox checkbox-sm"
+              [checked]="question.enabled"
+              (change)="updateQuestion(question.id, { enabled: $any($event.target).checked })"
+            />
+            {{ 'standup.team.enabled' | transloco }}
+          </label>
+          <label class="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              class="checkbox checkbox-sm"
+              [checked]="question.required"
+              (change)="updateQuestion(question.id, { required: $any($event.target).checked })"
+            />
+            {{ 'standup.team.required' | transloco }}
+          </label>
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs"
+            (click)="moveQuestion(index, -1)"
+          >
+            {{ 'standup.team.moveUp' | transloco }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs"
+            (click)="moveQuestion(index, 1)"
+          >
+            {{ 'standup.team.moveDown' | transloco }}
+          </button>
+          @if (!question.builtin) {
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs"
+            (click)="removeQuestion(question.id)"
+          >
+            {{ 'standup.team.remove' | transloco }}
+          </button>
+          }
+        </div>
         <input
-          class="input input-bordered w-full"
-          [formField]="configForm.yesterday"
+          class="input input-bordered mt-2 w-full"
+          [value]="question.prompt"
+          (input)="updateQuestion(question.id, { prompt: $any($event.target).value })"
         />
-      </fieldset>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">Today</legend>
-        <input
-          class="input input-bordered w-full"
-          [formField]="configForm.today"
-        />
-      </fieldset>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">Blockers</legend>
-        <input
-          class="input input-bordered w-full"
-          [formField]="configForm.blockers"
-        />
-      </fieldset>
+        @if (question.type === 'choice') {
+        <div class="mt-2 space-y-2">
+          @for (option of question.options ?? []; track option.id) {
+          <input
+            class="input input-bordered input-sm w-full"
+            [value]="option.label"
+            (input)="updateOptionLabel(question.id, option.id, $any($event.target).value)"
+          />
+          }
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs"
+            (click)="addOption(question.id)"
+          >
+            {{ 'standup.team.addOption' | transloco }}
+          </button>
+          <label class="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              class="checkbox checkbox-sm"
+              [checked]="question.allowOther === true"
+              (change)="updateQuestion(question.id, { allowOther: $any($event.target).checked })"
+            />
+            {{ 'standup.team.allowOther' | transloco }}
+          </label>
+        </div>
+        }
+      </div>
+      }
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          (click)="addQuestion('text')"
+        >
+          {{ 'standup.team.addText' | transloco }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          (click)="addQuestion('choice')"
+        >
+          {{ 'standup.team.addChoice' | transloco }}
+        </button>
+      </div>
       <button type="submit" class="btn btn-primary btn-sm self-start">
         {{ 'standup.team.saveConfig' | transloco }}
       </button>
@@ -421,7 +561,11 @@
       </h2>
       <ul class="space-y-1 text-sm">
         @for (m of members(); track m.id) {
-        <li>{{ m.displayName || m.email || m.userId }} — {{ m.role }}</li>
+        <li>
+          {{ m.displayName || m.email || m.userId }} — {{ m.role }} · {{
+          memberTime(m) }} · {{ (memberInHours(m) ? 'standup.team.inHours' :
+          'standup.team.offHours') | transloco }}
+        </li>
         }
       </ul>
 
@@ -511,7 +655,7 @@
         @for (e of teamEntries(); track e.id) {
         <li class="rounded-lg bg-base-200 p-3">
           <span class="font-medium">{{ e.status }}</span>
-          — {{ e.today || '—' }}
+          — {{ e.today || e.answersJson['today']?.text || '—' }}
         </li>
         }
       </ul>

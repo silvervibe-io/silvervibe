@@ -46,6 +46,7 @@ export function standupHomeUrl(
 
 const NAV = {
   myStandup: { key: 'standup.nav.myStandup', href: '/app' },
+  settings: { key: 'standup.nav.settings', href: '/app/settings' },
   teamAdmin: { key: 'standup.nav.teamAdmin', href: '/app/team' },
   workspace: { key: 'standup.nav.workspace', href: '/app/workspace' },
   account: { key: 'nav.account', href: '/account' },
@@ -63,7 +64,7 @@ export function standupShellLinks(
   if (access.showWorkspace) {
     links.push(NAV.workspace);
   }
-  links.push(NAV.account);
+  links.push(NAV.settings, NAV.account);
   return links.map((link) => ({
     label: translate(link.key),
     href: link.href,

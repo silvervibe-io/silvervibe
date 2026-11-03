@@ -31,6 +31,16 @@ enum StandupEntryStatus {
   SUBMITTED
 }
 
+enum StandupScheduleKind {
+  DEADLINE
+  WINDOW
+}
+
+enum StandupReveal {
+  LIVE
+  TOGETHER
+}
+
 enum AddonProvider {
   SLACK
   TEAMS
@@ -50,8 +60,10 @@ model User {
   id          String   @id @default(cuid())
   firebaseUid String   @unique @map("firebase_uid")
   email       String?
-  displayName String?  @map("display_name")
-  createdAt   DateTime @default(now()) @map("created_at")
+  displayName   String?  @map("display_name")
+  timezone      String   @default("UTC")
+  workHoursJson Json     @default("{\"mon\":{\"enabled\":true,\"start\":\"09:00\",\"end\":\"17:00\"},\"tue\":{\"enabled\":true,\"start\":\"09:00\",\"end\":\"17:00\"},\"wed\":{\"enabled\":true,\"start\":\"09:00\",\"end\":\"17:00\"},\"thu\":{\"enabled\":true,\"start\":\"09:00\",\"end\":\"17:00\"},\"fri\":{\"enabled\":true,\"start\":\"09:00\",\"end\":\"17:00\"},\"sat\":{\"enabled\":false,\"start\":\"09:00\",\"end\":\"17:00\"},\"sun\":{\"enabled\":false,\"start\":\"09:00\",\"end\":\"17:00\"}}") @map("work_hours_json")
+  createdAt     DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   memberships     WorkspaceMember[]
@@ -181,9 +193,13 @@ model StandupConfig {
   id             String   @id @default(cuid())
   teamId         String   @unique @map("team_id")
   timezone       String   @default("UTC")
-  reminderHour   Int      @default(9) @map("reminder_hour")
-  reminderMinute Int      @default(0) @map("reminder_minute")
-  questionsJson  Json     @default("{\"yesterday\":\"What did you do yesterday?\",\"today\":\"What will you do today?\",\"blockers\":\"Any blockers?\"}") @map("questions_json")
+  reminderHour      Int                  @default(9) @map("reminder_hour")
+  reminderMinute    Int                  @default(0) @map("reminder_minute")
+  scheduleKind      StandupScheduleKind  @default(DEADLINE) @map("schedule_kind")
+  windowStartHour   Int                  @default(8) @map("window_start_hour")
+  windowStartMinute Int                  @default(0) @map("window_start_minute")
+  reveal            StandupReveal        @default(LIVE)
+  questionsJson     Json                 @default("{\"yesterday\":\"What did you do yesterday?\",\"today\":\"What will you do today?\",\"blockers\":\"Any blockers?\"}") @map("questions_json")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
@@ -201,6 +217,7 @@ model StandupEntry {
   yesterday   String?
   today       String?
   blockers    String?
+  answersJson Json               @default("{}") @map("answers_json")
   submittedAt DateTime?          @map("submitted_at")
   createdAt   DateTime           @default(now()) @map("created_at")
   updatedAt   DateTime           @updatedAt @map("updated_at")

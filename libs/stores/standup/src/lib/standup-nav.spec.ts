@@ -73,6 +73,7 @@ describe('standupShellLinks', () => {
     expect(links.map((link) => link.href)).toEqual([
       '/app',
       '/app/team',
+      '/app/settings',
       '/account',
     ]);
   });

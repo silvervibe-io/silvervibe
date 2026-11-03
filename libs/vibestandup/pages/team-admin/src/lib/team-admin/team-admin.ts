@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   OnInit,
   signal,
@@ -19,9 +20,12 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import {
+  isWithinWorkHours,
+  localTimeLabel,
   standupShellLinks,
   StandupFacade,
   type StandupAccessInput,
+  type StandupQuestion,
   type TeamInviteView,
   type TeamMemberView,
 } from '@silvervibe/stores/standup';
@@ -42,12 +46,13 @@ import {
 
 type ConfigModel = {
   timezone: string;
+  scheduleKind: 'deadline' | 'window';
+  reveal: 'live' | 'together';
   /** Local hour 0–23 as a string so Signal Forms select/input stay compatible. */
   reminderHour: string;
   reminderMinute: string;
-  yesterday: string;
-  today: string;
-  blockers: string;
+  windowStartHour: string;
+  windowStartMinute: string;
 };
 
 type InviteModel = {
@@ -125,13 +130,18 @@ export class TeamAdmin implements OnInit {
     );
   });
 
+  private readonly destroyRef = inject(DestroyRef);
+  readonly clock = signal(Date.now());
+  readonly questions = signal<StandupQuestion[]>([]);
+
   readonly configModel = signal<ConfigModel>({
     timezone: 'UTC',
+    scheduleKind: 'deadline',
+    reveal: 'live',
     reminderHour: '9',
     reminderMinute: '0',
-    yesterday: 'What did you do yesterday?',
-    today: 'What will you do today?',
-    blockers: 'Any blockers?',
+    windowStartHour: '8',
+    windowStartMinute: '0',
   });
 
   readonly reminderHourOptions = Array.from({ length: 24 }, (_, h) =>
@@ -141,9 +151,18 @@ export class TeamAdmin implements OnInit {
 
   readonly configForm = form(this.configModel, (schemaPath) => {
     required(schemaPath.timezone);
+    required(schemaPath.scheduleKind);
+    required(schemaPath.reveal);
     required(schemaPath.reminderHour);
     required(schemaPath.reminderMinute);
+    required(schemaPath.windowStartHour);
+    required(schemaPath.windowStartMinute);
   });
+
+  constructor() {
+    const timer = setInterval(() => this.clock.set(Date.now()), 30_000);
+    this.destroyRef.onDestroy(() => clearInterval(timer));
+  }
 
   readonly inviteModel = signal<InviteModel>({ email: '' });
   readonly inviteForm = form(this.inviteModel, (schemaPath) => {
@@ -189,16 +208,27 @@ export class TeamAdmin implements OnInit {
           (m) => Number(m) === config.reminderMinute,
         ) ?? Math.min(45, Math.floor(config.reminderMinute / 15) * 15),
       );
+      const startMinute = String(
+        this.reminderMinuteOptions.find(
+          (m) => Number(m) === config.windowStartMinute,
+        ) ?? Math.min(45, Math.floor(config.windowStartMinute / 15) * 15),
+      );
       this.configModel.set({
         timezone: config.timezone,
+        scheduleKind: config.scheduleKind,
+        reveal: config.reveal,
         reminderHour: String(
           Math.min(23, Math.max(0, Math.trunc(config.reminderHour))),
         ),
         reminderMinute: snappedMinute,
-        yesterday: config.questionsJson['yesterday'] ?? '',
-        today: config.questionsJson['today'] ?? '',
-        blockers: config.questionsJson['blockers'] ?? '',
+        windowStartHour: String(
+          Math.min(23, Math.max(0, Math.trunc(config.windowStartHour))),
+        ),
+        windowStartMinute: startMinute,
       });
+      this.questions.set(
+        config.questionsJson.map((question) => ({ ...question })),
+      );
     }
     const [members, invites] = await Promise.all([
       this.standup.listMembers(teamId),
@@ -642,6 +672,101 @@ export class TeamAdmin implements OnInit {
     }
   }
 
+  memberTime(member: TeamMemberView): string {
+    this.clock();
+    return localTimeLabel(member.timezone, new Date());
+  }
+
+  memberInHours(member: TeamMemberView): boolean {
+    this.clock();
+    return isWithinWorkHours(member.timezone, member.workHours, new Date());
+  }
+
+  updateQuestion(id: string, patch: Partial<StandupQuestion>): void {
+    this.questions.update((list) =>
+      list.map((question) =>
+        question.id === id ? { ...question, ...patch } : question,
+      ),
+    );
+  }
+
+  moveQuestion(index: number, delta: number): void {
+    this.questions.update((list) => {
+      const target = index + delta;
+      if (target < 0 || target >= list.length) {
+        return list;
+      }
+      const next = list.slice();
+      const [item] = next.splice(index, 1);
+      next.splice(target, 0, item);
+      return next;
+    });
+  }
+
+  removeQuestion(id: string): void {
+    this.questions.update((list) =>
+      list.filter((question) => question.builtin || question.id !== id),
+    );
+  }
+
+  addQuestion(type: 'text' | 'choice'): void {
+    const id = `q${Date.now().toString(36)}`;
+    const question: StandupQuestion =
+      type === 'choice'
+        ? {
+            id,
+            type,
+            prompt: '',
+            enabled: true,
+            required: false,
+            allowOther: true,
+            options: [
+              { id: 'office', label: 'Office' },
+              { id: 'remote', label: 'Remote' },
+            ],
+          }
+        : {
+            id,
+            type,
+            prompt: '',
+            enabled: true,
+            required: false,
+          };
+    this.questions.update((list) => [...list, question]);
+  }
+
+  addOption(questionId: string): void {
+    const optionId = `o${Date.now().toString(36)}`;
+    this.questions.update((list) =>
+      list.map((question) =>
+        question.id === questionId && question.type === 'choice'
+          ? {
+              ...question,
+              options: [
+                ...(question.options ?? []),
+                { id: optionId, label: '' },
+              ],
+            }
+          : question,
+      ),
+    );
+  }
+
+  updateOptionLabel(questionId: string, optionId: string, label: string): void {
+    this.questions.update((list) =>
+      list.map((question) =>
+        question.id === questionId
+          ? {
+              ...question,
+              options: question.options?.map((option) =>
+                option.id === optionId ? { ...option, label } : option,
+              ),
+            }
+          : question,
+      ),
+    );
+  }
+
   async saveConfig(event: Event): Promise<void> {
     event.preventDefault();
     const teamId = this.selectedTeamId();
@@ -653,6 +778,8 @@ export class TeamAdmin implements OnInit {
         const m = this.configModel();
         await this.standup.saveConfig(teamId, {
           timezone: m.timezone,
+          scheduleKind: m.scheduleKind,
+          reveal: m.reveal,
           reminderHour: Math.min(
             23,
             Math.max(0, Math.trunc(Number(m.reminderHour)) || 0),
@@ -661,11 +788,15 @@ export class TeamAdmin implements OnInit {
             45,
             Math.max(0, Math.trunc(Number(m.reminderMinute)) || 0),
           ),
-          questionsJson: {
-            yesterday: m.yesterday,
-            today: m.today,
-            blockers: m.blockers,
-          },
+          windowStartHour: Math.min(
+            23,
+            Math.max(0, Math.trunc(Number(m.windowStartHour)) || 0),
+          ),
+          windowStartMinute: Math.min(
+            45,
+            Math.max(0, Math.trunc(Number(m.windowStartMinute)) || 0),
+          ),
+          questionsJson: this.questions(),
         });
         this.message.set('standup.team.saved');
         return undefined;

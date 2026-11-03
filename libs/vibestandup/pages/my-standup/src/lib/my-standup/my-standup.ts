@@ -2,36 +2,41 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { form, FormField, required, submit } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
 import { Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import {
+  formatClock,
   resolveStandupHome,
   standupHomeUrl,
   standupShellLinks,
+  submissionPhase,
   StandupFacade,
   type StandupAccessInput,
+  type StandupAnswerValue,
+  type StandupQuestion,
 } from '@silvervibe/stores/standup';
 import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 
-type StandupFormModel = {
-  yesterday: string;
-  today: string;
-  blockers: string;
+type AnswerRow = {
+  questionId: string;
+  text: string;
+  optionId: string;
+  otherText: string;
 };
 
 @Component({
   selector: 'vs-my-standup',
-  imports: [FormField, Shell, TranslocoPipe],
+  imports: [Shell, TranslocoPipe],
   templateUrl: './my-standup.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -68,7 +73,30 @@ export class MyStandup implements OnInit {
       maxMembersPerTeam: limits.maxMembersPerTeam,
     };
   });
+  private readonly destroyRef = inject(DestroyRef);
+  readonly clock = signal(Date.now());
+  readonly rows = signal<AnswerRow[]>([]);
+  readonly formError = signal<string | null>(null);
   readonly busy = signal(false);
+  readonly enabledQuestions = computed(() =>
+    (this.config()?.questionsJson ?? []).filter((question) => question.enabled),
+  );
+  readonly phase = computed(() => {
+    const config = this.config();
+    if (!config) {
+      return 'open' as const;
+    }
+    return submissionPhase(config, new Date(this.clock()));
+  });
+  readonly opensAt = computed(() => {
+    const config = this.config();
+    if (!config) {
+      return '';
+    }
+    return config.scheduleKind === 'window'
+      ? formatClock(config.windowStartHour, config.windowStartMinute)
+      : formatClock(config.reminderHour, config.reminderMinute);
+  });
   readonly shellLinks = computed(() => {
     this.lang();
     this.workspaces.memberships();
@@ -81,28 +109,23 @@ export class MyStandup implements OnInit {
     );
   });
 
-  readonly model = signal<StandupFormModel>({
-    yesterday: '',
-    today: '',
-    blockers: '',
-  });
-
-  readonly standupForm = form(this.model, (schemaPath) => {
-    required(schemaPath.yesterday);
-    required(schemaPath.today);
-  });
-
   constructor() {
+    const timer = setInterval(() => this.clock.set(Date.now()), 30_000);
+    this.destroyRef.onDestroy(() => clearInterval(timer));
     effect(() => {
       const entry = this.entry();
-      if (!entry) {
-        return;
-      }
-      this.model.set({
-        yesterday: entry.yesterday ?? '',
-        today: entry.today ?? '',
-        blockers: entry.blockers ?? '',
-      });
+      const questions = this.enabledQuestions();
+      this.rows.set(
+        questions.map((question) => {
+          const answer = entry?.answersJson[question.id];
+          return {
+            questionId: question.id,
+            text: answer?.text ?? this.legacyText(question, entry) ?? '',
+            optionId: answer?.optionId ?? '',
+            otherText: answer?.otherText ?? '',
+          };
+        }),
+      );
     });
   }
 
@@ -149,39 +172,110 @@ export class MyStandup implements OnInit {
     await this.standup.loadToday(teamId);
   }
 
+  questionFor(row: AnswerRow): StandupQuestion | undefined {
+    return this.enabledQuestions().find(
+      (question) => question.id === row.questionId,
+    );
+  }
+
+  updateRow(questionId: string, patch: Partial<AnswerRow>): void {
+    this.rows.update((rows) =>
+      rows.map((row) =>
+        row.questionId === questionId ? { ...row, ...patch } : row,
+      ),
+    );
+  }
+
   async saveDraft(event: Event): Promise<void> {
     event.preventDefault();
-    const teamId = this.selectedTeamId();
-    if (!teamId) {
-      return;
-    }
-    this.busy.set(true);
-    try {
-      await submit(this.standupForm, {
-        action: async () => {
-          await this.standup.saveDraft(teamId, this.model());
-          return undefined;
-        },
-      });
-    } finally {
-      this.busy.set(false);
-    }
+    await this.persist('DRAFT');
   }
 
   async submitEntry(event: Event): Promise<void> {
     event.preventDefault();
-    const teamId = this.selectedTeamId();
-    if (!teamId) {
+    if (!this.answersComplete()) {
+      this.formError.set('standup.my.missing');
       return;
     }
+    await this.persist('SUBMITTED');
+  }
+
+  private legacyText(
+    question: StandupQuestion,
+    entry: {
+      yesterday: string | null;
+      today: string | null;
+      blockers: string | null;
+    } | null,
+  ): string | null {
+    if (!entry) {
+      return null;
+    }
+    if (question.builtin === 'yesterday') {
+      return entry.yesterday;
+    }
+    if (question.builtin === 'today') {
+      return entry.today;
+    }
+    if (question.builtin === 'blockers') {
+      return entry.blockers;
+    }
+    return null;
+  }
+
+  private answersComplete(): boolean {
+    return this.rows().every((row) => {
+      const question = this.questionFor(row);
+      if (!question?.required) {
+        return true;
+      }
+      if (question.type === 'text') {
+        return row.text.trim().length > 0;
+      }
+      if (row.optionId === 'other') {
+        return row.otherText.trim().length > 0;
+      }
+      return row.optionId.trim().length > 0;
+    });
+  }
+
+  private payload() {
+    const answers: Record<string, StandupAnswerValue> = {};
+    let yesterday = '';
+    let today = '';
+    let blockers = '';
+    for (const row of this.rows()) {
+      answers[row.questionId] = {
+        text: row.text,
+        ...(row.optionId ? { optionId: row.optionId } : {}),
+        ...(row.otherText ? { otherText: row.otherText } : {}),
+      };
+      const question = this.questionFor(row);
+      if (question?.builtin === 'yesterday') {
+        yesterday = row.text;
+      } else if (question?.builtin === 'today') {
+        today = row.text;
+      } else if (question?.builtin === 'blockers') {
+        blockers = row.text;
+      }
+    }
+    return { yesterday, today, blockers, answers };
+  }
+
+  private async persist(status: 'DRAFT' | 'SUBMITTED'): Promise<void> {
+    const teamId = this.selectedTeamId();
+    if (!teamId || this.phase() !== 'open') {
+      return;
+    }
+    this.formError.set(null);
     this.busy.set(true);
     try {
-      await submit(this.standupForm, {
-        action: async () => {
-          await this.standup.submit(teamId, this.model());
-          return undefined;
-        },
-      });
+      const body = this.payload();
+      if (status === 'DRAFT') {
+        await this.standup.saveDraft(teamId, body);
+      } else {
+        await this.standup.submit(teamId, body);
+      }
     } finally {
       this.busy.set(false);
     }

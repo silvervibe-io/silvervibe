@@ -17,6 +17,7 @@ import { VerifiedUser } from '../auth/firebase-auth.service';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
+import { weekFromStorage } from '../users/work-hours';
 import {
   AcceptTeamInviteDto,
   MyTeamDto,
@@ -109,7 +110,12 @@ export class TeamsService {
     id: string;
     userId: string;
     role: TeamRole;
-    user: { email: string | null; displayName: string | null };
+    user: {
+      email: string | null;
+      displayName: string | null;
+      timezone?: string | null;
+      workHoursJson?: unknown;
+    };
   }): TeamMemberDto {
     return {
       id: member.id,
@@ -117,6 +123,8 @@ export class TeamsService {
       role: member.role,
       email: member.user.email,
       displayName: member.user.displayName,
+      timezone: member.user.timezone?.trim() || 'UTC',
+      workHoursJson: weekFromStorage(member.user.workHoursJson),
     };
   }
 

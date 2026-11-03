@@ -54,14 +54,7 @@ export class StandupsController {
     @CurrentUser() user: VerifiedUser,
     @Body() body: UpdateStandupConfigDto,
   ): Promise<StandupConfigDto> {
-    return this.standups.updateConfig(
-      teamId,
-      user,
-      body.timezone,
-      body.reminderHour,
-      body.reminderMinute,
-      body.questionsJson,
-    );
+    return this.standups.updateConfig(teamId, user, body);
   }
 
   @Get('standups/me')

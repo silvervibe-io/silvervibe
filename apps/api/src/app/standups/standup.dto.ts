@@ -1,14 +1,78 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
+  IsArray,
+  IsBoolean,
   IsIn,
   IsInt,
   IsObject,
+  IsOptional,
   IsString,
   Max,
   MaxLength,
   Min,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
+
+export class StandupQuestionOptionDto {
+  @ApiProperty()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(40)
+  id!: string;
+
+  @ApiProperty()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(80)
+  label!: string;
+}
+
+export class StandupQuestionDto {
+  @ApiProperty()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(40)
+  id!: string;
+
+  @ApiProperty({ enum: ['text', 'choice'] })
+  @IsIn(['text', 'choice'])
+  type!: 'text' | 'choice';
+
+  @ApiProperty()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(200)
+  prompt!: string;
+
+  @ApiProperty()
+  @IsBoolean()
+  enabled!: boolean;
+
+  @ApiProperty()
+  @IsBoolean()
+  required!: boolean;
+
+  @ApiPropertyOptional({
+    enum: ['yesterday', 'today', 'blockers', 'location', 'hours'],
+  })
+  @IsOptional()
+  @IsIn(['yesterday', 'today', 'blockers', 'location', 'hours'])
+  builtin?: 'yesterday' | 'today' | 'blockers' | 'location' | 'hours';
+
+  @ApiPropertyOptional({ type: [StandupQuestionOptionDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => StandupQuestionOptionDto)
+  options?: StandupQuestionOptionDto[];
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  allowOther?: boolean;
+}
 
 export class StandupConfigDto {
   @ApiProperty()
@@ -23,8 +87,20 @@ export class StandupConfigDto {
   @ApiProperty({ minimum: 0, maximum: 59 })
   reminderMinute!: number;
 
-  @ApiProperty()
-  questionsJson!: Record<string, string>;
+  @ApiProperty({ enum: ['deadline', 'window'] })
+  scheduleKind!: 'deadline' | 'window';
+
+  @ApiProperty({ minimum: 0, maximum: 23 })
+  windowStartHour!: number;
+
+  @ApiProperty({ minimum: 0, maximum: 59 })
+  windowStartMinute!: number;
+
+  @ApiProperty({ enum: ['live', 'together'] })
+  reveal!: 'live' | 'together';
+
+  @ApiProperty({ type: [StandupQuestionDto] })
+  questionsJson!: StandupQuestionDto[];
 }
 
 export class UpdateStandupConfigDto {
@@ -46,9 +122,31 @@ export class UpdateStandupConfigDto {
   @Max(59)
   reminderMinute!: number;
 
-  @ApiProperty()
-  @IsObject()
-  questionsJson!: Record<string, string>;
+  @ApiProperty({ enum: ['deadline', 'window'] })
+  @IsIn(['deadline', 'window'])
+  scheduleKind!: 'deadline' | 'window';
+
+  @ApiProperty({ minimum: 0, maximum: 23 })
+  @IsInt()
+  @Min(0)
+  @Max(23)
+  windowStartHour!: number;
+
+  @ApiProperty({ minimum: 0, maximum: 59 })
+  @IsInt()
+  @Min(0)
+  @Max(59)
+  windowStartMinute!: number;
+
+  @ApiProperty({ enum: ['live', 'together'] })
+  @IsIn(['live', 'together'])
+  reveal!: 'live' | 'together';
+
+  @ApiProperty({ type: [StandupQuestionDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => StandupQuestionDto)
+  questionsJson!: StandupQuestionDto[];
 }
 
 export class StandupEntryDto {
@@ -72,6 +170,12 @@ export class StandupEntryDto {
 
   @ApiProperty({ required: false, nullable: true })
   blockers!: string | null;
+
+  @ApiProperty({ type: 'object', additionalProperties: true })
+  answersJson!: Record<
+    string,
+    { text?: string; optionId?: string; otherText?: string }
+  >;
 }
 
 export class UpsertStandupEntryDto {
@@ -86,6 +190,14 @@ export class UpsertStandupEntryDto {
   @ApiProperty()
   @IsString()
   blockers!: string;
+
+  @ApiPropertyOptional({ type: 'object', additionalProperties: true })
+  @IsOptional()
+  @IsObject()
+  answers?: Record<
+    string,
+    { text?: string; optionId?: string; otherText?: string }
+  >;
 
   @ApiProperty({ enum: ['DRAFT', 'SUBMITTED'] })
   @IsIn(['DRAFT', 'SUBMITTED'])

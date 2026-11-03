@@ -79,7 +79,13 @@ describe('StandupsService auto-summary', () => {
     const prisma = {
       isEnabled: () => true,
       standupConfig: {
-        findUnique: jest.fn().mockResolvedValue({ timezone: 'UTC' }),
+        findUnique: jest.fn().mockResolvedValue({
+          timezone: 'UTC',
+          reminderHour: 23,
+          reminderMinute: 59,
+          scheduleKind: 'DEADLINE',
+          reveal: 'LIVE',
+        }),
       },
       standupEntry: { upsert, findMany },
       standupSummary: {
@@ -195,7 +201,13 @@ describe('StandupsService auto-summary', () => {
     const prisma = {
       isEnabled: () => true,
       standupConfig: {
-        findUnique: jest.fn().mockResolvedValue({ timezone: 'UTC' }),
+        findUnique: jest.fn().mockResolvedValue({
+          timezone: 'UTC',
+          reminderHour: 23,
+          reminderMinute: 59,
+          scheduleKind: 'DEADLINE',
+          reveal: 'LIVE',
+        }),
       },
       standupEntry: {
         upsert: jest.fn().mockResolvedValue({
@@ -287,7 +299,13 @@ describe('StandupsService auto-summary', () => {
     const prisma = {
       isEnabled: () => true,
       standupConfig: {
-        findUnique: jest.fn().mockResolvedValue({ timezone: 'UTC' }),
+        findUnique: jest.fn().mockResolvedValue({
+          timezone: 'UTC',
+          reminderHour: 23,
+          reminderMinute: 59,
+          scheduleKind: 'DEADLINE',
+          reveal: 'LIVE',
+        }),
       },
       standupEntry: {
         upsert: jest.fn().mockResolvedValue({
@@ -323,7 +341,7 @@ describe('StandupsService auto-summary', () => {
     await expect(
       service.upsertMine('team1', member, {
         status: 'SUBMITTED',
-        yesterday: '',
+        yesterday: 'y',
         today: 'ok',
         blockers: '',
       }),
@@ -342,7 +360,13 @@ describe('StandupsService auto-summary', () => {
     const prisma = {
       isEnabled: () => true,
       standupConfig: {
-        findUnique: jest.fn().mockResolvedValue({ timezone: 'UTC' }),
+        findUnique: jest.fn().mockResolvedValue({
+          timezone: 'UTC',
+          reminderHour: 23,
+          reminderMinute: 59,
+          scheduleKind: 'DEADLINE',
+          reveal: 'LIVE',
+        }),
       },
       standupEntry: {
         upsert: jest.fn().mockResolvedValue({
@@ -400,7 +424,7 @@ describe('StandupsService auto-summary', () => {
 
     await service.upsertMine('team1', member, {
       status: 'SUBMITTED',
-      yesterday: '',
+      yesterday: 'y',
       today: 'ok',
       blockers: '',
     });
@@ -419,7 +443,13 @@ describe('StandupsService auto-summary', () => {
     const prisma = {
       isEnabled: () => true,
       standupConfig: {
-        findUnique: jest.fn().mockResolvedValue({ timezone: 'UTC' }),
+        findUnique: jest.fn().mockResolvedValue({
+          timezone: 'UTC',
+          reminderHour: 23,
+          reminderMinute: 59,
+          scheduleKind: 'DEADLINE',
+          reveal: 'LIVE',
+        }),
       },
       standupEntry: {
         upsert: jest.fn().mockResolvedValue({

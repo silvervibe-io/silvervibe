@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   Logger,
   ServiceUnavailableException,
@@ -22,6 +23,24 @@ import {
   UpsertStandupEntryDto,
 } from './standup.dto';
 import { calendarDateInTimezone, parseCalendarDate } from './standup-date.util';
+import {
+  answerDisplay,
+  answersAreComplete,
+  answersFromStorage,
+  mirrorBuiltinColumns,
+  questionsForSave,
+  questionsFromStorage,
+  StandupQuestionError,
+  type StandupAnswer,
+  type StandupQuestion,
+} from './standup-questions';
+import {
+  assertSchedule,
+  isCollectionSlot,
+  isRevealed,
+  scheduleFromConfig,
+  submissionPhase,
+} from './standup-schedule';
 
 @Injectable()
 export class StandupsService {
@@ -69,6 +88,7 @@ export class StandupsService {
     yesterday: string | null;
     today: string | null;
     blockers: string | null;
+    answersJson?: unknown;
   }): StandupEntryDto {
     return {
       id: entry.id,
@@ -78,6 +98,34 @@ export class StandupsService {
       yesterday: entry.yesterday,
       today: entry.today,
       blockers: entry.blockers,
+      answersJson: answersFromStorage(entry.answersJson),
+    };
+  }
+
+  private toConfigDto(
+    teamId: string,
+    config: {
+      timezone: string;
+      reminderHour: number;
+      reminderMinute: number;
+      scheduleKind?: string | null;
+      windowStartHour?: number | null;
+      windowStartMinute?: number | null;
+      reveal?: string | null;
+      questionsJson: unknown;
+    },
+  ): StandupConfigDto {
+    const schedule = scheduleFromConfig(config);
+    return {
+      teamId,
+      timezone: schedule.timezone,
+      reminderHour: schedule.endHour,
+      reminderMinute: schedule.endMinute,
+      scheduleKind: schedule.scheduleKind,
+      windowStartHour: schedule.windowStartHour,
+      windowStartMinute: schedule.windowStartMinute,
+      reveal: schedule.reveal,
+      questionsJson: questionsFromStorage(config.questionsJson),
     };
   }
 
@@ -98,46 +146,75 @@ export class StandupsService {
       });
     }
 
-    return {
-      teamId,
-      timezone: config.timezone,
-      reminderHour: config.reminderHour,
-      reminderMinute: config.reminderMinute,
-      questionsJson: config.questionsJson as Record<string, string>,
-    };
+    return this.toConfigDto(teamId, config);
   }
 
   async updateConfig(
     teamId: string,
     user: VerifiedUser,
-    timezone: string,
-    reminderHour: number,
-    reminderMinute: number,
-    questionsJson: Record<string, string>,
+    body: {
+      timezone: string;
+      reminderHour: number;
+      reminderMinute: number;
+      scheduleKind: 'deadline' | 'window';
+      windowStartHour: number;
+      windowStartMinute: number;
+      reveal: 'live' | 'together';
+      questionsJson: unknown;
+    },
   ): Promise<StandupConfigDto> {
     this.ensureDb();
     const userId = (await this.users.upsertFromFirebase(user)).id;
     await this.teams.requireTeamAdmin(teamId, userId);
+    try {
+      assertSchedule({
+        timezone: body.timezone,
+        scheduleKind: body.scheduleKind,
+        windowStartHour: body.windowStartHour,
+        windowStartMinute: body.windowStartMinute,
+        endHour: body.reminderHour,
+        endMinute: body.reminderMinute,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'standup.window';
+      throw new BadRequestException(message);
+    }
+    let questionsJson;
+    try {
+      questionsJson = questionsForSave(body.questionsJson);
+    } catch (err: unknown) {
+      if (err instanceof StandupQuestionError) {
+        throw new BadRequestException(err.message);
+      }
+      throw err;
+    }
 
     const config = await this.prisma.standupConfig.upsert({
       where: { teamId },
       create: {
         teamId,
-        timezone,
-        reminderHour,
-        reminderMinute,
+        timezone: body.timezone.trim(),
+        reminderHour: body.reminderHour,
+        reminderMinute: body.reminderMinute,
+        scheduleKind: body.scheduleKind === 'window' ? 'WINDOW' : 'DEADLINE',
+        windowStartHour: body.windowStartHour,
+        windowStartMinute: body.windowStartMinute,
+        reveal: body.reveal === 'together' ? 'TOGETHER' : 'LIVE',
         questionsJson,
       },
-      update: { timezone, reminderHour, reminderMinute, questionsJson },
+      update: {
+        timezone: body.timezone.trim(),
+        reminderHour: body.reminderHour,
+        reminderMinute: body.reminderMinute,
+        scheduleKind: body.scheduleKind === 'window' ? 'WINDOW' : 'DEADLINE',
+        windowStartHour: body.windowStartHour,
+        windowStartMinute: body.windowStartMinute,
+        reveal: body.reveal === 'together' ? 'TOGETHER' : 'LIVE',
+        questionsJson,
+      },
     });
 
-    return {
-      teamId,
-      timezone: config.timezone,
-      reminderHour: config.reminderHour,
-      reminderMinute: config.reminderMinute,
-      questionsJson: config.questionsJson as Record<string, string>,
-    };
+    return this.toConfigDto(teamId, config);
   }
 
   async getMine(
@@ -177,11 +254,32 @@ export class StandupsService {
     this.ensureDb();
     const userId = (await this.users.upsertFromFirebase(user)).id;
     await this.teams.requireTeamMember(teamId, userId);
-    const entryDate = await this.resolveEntryDate(teamId, dateStr);
+    const stored = await this.prisma.standupConfig.findUnique({
+      where: { teamId },
+    });
+    const schedule = scheduleFromConfig(stored);
+    const phase = submissionPhase(schedule);
+    if (phase !== 'open') {
+      throw new BadRequestException(
+        phase === 'before' ? 'standup.notOpen' : 'standup.closed',
+      );
+    }
+    const questions = questionsFromStorage(stored?.questionsJson);
+    const answers = this.entryAnswers(body, questions);
     const status =
       body.status === 'SUBMITTED'
         ? StandupEntryStatus.SUBMITTED
         : StandupEntryStatus.DRAFT;
+    if (
+      status === StandupEntryStatus.SUBMITTED &&
+      !answersAreComplete(questions, answers)
+    ) {
+      throw new BadRequestException('standup.answers');
+    }
+    const mirrored = mirrorBuiltinColumns(questions, answers);
+    const entryDate = dateStr?.trim()
+      ? parseCalendarDate(dateStr)
+      : parseCalendarDate(calendarDateInTimezone(schedule.timezone));
 
     const entry = await this.prisma.standupEntry.upsert({
       where: {
@@ -192,23 +290,25 @@ export class StandupsService {
         userId,
         entryDate,
         status,
-        yesterday: body.yesterday,
-        today: body.today,
-        blockers: body.blockers,
+        yesterday: mirrored.yesterday,
+        today: mirrored.today,
+        blockers: mirrored.blockers,
+        answersJson: answers,
         submittedAt:
           status === StandupEntryStatus.SUBMITTED ? new Date() : null,
       },
       update: {
         status,
-        yesterday: body.yesterday,
-        today: body.today,
-        blockers: body.blockers,
+        yesterday: mirrored.yesterday,
+        today: mirrored.today,
+        blockers: mirrored.blockers,
+        answersJson: answers,
         submittedAt:
           status === StandupEntryStatus.SUBMITTED ? new Date() : null,
       },
     });
 
-    if (status === StandupEntryStatus.SUBMITTED) {
+    if (status === StandupEntryStatus.SUBMITTED && isRevealed(schedule)) {
       try {
         await this.rebuildSummaryForDate(teamId, entryDate);
       } catch (err: unknown) {
@@ -246,8 +346,17 @@ export class StandupsService {
   ): Promise<StandupSummaryDto | null> {
     this.ensureDb();
     const userId = (await this.users.upsertFromFirebase(user)).id;
-    await this.teams.requireTeamMember(teamId, userId);
-    const entryDate = await this.resolveEntryDate(teamId, dateStr);
+    const membership = await this.teams.requireTeamMember(teamId, userId);
+    const stored = await this.prisma.standupConfig.findUnique({
+      where: { teamId },
+    });
+    const schedule = scheduleFromConfig(stored);
+    if (!isRevealed(schedule) && membership.role !== 'ADMIN') {
+      return null;
+    }
+    const entryDate = dateStr?.trim()
+      ? parseCalendarDate(dateStr)
+      : parseCalendarDate(calendarDateInTimezone(schedule.timezone));
 
     const summary = await this.prisma.standupSummary.findUnique({
       where: { teamId_entryDate: { teamId, entryDate } },
@@ -275,28 +384,58 @@ export class StandupsService {
     return this.rebuildSummaryForDate(teamId, entryDate);
   }
 
+  private entryAnswers(
+    body: UpsertStandupEntryDto,
+    questions: StandupQuestion[],
+  ): Record<string, StandupAnswer> {
+    const stored = answersFromStorage(body.answers);
+    if (Object.keys(stored).length > 0) {
+      return stored;
+    }
+    const answers: Record<string, StandupAnswer> = {};
+    for (const question of questions) {
+      if (question.builtin === 'yesterday') {
+        answers[question.id] = { text: body.yesterday };
+      } else if (question.builtin === 'today') {
+        answers[question.id] = { text: body.today };
+      } else if (question.builtin === 'blockers') {
+        answers[question.id] = { text: body.blockers };
+      }
+    }
+    return answers;
+  }
+
   private classicMarkdownSummary(
     entries: Array<{
       userId: string;
       yesterday: string | null;
       today: string | null;
       blockers: string | null;
+      answersJson?: unknown;
       user: {
         displayName: string | null;
         email: string | null;
       };
     }>,
+    questions: StandupQuestion[],
   ): string {
     const lines = entries.map((e) => {
       const who = e.user.displayName || e.user.email || e.userId;
-      return [
-        `### ${who}`,
-        e.yesterday ? `- Yesterday: ${e.yesterday}` : null,
-        e.today ? `- Today: ${e.today}` : null,
-        e.blockers ? `- Blockers: ${e.blockers}` : null,
-      ]
-        .filter(Boolean)
-        .join('\n');
+      const answers = answersFromStorage(e.answersJson);
+      const answered = Object.keys(answers).length > 0;
+      const detail = answered
+        ? questions
+            .filter((question) => question.enabled)
+            .map((question) => {
+              const value = answerDisplay(question, answers[question.id]);
+              return value ? `- ${question.prompt}: ${value}` : null;
+            })
+        : [
+            e.yesterday ? `- Yesterday: ${e.yesterday}` : null,
+            e.today ? `- Today: ${e.today}` : null,
+            e.blockers ? `- Blockers: ${e.blockers}` : null,
+          ];
+      return [`### ${who}`, ...detail].filter(Boolean).join('\n');
     });
 
     return lines.length > 0
@@ -369,8 +508,12 @@ export class StandupsService {
       select: { workspaceId: true, name: true },
     });
     const teamName = team?.name?.trim() || 'Team';
+    const storedConfig = await this.prisma.standupConfig.findUnique({
+      where: { teamId },
+    });
+    const questions = questionsFromStorage(storedConfig?.questionsJson);
 
-    const classic = this.classicMarkdownSummary(entries);
+    const classic = this.classicMarkdownSummary(entries, questions);
     const aiMarkdown = await this.ai.summarizeStandup({
       teamName,
       entryDate: entryDateIso,
@@ -445,5 +588,21 @@ export class StandupsService {
       entryDate: summary.entryDate.toISOString().slice(0, 10),
       content: summary.content,
     };
+  }
+
+  /** Build and deliver the summary once the standup time has arrived. */
+  async publishTogether(teamId: string, now: Date): Promise<void> {
+    this.ensureDb();
+    const stored = await this.prisma.standupConfig.findUnique({
+      where: { teamId },
+    });
+    const schedule = scheduleFromConfig(stored);
+    if (schedule.reveal !== 'together' || !isCollectionSlot(schedule, now)) {
+      return;
+    }
+    const entryDate = parseCalendarDate(
+      calendarDateInTimezone(schedule.timezone, now),
+    );
+    await this.rebuildSummaryForDate(teamId, entryDate);
   }
 }

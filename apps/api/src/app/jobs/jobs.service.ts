@@ -1,6 +1,8 @@
 import {
+  Inject,
   Injectable,
   Logger,
+  Optional,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { StandupEntryStatus } from '@prisma/client';
@@ -8,9 +10,13 @@ import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   calendarDateInTimezone,
-  isInReminderWindow,
   parseCalendarDate,
 } from '../standups/standup-date.util';
+import {
+  isReminderSlot,
+  scheduleFromConfig,
+} from '../standups/standup-schedule';
+import { StandupsService } from '../standups/standups.service';
 
 export type StandupReminderRunResult = {
   teamsChecked: number;
@@ -28,6 +34,9 @@ export class JobsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
+    @Optional()
+    @Inject(StandupsService)
+    private readonly standups: StandupsService | null = null,
   ) {}
 
   async runStandupReminders(
@@ -74,11 +83,21 @@ export class JobsService {
     let mailErrors = 0;
 
     for (const team of teams) {
-      const tz = team.standupConfig?.timezone?.trim() || 'UTC';
-      const reminderHour = team.standupConfig?.reminderHour ?? 9;
-      const reminderMinute = team.standupConfig?.reminderMinute ?? 0;
+      const schedule = scheduleFromConfig(team.standupConfig);
+      const tz = schedule.timezone;
 
-      if (!isInReminderWindow(tz, reminderHour, reminderMinute, now)) {
+      if (schedule.reveal === 'together' && this.standups) {
+        try {
+          await this.standups.publishTogether(team.id, now);
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : String(err);
+          this.logger.warn(
+            `Together summary failed for team ${team.id}: ${message}`,
+          );
+        }
+      }
+
+      if (!isReminderSlot(schedule, now)) {
         skippedOutsideWindow += 1;
         continue;
       }

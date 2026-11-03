@@ -14,7 +14,8 @@
   "nav": {
     "myStandup": "My standup",
     "teamAdmin": "Team",
-    "workspace": "Workspace"
+    "workspace": "Workspace",
+    "settings": "Ρυθμίσεις"
   },
   "my": {
     "title": "My standup",
@@ -28,7 +29,11 @@
     "submit": "Submit",
     "submitted": "Submitted for today.",
     "summary": "Team summary",
-    "planHint": "Προεπισκόπηση πλάνου {{plan}}: έως {{teams}} ομάδες, {{members}} μέλη ανά ομάδα (μόνο UI — το API κρατά πραγματικούς ρόλους)."
+    "planHint": "Προεπισκόπηση πλάνου {{plan}}: έως {{teams}} ομάδες, {{members}} μέλη ανά ομάδα (μόνο UI — το API κρατά πραγματικούς ρόλους).",
+    "opensAt": "Το standup ανοίγει στις {{time}}.",
+    "closed": "Το standup είναι κλειστό για σήμερα.",
+    "other": "Άλλο",
+    "missing": "Απαντήστε στις υποχρεωτικές ερωτήσεις."
   },
   "team": {
     "title": "Team admin",
@@ -56,7 +61,7 @@
     "inviteEmailSent": "Το email πρόσκλησης στάλθηκε. Μπορείτε ακόμα να αντιγράψετε τον σύνδεσμο παρακάτω αν χρειαστεί.",
     "reminderHour": "Ώρα υπενθύμισης",
     "reminderMinute": "Λεπτό υπενθύμισης",
-    "reminderHint": "Τα email στέλνονται τις καθημερινές σε παράθυρο 15 λεπτών σε αυτή την τοπική ώρα.",
+    "reminderHint": "Ένα παράθυρο υπενθυμίζει στο άνοιγμα. Μια προθεσμία υπενθυμίζει εκείνη την ώρα. Η κοινή εμφάνιση δημοσιεύει τότε τη σύνοψη.",
     "slackChannelTitle": "Slack digest channel",
     "slackChannelHint": "Override the workspace Slack channel for this team’s standup digests. Connect Slack in Workspace admin first.",
     "slackNotConnected": "Slack is not connected for this workspace.",
@@ -91,7 +96,28 @@
     "jiraProject": "Project",
     "jiraIssue": "Issue",
     "jiraTargetSaved": "Jira target saved for this team.",
-    "jiraTargetCleared": "Using workspace Jira target again."
+    "jiraTargetCleared": "Using workspace Jira target again.",
+    "scheduleKind": "Ώρα standup",
+    "deadline": "Πριν από μια ώρα",
+    "window": "Χρονικό παράθυρο",
+    "windowStart": "Από",
+    "windowEnd": "Έως",
+    "before": "Πριν",
+    "reveal": "Εμφάνιση απαντήσεων",
+    "revealLive": "Μόλις κάποιος υποβάλει",
+    "revealTogether": "Όλοι μαζί την ώρα του standup",
+    "questions": "Ερωτήσεις",
+    "enabled": "Συμπεριλαμβάνεται",
+    "required": "Υποχρεωτική",
+    "moveUp": "Πάνω",
+    "moveDown": "Κάτω",
+    "remove": "Αφαίρεση",
+    "addText": "Προσθήκη ερώτησης κειμένου",
+    "addChoice": "Προσθήκη ερώτησης επιλογής",
+    "addOption": "Προσθήκη επιλογής",
+    "allowOther": "Άλλο, με εξήγηση",
+    "inHours": "Εντός ωραρίου",
+    "offHours": "Εκτός ωραρίου"
   },
   "workspace": {
     "title": "Workspace admin",
@@ -174,5 +200,24 @@
     "signIn": "Sign in",
     "missingToken": "Invite link is missing a token.",
     "acceptFailed": "Could not accept this invite."
+  },
+  "settings": {
+    "title": "Ωράριο εργασίας",
+    "lead": "Ορίστε τη ζώνη ώρας και τις ημέρες και ώρες που εργάζεστε συνήθως. Η ομάδα βλέπει την τοπική σας ώρα.",
+    "timezone": "Ζώνη ώρας",
+    "days": "Ημέρες εργασίας",
+    "start": "Έναρξη",
+    "end": "Λήξη",
+    "save": "Αποθήκευση",
+    "saved": "Οι ρυθμίσεις αποθηκεύτηκαν."
+  },
+  "week": {
+    "mon": "Δευτέρα",
+    "tue": "Τρίτη",
+    "wed": "Τετάρτη",
+    "thu": "Πέμπτη",
+    "fri": "Παρασκευή",
+    "sat": "Σάββατο",
+    "sun": "Κυριακή"
   }
 }
