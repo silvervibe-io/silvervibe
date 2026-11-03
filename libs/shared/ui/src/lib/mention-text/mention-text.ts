@@ -103,7 +103,7 @@ function parseBold(value: string): SummaryInline[] {
   templateUrl: './summary-inlines.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class SummaryInlines {
+export class SummaryInlines {
   readonly parts = input.required<SummaryInline[]>();
 }
 
