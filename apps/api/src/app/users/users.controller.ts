@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -12,6 +12,7 @@ import { VerifiedUser } from '../auth/firebase-auth.service';
 import { UsersService } from './users.service';
 import { MeDto } from './me.dto';
 import { MeWorkspaceDto } from './me-workspace.dto';
+import { UpdateUserScheduleDto, UserScheduleDto } from './schedule.dto';
 
 @ApiTags('auth')
 @ApiBearerAuth()
@@ -55,5 +56,26 @@ export class UsersController {
     @CurrentUser() user: VerifiedUser,
   ): Promise<MeWorkspaceDto[]> {
     return this.users.listMyWorkspaces(user);
+  }
+
+  @Get('schedule')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiOperation({ summary: 'Timezone and default working hours' })
+  @ApiOkResponse({ type: UserScheduleDto })
+  @ApiUnauthorizedResponse()
+  schedule(@CurrentUser() user: VerifiedUser): Promise<UserScheduleDto> {
+    return this.users.getSchedule(user);
+  }
+
+  @Patch('schedule')
+  @UseGuards(FirebaseAuthGuard)
+  @ApiOperation({ summary: 'Update timezone and default working hours' })
+  @ApiOkResponse({ type: UserScheduleDto })
+  @ApiUnauthorizedResponse()
+  updateSchedule(
+    @CurrentUser() user: VerifiedUser,
+    @Body() body: UpdateUserScheduleDto,
+  ): Promise<UserScheduleDto> {
+    return this.users.updateSchedule(user, body);
   }
 }

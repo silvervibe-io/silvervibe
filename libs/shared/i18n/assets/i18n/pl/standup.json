@@ -14,7 +14,8 @@
   "nav": {
     "myStandup": "My standup",
     "teamAdmin": "Team",
-    "workspace": "Workspace"
+    "workspace": "Workspace",
+    "settings": "Ustawienia"
   },
   "my": {
     "title": "My standup",
@@ -28,7 +29,11 @@
     "submit": "Submit",
     "submitted": "Submitted for today.",
     "summary": "Team summary",
-    "planHint": "Podglad planu {{plan}}: do {{teams}} zespolow, {{members}} czlonkow na zespol (tylko UI — API nadal uzywa prawdziwych rol)."
+    "planHint": "Podglad planu {{plan}}: do {{teams}} zespolow, {{members}} czlonkow na zespol (tylko UI — API nadal uzywa prawdziwych rol).",
+    "opensAt": "Standup otwiera się o {{time}}.",
+    "closed": "Standup jest dziś zamknięty.",
+    "other": "Inne",
+    "missing": "Odpowiedz na wymagane pytania."
   },
   "team": {
     "title": "Team admin",
@@ -56,7 +61,7 @@
     "inviteEmailSent": "E-mail z zaproszeniem wysłany. W razie potrzeby nadal możesz skopiować link poniżej.",
     "reminderHour": "Godzina przypomnienia",
     "reminderMinute": "Minuta przypomnienia",
-    "reminderHint": "E-maile wychodzą w dni robocze w 15-minutowym oknie o tej lokalnej godzinie.",
+    "reminderHint": "Okno przypomina przy otwarciu. Termin przypomina o tej godzinie. Razem publikuje podsumowanie wtedy.",
     "slackChannelTitle": "Slack digest channel",
     "slackChannelHint": "Override the workspace Slack channel for this team’s standup digests. Connect Slack in Workspace admin first.",
     "slackNotConnected": "Slack is not connected for this workspace.",
@@ -91,7 +96,28 @@
     "jiraProject": "Project",
     "jiraIssue": "Issue",
     "jiraTargetSaved": "Jira target saved for this team.",
-    "jiraTargetCleared": "Using workspace Jira target again."
+    "jiraTargetCleared": "Using workspace Jira target again.",
+    "scheduleKind": "Godzina standupu",
+    "deadline": "Przed godziną",
+    "window": "Przedział czasu",
+    "windowStart": "Od",
+    "windowEnd": "Do",
+    "before": "Przed",
+    "reveal": "Pokaż odpowiedzi",
+    "revealLive": "W miarę wysyłania",
+    "revealTogether": "Wszyscy razem o godzinie standupu",
+    "questions": "Pytania",
+    "enabled": "Uwzględnione",
+    "required": "Wymagane",
+    "moveUp": "W górę",
+    "moveDown": "W dół",
+    "remove": "Usuń",
+    "addText": "Dodaj pytanie tekstowe",
+    "addChoice": "Dodaj pytanie wyboru",
+    "addOption": "Dodaj opcję",
+    "allowOther": "Inne, z wyjaśnieniem",
+    "inHours": "W godzinach pracy",
+    "offHours": "Poza godzinami pracy"
   },
   "workspace": {
     "title": "Workspace admin",
@@ -174,5 +200,24 @@
     "signIn": "Sign in",
     "missingToken": "Invite link is missing a token.",
     "acceptFailed": "Could not accept this invite."
+  },
+  "settings": {
+    "title": "Godziny pracy",
+    "lead": "Ustaw strefę czasową oraz dni i godziny, w których zwykle pracujesz. Zespół widzi twój czas lokalny.",
+    "timezone": "Strefa czasowa",
+    "days": "Dni pracy",
+    "start": "Początek",
+    "end": "Koniec",
+    "save": "Zapisz ustawienia",
+    "saved": "Ustawienia zapisane."
+  },
+  "week": {
+    "mon": "Poniedziałek",
+    "tue": "Wtorek",
+    "wed": "Środa",
+    "thu": "Czwartek",
+    "fri": "Piątek",
+    "sat": "Sobota",
+    "sun": "Niedziela"
   }
 }

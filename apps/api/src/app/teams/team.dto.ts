@@ -80,6 +80,15 @@ export class TeamMemberDto {
 
   @ApiProperty({ required: false, nullable: true })
   displayName?: string | null;
+
+  @ApiProperty()
+  timezone!: string;
+
+  @ApiProperty({ type: 'object', additionalProperties: true })
+  workHoursJson!: Record<
+    string,
+    { enabled: boolean; start: string; end: string }
+  >;
 }
 
 export class TeamInviteDto {

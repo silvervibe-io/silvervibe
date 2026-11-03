@@ -35,50 +35,84 @@
       </select>
     </fieldset>
 
+    @if (phase() === 'before') {
+    <p class="text-sm text-base-content/70">
+      {{ 'standup.my.opensAt' | transloco: { time: opensAt() } }}
+    </p>
+    } @else if (phase() === 'after') {
+    <p class="text-sm text-base-content/70">
+      {{ 'standup.my.closed' | transloco }}
+    </p>
+    }
     <form class="flex max-w-xl flex-col gap-4" (submit)="submitEntry($event)">
+      @for (row of rows(); track row.questionId) { @if (questionFor(row); as
+      question) {
       <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ config()?.questionsJson?.['yesterday'] || ('standup.my.yesterday' |
-          transloco) }}
-        </legend>
+        <legend class="fieldset-legend">{{ question.prompt }}</legend>
+        @if (question.type === 'choice') {
+        <div class="flex flex-col gap-2">
+          @for (option of question.options ?? []; track option.id) {
+          <label class="flex items-center gap-2">
+            <input
+              type="radio"
+              class="radio radio-sm"
+              [name]="question.id"
+              [value]="option.id"
+              [checked]="row.optionId === option.id"
+              [disabled]="phase() !== 'open'"
+              (change)="updateRow(question.id, { optionId: option.id })"
+            />
+            {{ option.label }}
+          </label>
+          } @if (question.allowOther) {
+          <label class="flex items-center gap-2">
+            <input
+              type="radio"
+              class="radio radio-sm"
+              [name]="question.id"
+              value="other"
+              [checked]="row.optionId === 'other'"
+              [disabled]="phase() !== 'open'"
+              (change)="updateRow(question.id, { optionId: 'other' })"
+            />
+            {{ 'standup.my.other' | transloco }}
+          </label>
+          @if (row.optionId === 'other') {
+          <input
+            class="input input-bordered w-full"
+            [value]="row.otherText"
+            [disabled]="phase() !== 'open'"
+            (input)="updateRow(question.id, { otherText: $any($event.target).value })"
+          />
+          } }
+        </div>
+        } @else {
         <textarea
           class="textarea textarea-bordered w-full"
           rows="3"
-          [formField]="standupForm.yesterday"
+          [value]="row.text"
+          [disabled]="phase() !== 'open'"
+          (input)="updateRow(question.id, { text: $any($event.target).value })"
         ></textarea>
+        }
       </fieldset>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ config()?.questionsJson?.['today'] || ('standup.my.today' |
-          transloco) }}
-        </legend>
-        <textarea
-          class="textarea textarea-bordered w-full"
-          rows="3"
-          [formField]="standupForm.today"
-        ></textarea>
-      </fieldset>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ config()?.questionsJson?.['blockers'] || ('standup.my.blockers' |
-          transloco) }}
-        </legend>
-        <textarea
-          class="textarea textarea-bordered w-full"
-          rows="2"
-          [formField]="standupForm.blockers"
-        ></textarea>
-      </fieldset>
+      } } @if (formError(); as formMessage) {
+      <p class="text-error text-sm">{{ formMessage | transloco }}</p>
+      }
       <div class="flex flex-wrap gap-2">
         <button
           type="button"
           class="btn btn-ghost"
-          [disabled]="busy()"
+          [disabled]="busy() || phase() !== 'open'"
           (click)="saveDraft($event)"
         >
           {{ 'standup.my.saveDraft' | transloco }}
         </button>
-        <button type="submit" class="btn btn-primary" [disabled]="busy()">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="busy() || phase() !== 'open'"
+        >
           {{ 'standup.my.submit' | transloco }}
         </button>
       </div>

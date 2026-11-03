@@ -44,6 +44,14 @@ export const appRoutes: Route[] = [
       ),
   },
   {
+    path: 'app/settings',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('@silvervibe/vibestandup/pages/my-standup').then(
+        (m) => m.MemberSettings,
+      ),
+  },
+  {
     path: 'app/team',
     canActivate: [authGuard, standupAreaGuard],
     data: { standupArea: 'team' },

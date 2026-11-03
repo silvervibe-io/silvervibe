@@ -25,5 +25,6 @@ import { StandupsService } from './standups.service';
   ],
   controllers: [StandupsController],
   providers: [StandupsService],
+  exports: [StandupsService],
 })
 export class StandupsModule {}
