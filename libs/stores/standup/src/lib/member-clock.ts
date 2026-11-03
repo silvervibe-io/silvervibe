@@ -74,32 +74,33 @@ export function isWithinWorkHours(
   week: WeekSchedule,
   now: Date,
 ): boolean {
-  let weekday: Weekday = 'mon';
-  let hour = now.getUTCHours();
-  let minute = now.getUTCMinutes();
   try {
     const short = new Intl.DateTimeFormat('en-US', {
       timeZone,
       weekday: 'short',
     }).format(now);
-    weekday = WEEKDAY_FROM_SHORT[short] ?? 'mon';
+    const weekday: Weekday = WEEKDAY_FROM_SHORT[short] ?? 'mon';
     const parts = new Intl.DateTimeFormat('en-GB', {
       timeZone,
       hour: '2-digit',
       minute: '2-digit',
       hourCycle: 'h23',
     }).formatToParts(now);
-    hour = Number(parts.find((part) => part.type === 'hour')?.value ?? '0');
-    minute = Number(parts.find((part) => part.type === 'minute')?.value ?? '0');
+    const hour = Number(
+      parts.find((part) => part.type === 'hour')?.value ?? '0',
+    );
+    const minute = Number(
+      parts.find((part) => part.type === 'minute')?.value ?? '0',
+    );
+    const hours = week[weekday];
+    if (!hours.enabled) {
+      return false;
+    }
+    const nowMinutes = hour * 60 + minute;
+    return (
+      nowMinutes >= toMinutes(hours.start) && nowMinutes < toMinutes(hours.end)
+    );
   } catch {
     return false;
   }
-  const hours = week[weekday];
-  if (!hours.enabled) {
-    return false;
-  }
-  const nowMinutes = hour * 60 + minute;
-  return (
-    nowMinutes >= toMinutes(hours.start) && nowMinutes < toMinutes(hours.end)
-  );
 }
