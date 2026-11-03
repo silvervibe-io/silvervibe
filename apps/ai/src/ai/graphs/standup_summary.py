@@ -100,6 +100,7 @@ def polish_with_llm(state: StandupSummaryState) -> StandupSummaryState:
     system = (
         "You rewrite daily standup digests for engineering teams. "
         "Keep markdown. Preserve every person's facts and names. "
+        "Keep markdown links and [@Name](mention:user:...) tokens unchanged. "
         "Be concise. Do not invent work. Keep the Today / Blockers / Yesterday "
         "structure when those sections have content."
     )

@@ -35,50 +35,120 @@
       </select>
     </fieldset>
 
+    @if (phase() === 'before') {
+    <p class="text-sm text-base-content/70">
+      {{ 'standup.my.opensAt' | transloco: { time: opensAt() } }}
+    </p>
+    } @else if (phase() === 'after') {
+    <p class="text-sm text-base-content/70">
+      {{ 'standup.my.closed' | transloco }}
+    </p>
+    }
     <form class="flex max-w-xl flex-col gap-4" (submit)="submitEntry($event)">
+      @for (row of rows(); track row.questionId) { @if (questionFor(row); as
+      question) {
       <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ config()?.questionsJson?.['yesterday'] || ('standup.my.yesterday' |
-          transloco) }}
-        </legend>
+        <legend class="fieldset-legend">{{ question.prompt }}</legend>
+        @if (question.type === 'choice') {
+        <div class="flex flex-col gap-2">
+          @for (option of question.options ?? []; track option.id) {
+          <label class="flex items-center gap-2">
+            <input
+              type="radio"
+              class="radio radio-sm"
+              [name]="question.id"
+              [value]="option.id"
+              [checked]="row.optionId === option.id"
+              [disabled]="phase() !== 'open'"
+              (change)="updateRow(question.id, { optionId: option.id })"
+            />
+            {{ option.label }}
+          </label>
+          } @if (question.allowOther) {
+          <label class="flex items-center gap-2">
+            <input
+              type="radio"
+              class="radio radio-sm"
+              [name]="question.id"
+              value="other"
+              [checked]="row.optionId === 'other'"
+              [disabled]="phase() !== 'open'"
+              (change)="updateRow(question.id, { optionId: 'other' })"
+            />
+            {{ 'standup.my.other' | transloco }}
+          </label>
+          @if (row.optionId === 'other') {
+          <input
+            class="input input-bordered w-full"
+            [value]="row.otherText"
+            [disabled]="phase() !== 'open'"
+            (input)="updateRow(question.id, { otherText: $any($event.target).value })"
+          />
+          } }
+        </div>
+        } @else {
         <textarea
           class="textarea textarea-bordered w-full"
           rows="3"
-          [formField]="standupForm.yesterday"
+          [value]="row.text"
+          [disabled]="phase() !== 'open'"
+          (input)="onAnswerInput(question.id, $event)"
+          (keydown)="onAnswerKeydown(question.id, $event)"
         ></textarea>
+        @if (mentionFor(question.id); as mention) {
+        <ul
+          class="menu menu-sm mt-1 w-full rounded-box border border-base-300 bg-base-100"
+          role="listbox"
+        >
+          @if (mention.kind === 'issue' && mention.query.trim().length < 2) {
+          <li class="menu-disabled">
+            <span>{{ 'standup.my.mentionHint' | transloco }}</span>
+          </li>
+          } @else if (mention.loading) {
+          <li class="menu-disabled">
+            <span>{{ 'standup.my.mentionLoading' | transloco }}</span>
+          </li>
+          } @else if (mentionChoices().length === 0) {
+          <li class="menu-disabled">
+            <span>{{ 'standup.my.mentionEmpty' | transloco }}</span>
+          </li>
+          } @else { @for (choice of mentionChoices(); track choice.id; let i =
+          $index) {
+          <li [class.menu-active]="i === mentionIndex()">
+            <button
+              type="button"
+              role="option"
+              [attr.aria-selected]="i === mentionIndex()"
+              (mousedown)="$event.preventDefault()"
+              (click)="chooseMention(question.id, i)"
+            >
+              <span class="font-medium">{{ choice.label }}</span>
+              @if (choice.detail) {
+              <span class="text-base-content/60">{{ choice.detail }}</span>
+              }
+            </button>
+          </li>
+          } }
+        </ul>
+        } }
       </fieldset>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ config()?.questionsJson?.['today'] || ('standup.my.today' |
-          transloco) }}
-        </legend>
-        <textarea
-          class="textarea textarea-bordered w-full"
-          rows="3"
-          [formField]="standupForm.today"
-        ></textarea>
-      </fieldset>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ config()?.questionsJson?.['blockers'] || ('standup.my.blockers' |
-          transloco) }}
-        </legend>
-        <textarea
-          class="textarea textarea-bordered w-full"
-          rows="2"
-          [formField]="standupForm.blockers"
-        ></textarea>
-      </fieldset>
+      } } @if (formError(); as formMessage) {
+      <p class="text-error text-sm">{{ formMessage | transloco }}</p>
+      }
       <div class="flex flex-wrap gap-2">
         <button
           type="button"
           class="btn btn-ghost"
-          [disabled]="busy()"
+          [disabled]="busy() || phase() !== 'open'"
           (click)="saveDraft($event)"
         >
           {{ 'standup.my.saveDraft' | transloco }}
         </button>
-        <button type="submit" class="btn btn-primary" [disabled]="busy()">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="busy() || phase() !== 'open'"
+        >
           {{ 'standup.my.submit' | transloco }}
         </button>
       </div>
@@ -94,9 +164,9 @@
       <h2 class="text-xl font-semibold">
         {{ 'standup.my.summary' | transloco }}
       </h2>
-      <pre class="whitespace-pre-wrap rounded-lg bg-base-200 p-4 text-sm">
-{{ s.content }}</pre
-      >
+      <div class="rounded-lg bg-base-200 p-4 text-sm">
+        <sv-mention-text [segments]="mentionSegments(s.content)" />
+      </div>
     </section>
     } }
   </div>

@@ -14,7 +14,8 @@
   "nav": {
     "myStandup": "My standup",
     "teamAdmin": "Team",
-    "workspace": "Workspace"
+    "workspace": "Workspace",
+    "settings": "Einstellungen"
   },
   "my": {
     "title": "My standup",
@@ -28,7 +29,17 @@
     "submit": "Submit",
     "submitted": "Submitted for today.",
     "summary": "Team summary",
-    "planHint": "Vorschau-Tarif {{plan}}: bis {{teams}} Teams, {{members}} Mitglieder pro Team (nur UI — API nutzt echte Rollen)."
+    "planHint": "Vorschau-Tarif {{plan}}: bis {{teams}} Teams, {{members}} Mitglieder pro Team (nur UI — API nutzt echte Rollen).",
+    "opensAt": "Das Standup öffnet um {{time}}.",
+    "closed": "Das Standup ist heute geschlossen.",
+    "other": "Andere",
+    "missing": "Beantworte die Pflichtfragen.",
+    "mentionEmpty": "Keine Treffer.",
+    "mentionLoading": "Issues werden gesucht…",
+    "mentionHint": "Mindestens zwei Zeichen eingeben.",
+    "providerGithub": "GitHub",
+    "providerJira": "Jira",
+    "providerLinear": "Linear"
   },
   "team": {
     "title": "Team admin",
@@ -56,7 +67,7 @@
     "inviteEmailSent": "Einladungs-E-Mail gesendet. Den Link unten kannst du bei Bedarf noch kopieren.",
     "reminderHour": "Erinnerungsstunde",
     "reminderMinute": "Erinnerungsminute",
-    "reminderHint": "E-Mails werden an Wochentagen in einem 15-Minuten-Fenster zu dieser Ortszeit gesendet.",
+    "reminderHint": "Ein Zeitfenster erinnert beim Start. Eine Frist erinnert zu diesem Zeitpunkt. Gemeinsam anzeigen veröffentlicht die Zusammenfassung dann.",
     "slackChannelTitle": "Slack digest channel",
     "slackChannelHint": "Override the workspace Slack channel for this team’s standup digests. Connect Slack in Workspace admin first.",
     "slackNotConnected": "Slack is not connected for this workspace.",
@@ -91,7 +102,28 @@
     "jiraProject": "Project",
     "jiraIssue": "Issue",
     "jiraTargetSaved": "Jira target saved for this team.",
-    "jiraTargetCleared": "Using workspace Jira target again."
+    "jiraTargetCleared": "Using workspace Jira target again.",
+    "scheduleKind": "Standup-Zeit",
+    "deadline": "Vor einem Zeitpunkt",
+    "window": "Zeitfenster",
+    "windowStart": "Von",
+    "windowEnd": "Bis",
+    "before": "Vor",
+    "reveal": "Antworten zeigen",
+    "revealLive": "Sobald jemand sendet",
+    "revealTogether": "Alle zusammen zur Standup-Zeit",
+    "questions": "Fragen",
+    "enabled": "Enthalten",
+    "required": "Pflicht",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten",
+    "remove": "Entfernen",
+    "addText": "Textfrage hinzufügen",
+    "addChoice": "Auswahlfrage hinzufügen",
+    "addOption": "Option hinzufügen",
+    "allowOther": "Andere, mit Erklärung",
+    "inHours": "In der Arbeitszeit",
+    "offHours": "Außerhalb der Arbeitszeit"
   },
   "workspace": {
     "title": "Workspace admin",
@@ -174,5 +206,24 @@
     "signIn": "Sign in",
     "missingToken": "Invite link is missing a token.",
     "acceptFailed": "Could not accept this invite."
+  },
+  "settings": {
+    "title": "Arbeitszeiten",
+    "lead": "Lege Zeitzone und die Tage und Stunden fest, an denen du gewöhnlich arbeitest. Dein Team sieht deine aktuelle Ortszeit.",
+    "timezone": "Zeitzone",
+    "days": "Arbeitstage",
+    "start": "Beginn",
+    "end": "Ende",
+    "save": "Einstellungen speichern",
+    "saved": "Einstellungen gespeichert."
+  },
+  "week": {
+    "mon": "Montag",
+    "tue": "Dienstag",
+    "wed": "Mittwoch",
+    "thu": "Donnerstag",
+    "fri": "Freitag",
+    "sat": "Samstag",
+    "sun": "Sonntag"
   }
 }

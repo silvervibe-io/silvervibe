@@ -1,4 +1,6 @@
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { API_BASE_URL } from '@silvervibe/shared/auth';
 import {
   CreateTeamInviteDtoRoleEnum,
   MyTeamDtoRoleEnum,
@@ -9,18 +11,23 @@ import {
   type StandupConfigDto,
   type StandupEntryDto,
   type StandupSummaryDto,
+  type UpdateStandupConfigDto,
+  type UpsertStandupEntryDto,
   type TeamInviteDto,
   type TeamMemberDto,
 } from '@silvervibe/shared/api-client';
 import { StandupsDataService } from '@silvervibe/shared/api-client/api/standups-data.service';
 import { TeamsDataService } from '@silvervibe/shared/api-client/api/teams-data.service';
 import { firstValueFrom } from 'rxjs';
+import { weekFromUnknown } from './member-clock';
+import type { MentionIssueView } from './mentions';
 import type {
+  StandupAnswerValue,
   StandupAnswersInput,
   StandupConfigInput,
   StandupConfigView,
   StandupEntryView,
-  StandupQuestions,
+  StandupQuestion,
   StandupSummaryView,
   TeamInviteView,
   TeamMemberView,
@@ -41,16 +48,92 @@ function asNullableString(value: unknown): string | null {
   return String(value);
 }
 
-function asQuestions(value: object | null | undefined): StandupQuestions {
-  if (!value || typeof value !== 'object') {
+function asQuestions(value: object | null | undefined): StandupQuestion[] {
+  if (Array.isArray(value)) {
+    return value.filter(
+      (item): item is StandupQuestion =>
+        !!item &&
+        typeof item === 'object' &&
+        typeof (item as StandupQuestion).id === 'string' &&
+        typeof (item as StandupQuestion).prompt === 'string',
+    );
+  }
+  const record =
+    value && typeof value === 'object'
+      ? (value as Record<string, unknown>)
+      : {};
+  const prompt = (key: string, fallback: string) =>
+    typeof record[key] === 'string' ? (record[key] as string) : fallback;
+  return [
+    {
+      id: 'yesterday',
+      type: 'text',
+      prompt: prompt('yesterday', 'What did you do yesterday?'),
+      enabled: true,
+      required: true,
+      builtin: 'yesterday',
+    },
+    {
+      id: 'today',
+      type: 'text',
+      prompt: prompt('today', 'What will you do today?'),
+      enabled: true,
+      required: true,
+      builtin: 'today',
+    },
+    {
+      id: 'blockers',
+      type: 'text',
+      prompt: prompt('blockers', 'Any blockers?'),
+      enabled: true,
+      required: false,
+      builtin: 'blockers',
+    },
+    {
+      id: 'location',
+      type: 'choice',
+      prompt: 'Where are you working today?',
+      enabled: false,
+      required: false,
+      builtin: 'location',
+      allowOther: true,
+      options: [
+        { id: 'office', label: 'Office' },
+        { id: 'remote', label: 'Remote' },
+      ],
+    },
+    {
+      id: 'hours',
+      type: 'text',
+      prompt: 'Hours available today',
+      enabled: false,
+      required: false,
+      builtin: 'hours',
+    },
+  ];
+}
+
+function asAnswers(value: unknown): Record<string, StandupAnswerValue> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return {};
   }
-  const q = value as Record<string, unknown>;
-  return {
-    yesterday: typeof q['yesterday'] === 'string' ? q['yesterday'] : undefined,
-    today: typeof q['today'] === 'string' ? q['today'] : undefined,
-    blockers: typeof q['blockers'] === 'string' ? q['blockers'] : undefined,
-  };
+  const answers: Record<string, StandupAnswerValue> = {};
+  for (const [key, raw] of Object.entries(value as Record<string, unknown>)) {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+      continue;
+    }
+    const row = raw as Record<string, unknown>;
+    answers[key] = {
+      ...(typeof row['text'] === 'string' ? { text: row['text'] } : {}),
+      ...(typeof row['optionId'] === 'string'
+        ? { optionId: row['optionId'] }
+        : {}),
+      ...(typeof row['otherText'] === 'string'
+        ? { otherText: row['otherText'] }
+        : {}),
+    };
+  }
+  return answers;
 }
 
 function mapTeam(dto: MyTeamDto): TeamView {
@@ -74,6 +157,9 @@ function mapEntry(dto: StandupEntryDto): StandupEntryView {
     yesterday: asNullableString(dto.yesterday),
     today: asNullableString(dto.today),
     blockers: asNullableString(dto.blockers),
+    answersJson: asAnswers(
+      (dto as StandupEntryDto & { answersJson?: unknown }).answersJson,
+    ),
   };
 }
 
@@ -87,11 +173,21 @@ function mapSummary(dto: StandupSummaryDto): StandupSummaryView {
 }
 
 function mapConfig(dto: StandupConfigDto): StandupConfigView {
+  const extra = dto as StandupConfigDto & {
+    scheduleKind?: string;
+    windowStartHour?: number;
+    windowStartMinute?: number;
+    reveal?: string;
+  };
   return {
     teamId: dto.teamId,
     timezone: dto.timezone,
     reminderHour: dto.reminderHour,
     reminderMinute: dto.reminderMinute,
+    scheduleKind: extra.scheduleKind === 'window' ? 'window' : 'deadline',
+    windowStartHour: extra.windowStartHour ?? 8,
+    windowStartMinute: extra.windowStartMinute ?? 0,
+    reveal: extra.reveal === 'together' ? 'together' : 'live',
     questionsJson: asQuestions(dto.questionsJson),
   };
 }
@@ -103,6 +199,11 @@ function mapMember(dto: TeamMemberDto): TeamMemberView {
     role: dto.role,
     email: asNullableString(dto.email),
     displayName: asNullableString(dto.displayName),
+    timezone:
+      (dto as TeamMemberDto & { timezone?: string }).timezone?.trim() || 'UTC',
+    workHours: weekFromUnknown(
+      (dto as TeamMemberDto & { workHoursJson?: unknown }).workHoursJson,
+    ),
   };
 }
 
@@ -138,6 +239,8 @@ function mapInvite(dto: TeamInviteDto): TeamInviteView {
 export class StandupService {
   private readonly standupsApi = inject(StandupsDataService);
   private readonly teamsApi = inject(TeamsDataService);
+  private readonly http = inject(HttpClient);
+  private readonly apiBase = inject(API_BASE_URL);
 
   async listMyTeams(workspaceId: string): Promise<TeamView[]> {
     const rows = await firstValueFrom(
@@ -187,12 +290,15 @@ export class StandupService {
         teamId,
         date: todayIsoDate(),
         upsertStandupEntryDto: {
-          ...body,
+          yesterday: body.yesterday,
+          today: body.today,
+          blockers: body.blockers,
+          answers: body.answers,
           status:
             status === 'SUBMITTED'
               ? UpsertStandupEntryDtoStatusEnum.SUBMITTED
               : UpsertStandupEntryDtoStatusEnum.DRAFT,
-        },
+        } as UpsertStandupEntryDto,
       }),
     );
     return mapEntry(dto);
@@ -219,8 +325,12 @@ export class StandupService {
           timezone: body.timezone,
           reminderHour: body.reminderHour,
           reminderMinute: body.reminderMinute,
+          scheduleKind: body.scheduleKind,
+          windowStartHour: body.windowStartHour,
+          windowStartMinute: body.windowStartMinute,
+          reveal: body.reveal,
           questionsJson: body.questionsJson,
-        },
+        } as unknown as UpdateStandupConfigDto,
       }),
     );
     return mapConfig(dto);
@@ -234,6 +344,29 @@ export class StandupService {
       }),
     );
     return mapSummary(dto);
+  }
+
+  async searchIssues(
+    teamId: string,
+    query: string,
+  ): Promise<MentionIssueView[]> {
+    const rows = await firstValueFrom(
+      this.http.get<MentionIssueView[]>(
+        `${this.apiBase}/teams/${encodeURIComponent(teamId)}/mentions/issues`,
+        { params: { q: query } },
+      ),
+    );
+    return (Array.isArray(rows) ? rows : []).filter(
+      (row): row is MentionIssueView =>
+        !!row &&
+        (row.provider === 'github' ||
+          row.provider === 'jira' ||
+          row.provider === 'linear') &&
+        typeof row.key === 'string' &&
+        typeof row.title === 'string' &&
+        typeof row.url === 'string' &&
+        row.url.startsWith('https://'),
+    );
   }
 
   async listMembers(teamId: string): Promise<TeamMemberView[]> {

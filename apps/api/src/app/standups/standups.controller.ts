@@ -19,12 +19,14 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
 import { VerifiedUser } from '../auth/firebase-auth.service';
 import {
+  MentionIssueDto,
   StandupConfigDto,
   StandupEntryDto,
   StandupSummaryDto,
   UpdateStandupConfigDto,
   UpsertStandupEntryDto,
 } from './standup.dto';
+import { MentionsService } from './mentions.service';
 import { StandupsService } from './standups.service';
 
 @ApiTags('standups')
@@ -32,7 +34,10 @@ import { StandupsService } from './standups.service';
 @UseGuards(FirebaseAuthGuard)
 @Controller('teams/:teamId')
 export class StandupsController {
-  constructor(private readonly standups: StandupsService) {}
+  constructor(
+    private readonly standups: StandupsService,
+    private readonly mentions: MentionsService,
+  ) {}
 
   @Get('standup-config')
   @ApiOperation({ summary: 'Get standup questions/timezone for a team' })
@@ -54,14 +59,7 @@ export class StandupsController {
     @CurrentUser() user: VerifiedUser,
     @Body() body: UpdateStandupConfigDto,
   ): Promise<StandupConfigDto> {
-    return this.standups.updateConfig(
-      teamId,
-      user,
-      body.timezone,
-      body.reminderHour,
-      body.reminderMinute,
-      body.questionsJson,
-    );
+    return this.standups.updateConfig(teamId, user, body);
   }
 
   @Get('standups/me')
@@ -87,6 +85,20 @@ export class StandupsController {
     @Query('date') date?: string,
   ): Promise<StandupEntryDto> {
     return this.standups.upsertMine(teamId, user, body, date);
+  }
+
+  @Get('mentions/issues')
+  @ApiOperation({
+    summary: 'Search issues in connected GitHub, Jira, and Linear accounts',
+  })
+  @ApiOkResponse({ type: MentionIssueDto, isArray: true })
+  @ApiUnauthorizedResponse()
+  searchIssues(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+    @Query('q') q = '',
+  ): Promise<MentionIssueDto[]> {
+    return this.mentions.searchIssues(teamId, user, q);
   }
 
   @Get('standups')

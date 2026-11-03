@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import type { MentionIssueView } from './mentions';
 import type {
   StandupAnswersInput,
   StandupConfigInput,
@@ -59,6 +60,10 @@ export class StandupFacade {
 
   refreshSummary(teamId: string): Promise<void> {
     return this.store.refreshSummary(teamId);
+  }
+
+  searchIssues(teamId: string, query: string): Promise<MentionIssueView[]> {
+    return this.api.searchIssues(teamId, query);
   }
 
   listMembers(teamId: string): Promise<TeamMemberView[]> {

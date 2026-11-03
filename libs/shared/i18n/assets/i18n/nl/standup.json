@@ -14,7 +14,8 @@
   "nav": {
     "myStandup": "My standup",
     "teamAdmin": "Team",
-    "workspace": "Workspace"
+    "workspace": "Workspace",
+    "settings": "Instellingen"
   },
   "my": {
     "title": "My standup",
@@ -28,7 +29,17 @@
     "submit": "Submit",
     "submitted": "Submitted for today.",
     "summary": "Team summary",
-    "planHint": "Voorbeeldabonnement {{plan}}: max. {{teams}} teams, {{members}} leden per team (alleen UI — API gebruikt echte rollen)."
+    "planHint": "Voorbeeldabonnement {{plan}}: max. {{teams}} teams, {{members}} leden per team (alleen UI — API gebruikt echte rollen).",
+    "opensAt": "De standup opent om {{time}}.",
+    "closed": "De standup is vandaag gesloten.",
+    "other": "Anders",
+    "missing": "Beantwoord de verplichte vragen.",
+    "mentionEmpty": "Geen overeenkomsten.",
+    "mentionLoading": "Issues zoeken…",
+    "mentionHint": "Typ minstens twee tekens.",
+    "providerGithub": "GitHub",
+    "providerJira": "Jira",
+    "providerLinear": "Linear"
   },
   "team": {
     "title": "Team admin",
@@ -56,7 +67,7 @@
     "inviteEmailSent": "Uitnodigingsmail verstuurd. Je kunt de link hieronder nog kopiëren indien nodig.",
     "reminderHour": "Herinneringsuur",
     "reminderMinute": "Herinneringsminuut",
-    "reminderHint": "E-mails gaan op weekdagen in een venster van 15 minuten op dit lokale tijdstip.",
+    "reminderHint": "Een venster herinnert bij de start. Een deadline herinnert op dat tijdstip. Samen tonen plaatst de samenvatting dan.",
     "slackChannelTitle": "Slack digest channel",
     "slackChannelHint": "Override the workspace Slack channel for this team’s standup digests. Connect Slack in Workspace admin first.",
     "slackNotConnected": "Slack is not connected for this workspace.",
@@ -91,7 +102,28 @@
     "jiraProject": "Project",
     "jiraIssue": "Issue",
     "jiraTargetSaved": "Jira target saved for this team.",
-    "jiraTargetCleared": "Using workspace Jira target again."
+    "jiraTargetCleared": "Using workspace Jira target again.",
+    "scheduleKind": "Standup-tijd",
+    "deadline": "Voor een tijdstip",
+    "window": "Tijdvenster",
+    "windowStart": "Vanaf",
+    "windowEnd": "Tot",
+    "before": "Voor",
+    "reveal": "Antwoorden tonen",
+    "revealLive": "Zodra iemand indient",
+    "revealTogether": "Samen op het standuptijdstip",
+    "questions": "Vragen",
+    "enabled": "Opgenomen",
+    "required": "Verplicht",
+    "moveUp": "Omhoog",
+    "moveDown": "Omlaag",
+    "remove": "Verwijderen",
+    "addText": "Tekstvraag toevoegen",
+    "addChoice": "Keuzevraag toevoegen",
+    "addOption": "Optie toevoegen",
+    "allowOther": "Anders, met uitleg",
+    "inHours": "Binnen werktijd",
+    "offHours": "Buiten werktijd"
   },
   "workspace": {
     "title": "Workspace admin",
@@ -174,5 +206,24 @@
     "signIn": "Sign in",
     "missingToken": "Invite link is missing a token.",
     "acceptFailed": "Could not accept this invite."
+  },
+  "settings": {
+    "title": "Werktijden",
+    "lead": "Stel je tijdzone en de dagen en uren in waarop je gewoonlijk werkt. Je team ziet je huidige lokale tijd.",
+    "timezone": "Tijdzone",
+    "days": "Werkdagen",
+    "start": "Start",
+    "end": "Einde",
+    "save": "Instellingen opslaan",
+    "saved": "Instellingen opgeslagen."
+  },
+  "week": {
+    "mon": "Maandag",
+    "tue": "Dinsdag",
+    "wed": "Woensdag",
+    "thu": "Donderdag",
+    "fri": "Vrijdag",
+    "sat": "Zaterdag",
+    "sun": "Zondag"
   }
 }

@@ -152,4 +152,12 @@ describe('TeamAdmin', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('h1')?.textContent).toContain('Team admin');
   });
+
+  it('adds a custom text question', () => {
+    fixture.componentInstance.addQuestion('text');
+    const added = fixture.componentInstance
+      .questions()
+      .find((question) => question.type === 'text' && !question.builtin);
+    expect(added?.enabled).toBe(true);
+  });
 });

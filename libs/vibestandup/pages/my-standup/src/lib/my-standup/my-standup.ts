@@ -2,36 +2,64 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { form, FormField, required, submit } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
-import { Shell } from '@silvervibe/shared/ui';
+import { MentionText, Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import {
+  activeMentionToken,
+  formatClock,
+  issueMention,
+  parseMentionSegments,
+  personMention,
   resolveStandupHome,
   standupHomeUrl,
   standupShellLinks,
+  submissionPhase,
   StandupFacade,
+  type MentionIssueView,
+  type MentionSegment,
   type StandupAccessInput,
+  type StandupAnswerValue,
+  type StandupQuestion,
+  type TeamMemberView,
 } from '@silvervibe/stores/standup';
 import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 
-type StandupFormModel = {
-  yesterday: string;
-  today: string;
-  blockers: string;
+type AnswerRow = {
+  questionId: string;
+  text: string;
+  optionId: string;
+  otherText: string;
+};
+
+type MentionSession = {
+  questionId: string;
+  kind: 'person' | 'issue';
+  query: string;
+  start: number;
+  end: number;
+  loading: boolean;
+};
+
+type MentionChoice = {
+  id: string;
+  label: string;
+  detail: string;
+  markdown: string;
 };
 
 @Component({
   selector: 'vs-my-standup',
-  imports: [FormField, Shell, TranslocoPipe],
+  imports: [MentionText, Shell, TranslocoPipe],
   templateUrl: './my-standup.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -68,7 +96,67 @@ export class MyStandup implements OnInit {
       maxMembersPerTeam: limits.maxMembersPerTeam,
     };
   });
+  private readonly destroyRef = inject(DestroyRef);
+  private issueTimer: ReturnType<typeof setTimeout> | null = null;
+  readonly clock = signal(Date.now());
+  readonly rows = signal<AnswerRow[]>([]);
+  readonly members = signal<TeamMemberView[]>([]);
+  readonly mention = signal<MentionSession | null>(null);
+  readonly mentionIndex = signal(0);
+  readonly issueHits = signal<MentionIssueView[]>([]);
+  readonly formError = signal<string | null>(null);
   readonly busy = signal(false);
+  readonly enabledQuestions = computed(() =>
+    (this.config()?.questionsJson ?? []).filter((question) => question.enabled),
+  );
+  readonly phase = computed(() => {
+    const config = this.config();
+    if (!config) {
+      return 'open' as const;
+    }
+    return submissionPhase(config, new Date(this.clock()));
+  });
+  readonly opensAt = computed(() => {
+    const config = this.config();
+    if (!config) {
+      return '';
+    }
+    return config.scheduleKind === 'window'
+      ? formatClock(config.windowStartHour, config.windowStartMinute)
+      : formatClock(config.reminderHour, config.reminderMinute);
+  });
+  readonly mentionChoices = computed<MentionChoice[]>(() => {
+    this.lang();
+    const current = this.mention();
+    if (!current) {
+      return [];
+    }
+    if (current.kind === 'person') {
+      const query = current.query.trim().toLowerCase();
+      return this.members()
+        .filter((member) => {
+          const name =
+            `${member.displayName ?? ''} ${member.email ?? ''}`.toLowerCase();
+          return !query || name.includes(query);
+        })
+        .slice(0, 8)
+        .map((member) => {
+          const label = member.displayName || member.email || member.userId;
+          return {
+            id: member.userId,
+            label,
+            detail: member.displayName && member.email ? member.email : '',
+            markdown: personMention(member.userId, label),
+          };
+        });
+    }
+    return this.issueHits().map((issue) => ({
+      id: `${issue.provider}:${issue.key}`,
+      label: issue.key,
+      detail: `${this.providerLabel(issue.provider)} · ${issue.title}`,
+      markdown: issueMention(`${issue.key} ${issue.title}`, issue.url),
+    }));
+  });
   readonly shellLinks = computed(() => {
     this.lang();
     this.workspaces.memberships();
@@ -81,28 +169,28 @@ export class MyStandup implements OnInit {
     );
   });
 
-  readonly model = signal<StandupFormModel>({
-    yesterday: '',
-    today: '',
-    blockers: '',
-  });
-
-  readonly standupForm = form(this.model, (schemaPath) => {
-    required(schemaPath.yesterday);
-    required(schemaPath.today);
-  });
-
   constructor() {
+    const timer = setInterval(() => this.clock.set(Date.now()), 30_000);
+    this.destroyRef.onDestroy(() => {
+      clearInterval(timer);
+      if (this.issueTimer) {
+        clearTimeout(this.issueTimer);
+      }
+    });
     effect(() => {
       const entry = this.entry();
-      if (!entry) {
-        return;
-      }
-      this.model.set({
-        yesterday: entry.yesterday ?? '',
-        today: entry.today ?? '',
-        blockers: entry.blockers ?? '',
-      });
+      const questions = this.enabledQuestions();
+      this.rows.set(
+        questions.map((question) => {
+          const answer = entry?.answersJson[question.id];
+          return {
+            questionId: question.id,
+            text: answer?.text ?? this.legacyText(question, entry) ?? '',
+            optionId: answer?.optionId ?? '',
+            otherText: answer?.otherText ?? '',
+          };
+        }),
+      );
     });
   }
 
@@ -131,7 +219,10 @@ export class MyStandup implements OnInit {
     }
     const teamId = this.standup.selectedTeamId();
     if (teamId) {
-      await this.standup.loadToday(teamId);
+      await Promise.all([
+        this.standup.loadToday(teamId),
+        this.refreshMembers(teamId),
+      ]);
     }
   }
 
@@ -145,43 +236,279 @@ export class MyStandup implements OnInit {
   }
 
   async onTeamChange(teamId: string): Promise<void> {
+    this.mention.set(null);
     this.standup.selectTeam(teamId);
-    await this.standup.loadToday(teamId);
+    await Promise.all([
+      this.standup.loadToday(teamId),
+      this.refreshMembers(teamId),
+    ]);
+  }
+
+  mentionFor(questionId: string): MentionSession | null {
+    const current = this.mention();
+    return current?.questionId === questionId ? current : null;
+  }
+
+  mentionSegments(content: string | null | undefined): MentionSegment[] {
+    return parseMentionSegments(content ?? '');
+  }
+
+  onAnswerInput(questionId: string, event: Event): void {
+    const el = event.target;
+    if (!(el instanceof HTMLTextAreaElement)) {
+      return;
+    }
+    const text = el.value;
+    this.updateRow(questionId, { text });
+    const caret = el.selectionStart ?? text.length;
+    const token = activeMentionToken(text, caret);
+    if (!token) {
+      this.mention.set(null);
+      return;
+    }
+    this.mention.set({
+      questionId,
+      kind: token.kind,
+      query: token.query,
+      start: token.start,
+      end: caret,
+      loading: false,
+    });
+    this.mentionIndex.set(0);
+    if (token.kind === 'person') {
+      this.issueHits.set([]);
+      return;
+    }
+    const query = token.query.trim();
+    if (query.length < 2) {
+      this.issueHits.set([]);
+      return;
+    }
+    this.queueIssueSearch(query);
+  }
+
+  onAnswerKeydown(questionId: string, event: KeyboardEvent): void {
+    const open = this.mentionFor(questionId);
+    const choices = open ? this.mentionChoices() : [];
+    if (!open || choices.length === 0) {
+      if (event.key === 'Escape') {
+        this.mention.set(null);
+      }
+      return;
+    }
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      this.mentionIndex.update((index) => (index + 1) % choices.length);
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      this.mentionIndex.update(
+        (index) => (index - 1 + choices.length) % choices.length,
+      );
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      this.applyMention(questionId, this.mentionIndex(), event.target);
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      this.mention.set(null);
+    }
+  }
+
+  chooseMention(questionId: string, index: number): void {
+    this.applyMention(questionId, index);
+  }
+
+  questionFor(row: AnswerRow): StandupQuestion | undefined {
+    return this.enabledQuestions().find(
+      (question) => question.id === row.questionId,
+    );
+  }
+
+  private providerLabel(provider: MentionIssueView['provider']): string {
+    const key =
+      provider === 'github'
+        ? 'standup.my.providerGithub'
+        : provider === 'jira'
+          ? 'standup.my.providerJira'
+          : 'standup.my.providerLinear';
+    return this.transloco.translate(key);
+  }
+
+  private async refreshMembers(teamId: string): Promise<void> {
+    try {
+      this.members.set(await this.standup.listMembers(teamId));
+    } catch {
+      this.members.set([]);
+    }
+  }
+
+  private queueIssueSearch(query: string): void {
+    if (this.issueTimer) {
+      clearTimeout(this.issueTimer);
+    }
+    const teamId = this.selectedTeamId();
+    if (!teamId) {
+      return;
+    }
+    this.mention.update((current) =>
+      current ? { ...current, loading: true } : current,
+    );
+    this.issueTimer = setTimeout(() => {
+      void this.runIssueSearch(teamId, query);
+    }, 250);
+  }
+
+  private async runIssueSearch(teamId: string, query: string): Promise<void> {
+    const current = this.mention();
+    if (
+      !current ||
+      current.kind !== 'issue' ||
+      current.query.trim() !== query
+    ) {
+      return;
+    }
+    try {
+      const hits = await this.standup.searchIssues(teamId, query);
+      if (this.mention()?.query.trim() !== query) {
+        return;
+      }
+      this.issueHits.set(hits);
+      this.mentionIndex.set(0);
+    } catch {
+      this.issueHits.set([]);
+    } finally {
+      this.mention.update((session) =>
+        session ? { ...session, loading: false } : session,
+      );
+    }
+  }
+
+  private applyMention(
+    questionId: string,
+    index: number,
+    target?: EventTarget | null,
+  ): void {
+    const session = this.mentionFor(questionId);
+    const choice = this.mentionChoices()[index];
+    if (!session || !choice) {
+      return;
+    }
+    const row = this.rows().find((item) => item.questionId === questionId);
+    if (!row) {
+      return;
+    }
+    const inserted = `${choice.markdown} `;
+    const next =
+      row.text.slice(0, session.start) + inserted + row.text.slice(session.end);
+    this.updateRow(questionId, { text: next });
+    this.mention.set(null);
+    this.issueHits.set([]);
+    const caret = session.start + inserted.length;
+    if (target instanceof HTMLTextAreaElement) {
+      queueMicrotask(() => {
+        target.value = next;
+        target.setSelectionRange(caret, caret);
+      });
+    }
+  }
+
+  updateRow(questionId: string, patch: Partial<AnswerRow>): void {
+    this.rows.update((rows) =>
+      rows.map((row) =>
+        row.questionId === questionId ? { ...row, ...patch } : row,
+      ),
+    );
   }
 
   async saveDraft(event: Event): Promise<void> {
     event.preventDefault();
-    const teamId = this.selectedTeamId();
-    if (!teamId) {
-      return;
-    }
-    this.busy.set(true);
-    try {
-      await submit(this.standupForm, {
-        action: async () => {
-          await this.standup.saveDraft(teamId, this.model());
-          return undefined;
-        },
-      });
-    } finally {
-      this.busy.set(false);
-    }
+    await this.persist('DRAFT');
   }
 
   async submitEntry(event: Event): Promise<void> {
     event.preventDefault();
-    const teamId = this.selectedTeamId();
-    if (!teamId) {
+    if (!this.answersComplete()) {
+      this.formError.set('standup.my.missing');
       return;
     }
+    await this.persist('SUBMITTED');
+  }
+
+  private legacyText(
+    question: StandupQuestion,
+    entry: {
+      yesterday: string | null;
+      today: string | null;
+      blockers: string | null;
+    } | null,
+  ): string | null {
+    if (!entry) {
+      return null;
+    }
+    if (question.builtin === 'yesterday') {
+      return entry.yesterday;
+    }
+    if (question.builtin === 'today') {
+      return entry.today;
+    }
+    if (question.builtin === 'blockers') {
+      return entry.blockers;
+    }
+    return null;
+  }
+
+  private answersComplete(): boolean {
+    return this.rows().every((row) => {
+      const question = this.questionFor(row);
+      if (!question?.required) {
+        return true;
+      }
+      if (question.type === 'text') {
+        return row.text.trim().length > 0;
+      }
+      if (row.optionId === 'other') {
+        return row.otherText.trim().length > 0;
+      }
+      return row.optionId.trim().length > 0;
+    });
+  }
+
+  private payload() {
+    const answers: Record<string, StandupAnswerValue> = {};
+    let yesterday = '';
+    let today = '';
+    let blockers = '';
+    for (const row of this.rows()) {
+      answers[row.questionId] = {
+        text: row.text,
+        ...(row.optionId ? { optionId: row.optionId } : {}),
+        ...(row.otherText ? { otherText: row.otherText } : {}),
+      };
+      const question = this.questionFor(row);
+      if (question?.builtin === 'yesterday') {
+        yesterday = row.text;
+      } else if (question?.builtin === 'today') {
+        today = row.text;
+      } else if (question?.builtin === 'blockers') {
+        blockers = row.text;
+      }
+    }
+    return { yesterday, today, blockers, answers };
+  }
+
+  private async persist(status: 'DRAFT' | 'SUBMITTED'): Promise<void> {
+    const teamId = this.selectedTeamId();
+    if (!teamId || this.phase() !== 'open') {
+      return;
+    }
+    this.formError.set(null);
     this.busy.set(true);
     try {
-      await submit(this.standupForm, {
-        action: async () => {
-          await this.standup.submit(teamId, this.model());
-          return undefined;
-        },
-      });
+      const body = this.payload();
+      if (status === 'DRAFT') {
+        await this.standup.saveDraft(teamId, body);
+      } else {
+        await this.standup.submit(teamId, body);
+      }
     } finally {
       this.busy.set(false);
     }

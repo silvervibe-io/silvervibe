@@ -12,14 +12,33 @@ export type {
 } from './lib/standup-nav';
 export { StandupFacade } from './lib/standup.facade';
 export type {
+  DayHours,
+  StandupAnswerValue,
   StandupAnswersInput,
   StandupConfigInput,
   StandupConfigView,
   StandupEntryView,
-  StandupQuestions,
+  StandupQuestion,
+  StandupQuestionOption,
   StandupState,
   StandupSummaryView,
   TeamInviteView,
   TeamMemberView,
   TeamView,
+  Weekday,
+  WeekSchedule,
 } from './lib/standup.models';
+export {
+  defaultWeek,
+  isWithinWorkHours,
+  localTimeLabel,
+} from './lib/member-clock';
+export {
+  activeMentionToken,
+  issueMention,
+  parseMentionSegments,
+  personMention,
+} from './lib/mentions';
+export type { MentionIssueView, MentionSegment } from './lib/mentions';
+export { formatClock, submissionPhase } from './lib/standup-window';
+export type { SubmissionPhase } from './lib/standup-window';

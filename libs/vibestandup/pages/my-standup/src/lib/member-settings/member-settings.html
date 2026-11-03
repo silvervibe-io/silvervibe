@@ -1,0 +1,91 @@
+<sv-shell [title]="'Vibe Standup'" [links]="shellLinks()">
+  <div class="space-y-6">
+    <header class="space-y-1">
+      <h1 class="text-3xl font-bold tracking-tight">
+        {{ 'standup.settings.title' | transloco }}
+      </h1>
+      <p class="text-base-content/70">
+        {{ 'standup.settings.lead' | transloco }}
+      </p>
+    </header>
+
+    @if (loading()) {
+    <p>{{ 'standup.loading' | transloco }}</p>
+    } @else {
+    <form class="flex max-w-xl flex-col gap-4" (submit)="save($event)">
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'standup.settings.timezone' | transloco }}
+        </legend>
+        <input
+          class="input input-bordered w-full"
+          [formField]="settingsForm.timezone"
+          list="timezone-options"
+        />
+        <datalist id="timezone-options">
+          <option value="UTC"></option>
+          <option value="Europe/Amsterdam"></option>
+          <option value="Europe/Athens"></option>
+          <option value="Europe/Berlin"></option>
+          <option value="Europe/London"></option>
+          <option value="Europe/Paris"></option>
+          <option value="America/New_York"></option>
+          <option value="America/Los_Angeles"></option>
+        </datalist>
+      </fieldset>
+
+      <h2 class="text-xl font-semibold">
+        {{ 'standup.settings.days' | transloco }}
+      </h2>
+      @for (day of weekdays; track day) {
+      <div class="flex flex-wrap items-end gap-3">
+        <label class="flex w-28 items-center gap-2 pb-3 text-sm">
+          <input
+            type="checkbox"
+            class="checkbox checkbox-sm"
+            [checked]="week()[day].enabled"
+            (change)="updateDay(day, { enabled: $any($event.target).checked })"
+          />
+          {{ 'standup.week.' + day | transloco }}
+        </label>
+        <fieldset class="fieldset w-32">
+          <legend class="fieldset-legend">
+            {{ 'standup.settings.start' | transloco }}
+          </legend>
+          <input
+            type="time"
+            class="input input-bordered w-full"
+            [value]="week()[day].start"
+            (input)="updateDay(day, { start: $any($event.target).value })"
+          />
+        </fieldset>
+        <fieldset class="fieldset w-32">
+          <legend class="fieldset-legend">
+            {{ 'standup.settings.end' | transloco }}
+          </legend>
+          <input
+            type="time"
+            class="input input-bordered w-full"
+            [value]="week()[day].end"
+            (input)="updateDay(day, { end: $any($event.target).value })"
+          />
+        </fieldset>
+      </div>
+      } @if (error(); as message) {
+      <p class="text-error text-sm">{{ message }}</p>
+      } @if (saved()) {
+      <p class="text-success text-sm">
+        {{ 'standup.settings.saved' | transloco }}
+      </p>
+      }
+      <button
+        type="submit"
+        class="btn btn-primary btn-sm self-start"
+        [disabled]="busy()"
+      >
+        {{ 'standup.settings.save' | transloco }}
+      </button>
+    </form>
+    }
+  </div>
+</sv-shell>

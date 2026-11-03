@@ -5,6 +5,38 @@ export type TeamView = {
   role: 'ADMIN' | 'MEMBER';
 };
 
+export type StandupAnswerValue = {
+  text?: string;
+  optionId?: string;
+  otherText?: string;
+};
+
+export type StandupQuestionOption = {
+  id: string;
+  label: string;
+};
+
+export type StandupQuestion = {
+  id: string;
+  type: 'text' | 'choice';
+  prompt: string;
+  enabled: boolean;
+  required: boolean;
+  builtin?: 'yesterday' | 'today' | 'blockers' | 'location' | 'hours';
+  options?: StandupQuestionOption[];
+  allowOther?: boolean;
+};
+
+export type Weekday = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
+
+export type DayHours = {
+  enabled: boolean;
+  start: string;
+  end: string;
+};
+
+export type WeekSchedule = Record<Weekday, DayHours>;
+
 export type StandupEntryView = {
   id: string;
   teamId: string;
@@ -13,6 +45,7 @@ export type StandupEntryView = {
   yesterday: string | null;
   today: string | null;
   blockers: string | null;
+  answersJson: Record<string, StandupAnswerValue>;
 };
 
 export type StandupSummaryView = {
@@ -22,31 +55,34 @@ export type StandupSummaryView = {
   content: string;
 };
 
-export type StandupQuestions = {
-  yesterday?: string;
-  today?: string;
-  blockers?: string;
-};
-
 export type StandupConfigView = {
   teamId: string;
   timezone: string;
   reminderHour: number;
   reminderMinute: number;
-  questionsJson: StandupQuestions;
+  scheduleKind: 'deadline' | 'window';
+  windowStartHour: number;
+  windowStartMinute: number;
+  reveal: 'live' | 'together';
+  questionsJson: StandupQuestion[];
 };
 
 export type StandupAnswersInput = {
   yesterday: string;
   today: string;
   blockers: string;
+  answers: Record<string, StandupAnswerValue>;
 };
 
 export type StandupConfigInput = {
   timezone: string;
   reminderHour: number;
   reminderMinute: number;
-  questionsJson: StandupQuestions;
+  scheduleKind: 'deadline' | 'window';
+  windowStartHour: number;
+  windowStartMinute: number;
+  reveal: 'live' | 'together';
+  questionsJson: StandupQuestion[];
 };
 
 export type TeamMemberView = {
@@ -55,6 +91,8 @@ export type TeamMemberView = {
   role: string;
   email?: string | null;
   displayName?: string | null;
+  timezone: string;
+  workHours: WeekSchedule;
 };
 
 export type TeamInviteView = {
