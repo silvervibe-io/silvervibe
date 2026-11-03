@@ -1,5 +1,6 @@
 import { Route } from '@angular/router';
 import { authGuard } from '@silvervibe/shared/auth';
+import { standupAreaGuard } from './standup-access.guard';
 
 /**
  * Marketing home + authenticated product workspace.
@@ -17,7 +18,7 @@ export const appRoutes: Route[] = [
     data: {
       productTitle: 'Vibe Standup',
       blurbKey: 'auth.signIn.blurb.standup',
-      accountPath: '/app',
+      accountPath: '/app?enter=1',
     },
   },
   {
@@ -44,7 +45,8 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'app/team',
-    canActivate: [authGuard],
+    canActivate: [authGuard, standupAreaGuard],
+    data: { standupArea: 'team' },
     loadComponent: () =>
       import('@silvervibe/vibestandup/pages/team-admin').then(
         (m) => m.TeamAdmin,
@@ -52,7 +54,8 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'app/workspace',
-    canActivate: [authGuard],
+    canActivate: [authGuard, standupAreaGuard],
+    data: { standupArea: 'workspace' },
     loadComponent: () =>
       import('@silvervibe/vibestandup/pages/workspace-admin').then(
         (m) => m.WorkspaceAdmin,

@@ -125,4 +125,28 @@ describe('WorkspaceFacade', () => {
     expect(facade.memberships().length).toBe(1);
     expect(facade.isWorkspaceAdmin()).toBe(true);
   });
+
+  it('selects the requested workspace when it belongs to the user', async () => {
+    const load = facade.loadMyWorkspaces('ws2');
+    const req = http.expectOne('/api/me/workspaces');
+    req.flush([
+      {
+        id: 'ws1',
+        name: 'Acme',
+        slug: 'acme',
+        role: 'MEMBER',
+        tools: [],
+      },
+      {
+        id: 'ws2',
+        name: 'Other',
+        slug: 'other',
+        role: 'ADMIN',
+        tools: [{ toolKey: 'vibestandup', enabled: true }],
+      },
+    ]);
+    await load;
+    expect(facade.selectedWorkspaceId()).toBe('ws2');
+    expect(facade.isWorkspaceAdmin()).toBe(true);
+  });
 });

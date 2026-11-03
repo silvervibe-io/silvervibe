@@ -1,10 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
   email,
   form,
@@ -12,11 +14,14 @@ import {
   required,
   submit,
 } from '@angular/forms/signals';
-import { RouterLink } from '@angular/router';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { ActivatedRoute } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { Shell } from '@silvervibe/shared/ui';
+import { PreviewContextStore } from '@silvervibe/stores/preview';
 import {
+  standupShellLinks,
   StandupFacade,
+  type StandupAccessInput,
   type TeamInviteView,
   type TeamMemberView,
 } from '@silvervibe/stores/standup';
@@ -51,7 +56,7 @@ type InviteModel = {
 
 @Component({
   selector: 'vs-team-admin',
-  imports: [FormField, RouterLink, Shell, TranslocoPipe],
+  imports: [FormField, Shell, TranslocoPipe],
   templateUrl: './team-admin.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -61,6 +66,12 @@ type InviteModel = {
 export class TeamAdmin implements OnInit {
   private readonly workspaces = inject(WorkspaceFacade);
   private readonly standup = inject(StandupFacade);
+  private readonly preview = inject(PreviewContextStore);
+  private readonly route = inject(ActivatedRoute);
+  private readonly transloco = inject(TranslocoService);
+  private readonly lang = toSignal(this.transloco.langChanges$, {
+    initialValue: this.transloco.getActiveLang(),
+  });
 
   readonly loading = this.standup.loading;
   readonly error = this.standup.error;
@@ -102,6 +113,17 @@ export class TeamAdmin implements OnInit {
   readonly selectedJiraCloudId = signal('');
   readonly selectedJiraProject = signal('');
   readonly selectedJiraIssue = signal('');
+  readonly shellLinks = computed(() => {
+    this.lang();
+    this.workspaces.memberships();
+    this.workspaces.selectedWorkspaceId();
+    this.standup.teams();
+    this.preview.isActive();
+    this.preview.workspaceRole();
+    return standupShellLinks(this.navInput(), (key) =>
+      this.transloco.translate(key),
+    );
+  });
 
   readonly configModel = signal<ConfigModel>({
     timezone: 'UTC',
@@ -130,7 +152,9 @@ export class TeamAdmin implements OnInit {
   });
 
   async ngOnInit(): Promise<void> {
-    await this.workspaces.loadMyWorkspaces();
+    await this.workspaces.loadMyWorkspaces(
+      this.route.snapshot.queryParamMap.get('workspaceId'),
+    );
     const ws = this.workspaces.selectedWorkspace();
     if (!ws) {
       return;
@@ -140,6 +164,15 @@ export class TeamAdmin implements OnInit {
     if (teamId) {
       await this.refreshTeam(teamId);
     }
+  }
+
+  private navInput(): StandupAccessInput {
+    return {
+      workspaceRole: this.workspaces.effectiveWorkspaceRole(),
+      teamRoles: this.preview.isActive()
+        ? [this.preview.teamRole()]
+        : this.standup.teams().map((team) => team.role),
+    };
   }
 
   async onTeamChange(teamId: string): Promise<void> {
