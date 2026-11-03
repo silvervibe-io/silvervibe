@@ -39,7 +39,11 @@
     "mentionHint": "Wpisz co najmniej dwa znaki.",
     "providerGithub": "GitHub",
     "providerJira": "Jira",
-    "providerLinear": "Linear"
+    "providerLinear": "Linear",
+    "mentionHow": "Wpisz @ dla osób i # dla zgłoszeń.",
+    "windowRange": "Okno standupu {{start}}–{{end}}.",
+    "openUntil": "Otwarte do {{time}}.",
+    "summaryAt": "Podsumowanie pojawia się o {{time}}."
   },
   "team": {
     "title": "Team admin",
@@ -123,7 +127,13 @@
     "addOption": "Dodaj opcję",
     "allowOther": "Inne, z wyjaśnieniem",
     "inHours": "W godzinach pracy",
-    "offHours": "Poza godzinami pracy"
+    "offHours": "Poza godzinami pracy",
+    "tabStandup": "Standup",
+    "tabQuestions": "Pytania",
+    "tabDigests": "Raporty",
+    "tabPeople": "Osoby",
+    "reconnectAddon": "Połączenie zostało odrzucone (HTTP {{status}}). Połącz je ponownie w administracji obszaru roboczego.",
+    "reconnectLink": "Otwórz administrację obszaru roboczego."
   },
   "workspace": {
     "title": "Workspace admin",

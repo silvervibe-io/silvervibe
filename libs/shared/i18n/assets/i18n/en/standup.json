@@ -39,7 +39,11 @@
     "providerLinear": "Linear",
     "submitted": "Submitted for today.",
     "summary": "Team summary",
-    "planHint": "Preview plan {{plan}}: up to {{teams}} teams, {{members}} members per team (preview only — Nest still enforces the workspace planKey)."
+    "planHint": "Preview plan {{plan}}: up to {{teams}} teams, {{members}} members per team (preview only — Nest still enforces the workspace planKey).",
+    "mentionHow": "Type @ for people and # for issues.",
+    "windowRange": "Standup window {{start}}–{{end}}.",
+    "openUntil": "Open until {{time}}.",
+    "summaryAt": "The summary appears at {{time}}."
   },
   "team": {
     "title": "Team admin",
@@ -123,7 +127,13 @@
     "jiraProject": "Project",
     "jiraIssue": "Issue",
     "jiraTargetSaved": "Jira target saved for this team.",
-    "jiraTargetCleared": "Using workspace Jira target again."
+    "jiraTargetCleared": "Using workspace Jira target again.",
+    "tabStandup": "Standup",
+    "tabQuestions": "Questions",
+    "tabDigests": "Digests",
+    "tabPeople": "People",
+    "reconnectAddon": "The connection was rejected (HTTP {{status}}). Reconnect it in Workspace admin.",
+    "reconnectLink": "Open Workspace admin."
   },
   "invite": {
     "title": "Join team",
