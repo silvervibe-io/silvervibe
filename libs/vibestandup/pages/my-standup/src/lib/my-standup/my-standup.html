@@ -35,13 +35,27 @@
       </select>
     </fieldset>
 
-    @if (phase() === 'before') {
+    @if (config()?.scheduleKind === 'window') {
     <p class="text-sm text-base-content/70">
-      {{ 'standup.my.opensAt' | transloco: { time: opensAt() } }}
+      {{ 'standup.my.windowRange' | transloco: { start: opensAt(), end:
+      closesAt() } }}
+    </p>
+    } @else if (phase() === 'open') {
+    <p class="text-sm text-base-content/70">
+      {{ 'standup.my.openUntil' | transloco: { time: closesAt() } }}
+    </p>
+    } @if (phase() === 'before') {
+    <p class="text-sm text-base-content/70">
+      {{ 'standup.my.opensAt' | transloco: { time: config()?.scheduleKind ===
+      'window' ? opensAt() : closesAt() } }}
     </p>
     } @else if (phase() === 'after') {
     <p class="text-sm text-base-content/70">
       {{ 'standup.my.closed' | transloco }}
+    </p>
+    } @if (summaryHidden()) {
+    <p class="text-sm text-base-content/70">
+      {{ 'standup.my.summaryAt' | transloco: { time: closesAt() } }}
     </p>
     }
     <form class="flex max-w-xl flex-col gap-4" (submit)="submitEntry($event)">
@@ -91,10 +105,14 @@
           class="textarea textarea-bordered w-full"
           rows="3"
           [value]="row.text"
+          [placeholder]="'standup.my.mentionHow' | transloco"
           [disabled]="phase() !== 'open'"
           (input)="onAnswerInput(question.id, $event)"
           (keydown)="onAnswerKeydown(question.id, $event)"
         ></textarea>
+        <p class="text-xs text-base-content/60">
+          {{ 'standup.my.mentionHow' | transloco }}
+        </p>
         @if (mentionFor(question.id); as mention) {
         <ul
           class="menu menu-sm mt-1 w-full rounded-box border border-base-300 bg-base-100"
@@ -165,7 +183,7 @@
         {{ 'standup.my.summary' | transloco }}
       </h2>
       <div class="rounded-lg bg-base-200 p-4 text-sm">
-        <sv-mention-text [segments]="mentionSegments(s.content)" />
+        <sv-mention-text [text]="s.content" />
       </div>
     </section>
     } }

@@ -39,7 +39,11 @@
     "mentionHint": "Typ minstens twee tekens.",
     "providerGithub": "GitHub",
     "providerJira": "Jira",
-    "providerLinear": "Linear"
+    "providerLinear": "Linear",
+    "mentionHow": "Typ @ voor mensen en # voor issues.",
+    "windowRange": "Standupvenster {{start}}–{{end}}.",
+    "openUntil": "Open tot {{time}}.",
+    "summaryAt": "De samenvatting verschijnt om {{time}}."
   },
   "team": {
     "title": "Team admin",
@@ -123,7 +127,13 @@
     "addOption": "Optie toevoegen",
     "allowOther": "Anders, met uitleg",
     "inHours": "Binnen werktijd",
-    "offHours": "Buiten werktijd"
+    "offHours": "Buiten werktijd",
+    "tabStandup": "Standup",
+    "tabQuestions": "Vragen",
+    "tabDigests": "Overzichten",
+    "tabPeople": "Mensen",
+    "reconnectAddon": "De verbinding is geweigerd (HTTP {{status}}). Verbind opnieuw in Workspace-beheer.",
+    "reconnectLink": "Open Workspace-beheer."
   },
   "workspace": {
     "title": "Workspace admin",

@@ -39,7 +39,11 @@
     "mentionHint": "Πληκτρολογήστε τουλάχιστον δύο χαρακτήρες.",
     "providerGithub": "GitHub",
     "providerJira": "Jira",
-    "providerLinear": "Linear"
+    "providerLinear": "Linear",
+    "mentionHow": "Πληκτρολογήστε @ για άτομα και # για θέματα.",
+    "windowRange": "Παράθυρο standup {{start}}–{{end}}.",
+    "openUntil": "Ανοιχτό έως {{time}}.",
+    "summaryAt": "Η σύνοψη εμφανίζεται στις {{time}}."
   },
   "team": {
     "title": "Team admin",
@@ -123,7 +127,13 @@
     "addOption": "Προσθήκη επιλογής",
     "allowOther": "Άλλο, με εξήγηση",
     "inHours": "Εντός ωραρίου",
-    "offHours": "Εκτός ωραρίου"
+    "offHours": "Εκτός ωραρίου",
+    "tabStandup": "Standup",
+    "tabQuestions": "Ερωτήσεις",
+    "tabDigests": "Αναφορές",
+    "tabPeople": "Άτομα",
+    "reconnectAddon": "Η σύνδεση απορρίφθηκε (HTTP {{status}}). Συνδέστε την ξανά στη διαχείριση χώρου εργασίας.",
+    "reconnectLink": "Άνοιγμα διαχείρισης χώρου εργασίας."
   },
   "workspace": {
     "title": "Workspace admin",

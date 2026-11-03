@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -15,17 +16,15 @@ import {
   required,
   submit,
 } from '@angular/forms/signals';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { MentionText, Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import {
   isWithinWorkHours,
   localTimeLabel,
-  parseMentionSegments,
   standupShellLinks,
   StandupFacade,
-  type MentionSegment,
   type StandupAccessInput,
   type StandupQuestion,
   type TeamInviteView,
@@ -63,7 +62,7 @@ type InviteModel = {
 
 @Component({
   selector: 'vs-team-admin',
-  imports: [FormField, MentionText, Shell, TranslocoPipe],
+  imports: [FormField, MentionText, RouterLink, Shell, TranslocoPipe],
   templateUrl: './team-admin.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -100,6 +99,8 @@ export class TeamAdmin implements OnInit {
   readonly linearTarget = signal<TeamLinearProjectView | null>(null);
   readonly linearProjects = signal<LinearProjectView[]>([]);
   readonly linearTargetError = signal<string | null>(null);
+  readonly linearReconnect = signal(false);
+  readonly linearErrorStatus = signal(0);
   readonly linearTargetSaving = signal(false);
   readonly selectedLinearProjectId = signal('');
 
@@ -107,6 +108,8 @@ export class TeamAdmin implements OnInit {
   readonly githubRepos = signal<GithubRepoView[]>([]);
   readonly githubIssues = signal<GithubIssueView[]>([]);
   readonly githubTargetError = signal<string | null>(null);
+  readonly githubReconnect = signal(false);
+  readonly githubErrorStatus = signal(0);
   readonly githubTargetSaving = signal(false);
   readonly selectedGithubRepo = signal('');
   readonly selectedGithubIssue = signal('');
@@ -116,10 +119,16 @@ export class TeamAdmin implements OnInit {
   readonly jiraProjects = signal<JiraProjectView[]>([]);
   readonly jiraIssues = signal<JiraIssueView[]>([]);
   readonly jiraTargetError = signal<string | null>(null);
+  readonly jiraReconnect = signal(false);
+  readonly jiraErrorStatus = signal(0);
   readonly jiraTargetSaving = signal(false);
   readonly selectedJiraCloudId = signal('');
   readonly selectedJiraProject = signal('');
   readonly selectedJiraIssue = signal('');
+  readonly adminSection = signal<
+    'standup' | 'questions' | 'digests' | 'people'
+  >('standup');
+  readonly workspaceId = computed(() => this.workspaces.selectedWorkspaceId());
   readonly shellLinks = computed(() => {
     this.lang();
     this.workspaces.memberships();
@@ -317,7 +326,7 @@ export class TeamAdmin implements OnInit {
   }
 
   private async refreshLinearTarget(teamId: string): Promise<void> {
-    this.linearTargetError.set(null);
+    this.clearLinearError();
     try {
       const target = await this.workspaces.getTeamLinearProject(teamId);
       this.linearTarget.set(target);
@@ -331,9 +340,7 @@ export class TeamAdmin implements OnInit {
     } catch (err: unknown) {
       this.linearTarget.set(null);
       this.linearProjects.set([]);
-      this.linearTargetError.set(
-        err instanceof Error ? err.message : 'Linear project unavailable',
-      );
+      this.noteLinearError(err, 'Linear project unavailable');
     }
   }
 
@@ -344,7 +351,7 @@ export class TeamAdmin implements OnInit {
       return;
     }
     this.linearTargetSaving.set(true);
-    this.linearTargetError.set(null);
+    this.clearLinearError();
     try {
       const target = await this.workspaces.setTeamLinearProject(teamId, {
         projectId,
@@ -353,9 +360,7 @@ export class TeamAdmin implements OnInit {
       this.selectedLinearProjectId.set(target.projectId ?? '');
       this.message.set('standup.team.linearTargetSaved');
     } catch (err: unknown) {
-      this.linearTargetError.set(
-        err instanceof Error ? err.message : 'Could not save Linear project',
-      );
+      this.noteLinearError(err, 'Could not save Linear project');
     } finally {
       this.linearTargetSaving.set(false);
     }
@@ -367,23 +372,21 @@ export class TeamAdmin implements OnInit {
       return;
     }
     this.linearTargetSaving.set(true);
-    this.linearTargetError.set(null);
+    this.clearLinearError();
     try {
       const target = await this.workspaces.clearTeamLinearProject(teamId);
       this.linearTarget.set(target);
       this.selectedLinearProjectId.set(target.projectId ?? '');
       this.message.set('standup.team.linearTargetCleared');
     } catch (err: unknown) {
-      this.linearTargetError.set(
-        err instanceof Error ? err.message : 'Could not clear Linear project',
-      );
+      this.noteLinearError(err, 'Could not clear Linear project');
     } finally {
       this.linearTargetSaving.set(false);
     }
   }
 
   private async refreshGithubTarget(teamId: string): Promise<void> {
-    this.githubTargetError.set(null);
+    this.clearGithubError();
     try {
       const target = await this.workspaces.getTeamGithubTarget(teamId);
       this.githubTarget.set(target);
@@ -414,9 +417,7 @@ export class TeamAdmin implements OnInit {
       this.githubTarget.set(null);
       this.githubRepos.set([]);
       this.githubIssues.set([]);
-      this.githubTargetError.set(
-        err instanceof Error ? err.message : 'GitHub target unavailable',
-      );
+      this.noteGithubError(err, 'GitHub target unavailable');
     }
   }
 
@@ -439,9 +440,7 @@ export class TeamAdmin implements OnInit {
       );
       this.githubIssues.set(issues);
     } catch (err: unknown) {
-      this.githubTargetError.set(
-        err instanceof Error ? err.message : 'Could not load GitHub issues',
-      );
+      this.noteGithubError(err, 'Could not load GitHub issues');
     }
   }
 
@@ -460,7 +459,7 @@ export class TeamAdmin implements OnInit {
       return;
     }
     this.githubTargetSaving.set(true);
-    this.githubTargetError.set(null);
+    this.clearGithubError();
     try {
       const target = await this.workspaces.setTeamGithubTarget(teamId, {
         owner: fullName.slice(0, slash),
@@ -476,9 +475,7 @@ export class TeamAdmin implements OnInit {
       );
       this.message.set('standup.team.githubTargetSaved');
     } catch (err: unknown) {
-      this.githubTargetError.set(
-        err instanceof Error ? err.message : 'Could not save GitHub target',
-      );
+      this.noteGithubError(err, 'Could not save GitHub target');
     } finally {
       this.githubTargetSaving.set(false);
     }
@@ -490,7 +487,7 @@ export class TeamAdmin implements OnInit {
       return;
     }
     this.githubTargetSaving.set(true);
-    this.githubTargetError.set(null);
+    this.clearGithubError();
     try {
       const target = await this.workspaces.clearTeamGithubTarget(teamId);
       this.githubTarget.set(target);
@@ -502,16 +499,14 @@ export class TeamAdmin implements OnInit {
       );
       this.message.set('standup.team.githubTargetCleared');
     } catch (err: unknown) {
-      this.githubTargetError.set(
-        err instanceof Error ? err.message : 'Could not clear GitHub target',
-      );
+      this.noteGithubError(err, 'Could not clear GitHub target');
     } finally {
       this.githubTargetSaving.set(false);
     }
   }
 
   private async refreshJiraTarget(teamId: string): Promise<void> {
-    this.jiraTargetError.set(null);
+    this.clearJiraError();
     try {
       const target = await this.workspaces.getTeamJiraTarget(teamId);
       this.jiraTarget.set(target);
@@ -552,9 +547,7 @@ export class TeamAdmin implements OnInit {
       this.jiraSites.set([]);
       this.jiraProjects.set([]);
       this.jiraIssues.set([]);
-      this.jiraTargetError.set(
-        err instanceof Error ? err.message : 'Jira target unavailable',
-      );
+      this.noteJiraError(err, 'Jira target unavailable');
     }
   }
 
@@ -575,9 +568,7 @@ export class TeamAdmin implements OnInit {
       );
       this.jiraProjects.set(projects);
     } catch (err: unknown) {
-      this.jiraTargetError.set(
-        err instanceof Error ? err.message : 'Could not load Jira projects',
-      );
+      this.noteJiraError(err, 'Could not load Jira projects');
     }
   }
 
@@ -598,9 +589,7 @@ export class TeamAdmin implements OnInit {
       );
       this.jiraIssues.set(issues);
     } catch (err: unknown) {
-      this.jiraTargetError.set(
-        err instanceof Error ? err.message : 'Could not load Jira issues',
-      );
+      this.noteJiraError(err, 'Could not load Jira issues');
     }
   }
 
@@ -613,7 +602,7 @@ export class TeamAdmin implements OnInit {
       return;
     }
     this.jiraTargetSaving.set(true);
-    this.jiraTargetError.set(null);
+    this.clearJiraError();
     try {
       const next = await this.workspaces.setTeamJiraTarget(teamId, {
         cloudId,
@@ -626,9 +615,7 @@ export class TeamAdmin implements OnInit {
       this.selectedJiraIssue.set(next.issueKey ?? '');
       this.message.set('standup.team.jiraTargetSaved');
     } catch (err: unknown) {
-      this.jiraTargetError.set(
-        err instanceof Error ? err.message : 'Could not save Jira target',
-      );
+      this.noteJiraError(err, 'Could not save Jira target');
     } finally {
       this.jiraTargetSaving.set(false);
     }
@@ -640,7 +627,7 @@ export class TeamAdmin implements OnInit {
       return;
     }
     this.jiraTargetSaving.set(true);
-    this.jiraTargetError.set(null);
+    this.clearJiraError();
     try {
       const next = await this.workspaces.clearTeamJiraTarget(teamId);
       this.jiraTarget.set(next);
@@ -666,16 +653,46 @@ export class TeamAdmin implements OnInit {
         }
       }
     } catch (err: unknown) {
-      this.jiraTargetError.set(
-        err instanceof Error ? err.message : 'Could not clear Jira target',
-      );
+      this.noteJiraError(err, 'Could not clear Jira target');
     } finally {
       this.jiraTargetSaving.set(false);
     }
   }
 
-  mentionSegments(content: string | null | undefined): MentionSegment[] {
-    return parseMentionSegments(content ?? '');
+  private clearLinearError(): void {
+    this.linearTargetError.set(null);
+    this.linearReconnect.set(false);
+  }
+
+  private clearGithubError(): void {
+    this.githubTargetError.set(null);
+    this.githubReconnect.set(false);
+  }
+
+  private clearJiraError(): void {
+    this.jiraTargetError.set(null);
+    this.jiraReconnect.set(false);
+  }
+
+  private noteLinearError(err: unknown, fallback: string): void {
+    const failure = addonFailure(err, fallback);
+    this.linearTargetError.set(failure.message);
+    this.linearReconnect.set(failure.reconnect);
+    this.linearErrorStatus.set(failure.status ?? 0);
+  }
+
+  private noteGithubError(err: unknown, fallback: string): void {
+    const failure = addonFailure(err, fallback);
+    this.githubTargetError.set(failure.message);
+    this.githubReconnect.set(failure.reconnect);
+    this.githubErrorStatus.set(failure.status ?? 0);
+  }
+
+  private noteJiraError(err: unknown, fallback: string): void {
+    const failure = addonFailure(err, fallback);
+    this.jiraTargetError.set(failure.message);
+    this.jiraReconnect.set(failure.reconnect);
+    this.jiraErrorStatus.set(failure.status ?? 0);
   }
 
   memberTime(member: TeamMemberView): string {
@@ -883,4 +900,29 @@ export class TeamAdmin implements OnInit {
     }
     await this.standup.refreshSummary(teamId);
   }
+}
+
+/** Turns a rejected GitHub, Jira, or Linear call into reconnect guidance. */
+export function addonFailure(
+  err: unknown,
+  fallback: string,
+): { message: string; reconnect: boolean; status?: number } {
+  if (err instanceof HttpErrorResponse) {
+    if (err.status === 401 || err.status === 403) {
+      return {
+        message: 'standup.team.reconnectAddon',
+        reconnect: true,
+        status: err.status,
+      };
+    }
+    return {
+      message: err.message || fallback,
+      reconnect: false,
+      status: err.status,
+    };
+  }
+  if (err instanceof Error && err.message) {
+    return { message: err.message, reconnect: false };
+  }
+  return { message: fallback, reconnect: false };
 }
