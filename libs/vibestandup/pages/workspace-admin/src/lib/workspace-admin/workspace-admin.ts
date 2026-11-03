@@ -6,15 +6,21 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { form, FormField, required, submit } from '@angular/forms/signals';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { ActivatedRoute, Router } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import {
   getVibestandupLimits,
   PLAN_KEYS,
 } from '@silvervibe/shared/feature-flags';
 import { Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
+import {
+  standupShellLinks,
+  StandupFacade,
+  type StandupAccessInput,
+} from '@silvervibe/stores/standup';
 import {
   WorkspaceFacade,
   type GithubConnectionView,
@@ -58,7 +64,7 @@ function apiErrorMessage(err: unknown, fallback: string): string {
 
 @Component({
   selector: 'vs-workspace-admin',
-  imports: [FormField, RouterLink, Shell, TranslocoPipe],
+  imports: [FormField, Shell, TranslocoPipe],
   templateUrl: './workspace-admin.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -67,9 +73,14 @@ function apiErrorMessage(err: unknown, fallback: string): string {
 })
 export class WorkspaceAdmin implements OnInit {
   private readonly workspaces = inject(WorkspaceFacade);
+  private readonly standup = inject(StandupFacade);
   private readonly preview = inject(PreviewContextStore);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly transloco = inject(TranslocoService);
+  private readonly lang = toSignal(this.transloco.langChanges$, {
+    initialValue: this.transloco.getActiveLang(),
+  });
 
   readonly loading = this.workspaces.loading;
   readonly error = this.workspaces.error;
@@ -79,6 +90,17 @@ export class WorkspaceAdmin implements OnInit {
   readonly effectiveRole = computed(() =>
     this.workspaces.effectiveWorkspaceRole(),
   );
+  readonly shellLinks = computed(() => {
+    this.lang();
+    this.workspaces.memberships();
+    this.workspaces.selectedWorkspaceId();
+    this.standup.teams();
+    this.preview.isActive();
+    this.preview.workspaceRole();
+    return standupShellLinks(this.navInput(), (key) =>
+      this.transloco.translate(key),
+    );
+  });
   readonly isOwner = computed(() => this.effectiveRole() === 'OWNER');
   readonly previewActive = this.preview.isActive;
   readonly planHint = computed(() => {
@@ -149,7 +171,9 @@ export class WorkspaceAdmin implements OnInit {
   }
 
   private async bootstrap(): Promise<void> {
-    await this.workspaces.loadMyWorkspaces();
+    await this.workspaces.loadMyWorkspaces(
+      this.route.snapshot.queryParamMap.get('workspaceId'),
+    );
     const ws = this.selected();
     if (ws && this.isAdmin()) {
       await Promise.all([
@@ -160,6 +184,15 @@ export class WorkspaceAdmin implements OnInit {
       ]);
     }
     this.applyOAuthQueryResults();
+  }
+
+  private navInput(): StandupAccessInput {
+    return {
+      workspaceRole: this.workspaces.effectiveWorkspaceRole(),
+      teamRoles: this.preview.isActive()
+        ? [this.preview.teamRole()]
+        : this.standup.teams().map((team) => team.role),
+    };
   }
 
   private applyOAuthQueryResults(): void {

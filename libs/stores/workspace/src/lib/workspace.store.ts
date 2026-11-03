@@ -39,13 +39,16 @@ export const WorkspaceStore = signalStore(
     const preview = inject(PreviewContextStore);
 
     return {
-      async loadMyWorkspaces(): Promise<void> {
+      async loadMyWorkspaces(
+        preferredWorkspaceId?: string | null,
+      ): Promise<void> {
         patchState(store, { loading: true, error: null });
         try {
           const memberships = await api.listMyWorkspaces();
+          const requested = preferredWorkspaceId?.trim() || null;
           const selectedWorkspaceId = pickInitialWorkspaceId(
             memberships,
-            store.selectedWorkspaceId(),
+            requested ?? store.selectedWorkspaceId(),
             preview.isActive(),
           );
           patchState(store, {

@@ -56,8 +56,8 @@ export class WorkspaceFacade {
   readonly loading = this.store.loading;
   readonly error = this.store.error;
 
-  loadMyWorkspaces(): Promise<void> {
-    return this.store.loadMyWorkspaces();
+  loadMyWorkspaces(preferredWorkspaceId?: string | null): Promise<void> {
+    return this.store.loadMyWorkspaces(preferredWorkspaceId);
   }
 
   selectWorkspace(workspaceId: string): void {
