@@ -1,0 +1,15 @@
+<div class="whitespace-pre-wrap">
+  @for (segment of segments(); track $index) { @if (segment.kind === 'link') {
+  <a
+    class="link"
+    [href]="segment.href"
+    target="_blank"
+    rel="noopener noreferrer"
+    >{{ segment.text }}</a
+  >
+  } @else if (segment.kind === 'person') {
+  <span class="font-semibold">{{ segment.text }}</span>
+  } @else {
+  <span>{{ segment.text }}</span>
+  } }
+</div>

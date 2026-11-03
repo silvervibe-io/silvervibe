@@ -17,6 +17,8 @@ import { VerifiedUser } from '../../auth/firebase-auth.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsersService } from '../../users/users.service';
 import { AddonStatusDto } from '../addon-status.dto';
+import type { MentionIssue } from '../mention-issue';
+import { mentionsToAdf } from '../../standups/mention-text';
 import { readTeamTargetEntry, withTeamTargetEntry } from '../team-target-meta';
 import {
   JiraConnectionDto,
@@ -1059,7 +1061,7 @@ export class JiraService {
             Accept: 'application/json',
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ body: this.toAdf(text) }),
+          body: JSON.stringify({ body: mentionsToAdf(text) }),
         },
       );
       if (!res.ok) {
@@ -1079,25 +1081,81 @@ export class JiraService {
     }
   }
 
-  private toAdf(text: string): {
-    type: 'doc';
-    version: 1;
-    content: Array<{
-      type: 'paragraph';
-      content: Array<{ type: 'text'; text: string }>;
-    }>;
-  } {
-    const lines = text.split('\n');
-    return {
-      type: 'doc',
-      version: 1,
-      content: lines.map((line) => ({
-        type: 'paragraph' as const,
-        content: line
-          ? [{ type: 'text' as const, text: line }]
-          : [{ type: 'text' as const, text: ' ' }],
-      })),
-    };
+  async searchMentionIssues(
+    workspaceId: string,
+    query: string,
+  ): Promise<MentionIssue[]> {
+    if (!this.prisma.isEnabled()) {
+      return [];
+    }
+    try {
+      const tool = await this.prisma.workspaceTool.findUnique({
+        where: {
+          workspaceId_toolKey: {
+            workspaceId,
+            toolKey: TOOL_KEYS.addonsJira,
+          },
+        },
+      });
+      if (!tool?.enabled) {
+        return [];
+      }
+      const connection = await this.prisma.addonConnection.findUnique({
+        where: {
+          workspaceId_provider: {
+            workspaceId,
+            provider: AddonProvider.JIRA,
+          },
+        },
+      });
+      if (
+        connection?.status !== AddonConnectionStatus.CONNECTED ||
+        !connection.secretsRef?.trim()
+      ) {
+        return [];
+      }
+      const meta = this.asMetadata(connection.metadataJson);
+      const siteUrl = meta.siteUrl?.replace(/\/$/, '') ?? '';
+      if (!meta.cloudId || !siteUrl.startsWith('https://')) {
+        return [];
+      }
+      const token = await this.requireFreshAccessToken(workspaceId);
+      const escaped = query
+        .replace(/[\r\n]/g, ' ')
+        .trim()
+        .replace(/\\/g, '\\\\')
+        .replace(/"/g, '\\"');
+      const jql = encodeURIComponent(
+        `text ~ "${escaped}" ORDER BY updated DESC`,
+      );
+      const data = await this.jiraGet<{
+        issues?: Array<{ key?: string; fields?: { summary?: string } }>;
+      }>(
+        token,
+        meta.cloudId,
+        `/rest/api/3/search?jql=${jql}&maxResults=8&fields=summary`,
+      );
+      const issues: MentionIssue[] = [];
+      for (const item of data.issues ?? []) {
+        if (!item.key || !/^[A-Za-z][A-Za-z0-9_]*-\d+$/.test(item.key)) {
+          continue;
+        }
+        const title = item.fields?.summary ?? item.key;
+        issues.push({
+          provider: 'jira',
+          key: item.key,
+          title: title.slice(0, 200),
+          url: `${siteUrl}/browse/${encodeURIComponent(item.key)}`,
+        });
+      }
+      return issues.slice(0, 8);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.warn(
+        `Jira issue search failed for workspace ${workspaceId}: ${message}`,
+      );
+      return [];
+    }
   }
 
   private async requireConnectedRow(workspaceId: string) {

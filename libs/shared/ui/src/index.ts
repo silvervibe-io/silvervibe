@@ -1,3 +1,4 @@
+export * from './lib/mention-text/mention-text';
 export * from './lib/shell/shell';
 export * from './lib/lang-switch/lang-switch';
 export * from './lib/preview-switcher/preview-switcher';

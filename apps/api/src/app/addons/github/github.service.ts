@@ -17,6 +17,8 @@ import { VerifiedUser } from '../../auth/firebase-auth.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsersService } from '../../users/users.service';
 import { AddonStatusDto } from '../addon-status.dto';
+import type { MentionIssue } from '../mention-issue';
+import { mentionsToMarkdown } from '../../standups/mention-text';
 import { readTeamTargetEntry, withTeamTargetEntry } from '../team-target-meta';
 import {
   GithubConnectionDto,
@@ -939,7 +941,7 @@ export class GithubService {
         `### VibeStandup — ${params.teamName}`,
         `_${params.entryDate}_`,
         '',
-        params.content,
+        mentionsToMarkdown(params.content),
       ].join('\n');
 
       const res = await fetch(
@@ -965,6 +967,95 @@ export class GithubService {
       );
       return false;
     }
+  }
+
+  async searchMentionIssues(
+    workspaceId: string,
+    query: string,
+  ): Promise<MentionIssue[]> {
+    if (!this.prisma.isEnabled()) {
+      return [];
+    }
+    try {
+      const token = await this.mentionToken(
+        workspaceId,
+        TOOL_KEYS.addonsGithub,
+      );
+      if (!token) {
+        return [];
+      }
+      const q = `${query.replace(/[\r\n]/g, ' ').trim()} is:issue`;
+      const data = await this.apiGet<{
+        items?: Array<{
+          number?: number;
+          title?: string;
+          html_url?: string;
+          pull_request?: unknown;
+          repository_url?: string;
+        }>;
+      }>(token, `/search/issues?q=${encodeURIComponent(q)}&per_page=8`);
+      const issues: MentionIssue[] = [];
+      for (const item of data.items ?? []) {
+        if (issues.length >= 8) {
+          break;
+        }
+        if (
+          item.pull_request ||
+          !item.html_url?.startsWith('https://') ||
+          !item.number
+        ) {
+          continue;
+        }
+        const repo = /\/repos\/([^/]+)\/([^/]+)$/.exec(
+          item.repository_url ?? '',
+        );
+        const key = repo
+          ? `${repo[1]}/${repo[2]}#${item.number}`
+          : `#${item.number}`;
+        issues.push({
+          provider: 'github',
+          key,
+          title: (item.title ?? key).slice(0, 200),
+          url: item.html_url,
+        });
+      }
+      return issues;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.warn(
+        `GitHub issue search failed for workspace ${workspaceId}: ${message}`,
+      );
+      return [];
+    }
+  }
+
+  private async mentionToken(
+    workspaceId: string,
+    toolKey: string,
+  ): Promise<string | null> {
+    const [tool, connection] = await Promise.all([
+      this.prisma.workspaceTool.findUnique({
+        where: { workspaceId_toolKey: { workspaceId, toolKey } },
+      }),
+      this.prisma.addonConnection.findUnique({
+        where: {
+          workspaceId_provider: {
+            workspaceId,
+            provider: AddonProvider.GITHUB,
+          },
+        },
+      }),
+    ]);
+    if (!tool?.enabled) {
+      return null;
+    }
+    if (
+      connection?.status !== AddonConnectionStatus.CONNECTED ||
+      !connection.secretsRef?.trim()
+    ) {
+      return null;
+    }
+    return connection.secretsRef.trim();
   }
 
   private async requireAccessToken(workspaceId: string): Promise<string> {

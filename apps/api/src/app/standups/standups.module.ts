@@ -8,6 +8,7 @@ import { TeamsModule as MsTeamsModule } from '../addons/teams/teams.module';
 import { AuthModule } from '../auth/auth.module';
 import { WorkspaceTeamsModule } from '../teams/teams.module';
 import { UsersModule } from '../users/users.module';
+import { MentionsService } from './mentions.service';
 import { StandupsController } from './standups.controller';
 import { StandupsService } from './standups.service';
 
@@ -24,7 +25,7 @@ import { StandupsService } from './standups.service';
     JiraModule,
   ],
   controllers: [StandupsController],
-  providers: [StandupsService],
+  providers: [StandupsService, MentionsService],
   exports: [StandupsService],
 })
 export class StandupsModule {}

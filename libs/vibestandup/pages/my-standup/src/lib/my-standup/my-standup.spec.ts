@@ -15,9 +15,10 @@ import {
   PREVIEW_SWITCHER_EMAILS,
   PREVIEW_SWITCHER_USER_EMAIL,
 } from '@silvervibe/stores/preview';
-import { StandupFacade } from '@silvervibe/stores/standup';
+import { defaultWeek, StandupFacade } from '@silvervibe/stores/standup';
 import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 import { of } from 'rxjs';
+import { vi } from 'vitest';
 import { MyStandup } from './my-standup';
 
 describe('MyStandup', () => {
@@ -93,6 +94,68 @@ describe('MyStandup', () => {
   it('renders the my standup title', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('h1')?.textContent).toContain('My standup');
+  });
+
+  it('inserts a person token from an @ mention', () => {
+    const component = fixture.componentInstance;
+    component.members.set([
+      {
+        id: 'm1',
+        userId: 'user_1',
+        role: 'MEMBER',
+        email: 'ada@example.com',
+        displayName: 'Ada Lovelace',
+        timezone: 'UTC',
+        workHours: defaultWeek(),
+      },
+    ]);
+    component.rows.set([
+      { questionId: 'today', text: '@ad', optionId: '', otherText: '' },
+    ]);
+    const textarea = document.createElement('textarea');
+    textarea.value = '@ad';
+    textarea.selectionStart = 3;
+    component.onAnswerInput('today', { target: textarea } as unknown as Event);
+    expect(component.mentionChoices().map((choice) => choice.label)).toEqual([
+      'Ada Lovelace',
+    ]);
+    component.onAnswerKeydown('today', {
+      key: 'Enter',
+      preventDefault() {
+        return undefined;
+      },
+      target: textarea,
+    } as unknown as KeyboardEvent);
+    expect(component.rows()[0]?.text).toBe(
+      '[@Ada Lovelace](mention:user:user_1) ',
+    );
+  });
+
+  it('inserts an issue link from a # mention', async () => {
+    const component = fixture.componentInstance;
+    const facade = TestBed.inject(StandupFacade);
+    facade.selectTeam('team-1');
+    vi.spyOn(facade, 'searchIssues').mockResolvedValue([
+      {
+        provider: 'jira',
+        key: 'PROJ-12',
+        title: 'Ship mentions',
+        url: 'https://example.atlassian.net/browse/PROJ-12',
+      },
+    ]);
+    component.rows.set([
+      { questionId: 'today', text: '#sh', optionId: '', otherText: '' },
+    ]);
+    const textarea = document.createElement('textarea');
+    textarea.value = '#sh';
+    textarea.selectionStart = 3;
+    component.onAnswerInput('today', { target: textarea } as unknown as Event);
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    expect(component.mentionChoices()[0]?.label).toBe('PROJ-12');
+    component.chooseMention('today', 0);
+    expect(component.rows()[0]?.text).toBe(
+      '[PROJ-12 Ship mentions](https://example.atlassian.net/browse/PROJ-12) ',
+    );
   });
 });
 

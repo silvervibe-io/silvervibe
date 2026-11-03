@@ -33,7 +33,13 @@
     "opensAt": "Standup otwiera się o {{time}}.",
     "closed": "Standup jest dziś zamknięty.",
     "other": "Inne",
-    "missing": "Odpowiedz na wymagane pytania."
+    "missing": "Odpowiedz na wymagane pytania.",
+    "mentionEmpty": "Brak wyników.",
+    "mentionLoading": "Wyszukiwanie zgłoszeń…",
+    "mentionHint": "Wpisz co najmniej dwa znaki.",
+    "providerGithub": "GitHub",
+    "providerJira": "Jira",
+    "providerLinear": "Linear"
   },
   "team": {
     "title": "Team admin",

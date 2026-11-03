@@ -1,4 +1,6 @@
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { API_BASE_URL } from '@silvervibe/shared/auth';
 import {
   CreateTeamInviteDtoRoleEnum,
   MyTeamDtoRoleEnum,
@@ -18,6 +20,7 @@ import { StandupsDataService } from '@silvervibe/shared/api-client/api/standups-
 import { TeamsDataService } from '@silvervibe/shared/api-client/api/teams-data.service';
 import { firstValueFrom } from 'rxjs';
 import { weekFromUnknown } from './member-clock';
+import type { MentionIssueView } from './mentions';
 import type {
   StandupAnswerValue,
   StandupAnswersInput,
@@ -236,6 +239,8 @@ function mapInvite(dto: TeamInviteDto): TeamInviteView {
 export class StandupService {
   private readonly standupsApi = inject(StandupsDataService);
   private readonly teamsApi = inject(TeamsDataService);
+  private readonly http = inject(HttpClient);
+  private readonly apiBase = inject(API_BASE_URL);
 
   async listMyTeams(workspaceId: string): Promise<TeamView[]> {
     const rows = await firstValueFrom(
@@ -339,6 +344,29 @@ export class StandupService {
       }),
     );
     return mapSummary(dto);
+  }
+
+  async searchIssues(
+    teamId: string,
+    query: string,
+  ): Promise<MentionIssueView[]> {
+    const rows = await firstValueFrom(
+      this.http.get<MentionIssueView[]>(
+        `${this.apiBase}/teams/${encodeURIComponent(teamId)}/mentions/issues`,
+        { params: { q: query } },
+      ),
+    );
+    return (Array.isArray(rows) ? rows : []).filter(
+      (row): row is MentionIssueView =>
+        !!row &&
+        (row.provider === 'github' ||
+          row.provider === 'jira' ||
+          row.provider === 'linear') &&
+        typeof row.key === 'string' &&
+        typeof row.title === 'string' &&
+        typeof row.url === 'string' &&
+        row.url.startsWith('https://'),
+    );
   }
 
   async listMembers(teamId: string): Promise<TeamMemberView[]> {

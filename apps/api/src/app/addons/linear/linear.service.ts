@@ -17,6 +17,8 @@ import { VerifiedUser } from '../../auth/firebase-auth.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsersService } from '../../users/users.service';
 import { AddonStatusDto } from '../addon-status.dto';
+import type { MentionIssue } from '../mention-issue';
+import { mentionsToMarkdown } from '../../standups/mention-text';
 import { readTeamTargetEntry, withTeamTargetEntry } from '../team-target-meta';
 import {
   LinearConnectionDto,
@@ -858,7 +860,7 @@ export class LinearService {
         `## VibeStandup — ${params.teamName}${projectLabel}`,
         `_${params.entryDate}_`,
         '',
-        params.content,
+        mentionsToMarkdown(params.content),
       ].join('\n');
 
       const result = await this.graphql<{
@@ -889,6 +891,78 @@ export class LinearService {
         `Linear digest post error for workspace ${params.workspaceId}: ${message}`,
       );
       return false;
+    }
+  }
+
+  async searchMentionIssues(
+    workspaceId: string,
+    query: string,
+  ): Promise<MentionIssue[]> {
+    if (!this.prisma.isEnabled()) {
+      return [];
+    }
+    try {
+      const tool = await this.prisma.workspaceTool.findUnique({
+        where: {
+          workspaceId_toolKey: {
+            workspaceId,
+            toolKey: TOOL_KEYS.addonsLinear,
+          },
+        },
+      });
+      if (!tool?.enabled) {
+        return [];
+      }
+      const connection = await this.prisma.addonConnection.findUnique({
+        where: {
+          workspaceId_provider: {
+            workspaceId,
+            provider: AddonProvider.LINEAR,
+          },
+        },
+      });
+      if (
+        connection?.status !== AddonConnectionStatus.CONNECTED ||
+        !connection.secretsRef?.trim()
+      ) {
+        return [];
+      }
+      const token = await this.requireFreshAccessToken(workspaceId);
+      const data = await this.graphql<{
+        searchIssues?: {
+          nodes?: Array<{ identifier?: string; title?: string; url?: string }>;
+        };
+      }>(token, {
+        query: `query($term: String!) {
+          searchIssues(term: $term, first: 8) {
+            nodes { identifier title url }
+          }
+        }`,
+        variables: { term: query.replace(/[\r\n]/g, ' ').trim() },
+      });
+      const issues: MentionIssue[] = [];
+      for (const node of data.searchIssues?.nodes ?? []) {
+        if (
+          !node.identifier ||
+          !node.url?.startsWith('https://') ||
+          issues.length >= 8
+        ) {
+          continue;
+        }
+        issues.push({
+          provider: 'linear',
+          key: node.identifier,
+          title: (node.title ?? node.identifier).slice(0, 200),
+          url: node.url,
+        });
+      }
+      return issues;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.warn(
+        `Linear issue search failed for workspace ${workspaceId}: ${message}`,
+      );
+      return [];
     }
   }
 

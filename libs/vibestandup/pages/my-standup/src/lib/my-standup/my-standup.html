@@ -92,9 +92,45 @@
           rows="3"
           [value]="row.text"
           [disabled]="phase() !== 'open'"
-          (input)="updateRow(question.id, { text: $any($event.target).value })"
+          (input)="onAnswerInput(question.id, $event)"
+          (keydown)="onAnswerKeydown(question.id, $event)"
         ></textarea>
-        }
+        @if (mentionFor(question.id); as mention) {
+        <ul
+          class="menu menu-sm mt-1 w-full rounded-box border border-base-300 bg-base-100"
+          role="listbox"
+        >
+          @if (mention.kind === 'issue' && mention.query.trim().length < 2) {
+          <li class="menu-disabled">
+            <span>{{ 'standup.my.mentionHint' | transloco }}</span>
+          </li>
+          } @else if (mention.loading) {
+          <li class="menu-disabled">
+            <span>{{ 'standup.my.mentionLoading' | transloco }}</span>
+          </li>
+          } @else if (mentionChoices().length === 0) {
+          <li class="menu-disabled">
+            <span>{{ 'standup.my.mentionEmpty' | transloco }}</span>
+          </li>
+          } @else { @for (choice of mentionChoices(); track choice.id; let i =
+          $index) {
+          <li [class.menu-active]="i === mentionIndex()">
+            <button
+              type="button"
+              role="option"
+              [attr.aria-selected]="i === mentionIndex()"
+              (mousedown)="$event.preventDefault()"
+              (click)="chooseMention(question.id, i)"
+            >
+              <span class="font-medium">{{ choice.label }}</span>
+              @if (choice.detail) {
+              <span class="text-base-content/60">{{ choice.detail }}</span>
+              }
+            </button>
+          </li>
+          } }
+        </ul>
+        } }
       </fieldset>
       } } @if (formError(); as formMessage) {
       <p class="text-error text-sm">{{ formMessage | transloco }}</p>
@@ -128,9 +164,9 @@
       <h2 class="text-xl font-semibold">
         {{ 'standup.my.summary' | transloco }}
       </h2>
-      <pre class="whitespace-pre-wrap rounded-lg bg-base-200 p-4 text-sm">
-{{ s.content }}</pre
-      >
+      <div class="rounded-lg bg-base-200 p-4 text-sm">
+        <sv-mention-text [segments]="mentionSegments(s.content)" />
+      </div>
     </section>
     } }
   </div>

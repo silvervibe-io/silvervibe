@@ -31,6 +31,12 @@
     "closed": "The standup is closed for today.",
     "other": "Other",
     "missing": "Answer the required questions.",
+    "mentionEmpty": "No matches.",
+    "mentionLoading": "Searching issues…",
+    "mentionHint": "Type at least two characters.",
+    "providerGithub": "GitHub",
+    "providerJira": "Jira",
+    "providerLinear": "Linear",
     "submitted": "Submitted for today.",
     "summary": "Team summary",
     "planHint": "Preview plan {{plan}}: up to {{teams}} teams, {{members}} members per team (preview only — Nest still enforces the workspace planKey)."
