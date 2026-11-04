@@ -75,7 +75,7 @@ export class MyStandup implements OnInit {
     initialValue: this.transloco.getActiveLang(),
   });
 
-  readonly loading = this.standup.loading;
+  readonly ready = signal(false);
   readonly error = this.standup.error;
   readonly entry = this.standup.entry;
   readonly summary = this.standup.summary;
@@ -204,34 +204,38 @@ export class MyStandup implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    const enter = this.route.snapshot.queryParamMap.get('enter') === '1';
-    const requestedWorkspaceId =
-      this.route.snapshot.queryParamMap.get('workspaceId');
-    await this.workspaces.loadMyWorkspaces(requestedWorkspaceId);
-    const ws = this.workspaces.selectedWorkspace();
-    if (!ws) {
-      return;
-    }
-    await this.standup.loadMyTeams(ws.id);
-    if (enter) {
-      const home = resolveStandupHome(this.navInput());
-      if (home !== '/app') {
-        await this.router.navigateByUrl(standupHomeUrl(home, ws.id));
+    try {
+      const enter = this.route.snapshot.queryParamMap.get('enter') === '1';
+      const requestedWorkspaceId =
+        this.route.snapshot.queryParamMap.get('workspaceId');
+      await this.workspaces.loadMyWorkspaces(requestedWorkspaceId);
+      const ws = this.workspaces.selectedWorkspace();
+      if (!ws) {
         return;
       }
-      await this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams: { enter: null },
-        queryParamsHandling: 'merge',
-        replaceUrl: true,
-      });
-    }
-    const teamId = this.standup.selectedTeamId();
-    if (teamId) {
-      await Promise.all([
-        this.standup.loadToday(teamId),
-        this.refreshMembers(teamId),
-      ]);
+      await this.standup.loadMyTeams(ws.id);
+      if (enter) {
+        const home = resolveStandupHome(this.navInput());
+        if (home !== '/app') {
+          await this.router.navigateByUrl(standupHomeUrl(home, ws.id));
+          return;
+        }
+        await this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { enter: null },
+          queryParamsHandling: 'merge',
+          replaceUrl: true,
+        });
+      }
+      const teamId = this.standup.selectedTeamId();
+      if (teamId) {
+        await Promise.all([
+          this.standup.loadToday(teamId),
+          this.refreshMembers(teamId),
+        ]);
+      }
+    } finally {
+      this.ready.set(true);
     }
   }
 

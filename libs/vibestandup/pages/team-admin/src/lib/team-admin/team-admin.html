@@ -7,7 +7,7 @@
       <p class="text-base-content/70">{{ 'standup.team.lead' | transloco }}</p>
     </header>
 
-    @if (loading()) {
+    @if (!ready()) {
     <p>{{ 'standup.loading' | transloco }}</p>
     } @else if (error()) {
     <p class="text-error">{{ error() }}</p>
