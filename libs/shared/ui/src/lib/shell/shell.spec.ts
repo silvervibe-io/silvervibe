@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
@@ -8,7 +8,7 @@ import {
 } from '@silvervibe/stores/preview';
 import { THEME_STORAGE_KEY, ThemeStore } from '@silvervibe/stores/theme';
 import { of } from 'rxjs';
-import { Shell } from './shell';
+import { SHELL_LINKS, Shell } from './shell';
 
 describe('Shell', () => {
   let fixture: ComponentFixture<Shell>;
@@ -24,6 +24,10 @@ describe('Shell', () => {
         {
           provide: PREVIEW_SWITCHER_USER_EMAIL,
           useValue: signal<string | null>(null),
+        },
+        {
+          provide: SHELL_LINKS,
+          useValue: computed(() => [{ label: 'From app', href: '/app' }]),
         },
         ...provideTransloco({
           config: {
@@ -73,6 +77,31 @@ describe('Shell', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.textContent).toContain('Silver Vibe');
     expect(compiled.querySelector('sv-theme-toggle .swap')).toBeTruthy();
+  });
+
+  it('uses the app menu when a page does not pass links', () => {
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'From app',
+    );
+  });
+
+  it('keeps every nav link in the bar', () => {
+    fixture.componentRef.setInput('links', [
+      { label: 'My standup', href: '/app' },
+      { label: 'Team', href: '/app/team' },
+      { label: 'Workspace', href: '/app/workspace' },
+      { label: 'Settings', href: '/app/settings' },
+      { label: 'Account', href: '/account' },
+    ]);
+    fixture.detectChanges();
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('My standup');
+    expect(text).toContain('Team');
+    expect(text).toContain('Workspace');
+    expect(text).toContain('Settings');
+    expect(text).toContain('Account');
+    expect(text).not.toContain('From app');
   });
 
   it('toggles theme when the swap input changes', () => {

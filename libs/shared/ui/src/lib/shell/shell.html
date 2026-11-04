@@ -1,17 +1,21 @@
-<div class="navbar border-b border-base-300 bg-base-200">
-  <div class="navbar-start">
+<div class="navbar flex-wrap gap-y-2 border-b border-base-300 bg-base-200">
+  <div class="navbar-start !w-auto shrink-0">
     <a class="btn btn-ghost text-xl font-semibold tracking-tight" routerLink="/"
       >{{ title() }}</a
     >
   </div>
-  <div class="navbar-center">
+  <div
+    class="navbar-end !w-auto ms-auto max-w-full flex-wrap justify-end gap-x-3 gap-y-2"
+  >
     <sv-preview-switcher />
-  </div>
-  <div class="navbar-end gap-2 sm:gap-4">
-    @for (link of links(); track link.href) { @if (link.external) {
-    <a class="link link-hover text-sm" [href]="link.href">{{ link.label }}</a>
+    @for (link of navLinks(); track link.href) { @if (link.external) {
+    <a class="link link-hover text-sm whitespace-nowrap" [href]="link.href"
+      >{{ link.label }}</a
+    >
     } @else {
-    <a class="link link-hover text-sm" [routerLink]="link.href"
+    <a
+      class="link link-hover text-sm whitespace-nowrap"
+      [routerLink]="link.href"
       >{{ link.label }}</a
     >
     } } @if (showLangSwitch()) {

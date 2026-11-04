@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
   signal,
@@ -44,6 +45,15 @@ export class SignIn {
   readonly blurbKey = input('auth.signIn.blurb.platform');
   /** Where to land after a successful sign-in (portal, product app, or account). */
   readonly accountPath = input('/account');
+  /** Path and query split so routerLink does not treat `?enter=1` as a path segment. */
+  readonly accountUrl = computed(() => {
+    const tree = this.router.parseUrl(this.accountPath());
+    const primary = tree.root.children['primary'];
+    const path = primary
+      ? `/${primary.segments.map((segment) => segment.path).join('/')}`
+      : '/';
+    return { path, queryParams: tree.queryParams };
+  });
 
   readonly error = signal<string | null>(null);
   readonly busy = signal(false);

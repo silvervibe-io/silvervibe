@@ -79,7 +79,7 @@ export class TeamAdmin implements OnInit {
     initialValue: this.transloco.getActiveLang(),
   });
 
-  readonly loading = this.standup.loading;
+  readonly ready = signal(false);
   readonly error = this.standup.error;
   readonly teams = this.standup.teams;
   readonly selectedTeamId = this.standup.selectedTeamId;
@@ -182,17 +182,21 @@ export class TeamAdmin implements OnInit {
   });
 
   async ngOnInit(): Promise<void> {
-    await this.workspaces.loadMyWorkspaces(
-      this.route.snapshot.queryParamMap.get('workspaceId'),
-    );
-    const ws = this.workspaces.selectedWorkspace();
-    if (!ws) {
-      return;
-    }
-    await this.standup.loadMyTeams(ws.id);
-    const teamId = this.standup.selectedTeamId();
-    if (teamId) {
-      await this.refreshTeam(teamId);
+    try {
+      await this.workspaces.loadMyWorkspaces(
+        this.route.snapshot.queryParamMap.get('workspaceId'),
+      );
+      const ws = this.workspaces.selectedWorkspace();
+      if (!ws) {
+        return;
+      }
+      await this.standup.loadMyTeams(ws.id);
+      const teamId = this.standup.selectedTeamId();
+      if (teamId) {
+        await this.refreshTeam(teamId);
+      }
+    } finally {
+      this.ready.set(true);
     }
   }
 
