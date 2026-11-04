@@ -15,7 +15,10 @@
       >
     </div>
     <div class="flex flex-wrap gap-3">
-      <a class="btn btn-primary" [routerLink]="accountPath()"
+      <a
+        class="btn btn-primary"
+        [routerLink]="accountUrl().path"
+        [queryParams]="accountUrl().queryParams"
         >{{ 'auth.signIn.accountLink' | transloco }}</a
       >
       <button

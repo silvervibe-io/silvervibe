@@ -12,8 +12,10 @@ import { SignIn } from './sign-in';
 
 describe('SignIn', () => {
   let fixture: ComponentFixture<SignIn>;
+  const user = signal<{ uid: string; email: string } | null>(null);
 
   beforeEach(async () => {
+    user.set(null);
     await TestBed.configureTestingModule({
       imports: [SignIn],
       providers: [
@@ -26,7 +28,7 @@ describe('SignIn', () => {
         {
           provide: AuthService,
           useValue: {
-            user: () => null,
+            user,
             signIn: () => Promise.resolve({ uid: 'u1' }),
             signInWithGoogle: () => Promise.resolve({ uid: 'u1' }),
             signInWithGithub: () => Promise.resolve({ uid: 'u1' }),
@@ -68,6 +70,9 @@ describe('SignIn', () => {
                     password: 'Password',
                     submitEmail: 'Sign in with email',
                     or: 'or',
+                    signedInAs: 'Signed in as {{ identity }}',
+                    accountLink: 'Continue',
+                    signOut: 'Sign out',
                   },
                 },
               });
@@ -89,6 +94,17 @@ describe('SignIn', () => {
     expect(compiled.textContent).toContain('Continue with GitHub');
     expect(compiled.querySelector('sv-icon[name="google"]')).toBeTruthy();
     expect(compiled.querySelector('sv-icon[name="github"]')).toBeTruthy();
+  });
+
+  it('continues a signed-in user into the app without dropping the query', () => {
+    user.set({ uid: 'u1', email: 'ada@example.com' });
+    fixture.componentRef.setInput('accountPath', '/app?enter=1');
+    fixture.detectChanges();
+    const link = fixture.nativeElement.querySelector(
+      'a.btn-primary',
+    ) as HTMLAnchorElement;
+    expect(link.textContent).toContain('Continue');
+    expect(link.getAttribute('href')).toBe('/app?enter=1');
   });
 
   it('shows the configured product title', () => {

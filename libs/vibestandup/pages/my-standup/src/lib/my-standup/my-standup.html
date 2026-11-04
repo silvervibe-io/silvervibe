@@ -13,7 +13,7 @@
       }
     </header>
 
-    @if (loading()) {
+    @if (!ready()) {
     <p>{{ 'standup.loading' | transloco }}</p>
     } @else if (error()) {
     <p class="text-error">{{ error() }}</p>

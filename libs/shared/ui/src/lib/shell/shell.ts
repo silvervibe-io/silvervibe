@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  InjectionToken,
+  input,
+  type Signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LangSwitch } from '../lang-switch/lang-switch';
 import { PreviewSwitcher } from '../preview-switcher/preview-switcher';
@@ -10,6 +18,11 @@ export interface ShellLink {
   external?: boolean;
 }
 
+/** App-wide nav used when a page does not pass its own links. */
+export const SHELL_LINKS = new InjectionToken<Signal<readonly ShellLink[]>>(
+  'SHELL_LINKS',
+);
+
 @Component({
   selector: 'sv-shell',
   imports: [RouterLink, LangSwitch, PreviewSwitcher, ThemeToggle],
@@ -20,8 +33,13 @@ export interface ShellLink {
   },
 })
 export class Shell {
+  private readonly appLinks = inject(SHELL_LINKS, { optional: true });
   readonly title = input('Silvervibe');
   readonly links = input<ShellLink[]>([]);
+  readonly navLinks = computed(() => {
+    const explicit = this.links();
+    return explicit.length > 0 ? explicit : (this.appLinks?.() ?? []);
+  });
   /** Show light/dark toggle in the navbar (default true). */
   readonly showThemeToggle = input(true);
   /** Show language switcher (default true). */
