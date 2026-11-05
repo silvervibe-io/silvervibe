@@ -87,7 +87,6 @@ export type TeamGithubTargetView = {
 export type SetTeamGithubTargetInput = {
   owner: string;
   repo: string;
-  issueNumber: number;
 };
 
 export type TeamJiraTargetView = {
@@ -108,7 +107,6 @@ export type TeamJiraTargetView = {
 export type SetTeamJiraTargetInput = {
   cloudId: string;
   projectKey: string;
-  issueKey: string;
 };
 
 export type TeamsConnectionView = {
@@ -175,7 +173,6 @@ export type GithubIssueView = {
 export type SelectGithubTargetInput = {
   owner: string;
   repo: string;
-  issueNumber: number;
 };
 
 export type JiraConnectionView = {
@@ -218,7 +215,6 @@ export type SelectJiraSiteInput = {
 export type SelectJiraTargetInput = {
   cloudId: string;
   projectKey: string;
-  issueKey: string;
 };
 
 export type WorkspaceState = {

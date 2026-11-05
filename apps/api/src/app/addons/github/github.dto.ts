@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsString, MaxLength, Min, MinLength } from 'class-validator';
+import {
+  IsInt,
+  IsOptional,
+  IsString,
+  MaxLength,
+  Min,
+  MinLength,
+} from 'class-validator';
 
 export class GithubConnectionDto {
   @ApiProperty({ enum: ['DISCONNECTED', 'PENDING', 'CONNECTED', 'ERROR'] })
@@ -73,12 +80,13 @@ export class SelectGithubTargetDto {
   @MaxLength(100)
   repo!: string;
 
-  @ApiProperty({
-    description: 'Issue number that receives standup digest comments',
+  @ApiPropertyOptional({
+    description: 'Ignored. Digests use a standing issue in the repository.',
   })
+  @IsOptional()
   @IsInt()
   @Min(1)
-  issueNumber!: number;
+  issueNumber?: number;
 }
 
 export class TeamGithubTargetDto {
@@ -129,10 +137,11 @@ export class SetTeamGithubTargetDto {
   @MaxLength(100)
   repo!: string;
 
-  @ApiProperty({
-    description: 'Issue number that receives standup digest comments',
+  @ApiPropertyOptional({
+    description: 'Ignored. Digests use a standing issue in the repository.',
   })
+  @IsOptional()
   @IsInt()
   @Min(1)
-  issueNumber!: number;
+  issueNumber?: number;
 }

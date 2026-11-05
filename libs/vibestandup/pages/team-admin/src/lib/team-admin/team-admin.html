@@ -462,42 +462,17 @@
           }
         </select>
       </fieldset>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'standup.team.githubIssue' | transloco }}
-        </legend>
-        <select
-          class="select select-bordered w-full"
-          [value]="selectedGithubIssue()"
-          (change)="selectedGithubIssue.set($any($event.target).value)"
-        >
-          <option value="">
-            {{ 'standup.team.targetDefault' | transloco }} @if
-            (github.workspaceIssueNumber) { (#{{ github.workspaceIssueNumber }})
-            }
-          </option>
-          @for (issue of githubIssues(); track issue.number) {
-          <option [value]="issue.number">
-            #{{ issue.number }} — {{ issue.title }}
-          </option>
-          }
-        </select>
-      </fieldset>
-      @if (github.isOverride && github.issueNumber) {
+      @if (github.isOverride && github.owner && github.repo) {
       <p class="text-sm text-base-content/70">
         {{ 'standup.team.targetOverride' | transloco }}: {{ github.owner }}/{{
-        github.repo }}#{{ github.issueNumber }}
+        github.repo }}
       </p>
       }
       <div class="flex flex-wrap gap-2">
         <button
           type="button"
           class="btn btn-primary btn-sm"
-          [disabled]="
-            githubTargetSaving() ||
-            !selectedGithubRepo() ||
-            !selectedGithubIssue()
-          "
+          [disabled]="githubTargetSaving() || !selectedGithubRepo()"
           (click)="saveGithubTarget()"
         >
           {{ 'standup.team.targetSave' | transloco }}
@@ -577,29 +552,9 @@
           }
         </select>
       </fieldset>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'standup.team.jiraIssue' | transloco }}
-        </legend>
-        <select
-          class="select select-bordered w-full"
-          [value]="selectedJiraIssue()"
-          (change)="selectedJiraIssue.set($any($event.target).value)"
-        >
-          <option value="">
-            {{ 'standup.team.targetDefault' | transloco }} @if
-            (jira.workspaceIssueKey) { ({{ jira.workspaceIssueKey }}) }
-          </option>
-          @for (issue of jiraIssues(); track issue.key) {
-          <option [value]="issue.key">
-            {{ issue.key }} — {{ issue.summary }}
-          </option>
-          }
-        </select>
-      </fieldset>
-      @if (jira.isOverride && jira.issueKey) {
+      @if (jira.isOverride && jira.projectKey) {
       <p class="text-sm text-base-content/70">
-        {{ 'standup.team.targetOverride' | transloco }}: {{ jira.issueKey }}
+        {{ 'standup.team.targetOverride' | transloco }}: {{ jira.projectKey }}
       </p>
       }
       <div class="flex flex-wrap gap-2">
@@ -609,8 +564,7 @@
           [disabled]="
             jiraTargetSaving() ||
             !selectedJiraCloudId() ||
-            !selectedJiraProject() ||
-            !selectedJiraIssue()
+            !selectedJiraProject()
           "
           (click)="saveJiraTarget()"
         >

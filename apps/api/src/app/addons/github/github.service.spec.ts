@@ -1,6 +1,7 @@
 import {
   AddonConnectionStatus,
   AddonProvider,
+  TeamRole,
   WorkspaceRole,
 } from '@prisma/client';
 import { VerifiedUser } from '../../auth/firebase-auth.service';
@@ -56,12 +57,24 @@ describe('GithubService', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('posts an issue comment when tool and target are ready', async () => {
-    const fetchMock = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ id: 1 }),
-      text: async () => '',
-    });
+  it('posts a digest comment on the standing repository issue', async () => {
+    const fetchMock = jest
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          number: 42,
+          title: 'VibeStandup digests',
+        }),
+        text: async () => '',
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 201,
+        json: async () => ({ id: 1 }),
+        text: async () => '',
+      });
     global.fetch = fetchMock as unknown as typeof fetch;
 
     const service = new GithubService(
@@ -78,8 +91,7 @@ describe('GithubService', () => {
             metadataJson: {
               owner: 'silvervibe-io',
               repo: 'silvervibe',
-              issueNumber: 42,
-              issueTitle: 'Standups',
+              digestIssueNumber: 42,
             },
             provider: AddonProvider.GITHUB,
           }),
@@ -102,6 +114,81 @@ describe('GithubService', () => {
         method: 'POST',
       }),
     );
+  });
+
+  it('saves a team repository override without an issue number', async () => {
+    const connection: {
+      id: string;
+      status: AddonConnectionStatus;
+      secretsRef: string;
+      metadataJson: Record<string, unknown>;
+      provider: AddonProvider;
+    } = {
+      id: 'conn1',
+      status: AddonConnectionStatus.CONNECTED,
+      secretsRef: 'gho_token',
+      metadataJson: {
+        accountLogin: 'silvervibe-io',
+        owner: 'silvervibe-io',
+        repo: 'silvervibe',
+        issueNumber: 136,
+      },
+      provider: AddonProvider.GITHUB,
+    };
+    const update = jest.fn(
+      async (args: { data: { metadataJson: Record<string, unknown> } }) => {
+        connection.metadataJson = args.data.metadataJson;
+        return connection;
+      },
+    );
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ full_name: 'silvervibe-io/silvervibe' }),
+      text: async () => '',
+    }) as unknown as typeof fetch;
+
+    const service = new GithubService(
+      {
+        isEnabled: () => true,
+        teamMember: {
+          findUnique: jest.fn().mockResolvedValue({
+            role: TeamRole.ADMIN,
+            team: { workspaceId: 'ws1' },
+          }),
+        },
+        addonConnection: {
+          findUnique: jest.fn().mockResolvedValue(connection),
+          update,
+        },
+      } as unknown as PrismaService,
+      {
+        upsertFromFirebase: jest.fn().mockResolvedValue({ id: 'user1' }),
+      } as unknown as UsersService,
+    );
+
+    const view = await service.setTeamTarget(
+      'cmvf4nf6w0003wua8crksyvwz',
+      admin,
+      { owner: 'silvervibe-io', repo: 'silvervibe' },
+    );
+
+    expect(view.isOverride).toBe(true);
+    expect(view.owner).toBe('silvervibe-io');
+    expect(view.repo).toBe('silvervibe');
+    expect(view.issueNumber).toBeNull();
+    const saved = update.mock.calls[0]?.[0].data.metadataJson as {
+      issueNumber?: number;
+      issueTitle?: string;
+      teamTargets: Record<string, { owner: string; repo: string }>;
+    };
+    expect(saved.teamTargets['cmvf4nf6w0003wua8crksyvwz']).toEqual({
+      owner: 'silvervibe-io',
+      repo: 'silvervibe',
+    });
+    expect(saved.issueNumber).toBe(136);
+    expect(saved).not.toHaveProperty('issueTitle');
+    expect(JSON.stringify(saved)).not.toContain('undefined');
   });
 
   it('returns oauthAvailable false when env is missing', async () => {
@@ -130,19 +217,48 @@ describe('GithubService', () => {
   });
 
   it('searches issues with is:issue and drops a failed call', async () => {
-    const fetchMock = jest.fn().mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        items: [
-          {
-            number: 7,
-            title: 'Ship mentions',
-            html_url: 'https://github.com/acme/app/issues/7',
-            repository_url: 'https://api.github.com/repos/acme/app',
-          },
-        ],
-      }),
-      text: async () => '',
+    const fetchMock = jest.fn(async (url: string) => {
+      const target = String(url);
+      if (target.endsWith('/user')) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ login: 'acme' }),
+          text: async () => '',
+        };
+      }
+      if (target.includes('/user/orgs')) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => [{ login: 'silvervibe-io' }],
+          text: async () => '',
+        };
+      }
+      if (target.includes(encodeURIComponent('ship is:issue'))) {
+        throw new Error('bad credentials');
+      }
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          items: [
+            {
+              number: 7,
+              title: 'Ship mentions',
+              html_url: 'https://github.com/acme/app/issues/7',
+              repository_url: 'https://api.github.com/repos/acme/app',
+            },
+            {
+              number: 17,
+              title: 'Someone else',
+              html_url: 'https://github.com/Wolf-Loop/demo/issues/17',
+              repository_url: 'https://api.github.com/repos/Wolf-Loop/demo',
+            },
+          ],
+        }),
+        text: async () => '',
+      };
     });
     global.fetch = fetchMock as unknown as typeof fetch;
     const service = new GithubService(
@@ -172,11 +288,17 @@ describe('GithubService', () => {
         url: 'https://github.com/acme/app/issues/7',
       },
     ]);
-    expect(String(fetchMock.mock.calls[0]?.[0])).toContain(
-      encodeURIComponent('say "hi" is:issue'),
+    const searchUrls = fetchMock.mock.calls
+      .map((call) => decodeURIComponent(String(call[0])))
+      .filter((url) => url.includes('/search/issues'));
+    expect(searchUrls).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('say "hi" is:issue user:acme'),
+        expect.stringContaining('say "hi" is:issue org:silvervibe-io'),
+      ]),
     );
+    expect(searchUrls.join(' ')).not.toContain(' OR ');
 
-    fetchMock.mockRejectedValueOnce(new Error('bad credentials'));
     await expect(service.searchMentionIssues('ws1', 'ship')).resolves.toEqual(
       [],
     );

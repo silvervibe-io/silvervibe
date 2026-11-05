@@ -20,7 +20,37 @@ const MENTION =
   /\[([^[\]\n]{1,200})\]\((mention:user:[A-Za-z0-9_-]{1,128}|https:\/\/[^)\s]+)\)/g;
 const BOLD = /\*\*([^*\n]+)\*\*/g;
 
-/** Safe blocks for a standup summary: headings, lists, bold, people, and https links. */
+function atName(label: string): string {
+  const visible = label
+    .replace(/[[\]()\r\n]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^@+/, '');
+  return visible ? `@${visible}` : '';
+}
+
+function hashName(label: string): string {
+  const visible = label
+    .replace(/[[\]()\r\n]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^#+/, '');
+  return visible ? `#${visible}` : '';
+}
+
+function plainMentions(value: string): string {
+  return value.replace(MENTION, (full, label: string, target: string) => {
+    if (target.startsWith('mention:user:')) {
+      return atName(label) || full;
+    }
+    if (target.startsWith('https://')) {
+      return hashName(label) || full;
+    }
+    return full;
+  });
+}
+
+/** Safe blocks for a standup summary: headings, lists, bold, @names, and #names. */
 export function parseSummaryBlocks(value: string): SummaryBlock[] {
   const blocks: SummaryBlock[] = [];
   let list: SummaryInline[][] | null = null;
@@ -30,7 +60,7 @@ export function parseSummaryBlocks(value: string): SummaryBlock[] {
     }
     list = null;
   };
-  for (const line of value.replace(/\r\n/g, '\n').split('\n')) {
+  for (const line of plainMentions(value).replace(/\r\n/g, '\n').split('\n')) {
     if (!line.trim()) {
       flushList();
       continue;

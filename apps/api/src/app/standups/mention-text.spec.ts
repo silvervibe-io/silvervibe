@@ -25,49 +25,30 @@ describe('mention text', () => {
     ]);
   });
 
-  it('rewrites people for markdown and leaves issue links', () => {
+  it('rewrites mention tokens to @name and #name', () => {
     expect(mentionsToMarkdown(`${person} ${issue}`)).toBe(
-      `**@Ada Lovelace** ${issue}`,
+      '@Ada Lovelace #PROJ-12 Ship it',
     );
   });
 
-  it('rewrites Slack mrkdwn links and bold names', () => {
+  it('rewrites Slack mentions without pinging or linking', () => {
     expect(mentionsToSlack(`A & B ${person} ${issue}`)).toBe(
-      'A & B *@Ada Lovelace* <https://example.atlassian.net/browse/PROJ-12|PROJ-12 Ship it>',
+      'A & B @Ada Lovelace #PROJ-12 Ship it',
     );
   });
 
-  it('builds Jira link marks and strong person names', () => {
+  it('builds Jira text for @name and #name', () => {
     expect(mentionsToAdf(`${person}\n${issue}`)).toEqual({
       type: 'doc',
       version: 1,
       content: [
         {
           type: 'paragraph',
-          content: [
-            {
-              type: 'text',
-              text: '@Ada Lovelace',
-              marks: [{ type: 'strong' }],
-            },
-          ],
+          content: [{ type: 'text', text: '@Ada Lovelace' }],
         },
         {
           type: 'paragraph',
-          content: [
-            {
-              type: 'text',
-              text: 'PROJ-12 Ship it',
-              marks: [
-                {
-                  type: 'link',
-                  attrs: {
-                    href: 'https://example.atlassian.net/browse/PROJ-12',
-                  },
-                },
-              ],
-            },
-          ],
+          content: [{ type: 'text', text: '#PROJ-12 Ship it' }],
         },
       ],
     });

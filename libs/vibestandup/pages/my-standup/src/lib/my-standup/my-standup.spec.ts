@@ -126,9 +126,7 @@ describe('MyStandup', () => {
       },
       target: textarea,
     } as unknown as KeyboardEvent);
-    expect(component.rows()[0]?.text).toBe(
-      '[@Ada Lovelace](mention:user:user_1) ',
-    );
+    expect(component.rows()[0]?.text).toBe('@Ada Lovelace ');
   });
 
   it('inserts an issue link from a # mention', async () => {
@@ -153,9 +151,7 @@ describe('MyStandup', () => {
     await new Promise((resolve) => setTimeout(resolve, 300));
     expect(component.mentionChoices()[0]?.label).toBe('PROJ-12');
     component.chooseMention('today', 0);
-    expect(component.rows()[0]?.text).toBe(
-      '[PROJ-12 Ship mentions](https://example.atlassian.net/browse/PROJ-12) ',
-    );
+    expect(component.rows()[0]?.text).toBe('#PROJ-12 ');
   });
 });
 

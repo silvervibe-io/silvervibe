@@ -171,6 +171,20 @@ describe('TeamAdmin', () => {
       message: 'Jira target unavailable',
       reconnect: false,
     });
+    expect(
+      addonFailure(
+        new HttpErrorResponse({
+          status: 400,
+          statusText: 'Bad Request',
+          error: { message: 'GitHub repository not found' },
+        }),
+        'standup.workspace.githubRequestFailed',
+      ),
+    ).toEqual({
+      message: 'GitHub repository not found',
+      reconnect: false,
+      status: 400,
+    });
   });
 
   it('adds a custom text question', () => {

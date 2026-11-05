@@ -1,9 +1,11 @@
 import {
+  BadGatewayException,
   BadRequestException,
   ForbiddenException,
   Injectable,
   Logger,
   ServiceUnavailableException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   AddonConnectionStatus,
@@ -35,9 +37,10 @@ import {
 type JiraTeamTarget = {
   cloudId: string;
   siteName?: string;
-  projectKey?: string;
-  issueKey: string;
-  issueSummary?: string;
+  projectKey: string;
+  projectName?: string;
+  /** Standing "VibeStandup digests" issue. Not chosen by the user. */
+  digestIssueKey?: string;
 };
 
 type JiraMetadata = {
@@ -50,7 +53,9 @@ type JiraMetadata = {
   projectName?: string;
   issueKey?: string;
   issueSummary?: string;
-  /** Per-team issue overrides; workspace target remains the default. */
+  /** Standing digest issue in the workspace project. */
+  digestIssueKey?: string;
+  /** Per-team project overrides; workspace project remains the default. */
   teamTargets?: Record<string, JiraTeamTarget>;
   oauthNonce?: string;
   oauthExp?: number;
@@ -63,6 +68,18 @@ type OAuthStatePayload = {
   exp: number;
   nonce: string;
 };
+
+const DIGEST_ISSUE_SUMMARY = 'VibeStandup digests';
+
+/** Prisma rejects JSON columns that contain `undefined`. */
+function storedMetadata(meta: JiraMetadata): JiraMetadata {
+  return JSON.parse(JSON.stringify(meta)) as JiraMetadata;
+}
+
+function projectFromIssueKey(issueKey: string | undefined): string | undefined {
+  const match = issueKey?.match(/^([A-Za-z][A-Za-z0-9_]*)-\d+$/);
+  return match?.[1];
+}
 
 const OAUTH_SCOPES = [
   'read:jira-work',
@@ -258,28 +275,35 @@ export class JiraService {
           typeof entry['cloudId'] === 'string' && entry['cloudId'].trim()
             ? entry['cloudId'].trim()
             : undefined;
-        const issueKey =
-          typeof entry['issueKey'] === 'string' && entry['issueKey'].trim()
-            ? entry['issueKey'].trim()
+        const projectKey =
+          typeof entry['projectKey'] === 'string' && entry['projectKey'].trim()
+            ? entry['projectKey'].trim()
             : undefined;
-        if (!cloudId || !issueKey) {
+        if (!cloudId || !projectKey) {
           continue;
         }
         const siteName =
           typeof entry['siteName'] === 'string' && entry['siteName'].trim()
             ? entry['siteName'].trim()
             : undefined;
-        const projectKey =
-          typeof entry['projectKey'] === 'string' && entry['projectKey'].trim()
-            ? entry['projectKey'].trim()
+        const projectName =
+          typeof entry['projectName'] === 'string' &&
+          entry['projectName'].trim()
+            ? entry['projectName'].trim()
             : undefined;
-        const issueSummary =
-          typeof entry['issueSummary'] === 'string' &&
-          entry['issueSummary'].trim()
-            ? entry['issueSummary'].trim()
+        const digestIssueKey =
+          typeof entry['digestIssueKey'] === 'string' &&
+          entry['digestIssueKey'].trim()
+            ? entry['digestIssueKey'].trim()
             : undefined;
         Object.defineProperty(teamTargets, rawKey, {
-          value: { cloudId, siteName, projectKey, issueKey, issueSummary },
+          value: {
+            cloudId,
+            siteName,
+            projectKey,
+            projectName,
+            digestIssueKey,
+          },
           writable: true,
           enumerable: true,
           configurable: true,
@@ -296,6 +320,7 @@ export class JiraService {
       projectName: str('projectName'),
       issueKey: str('issueKey'),
       issueSummary: str('issueSummary'),
+      digestIssueKey: str('digestIssueKey'),
       teamTargets:
         Object.keys(teamTargets).length > 0 ? teamTargets : undefined,
       oauthNonce: str('oauthNonce'),
@@ -304,34 +329,34 @@ export class JiraService {
     };
   }
 
-  resolveIssueForTeam(
+  resolveProjectForTeam(
     meta: JiraMetadata,
     teamId?: string,
   ): {
     cloudId?: string;
     siteName?: string;
     projectKey?: string;
-    issueKey?: string;
-    issueSummary?: string;
+    projectName?: string;
+    digestIssueKey?: string;
     isOverride: boolean;
   } {
     const override = readTeamTargetEntry(meta.teamTargets, teamId);
-    if (override?.cloudId && override.issueKey) {
+    if (override?.cloudId && override.projectKey) {
       return {
         cloudId: override.cloudId,
         siteName: override.siteName,
         projectKey: override.projectKey,
-        issueKey: override.issueKey,
-        issueSummary: override.issueSummary,
+        projectName: override.projectName,
+        digestIssueKey: override.digestIssueKey,
         isOverride: true,
       };
     }
     return {
       cloudId: meta.cloudId,
       siteName: meta.siteName,
-      projectKey: meta.projectKey,
-      issueKey: meta.issueKey,
-      issueSummary: meta.issueSummary,
+      projectKey: meta.projectKey ?? projectFromIssueKey(meta.issueKey),
+      projectName: meta.projectName,
+      digestIssueKey: meta.digestIssueKey,
       isOverride: false,
     };
   }
@@ -429,8 +454,8 @@ export class JiraService {
       cloudId: meta.cloudId ?? null,
       siteName: meta.siteName ?? null,
       projectKey: meta.projectKey ?? null,
-      issueKey: meta.issueKey ?? null,
-      issueSummary: meta.issueSummary ?? null,
+      issueKey: null,
+      issueSummary: null,
       toolEnabled: tool?.enabled ?? false,
       oauthAvailable: this.oauthConfigured(),
     };
@@ -657,7 +682,7 @@ export class JiraService {
       where: { id: connection.id },
       data: {
         externalId: site.id,
-        metadataJson: {
+        metadataJson: storedMetadata({
           ...meta,
           cloudId: site.id,
           siteName: site.name,
@@ -666,7 +691,8 @@ export class JiraService {
           projectName: undefined,
           issueKey: undefined,
           issueSummary: undefined,
-        },
+          digestIssueKey: undefined,
+        }),
       },
     });
 
@@ -757,24 +783,18 @@ export class JiraService {
     );
     // Escape \ then " for JQL string literals (CodeQL incomplete-escaping).
     const escapedKey = key.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-    const jql = encodeURIComponent(
-      `project = "${escapedKey}" ORDER BY updated DESC`,
-    );
-    const data = await this.jiraGet<{
-      issues?: Array<{
-        key: string;
-        fields?: { summary?: string };
-      }>;
-    }>(
+    const issues = await this.searchJql(
       token,
       cloudId,
-      `/rest/api/3/search?jql=${jql}&maxResults=50&fields=summary`,
+      `project = "${escapedKey}" ORDER BY updated DESC`,
+      50,
     );
 
-    return (data.issues ?? []).map((i) => ({
-      key: i.key,
-      summary: i.fields?.summary ?? i.key,
-    }));
+    return issues.flatMap((issue) =>
+      issue.key
+        ? [{ key: issue.key, summary: issue.fields?.summary ?? issue.key }]
+        : [],
+    );
   }
 
   async selectTarget(
@@ -788,40 +808,31 @@ export class JiraService {
 
     const cloudId = body.cloudId.trim();
     const projectKey = body.projectKey.trim();
-    const issueKey = body.issueKey.trim();
     const token = await this.requireFreshAccessToken(workspaceId);
-
-    const issue = await this.jiraGet<{
-      key: string;
-      fields?: { summary?: string; project?: { key?: string; name?: string } };
-    }>(
-      token,
-      cloudId,
-      `/rest/api/3/issue/${encodeURIComponent(issueKey)}?fields=summary,project`,
-    );
-    if (!issue?.key) {
-      throw new BadRequestException('Jira issue not found');
-    }
+    const project = await this.requireProject(token, cloudId, projectKey);
 
     const connection = await this.requireConnectedRow(workspaceId);
     const meta = this.asMetadata(connection.metadataJson);
     const sites = await this.fetchAccessibleResources(token);
     const site = sites.find((s) => s.id === cloudId);
+    const sameProject =
+      meta.cloudId === cloudId && meta.projectKey === project.key;
 
     await this.prisma.addonConnection.update({
       where: { id: connection.id },
       data: {
         externalId: cloudId,
-        metadataJson: {
+        metadataJson: storedMetadata({
           ...meta,
           cloudId,
           siteName: site?.name ?? meta.siteName,
           siteUrl: site?.url ?? meta.siteUrl,
-          projectKey: issue.fields?.project?.key ?? projectKey,
-          projectName: issue.fields?.project?.name,
-          issueKey: issue.key,
-          issueSummary: issue.fields?.summary,
-        },
+          projectKey: project.key,
+          projectName: project.name,
+          issueKey: undefined,
+          issueSummary: undefined,
+          digestIssueKey: sameProject ? meta.digestIssueKey : undefined,
+        }),
       },
     });
 
@@ -848,19 +859,19 @@ export class JiraService {
     const connected =
       connection?.status === AddonConnectionStatus.CONNECTED &&
       Boolean(connection.secretsRef?.trim());
-    const resolved = this.resolveIssueForTeam(meta, teamId);
+    const resolved = this.resolveProjectForTeam(meta, teamId);
     return {
       cloudId: resolved.cloudId ?? null,
       siteName: resolved.siteName ?? null,
       projectKey: resolved.projectKey ?? null,
-      issueKey: resolved.issueKey ?? null,
-      issueSummary: resolved.issueSummary ?? null,
+      issueKey: null,
+      issueSummary: null,
       isOverride: resolved.isOverride,
       workspaceCloudId: meta.cloudId ?? null,
       workspaceSiteName: meta.siteName ?? null,
       workspaceProjectKey: meta.projectKey ?? null,
-      workspaceIssueKey: meta.issueKey ?? null,
-      workspaceIssueSummary: meta.issueSummary ?? null,
+      workspaceIssueKey: null,
+      workspaceIssueSummary: null,
       jiraConnected: connected,
     };
   }
@@ -876,38 +887,28 @@ export class JiraService {
 
     const cloudId = body.cloudId.trim();
     const projectKey = body.projectKey.trim();
-    const issueKey = body.issueKey.trim();
     const token = await this.requireFreshAccessToken(workspaceId);
-
-    const issue = await this.jiraGet<{
-      key: string;
-      fields?: { summary?: string; project?: { key?: string; name?: string } };
-    }>(
-      token,
-      cloudId,
-      `/rest/api/3/issue/${encodeURIComponent(issueKey)}?fields=summary,project`,
-    );
-    if (!issue?.key) {
-      throw new BadRequestException('Jira issue not found');
-    }
+    const project = await this.requireProject(token, cloudId, projectKey);
 
     const connection = await this.requireConnectedRow(workspaceId);
     const meta = this.asMetadata(connection.metadataJson);
     const sites = await this.fetchAccessibleResources(token);
     const site = sites.find((s) => s.id === cloudId);
-
+    const previous = readTeamTargetEntry(meta.teamTargets, teamId);
+    const sameProject =
+      previous?.cloudId === cloudId && previous.projectKey === project.key;
     const teamTargets = withTeamTargetEntry(meta.teamTargets, teamId, {
       cloudId,
       siteName: site?.name ?? meta.siteName,
-      projectKey: issue.fields?.project?.key ?? projectKey,
-      issueKey: issue.key,
-      issueSummary: issue.fields?.summary,
+      projectKey: project.key,
+      projectName: project.name,
+      digestIssueKey: sameProject ? previous?.digestIssueKey : undefined,
     });
     const nextMeta: JiraMetadata = { ...meta, teamTargets };
 
     await this.prisma.addonConnection.update({
       where: { id: connection.id },
-      data: { metadataJson: nextMeta },
+      data: { metadataJson: storedMetadata(nextMeta) },
     });
 
     return this.getTeamTarget(teamId, user);
@@ -952,7 +953,7 @@ export class JiraService {
       const nextMeta: JiraMetadata = { ...meta, teamTargets };
       await this.prisma.addonConnection.update({
         where: { id: connection.id },
-        data: { metadataJson: nextMeta },
+        data: { metadataJson: storedMetadata(nextMeta) },
       });
     }
 
@@ -1036,15 +1037,24 @@ export class JiraService {
       }
 
       const meta = this.asMetadata(connection.metadataJson);
-      const target = this.resolveIssueForTeam(meta, params.teamId);
-      if (!target.cloudId || !target.issueKey) {
+      const target = this.resolveProjectForTeam(meta, params.teamId);
+      if (!target.cloudId || !target.projectKey) {
         this.logger.debug(
-          `Jira digest skipped for workspace ${params.workspaceId}: no issue target`,
+          `Jira digest skipped for workspace ${params.workspaceId}: no project selected`,
         );
         return false;
       }
 
       const token = await this.requireFreshAccessToken(params.workspaceId);
+      const issueKey = await this.ensureDigestIssue(
+        connection.id,
+        meta,
+        token,
+        params.teamId,
+        target.cloudId,
+        target.projectKey,
+        target.digestIssueKey,
+      );
       const text = [
         `VibeStandup — ${params.teamName}`,
         params.entryDate,
@@ -1053,7 +1063,7 @@ export class JiraService {
       ].join('\n');
 
       const res = await fetch(
-        `https://api.atlassian.com/ex/jira/${encodeURIComponent(target.cloudId)}/rest/api/3/issue/${encodeURIComponent(target.issueKey)}/comment`,
+        `https://api.atlassian.com/ex/jira/${encodeURIComponent(target.cloudId)}/rest/api/3/issue/${encodeURIComponent(issueKey)}/comment`,
         {
           method: 'POST',
           headers: {
@@ -1125,18 +1135,14 @@ export class JiraService {
         .trim()
         .replace(/\\/g, '\\\\')
         .replace(/"/g, '\\"');
-      const jql = encodeURIComponent(
-        `text ~ "${escaped}" ORDER BY updated DESC`,
-      );
-      const data = await this.jiraGet<{
-        issues?: Array<{ key?: string; fields?: { summary?: string } }>;
-      }>(
+      const found = await this.searchJql(
         token,
         meta.cloudId,
-        `/rest/api/3/search?jql=${jql}&maxResults=8&fields=summary`,
+        `text ~ "${escaped}" AND updated >= -365d ORDER BY updated DESC`,
+        8,
       );
       const issues: MentionIssue[] = [];
-      for (const item of data.issues ?? []) {
+      for (const item of found) {
         if (!item.key || !/^[A-Za-z][A-Za-z0-9_]*-\d+$/.test(item.key)) {
           continue;
         }
@@ -1242,11 +1248,11 @@ export class JiraService {
       where: { id: connection.id },
       data: {
         secretsRef: tokenJson.access_token,
-        metadataJson: {
+        metadataJson: storedMetadata({
           ...meta,
           refreshToken: tokenJson.refresh_token ?? meta.refreshToken,
           accessExpiresAt: Date.now() + expiresInSec * 1000,
-        },
+        }),
       },
     });
     return tokenJson.access_token;
@@ -1279,26 +1285,205 @@ export class JiraService {
     return json ?? [];
   }
 
+  private async requireProject(
+    token: string,
+    cloudId: string,
+    projectKey: string,
+  ): Promise<{ key: string; name?: string }> {
+    const key = projectKey.trim();
+    if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(key)) {
+      throw new BadRequestException('Invalid Jira project key');
+    }
+    const project = await this.jiraSend<{ key?: string; name?: string }>(
+      token,
+      cloudId,
+      `/rest/api/3/project/${encodeURIComponent(key)}`,
+    );
+    if (!project.body?.key) {
+      throw new BadRequestException('Jira project not found');
+    }
+    return { key: project.body.key, name: project.body.name };
+  }
+
+  private async ensureDigestIssue(
+    connectionId: string,
+    meta: JiraMetadata,
+    token: string,
+    teamId: string | undefined,
+    cloudId: string,
+    projectKey: string,
+    existing: string | undefined,
+  ): Promise<string> {
+    if (existing && /^[A-Za-z][A-Za-z0-9_]*-\d+$/.test(existing)) {
+      const current = await this.jiraSend<{
+        key?: string;
+        fields?: { summary?: string };
+      }>(
+        token,
+        cloudId,
+        `/rest/api/3/issue/${encodeURIComponent(existing)}?fields=summary`,
+      );
+      if (
+        current.body?.key &&
+        current.body.fields?.summary === DIGEST_ISSUE_SUMMARY
+      ) {
+        return current.body.key;
+      }
+    }
+
+    const escapedKey = projectKey.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    const escapedTitle = DIGEST_ISSUE_SUMMARY.replace(/\\/g, '\\\\').replace(
+      /"/g,
+      '\\"',
+    );
+    const found = (
+      await this.searchJql(
+        token,
+        cloudId,
+        `project = "${escapedKey}" AND summary ~ "\\"${escapedTitle}\\"" ORDER BY created ASC`,
+        5,
+      )
+    ).find((issue) => issue.fields?.summary === DIGEST_ISSUE_SUMMARY);
+    const key =
+      found?.key ?? (await this.createDigestIssue(token, cloudId, projectKey));
+    await this.saveDigestIssueKey(
+      connectionId,
+      meta,
+      teamId,
+      cloudId,
+      projectKey,
+      key,
+    );
+    return key;
+  }
+
+  private async createDigestIssue(
+    token: string,
+    cloudId: string,
+    projectKey: string,
+  ): Promise<string> {
+    const project = await this.jiraGet<{
+      issueTypes?: Array<{ id?: string; name?: string; subtask?: boolean }>;
+    }>(token, cloudId, `/rest/api/3/project/${encodeURIComponent(projectKey)}`);
+    const types = project.issueTypes ?? [];
+    const issueType =
+      types.find((type) => !type.subtask && type.name === 'Task') ??
+      types.find((type) => !type.subtask && type.id) ??
+      types.find((type) => type.id);
+    if (!issueType?.id) {
+      throw new BadGatewayException('jira.request');
+    }
+    const created = await this.jiraSend<{ key?: string }>(
+      token,
+      cloudId,
+      '/rest/api/3/issue',
+      {
+        method: 'POST',
+        body: {
+          fields: {
+            project: { key: projectKey },
+            summary: DIGEST_ISSUE_SUMMARY,
+            issuetype: { id: issueType.id },
+            description: mentionsToAdf(
+              'Daily VibeStandup summaries are posted on this issue as comments.',
+            ),
+          },
+        },
+      },
+    );
+    if (!created.body?.key) {
+      throw new BadGatewayException('jira.request');
+    }
+    return created.body.key;
+  }
+
+  private async saveDigestIssueKey(
+    connectionId: string,
+    meta: JiraMetadata,
+    teamId: string | undefined,
+    cloudId: string,
+    projectKey: string,
+    issueKey: string,
+  ): Promise<void> {
+    const override = teamId
+      ? readTeamTargetEntry(meta.teamTargets, teamId)
+      : undefined;
+    const next: JiraMetadata =
+      override?.cloudId === cloudId &&
+      override.projectKey === projectKey &&
+      teamId
+        ? {
+            ...meta,
+            teamTargets: withTeamTargetEntry(meta.teamTargets, teamId, {
+              ...override,
+              digestIssueKey: issueKey,
+            }),
+          }
+        : { ...meta, digestIssueKey: issueKey };
+    await this.prisma.addonConnection.update({
+      where: { id: connectionId },
+      data: { metadataJson: storedMetadata(next) },
+    });
+  }
+
+  private async searchJql(
+    token: string,
+    cloudId: string,
+    jql: string,
+    maxResults: number,
+  ): Promise<Array<{ key?: string; fields?: { summary?: string } }>> {
+    const result = await this.jiraSend<{
+      issues?: Array<{ key?: string; fields?: { summary?: string } }>;
+    }>(token, cloudId, '/rest/api/3/search/jql', {
+      method: 'POST',
+      body: { jql, maxResults, fields: ['summary'] },
+    });
+    return result.body?.issues ?? [];
+  }
+
   private async jiraGet<T>(
     accessToken: string,
     cloudId: string,
     path: string,
   ): Promise<T> {
+    const result = await this.jiraSend<T>(accessToken, cloudId, path);
+    if (!result.body) {
+      throw new BadGatewayException('jira.request');
+    }
+    return result.body;
+  }
+
+  private async jiraSend<T>(
+    accessToken: string,
+    cloudId: string,
+    path: string,
+    init?: { method?: string; body?: unknown },
+  ): Promise<{ body: T | null }> {
     const res = await fetch(
       `https://api.atlassian.com/ex/jira/${encodeURIComponent(cloudId)}${path}`,
       {
+        method: init?.method ?? 'GET',
         headers: {
           Authorization: `Bearer ${accessToken}`,
           Accept: 'application/json',
+          ...(init?.body ? { 'Content-Type': 'application/json' } : {}),
         },
+        body: init?.body ? JSON.stringify(init.body) : undefined,
       },
     );
+    if (res.status === 404) {
+      return { body: null };
+    }
     if (!res.ok) {
       const text = await res.text().catch(() => '');
-      throw new Error(
+      this.logger.warn(
         `Jira API ${path} failed (${res.status}): ${text.slice(0, 200)}`,
       );
+      if (res.status === 401 || res.status === 403) {
+        throw new UnauthorizedException('jira.token');
+      }
+      throw new BadGatewayException('jira.request');
     }
-    return (await res.json()) as T;
+    return { body: (await res.json()) as T };
   }
 }

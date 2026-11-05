@@ -3,6 +3,7 @@ import {
   issueMention,
   parseMentionSegments,
   personMention,
+  plainMentions,
 } from './mentions';
 
 describe('mentions', () => {
@@ -20,13 +21,14 @@ describe('mentions', () => {
     ]);
   });
 
-  it('builds person and issue tokens', () => {
-    expect(personMention('user/1', 'Ada [Lovelace]')).toBe(
-      '[@Ada Lovelace](mention:user:user1)',
-    );
+  it('builds @name and #name mentions', () => {
+    expect(personMention('Ada [Lovelace]')).toBe('@Ada Lovelace');
+    expect(issueMention('PROJ-12')).toBe('#PROJ-12');
     expect(
-      issueMention('PROJ-12 Ship', 'https://example.test/browse/PROJ-12'),
-    ).toBe('[PROJ-12 Ship](https://example.test/browse/PROJ-12)');
+      plainMentions(
+        'see [@Ada](mention:user:user_1) [PROJ-1 Done](https://example.test/1)',
+      ),
+    ).toBe('see @Ada #PROJ-1 Done');
   });
 
   it('finds the @ or # token at the caret', () => {
