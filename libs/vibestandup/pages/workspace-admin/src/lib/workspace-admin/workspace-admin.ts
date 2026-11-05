@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -24,7 +25,6 @@ import {
 import {
   WorkspaceFacade,
   type GithubConnectionView,
-  type GithubIssueView,
   type GithubRepoView,
   type JiraConnectionView,
   type JiraIssueView,
@@ -148,9 +148,9 @@ export class WorkspaceAdmin implements OnInit {
   readonly linearConnecting = signal(false);
   readonly github = signal<GithubConnectionView | null>(null);
   readonly githubRepos = signal<GithubRepoView[]>([]);
-  readonly githubIssues = signal<GithubIssueView[]>([]);
   readonly githubSelectedRepo = signal<string>('');
   readonly githubError = signal<string | null>(null);
+  readonly githubErrorStatus = signal(0);
   readonly githubConnecting = signal(false);
   readonly jira = signal<JiraConnectionView | null>(null);
   readonly jiraSites = signal<JiraSiteView[]>([]);
@@ -264,7 +264,6 @@ export class WorkspaceAdmin implements OnInit {
     this.linearError.set(null);
     this.github.set(null);
     this.githubRepos.set([]);
-    this.githubIssues.set([]);
     this.githubSelectedRepo.set('');
     this.githubError.set(null);
     this.jira.set(null);
@@ -446,33 +445,16 @@ export class WorkspaceAdmin implements OnInit {
         try {
           const repos = await this.workspaces.listGithubRepos(workspaceId);
           this.githubRepos.set(repos);
-          const selected = conn.repoFullName ?? '';
-          this.githubSelectedRepo.set(selected);
-          if (selected.includes('/')) {
-            const [owner, repo] = selected.split('/', 2);
-            const issues = await this.workspaces.listGithubIssues(
-              workspaceId,
-              owner,
-              repo,
-            );
-            this.githubIssues.set(issues);
-          } else {
-            this.githubIssues.set([]);
-          }
+          this.githubSelectedRepo.set(conn.repoFullName ?? '');
         } catch (err: unknown) {
-          this.githubError.set(
-            err instanceof Error ? err.message : 'Failed to load GitHub repos',
-          );
+          this.noteGithub(err, 'standup.workspace.githubReposFailed');
         }
       } else {
         this.githubRepos.set([]);
-        this.githubIssues.set([]);
         this.githubSelectedRepo.set('');
       }
     } catch (err: unknown) {
-      this.githubError.set(
-        err instanceof Error ? err.message : 'Failed to load GitHub connection',
-      );
+      this.noteGithub(err, 'standup.workspace.githubRequestFailed');
     }
   }
 
@@ -488,58 +470,27 @@ export class WorkspaceAdmin implements OnInit {
       window.location.assign(authorizeUrl);
     } catch (err: unknown) {
       this.githubConnecting.set(false);
-      this.githubError.set(
-        err instanceof Error ? err.message : 'GitHub connect failed',
-      );
+      this.noteGithub(err, 'standup.workspace.githubRequestFailed');
     }
   }
 
   async onGithubRepoChange(fullName: string): Promise<void> {
     const ws = this.selected();
     this.githubSelectedRepo.set(fullName);
-    this.githubIssues.set([]);
-    if (!ws || !this.isAdmin() || !fullName.includes('/')) {
+    const slash = fullName.indexOf('/');
+    if (!ws || !this.isAdmin() || slash <= 0) {
       return;
     }
     this.githubError.set(null);
-    const [owner, repo] = fullName.split('/', 2);
-    try {
-      const issues = await this.workspaces.listGithubIssues(ws.id, owner, repo);
-      this.githubIssues.set(issues);
-    } catch (err: unknown) {
-      this.githubError.set(
-        err instanceof Error ? err.message : 'Failed to load GitHub issues',
-      );
-    }
-  }
-
-  async selectGithubIssue(issueNumberRaw: string): Promise<void> {
-    const ws = this.selected();
-    const fullName = this.githubSelectedRepo();
-    const issueNumber = Number(issueNumberRaw);
-    if (
-      !ws ||
-      !this.isAdmin() ||
-      !fullName.includes('/') ||
-      !Number.isFinite(issueNumber) ||
-      issueNumber < 1
-    ) {
-      return;
-    }
-    this.githubError.set(null);
-    const [owner, repo] = fullName.split('/', 2);
     try {
       const conn = await this.workspaces.selectGithubTarget(ws.id, {
-        owner,
-        repo,
-        issueNumber,
+        owner: fullName.slice(0, slash),
+        repo: fullName.slice(slash + 1),
       });
       this.github.set(conn);
       this.message.set('standup.workspace.githubTargetSaved');
     } catch (err: unknown) {
-      this.githubError.set(
-        err instanceof Error ? err.message : 'Failed to save GitHub target',
-      );
+      this.noteGithub(err, 'standup.workspace.githubRequestFailed');
     }
   }
 
@@ -553,14 +504,26 @@ export class WorkspaceAdmin implements OnInit {
       const conn = await this.workspaces.disconnectGithub(ws.id);
       this.github.set(conn);
       this.githubRepos.set([]);
-      this.githubIssues.set([]);
       this.githubSelectedRepo.set('');
       this.message.set('standup.workspace.githubDisconnected');
     } catch (err: unknown) {
-      this.githubError.set(
-        err instanceof Error ? err.message : 'GitHub disconnect failed',
-      );
+      this.noteGithub(err, 'standup.workspace.githubRequestFailed');
     }
+  }
+
+  private noteGithub(err: unknown, fallback: string): void {
+    if (
+      err instanceof HttpErrorResponse &&
+      (err.status === 401 || err.status === 403)
+    ) {
+      this.githubErrorStatus.set(err.status);
+      this.githubError.set('standup.team.reconnectAddon');
+      return;
+    }
+    this.githubErrorStatus.set(
+      err instanceof HttpErrorResponse ? err.status : 0,
+    );
+    this.githubError.set(fallback);
   }
 
   private async refreshJira(workspaceId: string): Promise<void> {

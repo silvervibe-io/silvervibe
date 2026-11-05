@@ -462,42 +462,17 @@
           }
         </select>
       </fieldset>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'standup.team.githubIssue' | transloco }}
-        </legend>
-        <select
-          class="select select-bordered w-full"
-          [value]="selectedGithubIssue()"
-          (change)="selectedGithubIssue.set($any($event.target).value)"
-        >
-          <option value="">
-            {{ 'standup.team.targetDefault' | transloco }} @if
-            (github.workspaceIssueNumber) { (#{{ github.workspaceIssueNumber }})
-            }
-          </option>
-          @for (issue of githubIssues(); track issue.number) {
-          <option [value]="issue.number">
-            #{{ issue.number }} — {{ issue.title }}
-          </option>
-          }
-        </select>
-      </fieldset>
-      @if (github.isOverride && github.issueNumber) {
+      @if (github.isOverride && github.owner && github.repo) {
       <p class="text-sm text-base-content/70">
         {{ 'standup.team.targetOverride' | transloco }}: {{ github.owner }}/{{
-        github.repo }}#{{ github.issueNumber }}
+        github.repo }}
       </p>
       }
       <div class="flex flex-wrap gap-2">
         <button
           type="button"
           class="btn btn-primary btn-sm"
-          [disabled]="
-            githubTargetSaving() ||
-            !selectedGithubRepo() ||
-            !selectedGithubIssue()
-          "
+          [disabled]="githubTargetSaving() || !selectedGithubRepo()"
           (click)="saveGithubTarget()"
         >
           {{ 'standup.team.targetSave' | transloco }}

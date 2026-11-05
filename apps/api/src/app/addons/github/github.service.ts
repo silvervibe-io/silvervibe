@@ -1,9 +1,11 @@
 import {
+  BadGatewayException,
   BadRequestException,
   ForbiddenException,
   Injectable,
   Logger,
   ServiceUnavailableException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   AddonConnectionStatus,
@@ -33,8 +35,14 @@ import {
 type GithubTeamTarget = {
   owner: string;
   repo: string;
-  issueNumber: number;
-  issueTitle?: string;
+  /** Standing "VibeStandup digests" issue. Not chosen by the user. */
+  digestIssueNumber?: number;
+};
+
+type GithubSecret = {
+  accessToken: string;
+  refreshToken?: string;
+  expiresAt?: number;
 };
 
 type GithubMetadata = {
@@ -43,7 +51,9 @@ type GithubMetadata = {
   repo?: string;
   issueNumber?: number;
   issueTitle?: string;
-  /** Per-team issue overrides; workspace target remains the default. */
+  /** Standing digest issue in the workspace repository. */
+  digestIssueNumber?: number;
+  /** Per-team repository overrides; workspace target remains the default. */
   teamTargets?: Record<string, GithubTeamTarget>;
   oauthNonce?: string;
   oauthExp?: number;
@@ -57,8 +67,14 @@ type OAuthStatePayload = {
   nonce: string;
 };
 
+/** Prisma rejects JSON columns that contain `undefined`. */
+function storedMetadata(meta: GithubMetadata): GithubMetadata {
+  return JSON.parse(JSON.stringify(meta)) as GithubMetadata;
+}
+
 /** repo scope so digests can comment on private workspace repos. */
 const OAUTH_SCOPES = 'repo';
+const DIGEST_ISSUE_TITLE = 'VibeStandup digests';
 const STATE_TTL_MS = 15 * 60 * 1000;
 const API_BASE = 'https://api.github.com';
 const API_VERSION = '2022-11-28';
@@ -250,20 +266,16 @@ export class GithubService {
           typeof entry['repo'] === 'string' && entry['repo'].trim()
             ? entry['repo'].trim()
             : undefined;
-        const issueNumber =
-          typeof entry['issueNumber'] === 'number' &&
-          Number.isFinite(entry['issueNumber'])
-            ? entry['issueNumber']
+        const digestIssueNumber =
+          typeof entry['digestIssueNumber'] === 'number' &&
+          Number.isFinite(entry['digestIssueNumber'])
+            ? entry['digestIssueNumber']
             : undefined;
-        if (!owner || !repo || issueNumber === undefined) {
+        if (!owner || !repo) {
           continue;
         }
-        const issueTitle =
-          typeof entry['issueTitle'] === 'string' && entry['issueTitle'].trim()
-            ? entry['issueTitle'].trim()
-            : undefined;
         Object.defineProperty(teamTargets, rawKey, {
-          value: { owner, repo, issueNumber, issueTitle },
+          value: { owner, repo, digestIssueNumber },
           writable: true,
           enumerable: true,
           configurable: true,
@@ -276,6 +288,7 @@ export class GithubService {
       repo: str('repo'),
       issueNumber: num('issueNumber'),
       issueTitle: str('issueTitle'),
+      digestIssueNumber: num('digestIssueNumber'),
       teamTargets:
         Object.keys(teamTargets).length > 0 ? teamTargets : undefined,
       oauthNonce: str('oauthNonce'),
@@ -284,31 +297,28 @@ export class GithubService {
     };
   }
 
-  resolveIssueForTeam(
+  resolveRepoForTeam(
     meta: GithubMetadata,
     teamId?: string,
   ): {
     owner?: string;
     repo?: string;
-    issueNumber?: number;
-    issueTitle?: string;
+    digestIssueNumber?: number;
     isOverride: boolean;
   } {
     const override = readTeamTargetEntry(meta.teamTargets, teamId);
-    if (override?.owner && override.repo && override.issueNumber) {
+    if (override?.owner && override.repo) {
       return {
         owner: override.owner,
         repo: override.repo,
-        issueNumber: override.issueNumber,
-        issueTitle: override.issueTitle,
+        digestIssueNumber: override.digestIssueNumber,
         isOverride: true,
       };
     }
     return {
       owner: meta.owner,
       repo: meta.repo,
-      issueNumber: meta.issueNumber,
-      issueTitle: meta.issueTitle,
+      digestIssueNumber: meta.digestIssueNumber,
       isOverride: false,
     };
   }
@@ -406,8 +416,8 @@ export class GithubService {
         AddonConnectionStatus.DISCONNECTED) as GithubConnectionDto['status'],
       configured: Boolean(connection?.secretsRef?.trim()),
       repoFullName,
-      issueNumber: meta.issueNumber ?? null,
-      issueTitle: meta.issueTitle ?? null,
+      issueNumber: null,
+      issueTitle: null,
       accountLogin: meta.accountLogin ?? null,
       toolEnabled: tool?.enabled ?? false,
       oauthAvailable: this.oauthConfigured(),
@@ -431,11 +441,23 @@ export class GithubService {
       exp,
       nonce,
     });
+    const existing = await this.prisma.addonConnection.findUnique({
+      where: {
+        workspaceId_provider: {
+          workspaceId,
+          provider: AddonProvider.GITHUB,
+        },
+      },
+    });
     const pendingMeta: GithubMetadata = {
+      ...this.asMetadata(existing?.metadataJson),
       oauthNonce: nonce,
       oauthExp: exp,
       oauthUserId: userId,
     };
+    const keepToken =
+      existing?.status === AddonConnectionStatus.CONNECTED &&
+      Boolean(existing.secretsRef?.trim());
 
     await this.prisma.addonConnection.upsert({
       where: {
@@ -448,13 +470,14 @@ export class GithubService {
         workspaceId,
         provider: AddonProvider.GITHUB,
         status: AddonConnectionStatus.PENDING,
-        metadataJson: pendingMeta,
+        metadataJson: storedMetadata(pendingMeta),
       },
-      update: {
-        status: AddonConnectionStatus.PENDING,
-        metadataJson: pendingMeta,
-        secretsRef: null,
-      },
+      update: keepToken
+        ? { metadataJson: storedMetadata(pendingMeta) }
+        : {
+            status: AddonConnectionStatus.PENDING,
+            metadataJson: storedMetadata(pendingMeta),
+          },
     });
 
     const params = new URLSearchParams({
@@ -510,6 +533,8 @@ export class GithubService {
       );
       const tokenJson = (await tokenRes.json()) as {
         access_token?: string;
+        refresh_token?: string;
+        expires_in?: number;
         error?: string;
         error_description?: string;
       };
@@ -525,9 +550,26 @@ export class GithubService {
       }
 
       const accountLogin = await this.fetchLogin(tokenJson.access_token);
-      const metadataJson: GithubMetadata = {
+      const existing = await this.prisma.addonConnection.findUnique({
+        where: {
+          workspaceId_provider: {
+            workspaceId: payload.workspaceId,
+            provider: AddonProvider.GITHUB,
+          },
+        },
+      });
+      const previous = this.asMetadata(existing?.metadataJson);
+      const metadataJson = storedMetadata({
         accountLogin,
-      };
+        owner: previous.owner,
+        repo: previous.repo,
+        digestIssueNumber: previous.digestIssueNumber,
+        teamTargets: previous.teamTargets,
+      });
+      const expiresAt =
+        typeof tokenJson.expires_in === 'number'
+          ? Date.now() + tokenJson.expires_in * 1000
+          : undefined;
 
       await this.prisma.$transaction([
         this.prisma.addonConnection.upsert({
@@ -541,13 +583,21 @@ export class GithubService {
             workspaceId: payload.workspaceId,
             provider: AddonProvider.GITHUB,
             status: AddonConnectionStatus.CONNECTED,
-            secretsRef: tokenJson.access_token,
+            secretsRef: this.serializeSecret({
+              accessToken: tokenJson.access_token,
+              refreshToken: tokenJson.refresh_token,
+              expiresAt,
+            }),
             externalId: accountLogin ?? null,
             metadataJson,
           },
           update: {
             status: AddonConnectionStatus.CONNECTED,
-            secretsRef: tokenJson.access_token,
+            secretsRef: this.serializeSecret({
+              accessToken: tokenJson.access_token,
+              refreshToken: tokenJson.refresh_token,
+              expiresAt,
+            }),
             externalId: accountLogin ?? null,
             metadataJson,
           },
@@ -673,16 +723,8 @@ export class GithubService {
 
     const owner = body.owner.trim();
     const repo = body.repo.trim();
-    const issueNumber = body.issueNumber;
     const token = await this.requireAccessToken(workspaceId);
-
-    const issue = await this.apiGet<{ number: number; title: string }>(
-      token,
-      `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues/${issueNumber}`,
-    );
-    if (!issue?.number) {
-      throw new BadRequestException('GitHub issue not found');
-    }
+    await this.requireRepository(token, owner, repo);
 
     const connection = await this.prisma.addonConnection.findUnique({
       where: {
@@ -701,16 +743,18 @@ export class GithubService {
     }
 
     const meta = this.asMetadata(connection.metadataJson);
+    const sameRepo = meta.owner === owner && meta.repo === repo;
     const metadataJson: GithubMetadata = {
       ...meta,
       owner,
       repo,
-      issueNumber: issue.number,
-      issueTitle: issue.title,
+      issueNumber: undefined,
+      issueTitle: undefined,
+      digestIssueNumber: sameRepo ? meta.digestIssueNumber : undefined,
     };
     await this.prisma.addonConnection.update({
       where: { id: connection.id },
-      data: { metadataJson },
+      data: { metadataJson: storedMetadata(metadataJson) },
     });
 
     return this.getConnection(workspaceId, user);
@@ -736,17 +780,17 @@ export class GithubService {
     const connected =
       connection?.status === AddonConnectionStatus.CONNECTED &&
       Boolean(connection.secretsRef?.trim());
-    const resolved = this.resolveIssueForTeam(meta, teamId);
+    const resolved = this.resolveRepoForTeam(meta, teamId);
     return {
       owner: resolved.owner ?? null,
       repo: resolved.repo ?? null,
-      issueNumber: resolved.issueNumber ?? null,
-      issueTitle: resolved.issueTitle ?? null,
+      issueNumber: null,
+      issueTitle: null,
       isOverride: resolved.isOverride,
       workspaceOwner: meta.owner ?? null,
       workspaceRepo: meta.repo ?? null,
-      workspaceIssueNumber: meta.issueNumber ?? null,
-      workspaceIssueTitle: meta.issueTitle ?? null,
+      workspaceIssueNumber: null,
+      workspaceIssueTitle: null,
       githubConnected: connected,
     };
   }
@@ -762,16 +806,8 @@ export class GithubService {
 
     const owner = body.owner.trim();
     const repo = body.repo.trim();
-    const issueNumber = body.issueNumber;
     const token = await this.requireAccessToken(workspaceId);
-
-    const issue = await this.apiGet<{ number: number; title: string }>(
-      token,
-      `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues/${issueNumber}`,
-    );
-    if (!issue?.number) {
-      throw new BadRequestException('GitHub issue not found');
-    }
+    await this.requireRepository(token, owner, repo);
 
     const connection = await this.prisma.addonConnection.findUnique({
       where: {
@@ -792,17 +828,18 @@ export class GithubService {
     }
 
     const meta = this.asMetadata(connection.metadataJson);
+    const previous = readTeamTargetEntry(meta.teamTargets, teamId);
+    const sameRepo = previous?.owner === owner && previous?.repo === repo;
     const teamTargets = withTeamTargetEntry(meta.teamTargets, teamId, {
       owner,
       repo,
-      issueNumber: issue.number,
-      issueTitle: issue.title,
+      digestIssueNumber: sameRepo ? previous?.digestIssueNumber : undefined,
     });
     const nextMeta: GithubMetadata = { ...meta, teamTargets };
 
     await this.prisma.addonConnection.update({
       where: { id: connection.id },
-      data: { metadataJson: nextMeta },
+      data: { metadataJson: storedMetadata(nextMeta) },
     });
 
     return this.getTeamTarget(teamId, user);
@@ -845,7 +882,7 @@ export class GithubService {
       const nextMeta: GithubMetadata = { ...meta, teamTargets };
       await this.prisma.addonConnection.update({
         where: { id: connection.id },
-        data: { metadataJson: nextMeta },
+        data: { metadataJson: storedMetadata(nextMeta) },
       });
     }
 
@@ -929,13 +966,24 @@ export class GithubService {
       }
 
       const meta = this.asMetadata(connection.metadataJson);
-      const target = this.resolveIssueForTeam(meta, params.teamId);
-      if (!target.owner || !target.repo || !target.issueNumber) {
+      const target = this.resolveRepoForTeam(meta, params.teamId);
+      if (!target.owner || !target.repo) {
         this.logger.debug(
-          `GitHub digest skipped for workspace ${params.workspaceId}: no issue target`,
+          `GitHub digest skipped for workspace ${params.workspaceId}: no repository`,
         );
         return false;
       }
+
+      const token = await this.requireAccessToken(params.workspaceId);
+      const issueNumber = await this.ensureDigestIssue(
+        connection.id,
+        meta,
+        token,
+        params.teamId,
+        target.owner,
+        target.repo,
+        target.digestIssueNumber,
+      );
 
       const body = [
         `### VibeStandup — ${params.teamName}`,
@@ -945,10 +993,10 @@ export class GithubService {
       ].join('\n');
 
       const res = await fetch(
-        `${API_BASE}/repos/${encodeURIComponent(target.owner)}/${encodeURIComponent(target.repo)}/issues/${target.issueNumber}/comments`,
+        `${API_BASE}/repos/${encodeURIComponent(target.owner)}/${encodeURIComponent(target.repo)}/issues/${issueNumber}/comments`,
         {
           method: 'POST',
-          headers: this.apiHeaders(connection.secretsRef.trim()),
+          headers: this.apiHeaders(token),
           body: JSON.stringify({ body }),
         },
       );
@@ -1055,7 +1103,7 @@ export class GithubService {
     ) {
       return null;
     }
-    return connection.secretsRef.trim();
+    return this.tokenFromConnection(connection);
   }
 
   private async requireAccessToken(workspaceId: string): Promise<string> {
@@ -1072,9 +1120,232 @@ export class GithubService {
       connection.status !== AddonConnectionStatus.CONNECTED ||
       !connection.secretsRef?.trim()
     ) {
-      throw new BadRequestException('GitHub is not connected');
+      throw new UnauthorizedException('github.token');
     }
-    return connection.secretsRef.trim();
+    return this.tokenFromConnection(connection);
+  }
+
+  private parseSecret(raw: string): GithubSecret {
+    const trimmed = raw.trim();
+    if (trimmed.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(trimmed) as Partial<GithubSecret>;
+        if (
+          typeof parsed.accessToken === 'string' &&
+          parsed.accessToken.trim()
+        ) {
+          return {
+            accessToken: parsed.accessToken.trim(),
+            refreshToken: parsed.refreshToken?.trim() || undefined,
+            expiresAt:
+              typeof parsed.expiresAt === 'number'
+                ? parsed.expiresAt
+                : undefined,
+          };
+        }
+      } catch {
+        // Older rows store the access token as plain text.
+      }
+    }
+    return { accessToken: trimmed };
+  }
+
+  private serializeSecret(secret: GithubSecret): string {
+    if (!secret.refreshToken && secret.expiresAt === undefined) {
+      return secret.accessToken;
+    }
+    return JSON.stringify({
+      accessToken: secret.accessToken,
+      refreshToken: secret.refreshToken,
+      expiresAt: secret.expiresAt,
+    });
+  }
+
+  private async tokenFromConnection(connection: {
+    id: string;
+    secretsRef: string | null;
+  }): Promise<string> {
+    const secret = this.parseSecret(connection.secretsRef ?? '');
+    if (!secret.accessToken) {
+      throw new UnauthorizedException('github.token');
+    }
+    if (
+      secret.expiresAt !== undefined &&
+      secret.expiresAt <= Date.now() + 60_000
+    ) {
+      return this.refreshSecret(connection.id, secret);
+    }
+    return secret.accessToken;
+  }
+
+  private async refreshSecret(
+    connectionId: string,
+    secret: GithubSecret,
+  ): Promise<string> {
+    if (!secret.refreshToken) {
+      throw new UnauthorizedException('github.token');
+    }
+    const { clientId, clientSecret } = this.requireOAuthConfigured();
+    const res = await fetch('https://github.com/login/oauth/access_token', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        client_id: clientId,
+        client_secret: clientSecret,
+        grant_type: 'refresh_token',
+        refresh_token: secret.refreshToken,
+      }),
+    });
+    const json = (await res.json()) as {
+      access_token?: string;
+      refresh_token?: string;
+      expires_in?: number;
+    };
+    if (!res.ok || !json.access_token) {
+      throw new UnauthorizedException('github.token');
+    }
+    const next: GithubSecret = {
+      accessToken: json.access_token,
+      refreshToken: json.refresh_token?.trim() || secret.refreshToken,
+      expiresAt:
+        typeof json.expires_in === 'number'
+          ? Date.now() + json.expires_in * 1000
+          : undefined,
+    };
+    await this.prisma.addonConnection.update({
+      where: { id: connectionId },
+      data: { secretsRef: this.serializeSecret(next) },
+    });
+    return next.accessToken;
+  }
+
+  private async requireRepository(
+    token: string,
+    owner: string,
+    repo: string,
+  ): Promise<void> {
+    const repository = await this.apiGet<{ full_name?: string }>(
+      token,
+      `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`,
+    );
+    if (!repository?.full_name) {
+      throw new BadRequestException('GitHub repository not found');
+    }
+  }
+
+  private async ensureDigestIssue(
+    connectionId: string,
+    meta: GithubMetadata,
+    token: string,
+    teamId: string | undefined,
+    owner: string,
+    repo: string,
+    existing: number | undefined,
+  ): Promise<number> {
+    if (existing) {
+      const current = await this.apiGetStatus<{
+        number?: number;
+        title?: string;
+        pull_request?: unknown;
+      }>(
+        token,
+        `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues/${existing}`,
+      );
+      if (
+        current.body?.number &&
+        !current.body.pull_request &&
+        current.body.title === DIGEST_ISSUE_TITLE
+      ) {
+        return current.body.number;
+      }
+    }
+    const query = `repo:${owner}/${repo} is:issue is:open in:title "${DIGEST_ISSUE_TITLE}"`;
+    const search = await this.apiGet<{
+      items?: Array<{
+        number?: number;
+        title?: string;
+        pull_request?: unknown;
+      }>;
+    }>(token, `/search/issues?q=${encodeURIComponent(query)}&per_page=5`);
+    const found = (search.items ?? []).find(
+      (item) =>
+        item.number && !item.pull_request && item.title === DIGEST_ISSUE_TITLE,
+    );
+    const number =
+      found?.number ?? (await this.createDigestIssue(token, owner, repo));
+    await this.saveDigestIssueNumber(
+      connectionId,
+      meta,
+      teamId,
+      owner,
+      repo,
+      number,
+    );
+    return number;
+  }
+
+  private async createDigestIssue(
+    token: string,
+    owner: string,
+    repo: string,
+  ): Promise<number> {
+    const res = await fetch(
+      `${API_BASE}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues`,
+      {
+        method: 'POST',
+        headers: this.apiHeaders(token),
+        body: JSON.stringify({
+          title: DIGEST_ISSUE_TITLE,
+          body: 'Daily VibeStandup summaries are posted on this issue as comments.',
+        }),
+      },
+    );
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      this.logger.warn(
+        `GitHub digest issue create failed (${res.status}): ${text.slice(0, 200)}`,
+      );
+      if (res.status === 401 || res.status === 403) {
+        throw new UnauthorizedException('github.token');
+      }
+      throw new BadGatewayException('github.request');
+    }
+    const created = (await res.json()) as { number?: number };
+    if (!created.number) {
+      throw new BadGatewayException('github.request');
+    }
+    return created.number;
+  }
+
+  private async saveDigestIssueNumber(
+    connectionId: string,
+    meta: GithubMetadata,
+    teamId: string | undefined,
+    owner: string,
+    repo: string,
+    number: number,
+  ): Promise<void> {
+    const override = teamId
+      ? readTeamTargetEntry(meta.teamTargets, teamId)
+      : undefined;
+    const next: GithubMetadata =
+      override?.owner === owner && override.repo === repo && teamId
+        ? {
+            ...meta,
+            teamTargets: withTeamTargetEntry(meta.teamTargets, teamId, {
+              owner,
+              repo,
+              digestIssueNumber: number,
+            }),
+          }
+        : { ...meta, digestIssueNumber: number };
+    await this.prisma.addonConnection.update({
+      where: { id: connectionId },
+      data: { metadataJson: storedMetadata(next) },
+    });
   }
 
   private apiHeaders(token: string): Record<string, string> {
@@ -1088,16 +1359,34 @@ export class GithubService {
   }
 
   private async apiGet<T>(token: string, path: string): Promise<T> {
+    const result = await this.apiGetStatus<T>(token, path);
+    if (!result.body) {
+      throw new BadGatewayException('github.request');
+    }
+    return result.body;
+  }
+
+  private async apiGetStatus<T>(
+    token: string,
+    path: string,
+  ): Promise<{ body: T | null }> {
     const res = await fetch(`${API_BASE}${path}`, {
       headers: this.apiHeaders(token),
     });
+    if (res.status === 404) {
+      return { body: null };
+    }
     if (!res.ok) {
       const text = await res.text().catch(() => '');
-      throw new Error(
+      this.logger.warn(
         `GitHub API ${path} failed (${res.status}): ${text.slice(0, 200)}`,
       );
+      if (res.status === 401 || res.status === 403) {
+        throw new UnauthorizedException('github.token');
+      }
+      throw new BadGatewayException('github.request');
     }
-    return (await res.json()) as T;
+    return { body: (await res.json()) as T };
   }
 
   private async fetchLogin(token: string): Promise<string | undefined> {

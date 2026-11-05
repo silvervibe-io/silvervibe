@@ -87,7 +87,6 @@ export type TeamGithubTargetView = {
 export type SetTeamGithubTargetInput = {
   owner: string;
   repo: string;
-  issueNumber: number;
 };
 
 export type TeamJiraTargetView = {
@@ -175,7 +174,6 @@ export type GithubIssueView = {
 export type SelectGithubTargetInput = {
   owner: string;
   repo: string;
-  issueNumber: number;
 };
 
 export type JiraConnectionView = {
