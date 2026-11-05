@@ -38,6 +38,7 @@ export {
   issueMention,
   parseMentionSegments,
   personMention,
+  plainMentions,
 } from './lib/mentions';
 export type { MentionIssueView, MentionSegment } from './lib/mentions';
 export { formatClock, submissionPhase } from './lib/standup-window';

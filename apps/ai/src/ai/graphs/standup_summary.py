@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from typing import NotRequired, TypedDict
 
 import httpx
@@ -26,10 +27,32 @@ class StandupSummaryState(TypedDict):
     used_llm: NotRequired[bool]
 
 
+_MENTION = re.compile(
+    r"\[([^\[\]\n]{1,200})\]\((mention:user:[A-Za-z0-9_-]{1,128}|https://[^)\s]+)\)"
+)
+
+
+def _plain_mentions(value: str) -> str:
+    def repl(match: re.Match[str]) -> str:
+        label = re.sub(
+            r"\s+",
+            " ",
+            re.sub(r"[\[\]()\r\n]", " ", match.group(1)),
+        ).strip()
+        target = match.group(2)
+        if target.startswith("mention:user:"):
+            name = label.lstrip("@").strip()
+            return f"@{name}" if name else match.group(0)
+        name = label.lstrip("#").strip()
+        return f"#{name}" if name else match.group(0)
+
+    return _MENTION.sub(repl, value)
+
+
 def _clean(value: str | None) -> str | None:
     if value is None:
         return None
-    text = value.strip()
+    text = _plain_mentions(value).strip()
     return text or None
 
 
@@ -100,7 +123,8 @@ def polish_with_llm(state: StandupSummaryState) -> StandupSummaryState:
     system = (
         "You rewrite daily standup digests for engineering teams. "
         "Keep markdown. Preserve every person's facts and names. "
-        "Keep markdown links and [@Name](mention:user:...) tokens unchanged. "
+        "Keep @Name and #KEY mentions unchanged. "
+        "Do not wrap mentions in markdown links. "
         "Be concise. Do not invent work. Keep the Today / Blockers / Yesterday "
         "structure when those sections have content."
     )
