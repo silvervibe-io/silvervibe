@@ -552,29 +552,9 @@
           }
         </select>
       </fieldset>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'standup.team.jiraIssue' | transloco }}
-        </legend>
-        <select
-          class="select select-bordered w-full"
-          [value]="selectedJiraIssue()"
-          (change)="selectedJiraIssue.set($any($event.target).value)"
-        >
-          <option value="">
-            {{ 'standup.team.targetDefault' | transloco }} @if
-            (jira.workspaceIssueKey) { ({{ jira.workspaceIssueKey }}) }
-          </option>
-          @for (issue of jiraIssues(); track issue.key) {
-          <option [value]="issue.key">
-            {{ issue.key }} — {{ issue.summary }}
-          </option>
-          }
-        </select>
-      </fieldset>
-      @if (jira.isOverride && jira.issueKey) {
+      @if (jira.isOverride && jira.projectKey) {
       <p class="text-sm text-base-content/70">
-        {{ 'standup.team.targetOverride' | transloco }}: {{ jira.issueKey }}
+        {{ 'standup.team.targetOverride' | transloco }}: {{ jira.projectKey }}
       </p>
       }
       <div class="flex flex-wrap gap-2">
@@ -584,8 +564,7 @@
           [disabled]="
             jiraTargetSaving() ||
             !selectedJiraCloudId() ||
-            !selectedJiraProject() ||
-            !selectedJiraIssue()
+            !selectedJiraProject()
           "
           (click)="saveJiraTarget()"
         >

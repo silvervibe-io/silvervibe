@@ -82,6 +82,10 @@ const API_VERSION = '2022-11-28';
 @Injectable()
 export class GithubService {
   private readonly logger = new Logger(GithubService.name);
+  private readonly mentionScopes = new Map<
+    string,
+    { user: string; orgs: string[]; at: number }
+  >();
 
   constructor(
     private readonly prisma: PrismaService,
@@ -1032,18 +1036,26 @@ export class GithubService {
       if (!token) {
         return [];
       }
-      const q = `${query.replace(/[\r\n]/g, ' ').trim()} is:issue`;
-      const data = await this.apiGet<{
-        items?: Array<{
-          number?: number;
-          title?: string;
-          html_url?: string;
-          pull_request?: unknown;
-          repository_url?: string;
-        }>;
-      }>(token, `/search/issues?q=${encodeURIComponent(q)}&per_page=8`);
+      const text = query.replace(/[\r\n]/g, ' ').trim();
+      const scope = await this.mentionScope(workspaceId, token);
+      if (!text || !scope) {
+        return [];
+      }
+      const allowed = new Set(
+        [scope.user, ...scope.orgs].map((name) => name.toLowerCase()),
+      );
+      const qualifiers = [
+        `user:${scope.user}`,
+        ...scope.orgs.slice(0, 4).map((org) => `org:${org}`),
+      ];
+      const batches = await Promise.all(
+        qualifiers.map((qualifier) =>
+          this.searchIssues(token, `${text} is:issue ${qualifier}`),
+        ),
+      );
       const issues: MentionIssue[] = [];
-      for (const item of data.items ?? []) {
+      const seen = new Set<string>();
+      for (const item of batches.flat()) {
         if (issues.length >= 8) {
           break;
         }
@@ -1057,9 +1069,14 @@ export class GithubService {
         const repo = /\/repos\/([^/]+)\/([^/]+)$/.exec(
           item.repository_url ?? '',
         );
-        const key = repo
-          ? `${repo[1]}/${repo[2]}#${item.number}`
-          : `#${item.number}`;
+        if (!repo || !allowed.has(repo[1].toLowerCase())) {
+          continue;
+        }
+        const key = `${repo[1]}/${repo[2]}#${item.number}`;
+        if (seen.has(key)) {
+          continue;
+        }
+        seen.add(key);
         issues.push({
           provider: 'github',
           key,
@@ -1073,6 +1090,71 @@ export class GithubService {
       this.logger.warn(
         `GitHub issue search failed for workspace ${workspaceId}: ${message}`,
       );
+      return [];
+    }
+  }
+
+  /** Account and org logins whose repositories may appear in # search. */
+  private async mentionScope(
+    workspaceId: string,
+    token: string,
+  ): Promise<{ user: string; orgs: string[] } | null> {
+    const cached = this.mentionScopes.get(workspaceId);
+    if (cached && Date.now() - cached.at < 10 * 60 * 1000) {
+      return { user: cached.user, orgs: cached.orgs };
+    }
+    const me = await this.apiGet<{ login?: string }>(token, '/user');
+    const login = me.login?.trim();
+    if (!login || !/^[A-Za-z0-9-]+$/.test(login)) {
+      return null;
+    }
+    let orgs: Array<{ login?: string }> = [];
+    try {
+      orgs = await this.apiGet<Array<{ login?: string }>>(
+        token,
+        '/user/orgs?per_page=100',
+      );
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.warn(
+        `GitHub org list failed for workspace ${workspaceId}: ${message}`,
+      );
+    }
+    const orgLogins = orgs.flatMap((org) => {
+      const name = org.login?.trim();
+      return name && /^[A-Za-z0-9-]+$/.test(name) ? [name] : [];
+    });
+    const scope = { user: login, orgs: orgLogins, at: Date.now() };
+    this.mentionScopes.set(workspaceId, scope);
+    return { user: login, orgs: orgLogins };
+  }
+
+  private async searchIssues(
+    token: string,
+    query: string,
+  ): Promise<
+    Array<{
+      number?: number;
+      title?: string;
+      html_url?: string;
+      pull_request?: unknown;
+      repository_url?: string;
+    }>
+  > {
+    try {
+      const data = await this.apiGet<{
+        items?: Array<{
+          number?: number;
+          title?: string;
+          html_url?: string;
+          pull_request?: unknown;
+          repository_url?: string;
+        }>;
+      }>(token, `/search/issues?q=${encodeURIComponent(query)}&per_page=8`);
+      return data.items ?? [];
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.warn(`GitHub issue search failed: ${message}`);
       return [];
     }
   }

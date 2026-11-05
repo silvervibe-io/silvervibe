@@ -27,7 +27,6 @@ import {
   type GithubConnectionView,
   type GithubRepoView,
   type JiraConnectionView,
-  type JiraIssueView,
   type JiraProjectView,
   type JiraSiteView,
   type LinearConnectionView,
@@ -155,7 +154,6 @@ export class WorkspaceAdmin implements OnInit {
   readonly jira = signal<JiraConnectionView | null>(null);
   readonly jiraSites = signal<JiraSiteView[]>([]);
   readonly jiraProjects = signal<JiraProjectView[]>([]);
-  readonly jiraIssues = signal<JiraIssueView[]>([]);
   readonly jiraSelectedProject = signal<string>('');
   readonly jiraError = signal<string | null>(null);
   readonly jiraConnecting = signal(false);
@@ -269,7 +267,6 @@ export class WorkspaceAdmin implements OnInit {
     this.jira.set(null);
     this.jiraSites.set([]);
     this.jiraProjects.set([]);
-    this.jiraIssues.set([]);
     this.jiraSelectedProject.set('');
     this.jiraError.set(null);
     if (this.isAdmin()) {
@@ -538,20 +535,9 @@ export class WorkspaceAdmin implements OnInit {
             const projects =
               await this.workspaces.listJiraProjects(workspaceId);
             this.jiraProjects.set(projects);
-            const projectKey = conn.projectKey ?? '';
-            this.jiraSelectedProject.set(projectKey);
-            if (projectKey) {
-              const issues = await this.workspaces.listJiraIssues(
-                workspaceId,
-                projectKey,
-              );
-              this.jiraIssues.set(issues);
-            } else {
-              this.jiraIssues.set([]);
-            }
+            this.jiraSelectedProject.set(conn.projectKey ?? '');
           } else {
             this.jiraProjects.set([]);
-            this.jiraIssues.set([]);
             this.jiraSelectedProject.set('');
           }
         } catch (err: unknown) {
@@ -562,7 +548,6 @@ export class WorkspaceAdmin implements OnInit {
       } else {
         this.jiraSites.set([]);
         this.jiraProjects.set([]);
-        this.jiraIssues.set([]);
         this.jiraSelectedProject.set('');
       }
     } catch (err: unknown) {
@@ -597,7 +582,6 @@ export class WorkspaceAdmin implements OnInit {
     }
     this.jiraError.set(null);
     this.jiraProjects.set([]);
-    this.jiraIssues.set([]);
     this.jiraSelectedProject.set('');
     try {
       const conn = await this.workspaces.selectJiraSite(ws.id, {
@@ -615,36 +599,9 @@ export class WorkspaceAdmin implements OnInit {
 
   async onJiraProjectChange(projectKey: string): Promise<void> {
     const ws = this.selected();
-    this.jiraSelectedProject.set(projectKey);
-    this.jiraIssues.set([]);
-    if (!ws || !this.isAdmin() || !projectKey.trim()) {
-      return;
-    }
-    this.jiraError.set(null);
-    try {
-      const issues = await this.workspaces.listJiraIssues(
-        ws.id,
-        projectKey.trim(),
-      );
-      this.jiraIssues.set(issues);
-    } catch (err: unknown) {
-      this.jiraError.set(
-        err instanceof Error ? err.message : 'Failed to load Jira issues',
-      );
-    }
-  }
-
-  async selectJiraIssue(issueKey: string): Promise<void> {
-    const ws = this.selected();
     const conn = this.jira();
-    const projectKey = this.jiraSelectedProject();
-    if (
-      !ws ||
-      !this.isAdmin() ||
-      !conn?.cloudId ||
-      !projectKey.trim() ||
-      !issueKey.trim()
-    ) {
+    this.jiraSelectedProject.set(projectKey);
+    if (!ws || !this.isAdmin() || !conn?.cloudId || !projectKey.trim()) {
       return;
     }
     this.jiraError.set(null);
@@ -652,13 +609,13 @@ export class WorkspaceAdmin implements OnInit {
       const next = await this.workspaces.selectJiraTarget(ws.id, {
         cloudId: conn.cloudId,
         projectKey: projectKey.trim(),
-        issueKey: issueKey.trim(),
       });
       this.jira.set(next);
+      this.jiraSelectedProject.set(next.projectKey ?? projectKey.trim());
       this.message.set('standup.workspace.jiraTargetSaved');
     } catch (err: unknown) {
       this.jiraError.set(
-        err instanceof Error ? err.message : 'Failed to save Jira target',
+        apiErrorMessage(err, 'Could not save the Jira project'),
       );
     }
   }
@@ -674,7 +631,6 @@ export class WorkspaceAdmin implements OnInit {
       this.jira.set(conn);
       this.jiraSites.set([]);
       this.jiraProjects.set([]);
-      this.jiraIssues.set([]);
       this.jiraSelectedProject.set('');
       this.message.set('standup.workspace.jiraDisconnected');
     } catch (err: unknown) {

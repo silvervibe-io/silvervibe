@@ -217,19 +217,48 @@ describe('GithubService', () => {
   });
 
   it('searches issues with is:issue and drops a failed call', async () => {
-    const fetchMock = jest.fn().mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        items: [
-          {
-            number: 7,
-            title: 'Ship mentions',
-            html_url: 'https://github.com/acme/app/issues/7',
-            repository_url: 'https://api.github.com/repos/acme/app',
-          },
-        ],
-      }),
-      text: async () => '',
+    const fetchMock = jest.fn(async (url: string) => {
+      const target = String(url);
+      if (target.endsWith('/user')) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ login: 'acme' }),
+          text: async () => '',
+        };
+      }
+      if (target.includes('/user/orgs')) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => [{ login: 'silvervibe-io' }],
+          text: async () => '',
+        };
+      }
+      if (target.includes(encodeURIComponent('ship is:issue'))) {
+        throw new Error('bad credentials');
+      }
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          items: [
+            {
+              number: 7,
+              title: 'Ship mentions',
+              html_url: 'https://github.com/acme/app/issues/7',
+              repository_url: 'https://api.github.com/repos/acme/app',
+            },
+            {
+              number: 17,
+              title: 'Someone else',
+              html_url: 'https://github.com/Wolf-Loop/demo/issues/17',
+              repository_url: 'https://api.github.com/repos/Wolf-Loop/demo',
+            },
+          ],
+        }),
+        text: async () => '',
+      };
     });
     global.fetch = fetchMock as unknown as typeof fetch;
     const service = new GithubService(
@@ -259,11 +288,17 @@ describe('GithubService', () => {
         url: 'https://github.com/acme/app/issues/7',
       },
     ]);
-    expect(String(fetchMock.mock.calls[0]?.[0])).toContain(
-      encodeURIComponent('say "hi" is:issue'),
+    const searchUrls = fetchMock.mock.calls
+      .map((call) => decodeURIComponent(String(call[0])))
+      .filter((url) => url.includes('/search/issues'));
+    expect(searchUrls).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('say "hi" is:issue user:acme'),
+        expect.stringContaining('say "hi" is:issue org:silvervibe-io'),
+      ]),
     );
+    expect(searchUrls.join(' ')).not.toContain(' OR ');
 
-    fetchMock.mockRejectedValueOnce(new Error('bad credentials'));
     await expect(service.searchMentionIssues('ws1', 'ship')).resolves.toEqual(
       [],
     );

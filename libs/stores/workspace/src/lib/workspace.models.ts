@@ -107,7 +107,6 @@ export type TeamJiraTargetView = {
 export type SetTeamJiraTargetInput = {
   cloudId: string;
   projectKey: string;
-  issueKey: string;
 };
 
 export type TeamsConnectionView = {
@@ -216,7 +215,6 @@ export type SelectJiraSiteInput = {
 export type SelectJiraTargetInput = {
   cloudId: string;
   projectKey: string;
-  issueKey: string;
 };
 
 export type WorkspaceState = {

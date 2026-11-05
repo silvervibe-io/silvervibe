@@ -259,8 +259,8 @@
         <span class="font-medium">{{ conn.status }}</span>
         @if (conn.siteName) {
         <span class="text-base-content/70"> — {{ conn.siteName }}</span>
-        } @if (conn.issueKey) {
-        <span class="text-base-content/70"> / {{ conn.issueKey }}</span>
+        } @if (conn.projectKey) {
+        <span class="text-base-content/70"> / {{ conn.projectKey }}</span>
         }
       </p>
       @if (conn.configured) {
@@ -296,25 +296,6 @@
           @for (project of jiraProjects(); track project.key) {
           <option [value]="project.key">
             {{ project.key }} — {{ project.name }}
-          </option>
-          }
-        </select>
-      </fieldset>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'standup.workspace.jiraIssue' | transloco }}
-        </legend>
-        <select
-          class="select select-bordered w-full"
-          [value]="conn.issueKey ?? ''"
-          (change)="selectJiraIssue($any($event.target).value)"
-        >
-          <option value="">
-            {{ 'standup.workspace.jiraIssuePlaceholder' | transloco }}
-          </option>
-          @for (issue of jiraIssues(); track issue.key) {
-          <option [value]="issue.key">
-            {{ issue.key }} — {{ issue.summary }}
           </option>
           }
         </select>

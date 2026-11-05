@@ -54,10 +54,24 @@ describe('JiraService', () => {
   });
 
   it('posts a comment when tool and target are ready', async () => {
-    const fetchMock = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ id: '1' }),
-      text: async () => '',
+    const fetchMock = jest.fn(async (url: string) => {
+      if (String(url).includes('/comment')) {
+        return {
+          ok: true,
+          status: 201,
+          json: async () => ({ id: '1' }),
+          text: async () => '',
+        };
+      }
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          key: 'ENG-42',
+          fields: { summary: 'VibeStandup digests' },
+        }),
+        text: async () => '',
+      };
     });
     global.fetch = fetchMock as unknown as typeof fetch;
 
@@ -74,7 +88,8 @@ describe('JiraService', () => {
             secretsRef: 'atlassian_token',
             metadataJson: {
               cloudId: 'cloud1',
-              issueKey: 'ENG-42',
+              projectKey: 'ENG',
+              digestIssueKey: 'ENG-42',
               accessExpiresAt: Date.now() + 60 * 60 * 1000,
             },
             provider: AddonProvider.JIRA,
@@ -212,8 +227,14 @@ describe('JiraService', () => {
         url: 'https://acme.atlassian.net/browse/PROJ-12',
       },
     ]);
-    const url = String(fetchMock.mock.calls[0]?.[0]);
-    const jql = decodeURIComponent(url.split('jql=')[1]?.split('&')[0] ?? '');
-    expect(jql).toBe('text ~ "say \\"hi\\"" ORDER BY updated DESC');
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://api.atlassian.com/ex/jira/cloud-1/rest/api/3/search/jql',
+      expect.objectContaining({ method: 'POST' }),
+    );
+    const init = fetchMock.mock.calls[0]?.[1] as { body?: string };
+    const sent = JSON.parse(init.body ?? '{}') as { jql?: string };
+    expect(sent.jql).toBe(
+      'text ~ "say \\"hi\\"" AND updated >= -365d ORDER BY updated DESC',
+    );
   });
 });
