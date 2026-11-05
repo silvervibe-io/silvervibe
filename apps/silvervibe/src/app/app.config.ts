@@ -1,7 +1,7 @@
 import {
   ApplicationConfig,
-  APP_INITIALIZER,
   computed,
+  provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   inject,
 } from '@angular/core';
@@ -23,13 +23,11 @@ import {
 import { environment } from '../environments/environment';
 import { appRoutes } from './app.routes';
 
-function initPlatform() {
+function initPlatform(): Promise<void> {
   const auth = inject(AuthService);
   const flags = inject(FeatureFlagsService);
-  return () => {
-    auth.init(environment.firebase);
-    return flags.init(environment.growthbook);
-  };
+  auth.init(environment.firebase);
+  return flags.init(environment.growthbook);
 }
 
 export const appConfig: ApplicationConfig = {
@@ -58,10 +56,6 @@ export const appConfig: ApplicationConfig = {
       },
     },
     ...provideSilvervibeI18n(),
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initPlatform,
-      multi: true,
-    },
+    provideAppInitializer(initPlatform),
   ],
 };
