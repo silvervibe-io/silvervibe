@@ -8,6 +8,7 @@
     "start:vibestandup": "nx serve vibestandup --port=4201",
     "start:api": "nx serve api",
     "start:ai": "nx serve ai",
+    "start:all": "nx run-many -t serve -p api,ai,silvervibe,vibestandup --parallel=4",
     "build": "nx run-many -t build -p silvervibe,vibestandup,api",
     "build:silvervibe": "nx build silvervibe",
     "build:vibestandup": "nx build vibestandup",
