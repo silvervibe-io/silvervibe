@@ -132,6 +132,34 @@ describe('MyStandup', () => {
     expect(component.selectedSummary()?.entryDate).toBe('2026-11-05');
   });
 
+  it('accepts a suggestion into today and dismiss leaves the answer', () => {
+    const component = fixture.componentInstance;
+    const issue = {
+      provider: 'jira' as const,
+      key: 'PROJ-12',
+      title: 'Ship mentions',
+      url: 'https://example.atlassian.net/browse/PROJ-12',
+    };
+    component.rows.set([
+      {
+        questionId: 'today',
+        text: 'Write the note',
+        optionId: '',
+        otherText: '',
+        helpFrom: '',
+        replyNeeded: '',
+      },
+    ]);
+    component.workSuggestions.set([issue]);
+    component.dismissSuggestion(issue);
+    expect(component.rows()[0]?.text).toBe('Write the note');
+    expect(component.workSuggestions()).toEqual([]);
+    component.workSuggestions.set([issue]);
+    component.acceptSuggestion(issue);
+    expect(component.rows()[0]?.text).toBe('Write the note\n#PROJ-12');
+    expect(component.workSuggestions()).toEqual([]);
+  });
+
   it('renders the my standup title', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('h1')?.textContent).toContain('My standup');

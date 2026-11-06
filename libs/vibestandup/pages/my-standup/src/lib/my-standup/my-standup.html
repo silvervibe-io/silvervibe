@@ -81,6 +81,41 @@
         }
       </ul>
     </section>
+    @if (workSuggestions().length > 0) {
+    <section class="max-w-xl space-y-2">
+      <h2 class="text-lg font-semibold">
+        {{ 'standup.my.recentWork' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.my.recentWorkHint' | transloco }}
+      </p>
+      <ul class="flex flex-col gap-2">
+        @for (item of workSuggestions(); track item.provider + item.key) {
+        <li
+          class="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-base-200 p-3 text-sm"
+        >
+          <span>{{ item.key }} — {{ item.title }}</span>
+          <span class="flex gap-2">
+            <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              (click)="acceptSuggestion(item)"
+            >
+              {{ 'standup.my.acceptWork' | transloco }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm"
+              (click)="dismissSuggestion(item)"
+            >
+              {{ 'standup.my.dismissWork' | transloco }}
+            </button>
+          </span>
+        </li>
+        }
+      </ul>
+    </section>
+    }
     <form class="flex max-w-xl flex-col gap-4" (submit)="submitEntry($event)">
       @for (row of rows(); track row.questionId) { @if (questionFor(row); as
       question) {

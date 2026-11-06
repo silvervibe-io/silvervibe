@@ -36,6 +36,20 @@ export class MentionsService {
     return [...github, ...jira, ...linear];
   }
 
+  async recentIssues(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<MentionIssue[]> {
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const { workspaceId } = await this.teams.requireTeamMember(teamId, userId);
+    const [github, jira, linear] = await Promise.all([
+      this.safe(() => this.github.recentMentionIssues(workspaceId)),
+      this.safe(() => this.jira.recentMentionIssues(workspaceId)),
+      this.safe(() => this.linear.recentMentionIssues(workspaceId)),
+    ]);
+    return [...github.slice(0, 3), ...jira.slice(0, 3), ...linear.slice(0, 3)];
+  }
+
   private async safe(
     load: () => Promise<MentionIssue[]>,
   ): Promise<MentionIssue[]> {
