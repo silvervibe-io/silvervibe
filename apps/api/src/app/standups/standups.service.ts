@@ -18,15 +18,24 @@ import { TeamsService } from '../teams/teams.service';
 import { UsersService } from '../users/users.service';
 import {
   StandupConfigDto,
+  SetStandupAwayDto,
+  StandupAwayDatesDto,
   StandupEntryDto,
+  StandupRecentDayDto,
+  StandupRosterMemberDto,
   StandupSummaryDto,
   UpsertStandupEntryDto,
 } from './standup.dto';
-import { calendarDateInTimezone, parseCalendarDate } from './standup-date.util';
+import {
+  calendarDateInTimezone,
+  parseCalendarDate,
+  recentCalendarDates,
+} from './standup-date.util';
 import {
   answerDisplay,
   answersAreComplete,
   answersFromStorage,
+  blockerLine,
   mirrorBuiltinColumns,
   questionsForSave,
   questionsFromStorage,
@@ -339,6 +348,117 @@ export class StandupsService {
     return entries.map((e) => this.toEntryDto(e));
   }
 
+  async listAway(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<StandupAwayDatesDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    await this.teams.requireTeamMember(teamId, userId);
+    return { dates: await this.awayDates(teamId, userId) };
+  }
+
+  async setAway(
+    teamId: string,
+    user: VerifiedUser,
+    body: SetStandupAwayDto,
+  ): Promise<StandupAwayDatesDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    await this.teams.requireTeamMember(teamId, userId);
+    const entryDate = parseCalendarDate(body.date);
+    const today = parseCalendarDate(
+      calendarDateInTimezone(
+        (await this.prisma.standupConfig.findUnique({ where: { teamId } }))
+          ?.timezone ?? 'UTC',
+      ),
+    );
+    const latest = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
+    if (entryDate < today || entryDate > latest) {
+      throw new BadRequestException('standup.away');
+    }
+    if (body.away) {
+      await this.prisma.standupAway.upsert({
+        where: {
+          teamId_userId_entryDate: { teamId, userId, entryDate },
+        },
+        create: { teamId, userId, entryDate },
+        update: {},
+      });
+    } else {
+      await this.prisma.standupAway.deleteMany({
+        where: { teamId, userId, entryDate },
+      });
+    }
+    return { dates: await this.awayDates(teamId, userId) };
+  }
+
+  async listRoster(
+    teamId: string,
+    user: VerifiedUser,
+    dateStr?: string,
+  ): Promise<StandupRosterMemberDto[]> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    await this.teams.requireTeamMember(teamId, userId);
+    const entryDate = await this.resolveEntryDate(teamId, dateStr);
+    const [members, entries, aways] = await Promise.all([
+      this.prisma.teamMember.findMany({
+        where: { teamId },
+        include: { user: true },
+        orderBy: { createdAt: 'asc' },
+      }),
+      this.prisma.standupEntry.findMany({
+        where: { teamId, entryDate },
+      }),
+      this.prisma.standupAway.findMany({
+        where: { teamId, entryDate },
+        select: { userId: true },
+      }),
+    ]);
+    const submitted = new Map(
+      entries
+        .filter((entry) => entry.status === StandupEntryStatus.SUBMITTED)
+        .map((entry) => [entry.userId, entry.today]),
+    );
+    const awayIds = new Set(aways.map((row) => row.userId));
+    return members.map((member) => {
+      const name =
+        member.user.displayName || member.user.email || member.userId;
+      if (submitted.has(member.userId)) {
+        return {
+          userId: member.userId,
+          name,
+          status: 'posted' as const,
+          today: submitted.get(member.userId) ?? null,
+        };
+      }
+      if (awayIds.has(member.userId)) {
+        return {
+          userId: member.userId,
+          name,
+          status: 'away' as const,
+          today: null,
+        };
+      }
+      return {
+        userId: member.userId,
+        name,
+        status: 'open' as const,
+        today: null,
+      };
+    });
+  }
+
+  private async awayDates(teamId: string, userId: string): Promise<string[]> {
+    const rows = await this.prisma.standupAway.findMany({
+      where: { teamId, userId },
+      orderBy: { entryDate: 'asc' },
+      select: { entryDate: true },
+    });
+    return rows.map((row) => row.entryDate.toISOString().slice(0, 10));
+  }
+
   async getSummary(
     teamId: string,
     user: VerifiedUser,
@@ -370,6 +490,42 @@ export class StandupsService {
       entryDate: summary.entryDate.toISOString().slice(0, 10),
       content: summary.content,
     };
+  }
+
+  async listRecent(
+    teamId: string,
+    user: VerifiedUser,
+    now: Date = new Date(),
+  ): Promise<StandupRecentDayDto[]> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const membership = await this.teams.requireTeamMember(teamId, userId);
+    const stored = await this.prisma.standupConfig.findUnique({
+      where: { teamId },
+    });
+    const schedule = scheduleFromConfig(stored);
+    const today = calendarDateInTimezone(schedule.timezone, now);
+    const dates = recentCalendarDates(today);
+    const rows = await this.prisma.standupSummary.findMany({
+      where: {
+        teamId,
+        entryDate: { in: dates.map((date) => parseCalendarDate(date)) },
+      },
+    });
+    const byDate = new Map(
+      rows.map((row) => [
+        row.entryDate.toISOString().slice(0, 10),
+        row.content,
+      ]),
+    );
+    const hideToday = !isRevealed(schedule, now) && membership.role !== 'ADMIN';
+    return dates.map((entryDate) => ({
+      entryDate,
+      content:
+        hideToday && entryDate === today
+          ? null
+          : (byDate.get(entryDate) ?? null),
+    }));
   }
 
   async rebuildSummary(
@@ -405,6 +561,26 @@ export class StandupsService {
     return answers;
   }
 
+  private summaryBlockers(
+    entry: {
+      blockers: string | null;
+      answersJson?: unknown;
+    },
+    questions: StandupQuestion[],
+  ): string | null {
+    const answers = answersFromStorage(entry.answersJson);
+    const question = questions.find(
+      (item) => item.builtin === 'blockers' && item.enabled,
+    );
+    if (question) {
+      const line = blockerLine(answers[question.id]);
+      if (line) {
+        return line;
+      }
+    }
+    return entry.blockers;
+  }
+
   private classicMarkdownSummary(
     entries: Array<{
       userId: string;
@@ -418,29 +594,73 @@ export class StandupsService {
       };
     }>,
     questions: StandupQuestion[],
+    teamName: string,
+    entryDate: string,
   ): string {
-    const lines = entries.map((e) => {
-      const who = e.user.displayName || e.user.email || e.userId;
-      const answers = answersFromStorage(e.answersJson);
-      const answered = Object.keys(answers).length > 0;
-      const detail = answered
-        ? questions
-            .filter((question) => question.enabled)
-            .map((question) => {
-              const value = answerDisplay(question, answers[question.id]);
-              return value ? `- ${question.prompt}: ${value}` : null;
-            })
-        : [
-            e.yesterday ? `- Yesterday: ${e.yesterday}` : null,
-            e.today ? `- Today: ${e.today}` : null,
-            e.blockers ? `- Blockers: ${e.blockers}` : null,
-          ];
-      return [`### ${who}`, ...detail].filter(Boolean).join('\n');
-    });
-
-    return lines.length > 0
-      ? lines.join('\n\n')
-      : 'No submitted standups for this day yet.';
+    if (entries.length === 0) {
+      return 'No submitted standups for this day yet.';
+    }
+    const help: string[] = [];
+    const today: string[] = [];
+    const yesterday: string[] = [];
+    const extras: Array<{ title: string; lines: string[] }> = [];
+    const pushExtra = (title: string, line: string): void => {
+      const bucket = extras.find((item) => item.title === title);
+      if (bucket) {
+        bucket.lines.push(line);
+        return;
+      }
+      extras.push({ title, lines: [line] });
+    };
+    for (const entry of entries) {
+      const who = entry.user.displayName || entry.user.email || entry.userId;
+      const line = (value: string): string => `- **${who}**: ${value}`;
+      const answers = answersFromStorage(entry.answersJson);
+      if (Object.keys(answers).length > 0) {
+        for (const question of questions) {
+          if (!question.enabled) {
+            continue;
+          }
+          const value =
+            question.builtin === 'blockers'
+              ? blockerLine(answers[question.id])
+              : answerDisplay(question, answers[question.id]);
+          if (!value) {
+            continue;
+          }
+          if (question.builtin === 'blockers') {
+            help.push(line(value));
+          } else if (question.builtin === 'today') {
+            today.push(line(value));
+          } else if (question.builtin === 'yesterday') {
+            yesterday.push(line(value));
+          } else {
+            pushExtra(question.prompt, line(value));
+          }
+        }
+        continue;
+      }
+      if (entry.blockers) {
+        help.push(line(entry.blockers));
+      }
+      if (entry.today) {
+        today.push(line(entry.today));
+      }
+      if (entry.yesterday) {
+        yesterday.push(line(entry.yesterday));
+      }
+    }
+    const section = (title: string, lines: string[]): string | null =>
+      lines.length > 0 ? `### ${title}\n${lines.join('\n')}` : null;
+    return [
+      `## ${teamName} standup — ${entryDate}`,
+      section('Needs help', help),
+      section('Today', today),
+      section('Yesterday', yesterday),
+      ...extras.map((bucket) => section(bucket.title, bucket.lines)),
+    ]
+      .filter((part): part is string => part !== null)
+      .join('\n\n');
   }
 
   private asDigestDelivery(raw: unknown): {
@@ -513,7 +733,12 @@ export class StandupsService {
     });
     const questions = questionsFromStorage(storedConfig?.questionsJson);
 
-    const classic = this.classicMarkdownSummary(entries, questions);
+    const classic = this.classicMarkdownSummary(
+      entries,
+      questions,
+      teamName,
+      entryDateIso,
+    );
     const aiMarkdown = await this.ai.summarizeStandup({
       teamName,
       entryDate: entryDateIso,
@@ -521,7 +746,7 @@ export class StandupsService {
         displayName: e.user.displayName || e.user.email || e.userId,
         yesterday: e.yesterday,
         today: e.today,
-        blockers: e.blockers,
+        blockers: this.summaryBlockers(e, questions),
       })),
     });
     const content = aiMarkdown ?? classic;

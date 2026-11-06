@@ -12,7 +12,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
-import { MentionText, Shell } from '@silvervibe/shared/ui';
+import { Shell, StandupSummary } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import {
   activeMentionToken,
@@ -27,8 +27,10 @@ import {
   StandupFacade,
   type MentionIssueView,
   type StandupAccessInput,
+  type ReplyNeeded,
   type StandupAnswerValue,
   type StandupQuestion,
+  type StandupRecentDay,
   type TeamMemberView,
 } from '@silvervibe/stores/standup';
 import { WorkspaceFacade } from '@silvervibe/stores/workspace';
@@ -38,6 +40,8 @@ type AnswerRow = {
   text: string;
   optionId: string;
   otherText: string;
+  helpFrom: string;
+  replyNeeded: '' | ReplyNeeded;
 };
 
 type MentionSession = {
@@ -58,7 +62,7 @@ type MentionChoice = {
 
 @Component({
   selector: 'vs-my-standup',
-  imports: [MentionText, Shell, TranslocoPipe],
+  imports: [Shell, StandupSummary, TranslocoPipe],
   templateUrl: './my-standup.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -100,9 +104,34 @@ export class MyStandup implements OnInit {
   readonly clock = signal(Date.now());
   readonly rows = signal<AnswerRow[]>([]);
   readonly members = signal<TeamMemberView[]>([]);
+  readonly awayDates = signal<string[]>([]);
+  readonly recentDays = signal<StandupRecentDay[]>([]);
+  readonly selectedSummaryDate = signal<string | null>(null);
+  readonly selectedSummary = computed(() => {
+    const selected = this.selectedSummaryDate();
+    return (
+      this.recentDays().find((day) => day.entryDate === selected) ??
+      this.recentDays()[0] ??
+      null
+    );
+  });
+  readonly awayDays = computed(() => {
+    const start = new Date();
+    return Array.from({ length: 7 }, (_, index) => {
+      const day = new Date(
+        Date.UTC(
+          start.getUTCFullYear(),
+          start.getUTCMonth(),
+          start.getUTCDate() + index,
+        ),
+      );
+      return day.toISOString().slice(0, 10);
+    });
+  });
   readonly mention = signal<MentionSession | null>(null);
   readonly mentionIndex = signal(0);
   readonly issueHits = signal<MentionIssueView[]>([]);
+  readonly workSuggestions = signal<MentionIssueView[]>([]);
   readonly formError = signal<string | null>(null);
   readonly busy = signal(false);
   readonly enabledQuestions = computed(() =>
@@ -200,6 +229,8 @@ export class MyStandup implements OnInit {
             ),
             optionId: answer?.optionId ?? '',
             otherText: answer?.otherText ?? '',
+            helpFrom: answer?.helpFrom ?? '',
+            replyNeeded: answer?.replyNeeded ?? '',
           };
         }),
       );
@@ -235,6 +266,9 @@ export class MyStandup implements OnInit {
         await Promise.all([
           this.standup.loadToday(teamId),
           this.refreshMembers(teamId),
+          this.refreshAway(teamId),
+          this.refreshRecent(teamId),
+          this.refreshSuggestions(teamId),
         ]);
       }
     } finally {
@@ -257,6 +291,9 @@ export class MyStandup implements OnInit {
     await Promise.all([
       this.standup.loadToday(teamId),
       this.refreshMembers(teamId),
+      this.refreshAway(teamId),
+      this.refreshRecent(teamId),
+      this.refreshSuggestions(teamId),
     ]);
   }
 
@@ -423,6 +460,80 @@ export class MyStandup implements OnInit {
     }
   }
 
+  awayChecked(event: Event): boolean {
+    const target = event.target;
+    return target instanceof HTMLInputElement && target.checked;
+  }
+
+  isAway(date: string): boolean {
+    return this.awayDates().includes(date);
+  }
+
+  async toggleAway(date: string, away: boolean): Promise<void> {
+    const teamId = this.selectedTeamId();
+    if (!teamId) {
+      return;
+    }
+    this.awayDates.set(await this.standup.setAway(teamId, date, away));
+  }
+
+  acceptSuggestion(issue: MentionIssueView): void {
+    const questionId =
+      this.rows().find((row) => row.questionId === 'today')?.questionId ??
+      this.enabledQuestions()[0]?.id;
+    if (!questionId) {
+      return;
+    }
+    const line = issueMention(issue.key);
+    const current =
+      this.rows().find((row) => row.questionId === questionId)?.text ?? '';
+    const text = current.trim() ? `${current.trim()}\n${line}` : line;
+    this.updateRow(questionId, { text });
+    this.dismissSuggestion(issue);
+  }
+
+  dismissSuggestion(issue: MentionIssueView): void {
+    this.workSuggestions.update((items) =>
+      items.filter(
+        (item) => item.provider !== issue.provider || item.key !== issue.key,
+      ),
+    );
+  }
+
+  private async refreshSuggestions(teamId: string): Promise<void> {
+    try {
+      this.workSuggestions.set(await this.standup.listRecentWork(teamId));
+    } catch {
+      this.workSuggestions.set([]);
+    }
+  }
+
+  private async refreshRecent(teamId: string): Promise<void> {
+    try {
+      const days = await this.standup.listRecentSummaries(teamId);
+      this.recentDays.set(days);
+      const selected = this.selectedSummaryDate();
+      if (!selected || !days.some((day) => day.entryDate === selected)) {
+        this.selectedSummaryDate.set(days[0]?.entryDate ?? null);
+      }
+    } catch {
+      this.recentDays.set([]);
+      this.selectedSummaryDate.set(null);
+    }
+  }
+
+  private async refreshAway(teamId: string): Promise<void> {
+    try {
+      this.awayDates.set(await this.standup.listAwayDates(teamId));
+    } catch {
+      this.awayDates.set([]);
+    }
+  }
+
+  memberMention(member: TeamMemberView): string {
+    return personMention(member.displayName || member.email || member.userId);
+  }
+
   updateRow(questionId: string, patch: Partial<AnswerRow>): void {
     this.rows.update((rows) =>
       rows.map((row) =>
@@ -494,6 +605,8 @@ export class MyStandup implements OnInit {
         text: row.text,
         ...(row.optionId ? { optionId: row.optionId } : {}),
         ...(row.otherText ? { otherText: row.otherText } : {}),
+        ...(row.helpFrom ? { helpFrom: row.helpFrom } : {}),
+        ...(row.replyNeeded ? { replyNeeded: row.replyNeeded } : {}),
       };
       const question = this.questionFor(row);
       if (question?.builtin === 'yesterday') {

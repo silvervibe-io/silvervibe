@@ -25,10 +25,14 @@ export type StandupQuestion = {
   allowOther?: boolean;
 };
 
+export type ReplyNeeded = 'today' | 'week' | 'none';
+
 export type StandupAnswer = {
   text?: string;
   optionId?: string;
   otherText?: string;
+  helpFrom?: string;
+  replyNeeded?: ReplyNeeded;
 };
 
 const MAX_QUESTIONS = 12;
@@ -284,6 +288,22 @@ export function answersFromStorage(
     if (typeof row['otherText'] === 'string') {
       answer.otherText = row['otherText'].slice(0, 500);
     }
+    if (typeof row['helpFrom'] === 'string') {
+      const help = row['helpFrom']
+        .replace(/[\r\n]/g, ' ')
+        .trim()
+        .slice(0, 80);
+      if (help) {
+        answer.helpFrom = help;
+      }
+    }
+    if (
+      row['replyNeeded'] === 'today' ||
+      row['replyNeeded'] === 'week' ||
+      row['replyNeeded'] === 'none'
+    ) {
+      answer.replyNeeded = row['replyNeeded'];
+    }
     answers[key] = answer;
   }
   return answers;
@@ -305,6 +325,36 @@ export function mirrorBuiltinColumns(
     today: textOf('today'),
     blockers: textOf('blockers'),
   };
+}
+
+/** One blocker fact: the text, who can help, and whether a reply is needed. */
+export function blockerLine(answer: StandupAnswer | undefined): string | null {
+  if (!answer) {
+    return null;
+  }
+  const text = answer.text?.trim() ?? '';
+  const help = answer.helpFrom?.trim() ?? '';
+  const reply = answer.replyNeeded;
+  if (!text && !help && !reply) {
+    return null;
+  }
+  const parts: string[] = [];
+  if (text) {
+    const needsStop = Boolean(help || reply) && !/[.!?]$/.test(text);
+    parts.push(needsStop ? `${text}.` : text);
+  }
+  if (help) {
+    parts.push(`Help from ${help}.`);
+  }
+  if (reply === 'today') {
+    parts.push('Reply needed today.');
+  } else if (reply === 'week') {
+    parts.push('Reply needed this week.');
+  } else if (reply === 'none') {
+    parts.push('No reply needed.');
+  }
+  const line = parts.join(' ').replace(/\s+/g, ' ').trim();
+  return line || null;
 }
 
 export function answerDisplay(

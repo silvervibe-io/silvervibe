@@ -69,6 +69,7 @@ model User {
   memberships     WorkspaceMember[]
   teamMemberships TeamMember[]
   standupEntries  StandupEntry[]
+  standupAways    StandupAway[]
   invitesSent     TeamInvite[]      @relation("TeamInvitesSent")
 
   @@map("users")
@@ -150,6 +151,7 @@ model Team {
   standupConfig StandupConfig?
   entries       StandupEntry[]
   summaries     StandupSummary[]
+  standupAways  StandupAway[]
 
   @@unique([workspaceId, slug])
   @@map("teams")
@@ -243,4 +245,19 @@ model StandupSummary {
 
   @@unique([teamId, entryDate])
   @@map("standup_summaries")
+}
+
+model StandupAway {
+  id        String   @id @default(cuid())
+  teamId    String   @map("team_id")
+  userId    String   @map("user_id")
+  entryDate DateTime @map("entry_date") @db.Date
+  createdAt DateTime @default(now()) @map("created_at")
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId, entryDate])
+  @@index([teamId, entryDate])
+  @@map("standup_aways")
 }

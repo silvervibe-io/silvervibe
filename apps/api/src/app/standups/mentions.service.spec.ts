@@ -19,9 +19,18 @@ describe('MentionsService', () => {
       workspaceId: 'ws1',
     }),
   };
-  const github = { searchMentionIssues: jest.fn() };
-  const jira = { searchMentionIssues: jest.fn() };
-  const linear = { searchMentionIssues: jest.fn() };
+  const github = {
+    searchMentionIssues: jest.fn(),
+    recentMentionIssues: jest.fn(),
+  };
+  const jira = {
+    searchMentionIssues: jest.fn(),
+    recentMentionIssues: jest.fn(),
+  };
+  const linear = {
+    searchMentionIssues: jest.fn(),
+    recentMentionIssues: jest.fn(),
+  };
 
   function service(): MentionsService {
     return new MentionsService(
@@ -79,6 +88,41 @@ describe('MentionsService', () => {
         key: 'PROJ-12',
         title: 'Ship mentions',
         url: 'https://example.atlassian.net/browse/PROJ-12',
+      },
+    ]);
+  });
+
+  it('keeps suggestions when one provider cannot list recent work', async () => {
+    github.recentMentionIssues.mockRejectedValue(new Error('bad credentials'));
+    jira.recentMentionIssues.mockResolvedValue([
+      {
+        provider: 'jira',
+        key: 'PROJ-12',
+        title: 'Ship mentions',
+        url: 'https://example.atlassian.net/browse/PROJ-12',
+      },
+    ]);
+    linear.recentMentionIssues.mockResolvedValue([
+      {
+        provider: 'linear',
+        key: 'ENG-4',
+        title: 'Standup draft',
+        url: 'https://linear.app/acme/issue/ENG-4',
+      },
+    ]);
+
+    await expect(service().recentIssues('team-1', member)).resolves.toEqual([
+      {
+        provider: 'jira',
+        key: 'PROJ-12',
+        title: 'Ship mentions',
+        url: 'https://example.atlassian.net/browse/PROJ-12',
+      },
+      {
+        provider: 'linear',
+        key: 'ENG-4',
+        title: 'Standup draft',
+        url: 'https://linear.app/acme/issue/ENG-4',
       },
     ]);
   });

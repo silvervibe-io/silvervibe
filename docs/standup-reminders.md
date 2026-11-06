@@ -6,11 +6,12 @@ Issues: [#82](https://github.com/silvervibe-io/silvervibe/issues/82),
 ## Behaviour
 
 1. Entry/summary “today” uses `StandupConfig.timezone` when `?date=` is omitted.
-2. Each team sets `reminderHour` / `reminderMinute` (defaults **09:00** local).
+2. Each team sets the posting window in `StandupConfig.timezone`.
 3. `POST /api/jobs/standup-reminders` (cron secret) emails members of workspaces
-   with `vibestandup` enabled who have **not submitted** for that team-local day,
-   **only** when the team-local clock is in the same **15-minute** bucket as the
-   configured send time (run the Scheduler every 15 minutes).
+   with `vibestandup` enabled who have **not submitted** and are **not away**
+   for that team-local day, when their own timezone and work-day start fall in
+   the same **15-minute** bucket (run the Scheduler every 15 minutes). The
+   email names the team posting window in that member's local time.
 4. Mail goes through Resend ([resend.md](./resend.md)).
 
 ## Auth

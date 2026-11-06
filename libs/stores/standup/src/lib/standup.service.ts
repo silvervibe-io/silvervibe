@@ -28,6 +28,8 @@ import type {
   StandupConfigView,
   StandupEntryView,
   StandupQuestion,
+  StandupRecentDay,
+  StandupRosterMember,
   StandupSummaryView,
   TeamInviteView,
   TeamMemberView,
@@ -130,6 +132,14 @@ function asAnswers(value: unknown): Record<string, StandupAnswerValue> {
         : {}),
       ...(typeof row['otherText'] === 'string'
         ? { otherText: row['otherText'] }
+        : {}),
+      ...(typeof row['helpFrom'] === 'string' && row['helpFrom'].trim()
+        ? { helpFrom: row['helpFrom'] }
+        : {}),
+      ...(row['replyNeeded'] === 'today' ||
+      row['replyNeeded'] === 'week' ||
+      row['replyNeeded'] === 'none'
+        ? { replyNeeded: row['replyNeeded'] }
         : {}),
     };
   }
@@ -302,6 +312,53 @@ export class StandupService {
       }),
     );
     return mapEntry(dto);
+  }
+
+  async listAwayDates(teamId: string): Promise<string[]> {
+    const body = await firstValueFrom(
+      this.http.get<{ dates: string[] }>(
+        `${this.apiBase}/teams/${teamId}/standups/away`,
+      ),
+    );
+    return body.dates ?? [];
+  }
+
+  async setAway(
+    teamId: string,
+    date: string,
+    away: boolean,
+  ): Promise<string[]> {
+    const body = await firstValueFrom(
+      this.http.put<{ dates: string[] }>(
+        `${this.apiBase}/teams/${teamId}/standups/away`,
+        { date, away },
+      ),
+    );
+    return body.dates ?? [];
+  }
+
+  async listRecentWork(teamId: string): Promise<MentionIssueView[]> {
+    return firstValueFrom(
+      this.http.get<MentionIssueView[]>(
+        `${this.apiBase}/teams/${teamId}/mentions/recent`,
+      ),
+    );
+  }
+
+  async listRecentSummaries(teamId: string): Promise<StandupRecentDay[]> {
+    return firstValueFrom(
+      this.http.get<StandupRecentDay[]>(
+        `${this.apiBase}/teams/${teamId}/standups/recent`,
+      ),
+    );
+  }
+
+  async listRoster(teamId: string): Promise<StandupRosterMember[]> {
+    return firstValueFrom(
+      this.http.get<StandupRosterMember[]>(
+        `${this.apiBase}/teams/${teamId}/standups/roster`,
+      ),
+    );
   }
 
   async listTodayEntries(teamId: string): Promise<StandupEntryView[]> {

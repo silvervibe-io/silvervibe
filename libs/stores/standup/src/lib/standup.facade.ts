@@ -3,6 +3,8 @@ import type { MentionIssueView } from './mentions';
 import type {
   StandupAnswersInput,
   StandupConfigInput,
+  StandupRecentDay,
+  StandupRosterMember,
   TeamInviteView,
   TeamMemberView,
 } from './standup.models';
@@ -68,6 +70,26 @@ export class StandupFacade {
 
   listMembers(teamId: string): Promise<TeamMemberView[]> {
     return this.api.listMembers(teamId);
+  }
+
+  listAwayDates(teamId: string): Promise<string[]> {
+    return this.api.listAwayDates(teamId);
+  }
+
+  setAway(teamId: string, date: string, away: boolean): Promise<string[]> {
+    return this.api.setAway(teamId, date, away);
+  }
+
+  listRoster(teamId: string): Promise<StandupRosterMember[]> {
+    return this.api.listRoster(teamId);
+  }
+
+  listRecentSummaries(teamId: string): Promise<StandupRecentDay[]> {
+    return this.api.listRecentSummaries(teamId);
+  }
+
+  listRecentWork(teamId: string): Promise<MentionIssueView[]> {
+    return this.api.listRecentWork(teamId);
   }
 
   inviteByEmail(teamId: string, email: string): Promise<TeamInviteView> {

@@ -898,6 +898,48 @@ export class LinearService {
     workspaceId: string,
     query: string,
   ): Promise<MentionIssue[]> {
+    return this.linearMentionIssues(
+      workspaceId,
+      `query($term: String!) {
+          searchIssues(term: $term, first: 8) {
+            nodes { identifier title url }
+          }
+        }`,
+      { term: query.replace(/[\r\n]/g, ' ').trim() },
+      (data) => data.searchIssues?.nodes ?? [],
+    );
+  }
+
+  async recentMentionIssues(workspaceId: string): Promise<MentionIssue[]> {
+    return this.linearMentionIssues(
+      workspaceId,
+      `query {
+          viewer {
+            assignedIssues(first: 5) {
+              nodes { identifier title url }
+            }
+          }
+        }`,
+      {},
+      (data) => data.viewer?.assignedIssues?.nodes ?? [],
+    );
+  }
+
+  private async linearMentionIssues(
+    workspaceId: string,
+    query: string,
+    variables: Record<string, string>,
+    read: (data: {
+      searchIssues?: {
+        nodes?: Array<{ identifier?: string; title?: string; url?: string }>;
+      };
+      viewer?: {
+        assignedIssues?: {
+          nodes?: Array<{ identifier?: string; title?: string; url?: string }>;
+        };
+      };
+    }) => Array<{ identifier?: string; title?: string; url?: string }>,
+  ): Promise<MentionIssue[]> {
     if (!this.prisma.isEnabled()) {
       return [];
     }
@@ -932,16 +974,18 @@ export class LinearService {
         searchIssues?: {
           nodes?: Array<{ identifier?: string; title?: string; url?: string }>;
         };
-      }>(token, {
-        query: `query($term: String!) {
-          searchIssues(term: $term, first: 8) {
-            nodes { identifier title url }
-          }
-        }`,
-        variables: { term: query.replace(/[\r\n]/g, ' ').trim() },
-      });
+        viewer?: {
+          assignedIssues?: {
+            nodes?: Array<{
+              identifier?: string;
+              title?: string;
+              url?: string;
+            }>;
+          };
+        };
+      }>(token, { query, variables });
       const issues: MentionIssue[] = [];
-      for (const node of data.searchIssues?.nodes ?? []) {
+      for (const node of read(data)) {
         if (
           !node.identifier ||
           !node.url?.startsWith('https://') ||

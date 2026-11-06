@@ -86,8 +86,8 @@ def draft_markdown(state: StandupSummaryState) -> StandupSummaryState:
 
     sections = [
         f"## {state['team_name']} standup — {state['entry_date']}",
+        _bullet_section("Needs help", blocker_lines),
         _bullet_section("Today", today_lines),
-        _bullet_section("Blockers", blocker_lines),
         _bullet_section("Yesterday", yesterday_lines),
     ]
     draft = "\n\n".join(section for section in sections if section)
@@ -125,8 +125,10 @@ def polish_with_llm(state: StandupSummaryState) -> StandupSummaryState:
         "Keep markdown. Preserve every person's facts and names. "
         "Keep @Name and #KEY mentions unchanged. "
         "Do not wrap mentions in markdown links. "
-        "Be concise. Do not invent work. Keep the Today / Blockers / Yesterday "
-        "structure when those sections have content."
+        "Use short sentences and literal words. One fact per line. "
+        "Do not invent work, people, or deadlines. "
+        "Keep the Needs help / Today / Yesterday structure when those "
+        "sections have content. Do not rename those headings."
     )
     user_text = (
         f"Team: {state['team_name']}\n"

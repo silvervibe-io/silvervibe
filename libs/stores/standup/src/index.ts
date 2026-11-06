@@ -13,6 +13,7 @@ export type {
 export { StandupFacade } from './lib/standup.facade';
 export type {
   DayHours,
+  ReplyNeeded,
   StandupAnswerValue,
   StandupAnswersInput,
   StandupConfigInput,
@@ -20,6 +21,9 @@ export type {
   StandupEntryView,
   StandupQuestion,
   StandupQuestionOption,
+  StandupRecentDay,
+  StandupRosterMember,
+  StandupRosterStatus,
   StandupState,
   StandupSummaryView,
   TeamInviteView,

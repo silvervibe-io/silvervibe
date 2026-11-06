@@ -58,6 +58,64 @@
       {{ 'standup.my.summaryAt' | transloco: { time: closesAt() } }}
     </p>
     }
+    <section class="max-w-xl space-y-2">
+      <h2 class="text-lg font-semibold">
+        {{ 'standup.my.awayTitle' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.my.awayHint' | transloco }}
+      </p>
+      <ul class="flex flex-col gap-2">
+        @for (day of awayDays(); track day) {
+        <li>
+          <label class="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              class="checkbox checkbox-sm"
+              [checked]="isAway(day)"
+              (change)="toggleAway(day, awayChecked($event))"
+            />
+            {{ day }}
+          </label>
+        </li>
+        }
+      </ul>
+    </section>
+    @if (workSuggestions().length > 0) {
+    <section class="max-w-xl space-y-2">
+      <h2 class="text-lg font-semibold">
+        {{ 'standup.my.recentWork' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.my.recentWorkHint' | transloco }}
+      </p>
+      <ul class="flex flex-col gap-2">
+        @for (item of workSuggestions(); track item.provider + item.key) {
+        <li
+          class="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-base-200 p-3 text-sm"
+        >
+          <span>{{ item.key }} — {{ item.title }}</span>
+          <span class="flex gap-2">
+            <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              (click)="acceptSuggestion(item)"
+            >
+              {{ 'standup.my.acceptWork' | transloco }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm"
+              (click)="dismissSuggestion(item)"
+            >
+              {{ 'standup.my.dismissWork' | transloco }}
+            </button>
+          </span>
+        </li>
+        }
+      </ul>
+    </section>
+    }
     <form class="flex max-w-xl flex-col gap-4" (submit)="submitEntry($event)">
       @for (row of rows(); track row.questionId) { @if (questionFor(row); as
       question) {
@@ -113,7 +171,58 @@
         <p class="text-xs text-base-content/60">
           {{ 'standup.my.mentionHow' | transloco }}
         </p>
-        @if (mentionFor(question.id); as mention) {
+        @if (question.builtin === 'blockers') {
+        <div class="grid gap-3 sm:grid-cols-2">
+          <label class="flex flex-col gap-1 text-sm">
+            {{ 'standup.my.helpFrom' | transloco }}
+            <select
+              class="select select-bordered w-full"
+              [value]="row.helpFrom"
+              [disabled]="phase() !== 'open'"
+              (change)="
+                updateRow(question.id, {
+                  helpFrom: $any($event.target).value,
+                })
+              "
+            >
+              <option value="">
+                {{ 'standup.my.helpFromNone' | transloco }}
+              </option>
+              @for (member of members(); track member.userId) {
+              <option [value]="memberMention(member)">
+                {{ member.displayName || member.email || member.userId }}
+              </option>
+              }
+            </select>
+          </label>
+          <label class="flex flex-col gap-1 text-sm">
+            {{ 'standup.my.replyNeeded' | transloco }}
+            <select
+              class="select select-bordered w-full"
+              [value]="row.replyNeeded"
+              [disabled]="phase() !== 'open'"
+              (change)="
+                updateRow(question.id, {
+                  replyNeeded: $any($event.target).value,
+                })
+              "
+            >
+              <option value="">
+                {{ 'standup.my.replyNeededUnset' | transloco }}
+              </option>
+              <option value="today">
+                {{ 'standup.my.replyToday' | transloco }}
+              </option>
+              <option value="week">
+                {{ 'standup.my.replyWeek' | transloco }}
+              </option>
+              <option value="none">
+                {{ 'standup.my.replyNone' | transloco }}
+              </option>
+            </select>
+          </label>
+        </div>
+        } @if (mentionFor(question.id); as mention) {
         <ul
           class="menu menu-sm mt-1 w-full rounded-box border border-base-300 bg-base-100"
           role="listbox"
@@ -177,14 +286,32 @@
       }
     </form>
 
-    @if (summary(); as s) {
-    <section class="space-y-2 border-t border-base-300 pt-6">
+    @if (recentDays().length > 0) {
+    <section class="space-y-3 border-t border-base-300 pt-6">
       <h2 class="text-xl font-semibold">
-        {{ 'standup.my.summary' | transloco }}
+        {{ 'standup.my.recentDays' | transloco }}
       </h2>
-      <div class="rounded-lg bg-base-200 p-4 text-sm">
-        <sv-mention-text [text]="s.content" />
+      <div class="flex flex-wrap gap-2">
+        @for (day of recentDays(); track day.entryDate) {
+        <button
+          type="button"
+          class="btn btn-sm"
+          [class.btn-primary]="selectedSummaryDate() === day.entryDate"
+          (click)="selectedSummaryDate.set(day.entryDate)"
+        >
+          {{ day.entryDate }}
+        </button>
+        }
       </div>
+      @if (selectedSummary()?.content; as text) {
+      <div class="rounded-lg bg-base-200 p-4 text-sm">
+        <sv-standup-summary [text]="text" />
+      </div>
+      } @else {
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.my.noSummary' | transloco }}
+      </p>
+      }
     </section>
     } }
   </div>

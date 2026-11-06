@@ -70,6 +70,8 @@ describe('MyStandup', () => {
                     submit: 'Submit',
                     submitted: 'Submitted',
                     summary: 'Summary',
+                    recentDays: 'Recent days',
+                    noSummary: 'No summary for this day.',
                   },
                 },
                 shell: {
@@ -89,6 +91,73 @@ describe('MyStandup', () => {
       .flush([]);
     await fixture.whenStable();
     fixture.detectChanges();
+  });
+
+  it('saves an away day and reads it back', async () => {
+    const component = fixture.componentInstance;
+    const facade = TestBed.inject(StandupFacade);
+    facade.selectTeam('team-1');
+    component.awayDates.set(['2026-11-06']);
+    expect(component.isAway('2026-11-06')).toBe(true);
+    expect(component.isAway('2026-11-07')).toBe(false);
+    expect(component.awayDays()).toHaveLength(7);
+    vi.spyOn(facade, 'setAway').mockResolvedValue(['2026-11-07']);
+    await component.toggleAway('2026-11-07', true);
+    expect(facade.setAway).toHaveBeenCalledWith('team-1', '2026-11-07', true);
+    expect(component.isAway('2026-11-07')).toBe(true);
+  });
+
+  it('switches recent days and shows an empty summary', async () => {
+    const http = TestBed.inject(HttpTestingController);
+    const pending = TestBed.inject(StandupFacade).loadMyTeams('ws1');
+    http
+      .expectOne('/api/workspaces/ws1/teams/mine')
+      .flush([{ id: 't1', name: 'Alpha', slug: 'alpha', role: 'MEMBER' }]);
+    await pending;
+    const component = fixture.componentInstance;
+    component.recentDays.set([
+      { entryDate: '2026-11-06', content: null },
+      {
+        entryDate: '2026-11-05',
+        content: '### Needs help\n- Waiting on a key',
+      },
+    ]);
+    component.selectedSummaryDate.set('2026-11-06');
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain('No summary for this day.');
+    component.selectedSummaryDate.set('2026-11-05');
+    fixture.detectChanges();
+    expect(el.textContent).toContain('Waiting on a key');
+    expect(component.selectedSummary()?.entryDate).toBe('2026-11-05');
+  });
+
+  it('accepts a suggestion into today and dismiss leaves the answer', () => {
+    const component = fixture.componentInstance;
+    const issue = {
+      provider: 'jira' as const,
+      key: 'PROJ-12',
+      title: 'Ship mentions',
+      url: 'https://example.atlassian.net/browse/PROJ-12',
+    };
+    component.rows.set([
+      {
+        questionId: 'today',
+        text: 'Write the note',
+        optionId: '',
+        otherText: '',
+        helpFrom: '',
+        replyNeeded: '',
+      },
+    ]);
+    component.workSuggestions.set([issue]);
+    component.dismissSuggestion(issue);
+    expect(component.rows()[0]?.text).toBe('Write the note');
+    expect(component.workSuggestions()).toEqual([]);
+    component.workSuggestions.set([issue]);
+    component.acceptSuggestion(issue);
+    expect(component.rows()[0]?.text).toBe('Write the note\n#PROJ-12');
+    expect(component.workSuggestions()).toEqual([]);
   });
 
   it('renders the my standup title', () => {

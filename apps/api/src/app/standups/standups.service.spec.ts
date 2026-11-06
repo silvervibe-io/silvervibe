@@ -9,6 +9,7 @@ import { VerifiedUser } from '../auth/firebase-auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { TeamsService } from '../teams/teams.service';
 import { UsersService } from '../users/users.service';
+import { calendarDateInTimezone } from './standup-date.util';
 import { StandupsService } from './standups.service';
 
 const member: VerifiedUser = {
@@ -197,7 +198,15 @@ describe('StandupsService auto-summary', () => {
 
   it('skips digests already delivered for unchanged summary content', async () => {
     const entryDate = new Date('2026-10-20T00:00:00.000Z');
-    const content = '### Member\n- Yesterday: y\n- Today: same';
+    const content = [
+      `## Alpha standup — ${calendarDateInTimezone('UTC')}`,
+      '',
+      '### Today',
+      '- **Member**: same',
+      '',
+      '### Yesterday',
+      '- **Member**: y',
+    ].join('\n');
     const prisma = {
       isEnabled: () => true,
       standupConfig: {

@@ -18,7 +18,7 @@ import {
 } from '@angular/forms/signals';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { MentionText, Shell } from '@silvervibe/shared/ui';
+import { MentionText, Shell, StandupSummary } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import {
   isWithinWorkHours,
@@ -28,6 +28,7 @@ import {
   type StandupAccessInput,
   type StandupQuestion,
   type TeamInviteView,
+  type StandupRosterMember,
   type TeamMemberView,
 } from '@silvervibe/stores/standup';
 import {
@@ -60,7 +61,14 @@ type InviteModel = {
 
 @Component({
   selector: 'vs-team-admin',
-  imports: [FormField, MentionText, RouterLink, Shell, TranslocoPipe],
+  imports: [
+    FormField,
+    MentionText,
+    RouterLink,
+    Shell,
+    StandupSummary,
+    TranslocoPipe,
+  ],
   templateUrl: './team-admin.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -84,6 +92,7 @@ export class TeamAdmin implements OnInit {
   readonly teamEntries = this.standup.teamEntries;
   readonly summary = this.standup.summary;
   readonly members = signal<TeamMemberView[]>([]);
+  readonly roster = signal<StandupRosterMember[]>([]);
   readonly pendingInvites = signal<TeamInviteView[]>([]);
   readonly message = signal<string | null>(null);
   readonly inviteError = signal<string | null>(null);
@@ -239,12 +248,14 @@ export class TeamAdmin implements OnInit {
         config.questionsJson.map((question) => ({ ...question })),
       );
     }
-    const [members, invites] = await Promise.all([
+    const [members, invites, roster] = await Promise.all([
       this.standup.listMembers(teamId),
       this.standup.listInvites(teamId),
+      this.standup.listRoster(teamId).catch(() => [] as StandupRosterMember[]),
     ]);
     this.members.set(members);
     this.pendingInvites.set(invites);
+    this.roster.set(roster);
     await Promise.all([
       this.refreshSlackChannel(teamId),
       this.refreshLinearTarget(teamId),

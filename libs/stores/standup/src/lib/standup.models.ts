@@ -5,10 +5,14 @@ export type TeamView = {
   role: 'ADMIN' | 'MEMBER';
 };
 
+export type ReplyNeeded = 'today' | 'week' | 'none';
+
 export type StandupAnswerValue = {
   text?: string;
   optionId?: string;
   otherText?: string;
+  helpFrom?: string;
+  replyNeeded?: ReplyNeeded;
 };
 
 export type StandupQuestionOption = {
@@ -46,6 +50,20 @@ export type StandupEntryView = {
   today: string | null;
   blockers: string | null;
   answersJson: Record<string, StandupAnswerValue>;
+};
+
+export type StandupRosterStatus = 'posted' | 'open' | 'away';
+
+export type StandupRosterMember = {
+  userId: string;
+  name: string;
+  status: StandupRosterStatus;
+  today: string | null;
+};
+
+export type StandupRecentDay = {
+  entryDate: string;
+  content: string | null;
 };
 
 export type StandupSummaryView = {

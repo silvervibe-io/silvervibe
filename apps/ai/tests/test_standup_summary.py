@@ -34,12 +34,14 @@ def test_draft_markdown_groups_by_section() -> None:
 
     markdown = result["markdown"]
     assert "## Alpha standup — 2026-10-27" in markdown
-    assert "### Today" in markdown
+    help_at = markdown.index("### Needs help")
+    today_at = markdown.index("### Today")
+    yesterday_at = markdown.index("### Yesterday")
+    assert help_at < today_at < yesterday_at
+    assert "### Blockers" not in markdown
     assert "**Ada**: Digests" in markdown
     assert "**Bob**: Review" in markdown
-    assert "### Blockers" in markdown
     assert "**Bob**: Waiting on key" in markdown
-    assert "### Yesterday" in markdown
     assert result["used_llm"] is False
 
 
