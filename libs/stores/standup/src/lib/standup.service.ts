@@ -28,6 +28,7 @@ import type {
   StandupConfigView,
   StandupEntryView,
   StandupQuestion,
+  StandupRecentDay,
   StandupRosterMember,
   StandupSummaryView,
   TeamInviteView,
@@ -334,6 +335,14 @@ export class StandupService {
       ),
     );
     return body.dates ?? [];
+  }
+
+  async listRecentSummaries(teamId: string): Promise<StandupRecentDay[]> {
+    return firstValueFrom(
+      this.http.get<StandupRecentDay[]>(
+        `${this.apiBase}/teams/${teamId}/standups/recent`,
+      ),
+    );
   }
 
   async listRoster(teamId: string): Promise<StandupRosterMember[]> {

@@ -30,6 +30,7 @@ import {
   type ReplyNeeded,
   type StandupAnswerValue,
   type StandupQuestion,
+  type StandupRecentDay,
   type TeamMemberView,
 } from '@silvervibe/stores/standup';
 import { WorkspaceFacade } from '@silvervibe/stores/workspace';
@@ -104,6 +105,16 @@ export class MyStandup implements OnInit {
   readonly rows = signal<AnswerRow[]>([]);
   readonly members = signal<TeamMemberView[]>([]);
   readonly awayDates = signal<string[]>([]);
+  readonly recentDays = signal<StandupRecentDay[]>([]);
+  readonly selectedSummaryDate = signal<string | null>(null);
+  readonly selectedSummary = computed(() => {
+    const selected = this.selectedSummaryDate();
+    return (
+      this.recentDays().find((day) => day.entryDate === selected) ??
+      this.recentDays()[0] ??
+      null
+    );
+  });
   readonly awayDays = computed(() => {
     const start = new Date();
     return Array.from({ length: 7 }, (_, index) => {
@@ -255,6 +266,7 @@ export class MyStandup implements OnInit {
           this.standup.loadToday(teamId),
           this.refreshMembers(teamId),
           this.refreshAway(teamId),
+          this.refreshRecent(teamId),
         ]);
       }
     } finally {
@@ -278,6 +290,7 @@ export class MyStandup implements OnInit {
       this.standup.loadToday(teamId),
       this.refreshMembers(teamId),
       this.refreshAway(teamId),
+      this.refreshRecent(teamId),
     ]);
   }
 
@@ -459,6 +472,20 @@ export class MyStandup implements OnInit {
       return;
     }
     this.awayDates.set(await this.standup.setAway(teamId, date, away));
+  }
+
+  private async refreshRecent(teamId: string): Promise<void> {
+    try {
+      const days = await this.standup.listRecentSummaries(teamId);
+      this.recentDays.set(days);
+      const selected = this.selectedSummaryDate();
+      if (!selected || !days.some((day) => day.entryDate === selected)) {
+        this.selectedSummaryDate.set(days[0]?.entryDate ?? null);
+      }
+    } catch {
+      this.recentDays.set([]);
+      this.selectedSummaryDate.set(null);
+    }
   }
 
   private async refreshAway(teamId: string): Promise<void> {

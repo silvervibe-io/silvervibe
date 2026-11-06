@@ -21,11 +21,16 @@ import {
   SetStandupAwayDto,
   StandupAwayDatesDto,
   StandupEntryDto,
+  StandupRecentDayDto,
   StandupRosterMemberDto,
   StandupSummaryDto,
   UpsertStandupEntryDto,
 } from './standup.dto';
-import { calendarDateInTimezone, parseCalendarDate } from './standup-date.util';
+import {
+  calendarDateInTimezone,
+  parseCalendarDate,
+  recentCalendarDates,
+} from './standup-date.util';
 import {
   answerDisplay,
   answersAreComplete,
@@ -485,6 +490,42 @@ export class StandupsService {
       entryDate: summary.entryDate.toISOString().slice(0, 10),
       content: summary.content,
     };
+  }
+
+  async listRecent(
+    teamId: string,
+    user: VerifiedUser,
+    now: Date = new Date(),
+  ): Promise<StandupRecentDayDto[]> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    const membership = await this.teams.requireTeamMember(teamId, userId);
+    const stored = await this.prisma.standupConfig.findUnique({
+      where: { teamId },
+    });
+    const schedule = scheduleFromConfig(stored);
+    const today = calendarDateInTimezone(schedule.timezone, now);
+    const dates = recentCalendarDates(today);
+    const rows = await this.prisma.standupSummary.findMany({
+      where: {
+        teamId,
+        entryDate: { in: dates.map((date) => parseCalendarDate(date)) },
+      },
+    });
+    const byDate = new Map(
+      rows.map((row) => [
+        row.entryDate.toISOString().slice(0, 10),
+        row.content,
+      ]),
+    );
+    const hideToday = !isRevealed(schedule, now) && membership.role !== 'ADMIN';
+    return dates.map((entryDate) => ({
+      entryDate,
+      content:
+        hideToday && entryDate === today
+          ? null
+          : (byDate.get(entryDate) ?? null),
+    }));
   }
 
   async rebuildSummary(

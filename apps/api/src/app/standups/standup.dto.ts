@@ -261,6 +261,14 @@ export class StandupRosterMemberDto {
   today!: string | null;
 }
 
+export class StandupRecentDayDto {
+  @ApiProperty()
+  entryDate!: string;
+
+  @ApiProperty({ required: false, nullable: true })
+  content!: string | null;
+}
+
 export class StandupSummaryDto {
   @ApiProperty()
   id!: string;

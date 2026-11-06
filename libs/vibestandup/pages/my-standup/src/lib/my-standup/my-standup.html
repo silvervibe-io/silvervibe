@@ -251,14 +251,32 @@
       }
     </form>
 
-    @if (summary(); as s) {
-    <section class="space-y-2 border-t border-base-300 pt-6">
+    @if (recentDays().length > 0) {
+    <section class="space-y-3 border-t border-base-300 pt-6">
       <h2 class="text-xl font-semibold">
-        {{ 'standup.my.summary' | transloco }}
+        {{ 'standup.my.recentDays' | transloco }}
       </h2>
-      <div class="rounded-lg bg-base-200 p-4 text-sm">
-        <sv-standup-summary [text]="s.content" />
+      <div class="flex flex-wrap gap-2">
+        @for (day of recentDays(); track day.entryDate) {
+        <button
+          type="button"
+          class="btn btn-sm"
+          [class.btn-primary]="selectedSummaryDate() === day.entryDate"
+          (click)="selectedSummaryDate.set(day.entryDate)"
+        >
+          {{ day.entryDate }}
+        </button>
+        }
       </div>
+      @if (selectedSummary()?.content; as text) {
+      <div class="rounded-lg bg-base-200 p-4 text-sm">
+        <sv-standup-summary [text]="text" />
+      </div>
+      } @else {
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.my.noSummary' | transloco }}
+      </p>
+      }
     </section>
     } }
   </div>

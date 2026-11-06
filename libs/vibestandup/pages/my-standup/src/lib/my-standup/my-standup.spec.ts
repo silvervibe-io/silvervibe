@@ -70,6 +70,8 @@ describe('MyStandup', () => {
                     submit: 'Submit',
                     submitted: 'Submitted',
                     summary: 'Summary',
+                    recentDays: 'Recent days',
+                    noSummary: 'No summary for this day.',
                   },
                 },
                 shell: {
@@ -103,6 +105,31 @@ describe('MyStandup', () => {
     await component.toggleAway('2026-11-07', true);
     expect(facade.setAway).toHaveBeenCalledWith('team-1', '2026-11-07', true);
     expect(component.isAway('2026-11-07')).toBe(true);
+  });
+
+  it('switches recent days and shows an empty summary', async () => {
+    const http = TestBed.inject(HttpTestingController);
+    const pending = TestBed.inject(StandupFacade).loadMyTeams('ws1');
+    http
+      .expectOne('/api/workspaces/ws1/teams/mine')
+      .flush([{ id: 't1', name: 'Alpha', slug: 'alpha', role: 'MEMBER' }]);
+    await pending;
+    const component = fixture.componentInstance;
+    component.recentDays.set([
+      { entryDate: '2026-11-06', content: null },
+      {
+        entryDate: '2026-11-05',
+        content: '### Needs help\n- Waiting on a key',
+      },
+    ]);
+    component.selectedSummaryDate.set('2026-11-06');
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain('No summary for this day.');
+    component.selectedSummaryDate.set('2026-11-05');
+    fixture.detectChanges();
+    expect(el.textContent).toContain('Waiting on a key');
+    expect(component.selectedSummary()?.entryDate).toBe('2026-11-05');
   });
 
   it('renders the my standup title', () => {

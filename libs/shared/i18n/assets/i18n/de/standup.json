@@ -41,6 +41,8 @@
     "replyNone": "Keine Antwort nötig",
     "awayTitle": "Tage ohne Update",
     "awayHint": "Diese Tage zählen nicht als verpasster Standup.",
+    "recentDays": "Letzte Tage",
+    "noSummary": "Keine Zusammenfassung für diesen Tag.",
     "planHint": "Vorschau-Tarif {{plan}}: bis {{teams}} Teams, {{members}} Mitglieder pro Team (nur UI — API nutzt echte Rollen).",
     "opensAt": "Das Standup öffnet um {{time}}.",
     "closed": "Das Standup ist heute geschlossen.",

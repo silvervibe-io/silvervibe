@@ -61,6 +61,11 @@ export type StandupRosterMember = {
   today: string | null;
 };
 
+export type StandupRecentDay = {
+  entryDate: string;
+  content: string | null;
+};
+
 export type StandupSummaryView = {
   id: string;
   teamId: string;
