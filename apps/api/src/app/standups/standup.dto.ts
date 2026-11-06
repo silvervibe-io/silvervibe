@@ -174,7 +174,13 @@ export class StandupEntryDto {
   @ApiProperty({ type: 'object', additionalProperties: true })
   answersJson!: Record<
     string,
-    { text?: string; optionId?: string; otherText?: string }
+    {
+      text?: string;
+      optionId?: string;
+      otherText?: string;
+      helpFrom?: string;
+      replyNeeded?: 'today' | 'week' | 'none';
+    }
   >;
 }
 
@@ -196,7 +202,13 @@ export class UpsertStandupEntryDto {
   @IsObject()
   answers?: Record<
     string,
-    { text?: string; optionId?: string; otherText?: string }
+    {
+      text?: string;
+      optionId?: string;
+      otherText?: string;
+      helpFrom?: string;
+      replyNeeded?: 'today' | 'week' | 'none';
+    }
   >;
 
   @ApiProperty({ enum: ['DRAFT', 'SUBMITTED'] })

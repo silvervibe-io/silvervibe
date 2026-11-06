@@ -5,10 +5,14 @@ export type TeamView = {
   role: 'ADMIN' | 'MEMBER';
 };
 
+export type ReplyNeeded = 'today' | 'week' | 'none';
+
 export type StandupAnswerValue = {
   text?: string;
   optionId?: string;
   otherText?: string;
+  helpFrom?: string;
+  replyNeeded?: ReplyNeeded;
 };
 
 export type StandupQuestionOption = {
