@@ -103,6 +103,20 @@ export class MyStandup implements OnInit {
   readonly clock = signal(Date.now());
   readonly rows = signal<AnswerRow[]>([]);
   readonly members = signal<TeamMemberView[]>([]);
+  readonly awayDates = signal<string[]>([]);
+  readonly awayDays = computed(() => {
+    const start = new Date();
+    return Array.from({ length: 7 }, (_, index) => {
+      const day = new Date(
+        Date.UTC(
+          start.getUTCFullYear(),
+          start.getUTCMonth(),
+          start.getUTCDate() + index,
+        ),
+      );
+      return day.toISOString().slice(0, 10);
+    });
+  });
   readonly mention = signal<MentionSession | null>(null);
   readonly mentionIndex = signal(0);
   readonly issueHits = signal<MentionIssueView[]>([]);
@@ -240,6 +254,7 @@ export class MyStandup implements OnInit {
         await Promise.all([
           this.standup.loadToday(teamId),
           this.refreshMembers(teamId),
+          this.refreshAway(teamId),
         ]);
       }
     } finally {
@@ -262,6 +277,7 @@ export class MyStandup implements OnInit {
     await Promise.all([
       this.standup.loadToday(teamId),
       this.refreshMembers(teamId),
+      this.refreshAway(teamId),
     ]);
   }
 
@@ -425,6 +441,31 @@ export class MyStandup implements OnInit {
         target.value = next;
         target.setSelectionRange(caret, caret);
       });
+    }
+  }
+
+  awayChecked(event: Event): boolean {
+    const target = event.target;
+    return target instanceof HTMLInputElement && target.checked;
+  }
+
+  isAway(date: string): boolean {
+    return this.awayDates().includes(date);
+  }
+
+  async toggleAway(date: string, away: boolean): Promise<void> {
+    const teamId = this.selectedTeamId();
+    if (!teamId) {
+      return;
+    }
+    this.awayDates.set(await this.standup.setAway(teamId, date, away));
+  }
+
+  private async refreshAway(teamId: string): Promise<void> {
+    try {
+      this.awayDates.set(await this.standup.listAwayDates(teamId));
+    } catch {
+      this.awayDates.set([]);
     }
   }
 

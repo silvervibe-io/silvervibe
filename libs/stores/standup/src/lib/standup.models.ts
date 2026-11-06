@@ -52,6 +52,15 @@ export type StandupEntryView = {
   answersJson: Record<string, StandupAnswerValue>;
 };
 
+export type StandupRosterStatus = 'posted' | 'open' | 'away';
+
+export type StandupRosterMember = {
+  userId: string;
+  name: string;
+  status: StandupRosterStatus;
+  today: string | null;
+};
+
 export type StandupSummaryView = {
   id: string;
   teamId: string;

@@ -58,6 +58,29 @@
       {{ 'standup.my.summaryAt' | transloco: { time: closesAt() } }}
     </p>
     }
+    <section class="max-w-xl space-y-2">
+      <h2 class="text-lg font-semibold">
+        {{ 'standup.my.awayTitle' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.my.awayHint' | transloco }}
+      </p>
+      <ul class="flex flex-col gap-2">
+        @for (day of awayDays(); track day) {
+        <li>
+          <label class="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              class="checkbox checkbox-sm"
+              [checked]="isAway(day)"
+              (change)="toggleAway(day, awayChecked($event))"
+            />
+            {{ day }}
+          </label>
+        </li>
+        }
+      </ul>
+    </section>
     <form class="flex max-w-xl flex-col gap-4" (submit)="submitEntry($event)">
       @for (row of rows(); track row.questionId) { @if (questionFor(row); as
       question) {

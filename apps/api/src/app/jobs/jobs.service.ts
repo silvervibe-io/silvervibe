@@ -23,6 +23,7 @@ export type StandupReminderRunResult = {
   emailed: number;
   skippedNoEmail: number;
   skippedSubmitted: number;
+  skippedAway: number;
   skippedOutsideWindow: number;
   mailErrors: number;
 };
@@ -59,6 +60,7 @@ export class JobsService {
         emailed: 0,
         skippedNoEmail: 0,
         skippedSubmitted: 0,
+        skippedAway: 0,
         skippedOutsideWindow: 0,
         mailErrors: 0,
       };
@@ -79,6 +81,7 @@ export class JobsService {
     let emailed = 0;
     let skippedNoEmail = 0;
     let skippedSubmitted = 0;
+    let skippedAway = 0;
     let skippedOutsideWindow = 0;
     let mailErrors = 0;
 
@@ -114,10 +117,19 @@ export class JobsService {
         select: { userId: true },
       });
       const submittedIds = new Set(submitted.map((row) => row.userId));
+      const away = await this.prisma.standupAway.findMany({
+        where: { teamId: team.id, entryDate },
+        select: { userId: true },
+      });
+      const awayIds = new Set(away.map((row) => row.userId));
 
       for (const member of team.members) {
         if (submittedIds.has(member.userId)) {
           skippedSubmitted += 1;
+          continue;
+        }
+        if (awayIds.has(member.userId)) {
+          skippedAway += 1;
           continue;
         }
         const to = member.user.email?.trim();
@@ -148,6 +160,7 @@ export class JobsService {
       emailed,
       skippedNoEmail,
       skippedSubmitted,
+      skippedAway,
       skippedOutsideWindow,
       mailErrors,
     };

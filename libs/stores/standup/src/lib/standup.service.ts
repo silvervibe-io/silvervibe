@@ -28,6 +28,7 @@ import type {
   StandupConfigView,
   StandupEntryView,
   StandupQuestion,
+  StandupRosterMember,
   StandupSummaryView,
   TeamInviteView,
   TeamMemberView,
@@ -310,6 +311,37 @@ export class StandupService {
       }),
     );
     return mapEntry(dto);
+  }
+
+  async listAwayDates(teamId: string): Promise<string[]> {
+    const body = await firstValueFrom(
+      this.http.get<{ dates: string[] }>(
+        `${this.apiBase}/teams/${teamId}/standups/away`,
+      ),
+    );
+    return body.dates ?? [];
+  }
+
+  async setAway(
+    teamId: string,
+    date: string,
+    away: boolean,
+  ): Promise<string[]> {
+    const body = await firstValueFrom(
+      this.http.put<{ dates: string[] }>(
+        `${this.apiBase}/teams/${teamId}/standups/away`,
+        { date, away },
+      ),
+    );
+    return body.dates ?? [];
+  }
+
+  async listRoster(teamId: string): Promise<StandupRosterMember[]> {
+    return firstValueFrom(
+      this.http.get<StandupRosterMember[]>(
+        `${this.apiBase}/teams/${teamId}/standups/roster`,
+      ),
+    );
   }
 
   async listTodayEntries(teamId: string): Promise<StandupEntryView[]> {

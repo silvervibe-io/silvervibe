@@ -28,6 +28,7 @@ import {
   type StandupAccessInput,
   type StandupQuestion,
   type TeamInviteView,
+  type StandupRosterMember,
   type TeamMemberView,
 } from '@silvervibe/stores/standup';
 import {
@@ -91,6 +92,7 @@ export class TeamAdmin implements OnInit {
   readonly teamEntries = this.standup.teamEntries;
   readonly summary = this.standup.summary;
   readonly members = signal<TeamMemberView[]>([]);
+  readonly roster = signal<StandupRosterMember[]>([]);
   readonly pendingInvites = signal<TeamInviteView[]>([]);
   readonly message = signal<string | null>(null);
   readonly inviteError = signal<string | null>(null);
@@ -246,12 +248,14 @@ export class TeamAdmin implements OnInit {
         config.questionsJson.map((question) => ({ ...question })),
       );
     }
-    const [members, invites] = await Promise.all([
+    const [members, invites, roster] = await Promise.all([
       this.standup.listMembers(teamId),
       this.standup.listInvites(teamId),
+      this.standup.listRoster(teamId).catch(() => [] as StandupRosterMember[]),
     ]);
     this.members.set(members);
     this.pendingInvites.set(invites);
+    this.roster.set(roster);
     await Promise.all([
       this.refreshSlackChannel(teamId),
       this.refreshLinearTarget(teamId),

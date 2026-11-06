@@ -18,7 +18,10 @@ import { TeamsService } from '../teams/teams.service';
 import { UsersService } from '../users/users.service';
 import {
   StandupConfigDto,
+  SetStandupAwayDto,
+  StandupAwayDatesDto,
   StandupEntryDto,
+  StandupRosterMemberDto,
   StandupSummaryDto,
   UpsertStandupEntryDto,
 } from './standup.dto';
@@ -338,6 +341,117 @@ export class StandupsService {
       orderBy: { updatedAt: 'desc' },
     });
     return entries.map((e) => this.toEntryDto(e));
+  }
+
+  async listAway(
+    teamId: string,
+    user: VerifiedUser,
+  ): Promise<StandupAwayDatesDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    await this.teams.requireTeamMember(teamId, userId);
+    return { dates: await this.awayDates(teamId, userId) };
+  }
+
+  async setAway(
+    teamId: string,
+    user: VerifiedUser,
+    body: SetStandupAwayDto,
+  ): Promise<StandupAwayDatesDto> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    await this.teams.requireTeamMember(teamId, userId);
+    const entryDate = parseCalendarDate(body.date);
+    const today = parseCalendarDate(
+      calendarDateInTimezone(
+        (await this.prisma.standupConfig.findUnique({ where: { teamId } }))
+          ?.timezone ?? 'UTC',
+      ),
+    );
+    const latest = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
+    if (entryDate < today || entryDate > latest) {
+      throw new BadRequestException('standup.away');
+    }
+    if (body.away) {
+      await this.prisma.standupAway.upsert({
+        where: {
+          teamId_userId_entryDate: { teamId, userId, entryDate },
+        },
+        create: { teamId, userId, entryDate },
+        update: {},
+      });
+    } else {
+      await this.prisma.standupAway.deleteMany({
+        where: { teamId, userId, entryDate },
+      });
+    }
+    return { dates: await this.awayDates(teamId, userId) };
+  }
+
+  async listRoster(
+    teamId: string,
+    user: VerifiedUser,
+    dateStr?: string,
+  ): Promise<StandupRosterMemberDto[]> {
+    this.ensureDb();
+    const userId = (await this.users.upsertFromFirebase(user)).id;
+    await this.teams.requireTeamMember(teamId, userId);
+    const entryDate = await this.resolveEntryDate(teamId, dateStr);
+    const [members, entries, aways] = await Promise.all([
+      this.prisma.teamMember.findMany({
+        where: { teamId },
+        include: { user: true },
+        orderBy: { createdAt: 'asc' },
+      }),
+      this.prisma.standupEntry.findMany({
+        where: { teamId, entryDate },
+      }),
+      this.prisma.standupAway.findMany({
+        where: { teamId, entryDate },
+        select: { userId: true },
+      }),
+    ]);
+    const submitted = new Map(
+      entries
+        .filter((entry) => entry.status === StandupEntryStatus.SUBMITTED)
+        .map((entry) => [entry.userId, entry.today]),
+    );
+    const awayIds = new Set(aways.map((row) => row.userId));
+    return members.map((member) => {
+      const name =
+        member.user.displayName || member.user.email || member.userId;
+      if (submitted.has(member.userId)) {
+        return {
+          userId: member.userId,
+          name,
+          status: 'posted' as const,
+          today: submitted.get(member.userId) ?? null,
+        };
+      }
+      if (awayIds.has(member.userId)) {
+        return {
+          userId: member.userId,
+          name,
+          status: 'away' as const,
+          today: null,
+        };
+      }
+      return {
+        userId: member.userId,
+        name,
+        status: 'open' as const,
+        today: null,
+      };
+    });
+  }
+
+  private async awayDates(teamId: string, userId: string): Promise<string[]> {
+    const rows = await this.prisma.standupAway.findMany({
+      where: { teamId, userId },
+      orderBy: { entryDate: 'asc' },
+      select: { entryDate: true },
+    });
+    return rows.map((row) => row.entryDate.toISOString().slice(0, 10));
   }
 
   async getSummary(

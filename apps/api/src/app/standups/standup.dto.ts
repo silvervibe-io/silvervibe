@@ -5,6 +5,7 @@ import {
   IsBoolean,
   IsIn,
   IsInt,
+  Matches,
   IsObject,
   IsOptional,
   IsString,
@@ -228,6 +229,36 @@ export class MentionIssueDto {
 
   @ApiProperty()
   url!: string;
+}
+
+export class StandupAwayDatesDto {
+  @ApiProperty({ type: [String] })
+  dates!: string[];
+}
+
+export class SetStandupAwayDto {
+  @ApiProperty()
+  @IsString()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  date!: string;
+
+  @ApiProperty()
+  @IsBoolean()
+  away!: boolean;
+}
+
+export class StandupRosterMemberDto {
+  @ApiProperty()
+  userId!: string;
+
+  @ApiProperty()
+  name!: string;
+
+  @ApiProperty({ enum: ['posted', 'open', 'away'] })
+  status!: 'posted' | 'open' | 'away';
+
+  @ApiProperty({ required: false, nullable: true })
+  today!: string | null;
 }
 
 export class StandupSummaryDto {
