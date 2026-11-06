@@ -67,11 +67,12 @@ describe('JobsService', () => {
       expect.objectContaining({
         to: 'a@example.com',
         teamName: 'Alpha',
+        windowLabel: 'Post before 09:00 (UTC).',
       }),
     );
   });
 
-  it('skips teams outside their reminder window', async () => {
+  it('does not email a member before their work day starts', async () => {
     const sendStandupReminder = jest.fn().mockResolvedValue({ sent: true });
     const prisma = {
       isEnabled: () => true,
@@ -91,7 +92,13 @@ describe('JobsService', () => {
             members: [
               {
                 userId: 'u1',
-                user: { email: 'a@example.com' },
+                user: {
+                  email: 'a@example.com',
+                  timezone: 'UTC',
+                  workHoursJson: {
+                    mon: { enabled: true, start: '14:00', end: '18:00' },
+                  },
+                },
               },
             ],
           },
@@ -161,5 +168,77 @@ describe('JobsService', () => {
     expect(result.skippedAway).toBe(1);
     expect(result.emailed).toBe(0);
     expect(sendStandupReminder).not.toHaveBeenCalled();
+  });
+
+  it('emails each member at their own work-day start', async () => {
+    const sendStandupReminder = jest.fn().mockResolvedValue({ sent: true });
+    const prisma = {
+      isEnabled: () => true,
+      workspaceTool: {
+        findMany: jest.fn().mockResolvedValue([{ workspaceId: 'ws1' }]),
+      },
+      team: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'team1',
+            name: 'Alpha',
+            standupConfig: {
+              timezone: 'UTC',
+              scheduleKind: 'WINDOW',
+              windowStartHour: 8,
+              windowStartMinute: 0,
+              reminderHour: 10,
+              reminderMinute: 0,
+            },
+            members: [
+              {
+                userId: 'ny',
+                user: {
+                  email: 'ny@example.com',
+                  timezone: 'America/New_York',
+                  workHoursJson: {
+                    mon: { enabled: true, start: '09:00', end: '17:00' },
+                  },
+                },
+              },
+              {
+                userId: 'ath',
+                user: {
+                  email: 'ath@example.com',
+                  timezone: 'Europe/Athens',
+                  workHoursJson: {
+                    mon: { enabled: true, start: '09:00', end: '17:00' },
+                  },
+                },
+              },
+            ],
+          },
+        ]),
+      },
+      standupEntry: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      standupAway: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+    };
+
+    const service = new JobsService(
+      prisma as unknown as PrismaService,
+      { sendStandupReminder } as unknown as MailService,
+    );
+
+    const result = await service.runStandupReminders(
+      new Date('2026-06-15T13:07:00.000Z'),
+    );
+    expect(result.emailed).toBe(1);
+    expect(result.skippedOutsideWindow).toBe(1);
+    expect(sendStandupReminder).toHaveBeenCalledTimes(1);
+    expect(sendStandupReminder).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'ny@example.com',
+        windowLabel: 'Post between 04:00 and 06:00 (America/New_York).',
+      }),
+    );
   });
 });

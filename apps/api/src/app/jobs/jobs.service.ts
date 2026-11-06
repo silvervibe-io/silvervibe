@@ -10,13 +10,18 @@ import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   calendarDateInTimezone,
+  clockInTimezone,
+  clockLabel,
+  instantAtLocalTime,
+  isInReminderWindow,
   parseCalendarDate,
 } from '../standups/standup-date.util';
 import {
-  isReminderSlot,
   scheduleFromConfig,
+  type StandupSchedule,
 } from '../standups/standup-schedule';
 import { StandupsService } from '../standups/standups.service';
+import { weekdayInTimezone, weekFromStorage } from '../users/work-hours';
 
 export type StandupReminderRunResult = {
   teamsChecked: number;
@@ -100,8 +105,11 @@ export class JobsService {
         }
       }
 
-      if (!isReminderSlot(schedule, now)) {
-        skippedOutsideWindow += 1;
+      const due = team.members.filter((member) =>
+        isWorkdayStart(member.user, now),
+      );
+      if (due.length === 0) {
+        skippedOutsideWindow += team.members.length;
         continue;
       }
 
@@ -122,8 +130,9 @@ export class JobsService {
         select: { userId: true },
       });
       const awayIds = new Set(away.map((row) => row.userId));
+      skippedOutsideWindow += team.members.length - due.length;
 
-      for (const member of team.members) {
+      for (const member of due) {
         if (submittedIds.has(member.userId)) {
           skippedSubmitted += 1;
           continue;
@@ -143,6 +152,11 @@ export class JobsService {
           teamName: team.name,
           entryDate: day,
           standupUrl: `${standupBase}/app`,
+          windowLabel: postingWindowLabel(
+            schedule,
+            member.user.timezone?.trim() || 'UTC',
+            now,
+          ),
         });
         if (result.sent) {
           emailed += 1;
@@ -165,4 +179,50 @@ export class JobsService {
       mailErrors,
     };
   }
+}
+
+function isWorkdayStart(
+  user: { timezone?: string | null; workHoursJson?: unknown },
+  now: Date,
+): boolean {
+  const timeZone = user.timezone?.trim() || 'UTC';
+  const hours = weekFromStorage(user.workHoursJson)[
+    weekdayInTimezone(timeZone, now)
+  ];
+  if (!hours.enabled) {
+    return false;
+  }
+  const [hour, minute] = hours.start.split(':').map((part) => Number(part));
+  return isInReminderWindow(timeZone, hour, minute, now);
+}
+
+function postingWindowLabel(
+  schedule: StandupSchedule,
+  memberTimezone: string,
+  now: Date,
+): string {
+  const day = calendarDateInTimezone(schedule.timezone, now);
+  const end = clockInTimezone(
+    memberTimezone,
+    instantAtLocalTime(
+      day,
+      schedule.endHour,
+      schedule.endMinute,
+      schedule.timezone,
+    ),
+  );
+  const endLabel = clockLabel(end.hour, end.minute);
+  if (schedule.scheduleKind === 'deadline') {
+    return `Post before ${endLabel} (${memberTimezone}).`;
+  }
+  const start = clockInTimezone(
+    memberTimezone,
+    instantAtLocalTime(
+      day,
+      schedule.windowStartHour,
+      schedule.windowStartMinute,
+      schedule.timezone,
+    ),
+  );
+  return `Post between ${clockLabel(start.hour, start.minute)} and ${endLabel} (${memberTimezone}).`;
 }

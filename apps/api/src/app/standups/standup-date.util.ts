@@ -54,6 +54,38 @@ export function isInReminderWindow(
   return localSlot === targetSlot;
 }
 
+function pad2(value: number): string {
+  return String(value).padStart(2, '0');
+}
+
+/** UTC instant when `timeZone` shows `date` at `hour`:`minute`. */
+export function instantAtLocalTime(
+  date: string,
+  hour: number,
+  minute: number,
+  timeZone: string,
+): Date {
+  const desired = Date.parse(`${date}T${pad2(hour)}:${pad2(minute)}:00.000Z`);
+  let guess = desired;
+  for (let step = 0; step < 3; step += 1) {
+    const seenDate = calendarDateInTimezone(timeZone, new Date(guess));
+    const seen = clockInTimezone(timeZone, new Date(guess));
+    const seenStamp = Date.parse(
+      `${seenDate}T${pad2(seen.hour)}:${pad2(seen.minute)}:00.000Z`,
+    );
+    const delta = desired - seenStamp;
+    if (delta === 0) {
+      break;
+    }
+    guess += delta;
+  }
+  return new Date(guess);
+}
+
+export function clockLabel(hour: number, minute: number): string {
+  return `${pad2(hour)}:${pad2(minute)}`;
+}
+
 /** Midnight UTC for a YYYY-MM-DD calendar day (matches Prisma Date @db.Date usage). */
 export function parseCalendarDate(dateStr: string): Date {
   const iso = dateStr.trim().slice(0, 10);
