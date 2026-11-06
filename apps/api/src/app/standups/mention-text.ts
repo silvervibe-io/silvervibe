@@ -30,14 +30,32 @@ export function parseMentionSegments(value: string): MentionSegment[] {
   return segments;
 }
 
-/** Markdown digests: person tokens become bold names, issue links stay. */
+function atName(label: string): string {
+  const visible = label
+    .replace(/[[\]()\r\n]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^@+/, '');
+  return visible ? `@${visible}` : '';
+}
+
+function hashName(label: string): string {
+  const visible = label
+    .replace(/[[\]()\r\n]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^#+/, '');
+  return visible ? `#${visible}` : '';
+}
+
+/** Markdown digests: mention tokens become `@Name` and `#Name`. */
 export function mentionsToMarkdown(value: string): string {
   return value.replace(MENTION, (full, label: string, target: string) => {
     if (target.startsWith('mention:user:')) {
-      return `**${label}**`;
+      return atName(label) || full;
     }
     if (target.startsWith('https://')) {
-      return `[${label}](${target})`;
+      return hashName(label) || full;
     }
     return full;
   });
@@ -51,14 +69,14 @@ function slackPlain(value: string): string {
     .replace(/\|/g, '/');
 }
 
-/** Slack mrkdwn: person tokens become bold, https links become `<url|label>`. */
+/** Slack mrkdwn: mention tokens become `@Name` and `#Name`. */
 export function mentionsToSlack(value: string): string {
   return value.replace(MENTION, (full, label: string, target: string) => {
     if (target.startsWith('mention:user:')) {
-      return `*${slackPlain(label)}*`;
+      return slackPlain(atName(label) || full);
     }
     if (target.startsWith('https://')) {
-      return `<${target}|${slackPlain(label)}>`;
+      return slackPlain(hashName(label) || full);
     }
     return full;
   });
@@ -70,7 +88,7 @@ type AdfNode = {
   marks?: Array<{ type: 'strong' } | { type: 'link'; attrs: { href: string } }>;
 };
 
-/** Jira ADF: person tokens are strong, https links are link marks. */
+/** Jira ADF: mention tokens become plain `@Name` and `#Name` text. */
 export function mentionsToAdf(value: string): {
   type: 'doc';
   version: 1;
@@ -92,14 +110,12 @@ function adfLine(line: string): AdfNode[] {
     if (segment.kind === 'person') {
       nodes.push({
         type: 'text',
-        text: segment.text,
-        marks: [{ type: 'strong' }],
+        text: atName(segment.text) || segment.text,
       });
     } else if (segment.kind === 'link') {
       nodes.push({
         type: 'text',
-        text: segment.text,
-        marks: [{ type: 'link', attrs: { href: segment.href } }],
+        text: hashName(segment.text) || segment.text,
       });
     } else if (segment.text) {
       nodes.push({ type: 'text', text: segment.text });

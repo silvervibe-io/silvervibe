@@ -1,23 +1,14 @@
 import {
-  APP_INITIALIZER,
   EnvironmentProviders,
   inject,
-  makeEnvironmentProviders,
+  provideAppInitializer,
 } from '@angular/core';
 import { ThemeStore } from '@silvervibe/stores/theme';
 
 /** Ensures ThemeStore initializes early so `data-theme` is applied before paint. */
 export function provideSilvervibeTheme(): EnvironmentProviders {
-  return makeEnvironmentProviders([
-    {
-      provide: APP_INITIALIZER,
-      multi: true,
-      useFactory: () => {
-        const theme = inject(ThemeStore);
-        return () => {
-          void theme.mode();
-        };
-      },
-    },
-  ]);
+  return provideAppInitializer(() => {
+    const theme = inject(ThemeStore);
+    void theme.mode();
+  });
 }

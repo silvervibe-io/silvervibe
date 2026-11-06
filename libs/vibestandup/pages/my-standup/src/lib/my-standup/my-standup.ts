@@ -19,6 +19,7 @@ import {
   formatClock,
   issueMention,
   personMention,
+  plainMentions,
   resolveStandupHome,
   standupHomeUrl,
   standupShellLinks,
@@ -155,7 +156,7 @@ export class MyStandup implements OnInit {
             id: member.userId,
             label,
             detail: member.displayName && member.email ? member.email : '',
-            markdown: personMention(member.userId, label),
+            markdown: personMention(label),
           };
         });
     }
@@ -163,7 +164,7 @@ export class MyStandup implements OnInit {
       id: `${issue.provider}:${issue.key}`,
       label: issue.key,
       detail: `${this.providerLabel(issue.provider)} · ${issue.title}`,
-      markdown: issueMention(`${issue.key} ${issue.title}`, issue.url),
+      markdown: issueMention(issue.key),
     }));
   });
   readonly shellLinks = computed(() => {
@@ -194,7 +195,9 @@ export class MyStandup implements OnInit {
           const answer = entry?.answersJson[question.id];
           return {
             questionId: question.id,
-            text: answer?.text ?? this.legacyText(question, entry) ?? '',
+            text: plainMentions(
+              answer?.text ?? this.legacyText(question, entry) ?? '',
+            ),
             optionId: answer?.optionId ?? '',
             otherText: answer?.otherText ?? '',
           };

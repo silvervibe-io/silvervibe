@@ -197,10 +197,8 @@
         <span class="font-medium">{{ conn.status }}</span>
         @if (conn.accountLogin) {
         <span class="text-base-content/70"> — @{{ conn.accountLogin }}</span>
-        } @if (conn.repoFullName && conn.issueNumber) {
-        <span class="text-base-content/70">
-          / {{ conn.repoFullName }}#{{ conn.issueNumber }}</span
-        >
+        } @if (conn.repoFullName) {
+        <span class="text-base-content/70"> / {{ conn.repoFullName }}</span>
         }
       </p>
       @if (conn.configured) {
@@ -218,25 +216,6 @@
           </option>
           @for (repo of githubRepos(); track repo.fullName) {
           <option [value]="repo.fullName">{{ repo.fullName }}</option>
-          }
-        </select>
-      </fieldset>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'standup.workspace.githubIssue' | transloco }}
-        </legend>
-        <select
-          class="select select-bordered w-full"
-          [value]="conn.issueNumber ?? ''"
-          (change)="selectGithubIssue($any($event.target).value)"
-        >
-          <option value="">
-            {{ 'standup.workspace.githubIssuePlaceholder' | transloco }}
-          </option>
-          @for (issue of githubIssues(); track issue.number) {
-          <option [value]="issue.number">
-            #{{ issue.number }} — {{ issue.title }}
-          </option>
           }
         </select>
       </fieldset>
@@ -261,7 +240,9 @@
         {{ 'standup.workspace.githubOAuthUnavailable' | transloco }}
       </p>
       } } @if (githubError()) {
-      <p class="text-error text-sm">{{ githubError() }}</p>
+      <p class="text-error text-sm">
+        {{ githubError()! | transloco: { status: githubErrorStatus() } }}
+      </p>
       }
     </section>
 
@@ -278,8 +259,8 @@
         <span class="font-medium">{{ conn.status }}</span>
         @if (conn.siteName) {
         <span class="text-base-content/70"> — {{ conn.siteName }}</span>
-        } @if (conn.issueKey) {
-        <span class="text-base-content/70"> / {{ conn.issueKey }}</span>
+        } @if (conn.projectKey) {
+        <span class="text-base-content/70"> / {{ conn.projectKey }}</span>
         }
       </p>
       @if (conn.configured) {
@@ -315,25 +296,6 @@
           @for (project of jiraProjects(); track project.key) {
           <option [value]="project.key">
             {{ project.key }} — {{ project.name }}
-          </option>
-          }
-        </select>
-      </fieldset>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'standup.workspace.jiraIssue' | transloco }}
-        </legend>
-        <select
-          class="select select-bordered w-full"
-          [value]="conn.issueKey ?? ''"
-          (change)="selectJiraIssue($any($event.target).value)"
-        >
-          <option value="">
-            {{ 'standup.workspace.jiraIssuePlaceholder' | transloco }}
-          </option>
-          @for (issue of jiraIssues(); track issue.key) {
-          <option [value]="issue.key">
-            {{ issue.key }} — {{ issue.summary }}
           </option>
           }
         </select>

@@ -44,17 +44,37 @@ export function mentionLabel(value: string): string {
     .slice(0, 120);
 }
 
-export function personMention(userId: string, name: string): string {
-  const safeId = userId.replace(/[^A-Za-z0-9_-]/g, '');
-  const visible = mentionLabel(name).replace(/^@/, '');
-  return `[@${visible}](mention:user:${safeId})`;
+function atName(label: string): string {
+  const visible = mentionLabel(label).replace(/^@+/, '');
+  return visible ? `@${visible}` : '';
 }
 
-export function issueMention(label: string, url: string): string {
-  if (!url.startsWith('https://')) {
-    return mentionLabel(label);
-  }
-  return `[${mentionLabel(label)}](${url})`;
+function hashName(label: string): string {
+  const visible = mentionLabel(label).replace(/^#+/, '');
+  return visible ? `#${visible}` : '';
+}
+
+/** Person mention as `@Name`. */
+export function personMention(name: string): string {
+  return atName(name);
+}
+
+/** Issue mention as `#Name`. */
+export function issueMention(name: string): string {
+  return hashName(name);
+}
+
+/** Turns stored `[@Name](mention:user:…)` and `[Name](https://…)` tokens into `@Name` and `#Name`. */
+export function plainMentions(value: string): string {
+  return value.replace(MENTION, (full, label: string, target: string) => {
+    if (target.startsWith('mention:user:')) {
+      return atName(label) || full;
+    }
+    if (target.startsWith('https://')) {
+      return hashName(label) || full;
+    }
+    return full;
+  });
 }
 
 export function activeMentionToken(

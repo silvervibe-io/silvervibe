@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, MaxLength, MinLength } from 'class-validator';
+import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class JiraConnectionDto {
   @ApiProperty({ enum: ['DISCONNECTED', 'PENDING', 'CONNECTED', 'ERROR'] })
@@ -95,11 +95,14 @@ export class SelectJiraTargetDto {
   @MaxLength(32)
   projectKey!: string;
 
-  @ApiProperty({ description: 'Issue key for digest comments, e.g. ENG-12' })
+  @ApiPropertyOptional({
+    description: 'Ignored. Digests use a standing issue in the project.',
+  })
+  @IsOptional()
   @IsString()
   @MinLength(2)
   @MaxLength(32)
-  issueKey!: string;
+  issueKey?: string;
 }
 
 export class TeamJiraTargetDto {
@@ -156,9 +159,12 @@ export class SetTeamJiraTargetDto {
   @MaxLength(32)
   projectKey!: string;
 
-  @ApiProperty({ description: 'Issue key for digest comments, e.g. ENG-12' })
+  @ApiPropertyOptional({
+    description: 'Ignored. Digests use a standing issue in the project.',
+  })
+  @IsOptional()
   @IsString()
   @MinLength(2)
   @MaxLength(32)
-  issueKey!: string;
+  issueKey?: string;
 }
