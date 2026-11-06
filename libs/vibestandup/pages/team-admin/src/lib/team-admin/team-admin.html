@@ -682,7 +682,17 @@
         </button>
       </div>
       <ul class="space-y-2 text-sm">
-        @for (e of teamEntries(); track e.id) {
+        @for (person of roster(); track person.userId) {
+        <li class="rounded-lg bg-base-200 p-3">
+          <span class="font-medium">{{ person.name }}</span>
+          — @switch (person.status) { @case ('posted') { {{
+          'standup.team.posted' | transloco }} } @case ('away') { {{
+          'standup.team.away' | transloco }} } @default { {{
+          'standup.team.stillOpen' | transloco }} } } @if (person.today) {
+          <span> — {{ person.today }}</span>
+          }
+        </li>
+        } @for (e of teamEntries(); track e.id) {
         <li class="rounded-lg bg-base-200 p-3">
           <span class="font-medium">{{ e.status }}</span>
           —

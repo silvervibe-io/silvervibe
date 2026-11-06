@@ -20,8 +20,11 @@ import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
 import { VerifiedUser } from '../auth/firebase-auth.service';
 import {
   MentionIssueDto,
+  SetStandupAwayDto,
+  StandupAwayDatesDto,
   StandupConfigDto,
   StandupEntryDto,
+  StandupRosterMemberDto,
   StandupSummaryDto,
   UpdateStandupConfigDto,
   UpsertStandupEntryDto,
@@ -99,6 +102,38 @@ export class StandupsController {
     @Query('q') q = '',
   ): Promise<MentionIssueDto[]> {
     return this.mentions.searchIssues(teamId, user, q);
+  }
+
+  @Get('standups/away')
+  @ApiOperation({ summary: 'List days this member will not post' })
+  @ApiOkResponse({ type: StandupAwayDatesDto })
+  listAway(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<StandupAwayDatesDto> {
+    return this.standups.listAway(teamId, user);
+  }
+
+  @Put('standups/away')
+  @ApiOperation({ summary: 'Mark or clear one away day' })
+  @ApiOkResponse({ type: StandupAwayDatesDto })
+  setAway(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+    @Body() body: SetStandupAwayDto,
+  ): Promise<StandupAwayDatesDto> {
+    return this.standups.setAway(teamId, user, body);
+  }
+
+  @Get('standups/roster')
+  @ApiOperation({ summary: 'Who posted, who is still open, and who is away' })
+  @ApiOkResponse({ type: StandupRosterMemberDto, isArray: true })
+  roster(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+    @Query('date') date?: string,
+  ): Promise<StandupRosterMemberDto[]> {
+    return this.standups.listRoster(teamId, user, date);
   }
 
   @Get('standups')

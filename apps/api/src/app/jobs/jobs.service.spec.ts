@@ -47,6 +47,9 @@ describe('JobsService', () => {
             { userId: 'u2', status: StandupEntryStatus.SUBMITTED },
           ]),
       },
+      standupAway: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
     };
 
     const service = new JobsService(
@@ -97,6 +100,9 @@ describe('JobsService', () => {
       standupEntry: {
         findMany: jest.fn(),
       },
+      standupAway: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
     };
 
     const service = new JobsService(
@@ -110,5 +116,50 @@ describe('JobsService', () => {
     expect(result.emailed).toBe(0);
     expect(sendStandupReminder).not.toHaveBeenCalled();
     expect(prisma.standupEntry.findMany).not.toHaveBeenCalled();
+  });
+
+  it('does not email a member who is away', async () => {
+    const sendStandupReminder = jest.fn().mockResolvedValue({ sent: true });
+    const prisma = {
+      isEnabled: () => true,
+      workspaceTool: {
+        findMany: jest.fn().mockResolvedValue([{ workspaceId: 'ws1' }]),
+      },
+      team: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'team1',
+            name: 'Alpha',
+            standupConfig: {
+              timezone: 'UTC',
+              reminderHour: 9,
+              reminderMinute: 0,
+            },
+            members: [
+              {
+                userId: 'u1',
+                user: { email: 'a@example.com' },
+              },
+            ],
+          },
+        ]),
+      },
+      standupEntry: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      standupAway: {
+        findMany: jest.fn().mockResolvedValue([{ userId: 'u1' }]),
+      },
+    };
+
+    const service = new JobsService(
+      prisma as unknown as PrismaService,
+      { sendStandupReminder } as unknown as MailService,
+    );
+
+    const result = await service.runStandupReminders(nowInWindow);
+    expect(result.skippedAway).toBe(1);
+    expect(result.emailed).toBe(0);
+    expect(sendStandupReminder).not.toHaveBeenCalled();
   });
 });

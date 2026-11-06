@@ -60,6 +60,9 @@ describe('TeamAdmin', () => {
                     title: 'Team admin',
                     lead: 'Configure standup',
                     noTeams: 'No teams',
+                    posted: 'Posted',
+                    stillOpen: 'Still open',
+                    away: 'Away',
                     config: 'Config',
                     timezone: 'Timezone',
                     reminderHour: 'Reminder hour',
@@ -146,6 +149,29 @@ describe('TeamAdmin', () => {
       .flush([]);
     await fixture.whenStable();
     fixture.detectChanges();
+  });
+
+  it('shows posted, open, and away members', async () => {
+    const http = TestBed.inject(HttpTestingController);
+    const pending = TestBed.inject(StandupFacade).loadMyTeams('ws1');
+    http
+      .expectOne('/api/workspaces/ws1/teams/mine')
+      .flush([{ id: 't1', name: 'Alpha', slug: 'alpha', role: 'ADMIN' }]);
+    await pending;
+    fixture.componentInstance.roster.set([
+      { userId: 'u1', name: 'Ada', status: 'posted', today: 'Ship the API' },
+      { userId: 'u2', name: 'Bea', status: 'open', today: null },
+      { userId: 'u3', name: 'Cal', status: 'away', today: null },
+    ]);
+    fixture.detectChanges();
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Ada');
+    expect(text).toContain('Posted');
+    expect(text).toContain('Ship the API');
+    expect(text).toContain('Bea');
+    expect(text).toContain('Still open');
+    expect(text).toContain('Cal');
+    expect(text).toContain('Away');
   });
 
   it('renders the team admin title', () => {

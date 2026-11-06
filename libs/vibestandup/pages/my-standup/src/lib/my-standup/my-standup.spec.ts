@@ -91,6 +91,20 @@ describe('MyStandup', () => {
     fixture.detectChanges();
   });
 
+  it('saves an away day and reads it back', async () => {
+    const component = fixture.componentInstance;
+    const facade = TestBed.inject(StandupFacade);
+    facade.selectTeam('team-1');
+    component.awayDates.set(['2026-11-06']);
+    expect(component.isAway('2026-11-06')).toBe(true);
+    expect(component.isAway('2026-11-07')).toBe(false);
+    expect(component.awayDays()).toHaveLength(7);
+    vi.spyOn(facade, 'setAway').mockResolvedValue(['2026-11-07']);
+    await component.toggleAway('2026-11-07', true);
+    expect(facade.setAway).toHaveBeenCalledWith('team-1', '2026-11-07', true);
+    expect(component.isAway('2026-11-07')).toBe(true);
+  });
+
   it('renders the my standup title', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('h1')?.textContent).toContain('My standup');

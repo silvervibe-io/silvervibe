@@ -21,6 +21,8 @@ export type {
   StandupEntryView,
   StandupQuestion,
   StandupQuestionOption,
+  StandupRosterMember,
+  StandupRosterStatus,
   StandupState,
   StandupSummaryView,
   TeamInviteView,
