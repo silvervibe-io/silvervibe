@@ -138,8 +138,18 @@ export class SummaryInlines {
 }
 
 @Component({
-  selector: 'sv-mention-text',
+  selector: 'sv-summary-blocks',
   imports: [SummaryInlines],
+  templateUrl: './summary-blocks.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class SummaryBlocks {
+  readonly blocks = input.required<SummaryBlock[]>();
+}
+
+@Component({
+  selector: 'sv-mention-text',
+  imports: [SummaryBlocks],
   templateUrl: './mention-text.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

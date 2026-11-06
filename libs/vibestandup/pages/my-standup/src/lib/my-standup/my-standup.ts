@@ -12,7 +12,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
-import { MentionText, Shell } from '@silvervibe/shared/ui';
+import { Shell, StandupSummary } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import {
   activeMentionToken,
@@ -58,7 +58,7 @@ type MentionChoice = {
 
 @Component({
   selector: 'vs-my-standup',
-  imports: [MentionText, Shell, TranslocoPipe],
+  imports: [Shell, StandupSummary, TranslocoPipe],
   templateUrl: './my-standup.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

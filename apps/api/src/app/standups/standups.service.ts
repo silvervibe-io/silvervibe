@@ -418,29 +418,70 @@ export class StandupsService {
       };
     }>,
     questions: StandupQuestion[],
+    teamName: string,
+    entryDate: string,
   ): string {
-    const lines = entries.map((e) => {
-      const who = e.user.displayName || e.user.email || e.userId;
-      const answers = answersFromStorage(e.answersJson);
-      const answered = Object.keys(answers).length > 0;
-      const detail = answered
-        ? questions
-            .filter((question) => question.enabled)
-            .map((question) => {
-              const value = answerDisplay(question, answers[question.id]);
-              return value ? `- ${question.prompt}: ${value}` : null;
-            })
-        : [
-            e.yesterday ? `- Yesterday: ${e.yesterday}` : null,
-            e.today ? `- Today: ${e.today}` : null,
-            e.blockers ? `- Blockers: ${e.blockers}` : null,
-          ];
-      return [`### ${who}`, ...detail].filter(Boolean).join('\n');
-    });
-
-    return lines.length > 0
-      ? lines.join('\n\n')
-      : 'No submitted standups for this day yet.';
+    if (entries.length === 0) {
+      return 'No submitted standups for this day yet.';
+    }
+    const help: string[] = [];
+    const today: string[] = [];
+    const yesterday: string[] = [];
+    const extras: Array<{ title: string; lines: string[] }> = [];
+    const pushExtra = (title: string, line: string): void => {
+      const bucket = extras.find((item) => item.title === title);
+      if (bucket) {
+        bucket.lines.push(line);
+        return;
+      }
+      extras.push({ title, lines: [line] });
+    };
+    for (const entry of entries) {
+      const who = entry.user.displayName || entry.user.email || entry.userId;
+      const line = (value: string): string => `- **${who}**: ${value}`;
+      const answers = answersFromStorage(entry.answersJson);
+      if (Object.keys(answers).length > 0) {
+        for (const question of questions) {
+          if (!question.enabled) {
+            continue;
+          }
+          const value = answerDisplay(question, answers[question.id]);
+          if (!value) {
+            continue;
+          }
+          if (question.builtin === 'blockers') {
+            help.push(line(value));
+          } else if (question.builtin === 'today') {
+            today.push(line(value));
+          } else if (question.builtin === 'yesterday') {
+            yesterday.push(line(value));
+          } else {
+            pushExtra(question.prompt, line(value));
+          }
+        }
+        continue;
+      }
+      if (entry.blockers) {
+        help.push(line(entry.blockers));
+      }
+      if (entry.today) {
+        today.push(line(entry.today));
+      }
+      if (entry.yesterday) {
+        yesterday.push(line(entry.yesterday));
+      }
+    }
+    const section = (title: string, lines: string[]): string | null =>
+      lines.length > 0 ? `### ${title}\n${lines.join('\n')}` : null;
+    return [
+      `## ${teamName} standup — ${entryDate}`,
+      section('Needs help', help),
+      section('Today', today),
+      section('Yesterday', yesterday),
+      ...extras.map((bucket) => section(bucket.title, bucket.lines)),
+    ]
+      .filter((part): part is string => part !== null)
+      .join('\n\n');
   }
 
   private asDigestDelivery(raw: unknown): {
@@ -513,7 +554,12 @@ export class StandupsService {
     });
     const questions = questionsFromStorage(storedConfig?.questionsJson);
 
-    const classic = this.classicMarkdownSummary(entries, questions);
+    const classic = this.classicMarkdownSummary(
+      entries,
+      questions,
+      teamName,
+      entryDateIso,
+    );
     const aiMarkdown = await this.ai.summarizeStandup({
       teamName,
       entryDate: entryDateIso,

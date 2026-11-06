@@ -18,7 +18,7 @@ import {
 } from '@angular/forms/signals';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { MentionText, Shell } from '@silvervibe/shared/ui';
+import { MentionText, Shell, StandupSummary } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import {
   isWithinWorkHours,
@@ -60,7 +60,14 @@ type InviteModel = {
 
 @Component({
   selector: 'vs-team-admin',
-  imports: [FormField, MentionText, RouterLink, Shell, TranslocoPipe],
+  imports: [
+    FormField,
+    MentionText,
+    RouterLink,
+    Shell,
+    StandupSummary,
+    TranslocoPipe,
+  ],
   templateUrl: './team-admin.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
