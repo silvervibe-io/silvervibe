@@ -94,15 +94,22 @@ export class MailService {
     teamName: string;
     entryDate: string;
     standupUrl: string;
+    windowLabel: string;
   }): Promise<SendMailResult> {
     const subject = `Standup reminder: ${params.teamName} (${params.entryDate})`;
+    const skipLine =
+      "If you skip it, today's summary goes out without your update.";
     const text = [
       `Please submit your standup for ${params.teamName} (${params.entryDate}).`,
+      params.windowLabel,
+      skipLine,
       '',
       params.standupUrl,
     ].join('\n');
     const html = `
       <p>Please submit your standup for <strong>${escapeHtml(params.teamName)}</strong> (${escapeHtml(params.entryDate)}).</p>
+      <p>${escapeHtml(params.windowLabel)}</p>
+      <p>${escapeHtml(skipLine)}</p>
       <p><a href="${escapeHtml(params.standupUrl)}">Open VibeStandup</a></p>
     `.trim();
     return this.send({ to: params.to, subject, html, text });
