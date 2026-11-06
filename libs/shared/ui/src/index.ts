@@ -1,4 +1,5 @@
 export { MentionText } from './lib/mention-text/mention-text';
+export { StandupSummary } from './lib/standup-summary/standup-summary';
 export * from './lib/shell/shell';
 export * from './lib/lang-switch/lang-switch';
 export * from './lib/preview-switcher/preview-switcher';

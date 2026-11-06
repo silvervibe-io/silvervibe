@@ -4,10 +4,10 @@ Issue: [#119](https://github.com/silvervibe-io/silvervibe/issues/119)
 
 ## What it does
 
-1. On standup submit / Rebuild, Nest builds a classic per-person markdown
-   fallback, then asks LangGraph (`PUBLIC_AI_URL`) for a team digest.
-2. The AI graph groups **Today / Blockers / Yesterday**. If `GEMINI_API_KEY` is
-   set on the AI service, it optionally polishes that draft with Gemini.
+1. On standup submit / Rebuild, Nest builds a classic markdown fallback, then
+   asks LangGraph (`PUBLIC_AI_URL`) for a team digest.
+2. The AI graph groups **Needs help / Today / Yesterday**. If `GEMINI_API_KEY`
+   is set on the AI service, it optionally polishes that draft with Gemini.
 3. Digests (Slack / Linear / GitHub / Jira) post the resulting markdown. AI
    failures soft-fall back to classic markdown.
 

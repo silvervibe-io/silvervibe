@@ -1,0 +1,38 @@
+<div class="space-y-4">
+  @for (section of sections(); track section.kind + section.title + $index) {
+  @switch (section.kind) { @case ('title') {
+  <div class="space-y-2">
+    @if (section.title) {
+    <h3 class="text-lg font-semibold">{{ section.title }}</h3>
+    }
+    <sv-summary-blocks [blocks]="section.blocks" />
+  </div>
+  } @case ('yesterday') {
+  <details class="collapse-arrow collapse border border-base-300 bg-base-100">
+    <summary class="collapse-title min-h-0 py-3 font-semibold">
+      {{ 'standup.my.summaryYesterday' | transloco }}
+    </summary>
+    <div class="collapse-content">
+      <sv-summary-blocks [blocks]="section.blocks" />
+    </div>
+  </details>
+  } @default {
+  <section
+    class="space-y-2"
+    [class.rounded-lg]="section.kind === 'help'"
+    [class.border]="section.kind === 'help'"
+    [class.border-base-300]="section.kind === 'help'"
+    [class.bg-base-100]="section.kind === 'help'"
+    [class.p-3]="section.kind === 'help'"
+  >
+    @if (section.title) {
+    <h4 class="font-semibold">
+      @switch (section.kind) { @case ('help') { {{ 'standup.my.summaryNeedsHelp'
+      | transloco }} } @case ('today') { {{ 'standup.my.summaryToday' |
+      transloco }} } @default { {{ section.title }} } }
+    </h4>
+    }
+    <sv-summary-blocks [blocks]="section.blocks" />
+  </section>
+  } } }
+</div>
