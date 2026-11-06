@@ -1095,6 +1095,28 @@ export class JiraService {
     workspaceId: string,
     query: string,
   ): Promise<MentionIssue[]> {
+    const escaped = query
+      .replace(/[\r\n]/g, ' ')
+      .trim()
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"');
+    return this.jiraMentionIssues(
+      workspaceId,
+      `text ~ "${escaped}" AND updated >= -365d ORDER BY updated DESC`,
+    );
+  }
+
+  async recentMentionIssues(workspaceId: string): Promise<MentionIssue[]> {
+    return this.jiraMentionIssues(
+      workspaceId,
+      'assignee = currentUser() AND updated >= -14d ORDER BY updated DESC',
+    );
+  }
+
+  private async jiraMentionIssues(
+    workspaceId: string,
+    jql: string,
+  ): Promise<MentionIssue[]> {
     if (!this.prisma.isEnabled()) {
       return [];
     }
@@ -1130,17 +1152,7 @@ export class JiraService {
         return [];
       }
       const token = await this.requireFreshAccessToken(workspaceId);
-      const escaped = query
-        .replace(/[\r\n]/g, ' ')
-        .trim()
-        .replace(/\\/g, '\\\\')
-        .replace(/"/g, '\\"');
-      const found = await this.searchJql(
-        token,
-        meta.cloudId,
-        `text ~ "${escaped}" AND updated >= -365d ORDER BY updated DESC`,
-        8,
-      );
+      const found = await this.searchJql(token, meta.cloudId, jql, 8);
       const issues: MentionIssue[] = [];
       for (const item of found) {
         if (!item.key || !/^[A-Za-z][A-Za-z0-9_]*-\d+$/.test(item.key)) {

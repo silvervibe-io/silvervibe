@@ -131,6 +131,7 @@ export class MyStandup implements OnInit {
   readonly mention = signal<MentionSession | null>(null);
   readonly mentionIndex = signal(0);
   readonly issueHits = signal<MentionIssueView[]>([]);
+  readonly workSuggestions = signal<MentionIssueView[]>([]);
   readonly formError = signal<string | null>(null);
   readonly busy = signal(false);
   readonly enabledQuestions = computed(() =>
@@ -267,6 +268,7 @@ export class MyStandup implements OnInit {
           this.refreshMembers(teamId),
           this.refreshAway(teamId),
           this.refreshRecent(teamId),
+          this.refreshSuggestions(teamId),
         ]);
       }
     } finally {
@@ -291,6 +293,7 @@ export class MyStandup implements OnInit {
       this.refreshMembers(teamId),
       this.refreshAway(teamId),
       this.refreshRecent(teamId),
+      this.refreshSuggestions(teamId),
     ]);
   }
 
@@ -472,6 +475,37 @@ export class MyStandup implements OnInit {
       return;
     }
     this.awayDates.set(await this.standup.setAway(teamId, date, away));
+  }
+
+  acceptSuggestion(issue: MentionIssueView): void {
+    const questionId =
+      this.rows().find((row) => row.questionId === 'today')?.questionId ??
+      this.enabledQuestions()[0]?.id;
+    if (!questionId) {
+      return;
+    }
+    const line = issueMention(issue.key);
+    const current =
+      this.rows().find((row) => row.questionId === questionId)?.text ?? '';
+    const text = current.trim() ? `${current.trim()}\n${line}` : line;
+    this.updateRow(questionId, { text });
+    this.dismissSuggestion(issue);
+  }
+
+  dismissSuggestion(issue: MentionIssueView): void {
+    this.workSuggestions.update((items) =>
+      items.filter(
+        (item) => item.provider !== issue.provider || item.key !== issue.key,
+      ),
+    );
+  }
+
+  private async refreshSuggestions(teamId: string): Promise<void> {
+    try {
+      this.workSuggestions.set(await this.standup.listRecentWork(teamId));
+    } catch {
+      this.workSuggestions.set([]);
+    }
   }
 
   private async refreshRecent(teamId: string): Promise<void> {

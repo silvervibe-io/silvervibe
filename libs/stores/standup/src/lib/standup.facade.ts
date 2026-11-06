@@ -88,6 +88,10 @@ export class StandupFacade {
     return this.api.listRecentSummaries(teamId);
   }
 
+  listRecentWork(teamId: string): Promise<MentionIssueView[]> {
+    return this.api.listRecentWork(teamId);
+  }
+
   inviteByEmail(teamId: string, email: string): Promise<TeamInviteView> {
     return this.api.inviteByEmail(teamId, email);
   }

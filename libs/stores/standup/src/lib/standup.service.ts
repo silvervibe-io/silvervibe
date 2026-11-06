@@ -337,6 +337,14 @@ export class StandupService {
     return body.dates ?? [];
   }
 
+  async listRecentWork(teamId: string): Promise<MentionIssueView[]> {
+    return firstValueFrom(
+      this.http.get<MentionIssueView[]>(
+        `${this.apiBase}/teams/${teamId}/mentions/recent`,
+      ),
+    );
+  }
+
   async listRecentSummaries(teamId: string): Promise<StandupRecentDay[]> {
     return firstValueFrom(
       this.http.get<StandupRecentDay[]>(

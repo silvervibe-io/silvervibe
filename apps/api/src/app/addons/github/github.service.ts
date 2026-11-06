@@ -1025,6 +1025,23 @@ export class GithubService {
     workspaceId: string,
     query: string,
   ): Promise<MentionIssue[]> {
+    return this.scopedMentionIssues(workspaceId, query);
+  }
+
+  async recentMentionIssues(workspaceId: string): Promise<MentionIssue[]> {
+    const since = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    return this.scopedMentionIssues(
+      workspaceId,
+      `involves:@me updated:>=${since}`,
+    );
+  }
+
+  private async scopedMentionIssues(
+    workspaceId: string,
+    query: string,
+  ): Promise<MentionIssue[]> {
     if (!this.prisma.isEnabled()) {
       return [];
     }

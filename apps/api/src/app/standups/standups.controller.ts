@@ -105,6 +105,18 @@ export class StandupsController {
     return this.mentions.searchIssues(teamId, user, q);
   }
 
+  @Get('mentions/recent')
+  @ApiOperation({
+    summary: 'Recent GitHub, Jira, and Linear items for optional standup lines',
+  })
+  @ApiOkResponse({ type: MentionIssueDto, isArray: true })
+  recentIssues(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<MentionIssueDto[]> {
+    return this.mentions.recentIssues(teamId, user);
+  }
+
   @Get('standups/away')
   @ApiOperation({ summary: 'List days this member will not post' })
   @ApiOkResponse({ type: StandupAwayDatesDto })
