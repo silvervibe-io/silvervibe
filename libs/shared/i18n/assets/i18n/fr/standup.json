@@ -41,6 +41,8 @@
     "replyNone": "Pas de réponse nécessaire",
     "awayTitle": "Jours sans message",
     "awayHint": "Ces jours ne comptent pas comme un standup manqué.",
+    "recentDays": "Jours récents",
+    "noSummary": "Pas de résumé pour ce jour.",
     "planHint": "Offre apercu {{plan}}: jusqu a {{teams}} equipes, {{members}} membres par equipe (UI uniquement — API garde les vrais roles).",
     "opensAt": "Le standup ouvre à {{time}}.",
     "closed": "Le standup est fermé pour aujourd’hui.",

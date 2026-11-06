@@ -24,6 +24,7 @@ import {
   StandupAwayDatesDto,
   StandupConfigDto,
   StandupEntryDto,
+  StandupRecentDayDto,
   StandupRosterMemberDto,
   StandupSummaryDto,
   UpdateStandupConfigDto,
@@ -134,6 +135,16 @@ export class StandupsController {
     @Query('date') date?: string,
   ): Promise<StandupRosterMemberDto[]> {
     return this.standups.listRoster(teamId, user, date);
+  }
+
+  @Get('standups/recent')
+  @ApiOperation({ summary: 'Last 14 daily summaries, newest first' })
+  @ApiOkResponse({ type: StandupRecentDayDto, isArray: true })
+  recent(
+    @Param('teamId') teamId: string,
+    @CurrentUser() user: VerifiedUser,
+  ): Promise<StandupRecentDayDto[]> {
+    return this.standups.listRecent(teamId, user);
   }
 
   @Get('standups')

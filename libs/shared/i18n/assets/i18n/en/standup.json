@@ -51,6 +51,8 @@
     "replyNone": "No reply needed",
     "awayTitle": "Days you will not post",
     "awayHint": "These days are not counted as a missed standup.",
+    "recentDays": "Recent days",
+    "noSummary": "No summary for this day.",
     "planHint": "Preview plan {{plan}}: up to {{teams}} teams, {{members}} members per team (preview only — Nest still enforces the workspace planKey).",
     "mentionHow": "Type @ for people and # for issues.",
     "windowRange": "Standup window {{start}}–{{end}}.",

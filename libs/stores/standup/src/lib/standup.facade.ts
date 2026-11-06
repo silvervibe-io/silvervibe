@@ -3,6 +3,7 @@ import type { MentionIssueView } from './mentions';
 import type {
   StandupAnswersInput,
   StandupConfigInput,
+  StandupRecentDay,
   StandupRosterMember,
   TeamInviteView,
   TeamMemberView,
@@ -81,6 +82,10 @@ export class StandupFacade {
 
   listRoster(teamId: string): Promise<StandupRosterMember[]> {
     return this.api.listRoster(teamId);
+  }
+
+  listRecentSummaries(teamId: string): Promise<StandupRecentDay[]> {
+    return this.api.listRecentSummaries(teamId);
   }
 
   inviteByEmail(teamId: string, email: string): Promise<TeamInviteView> {

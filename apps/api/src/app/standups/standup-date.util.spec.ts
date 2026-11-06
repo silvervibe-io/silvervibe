@@ -5,6 +5,7 @@ import {
   instantAtLocalTime,
   isInReminderWindow,
   parseCalendarDate,
+  recentCalendarDates,
 } from './standup-date.util';
 
 describe('standup-date.util', () => {
@@ -33,6 +34,14 @@ describe('standup-date.util', () => {
       hour: 9,
       minute: 7,
     });
+  });
+
+  it('lists 14 calendar days newest first', () => {
+    const days = recentCalendarDates('2026-11-06');
+    expect(days).toHaveLength(14);
+    expect(days[0]).toBe('2026-11-06');
+    expect(days[1]).toBe('2026-11-05');
+    expect(days[13]).toBe('2026-10-24');
   });
 
   it('converts a team-local clock into another timezone', () => {
