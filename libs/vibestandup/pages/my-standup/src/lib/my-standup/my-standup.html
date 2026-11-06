@@ -113,7 +113,58 @@
         <p class="text-xs text-base-content/60">
           {{ 'standup.my.mentionHow' | transloco }}
         </p>
-        @if (mentionFor(question.id); as mention) {
+        @if (question.builtin === 'blockers') {
+        <div class="grid gap-3 sm:grid-cols-2">
+          <label class="flex flex-col gap-1 text-sm">
+            {{ 'standup.my.helpFrom' | transloco }}
+            <select
+              class="select select-bordered w-full"
+              [value]="row.helpFrom"
+              [disabled]="phase() !== 'open'"
+              (change)="
+                updateRow(question.id, {
+                  helpFrom: $any($event.target).value,
+                })
+              "
+            >
+              <option value="">
+                {{ 'standup.my.helpFromNone' | transloco }}
+              </option>
+              @for (member of members(); track member.userId) {
+              <option [value]="memberMention(member)">
+                {{ member.displayName || member.email || member.userId }}
+              </option>
+              }
+            </select>
+          </label>
+          <label class="flex flex-col gap-1 text-sm">
+            {{ 'standup.my.replyNeeded' | transloco }}
+            <select
+              class="select select-bordered w-full"
+              [value]="row.replyNeeded"
+              [disabled]="phase() !== 'open'"
+              (change)="
+                updateRow(question.id, {
+                  replyNeeded: $any($event.target).value,
+                })
+              "
+            >
+              <option value="">
+                {{ 'standup.my.replyNeededUnset' | transloco }}
+              </option>
+              <option value="today">
+                {{ 'standup.my.replyToday' | transloco }}
+              </option>
+              <option value="week">
+                {{ 'standup.my.replyWeek' | transloco }}
+              </option>
+              <option value="none">
+                {{ 'standup.my.replyNone' | transloco }}
+              </option>
+            </select>
+          </label>
+        </div>
+        } @if (mentionFor(question.id); as mention) {
         <ul
           class="menu menu-sm mt-1 w-full rounded-box border border-base-300 bg-base-100"
           role="listbox"

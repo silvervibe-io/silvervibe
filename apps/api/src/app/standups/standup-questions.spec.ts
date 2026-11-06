@@ -1,6 +1,8 @@
 import {
   answersAreComplete,
+  answersFromStorage,
   answerDisplay,
+  blockerLine,
   defaultQuestions,
   questionsForSave,
   questionsFromStorage,
@@ -73,6 +75,30 @@ describe('standup questions', () => {
     expect(
       answerDisplay(enabled, { optionId: 'other', otherText: '' }),
     ).toBeNull();
+  });
+});
+
+describe('blocker lines', () => {
+  it('keeps a plain blocker when no help is requested', () => {
+    expect(blockerLine({ text: 'Waiting on a key' })).toBe('Waiting on a key');
+  });
+
+  it('adds who can help and when a reply is needed', () => {
+    expect(
+      blockerLine({
+        text: 'Waiting on a key',
+        helpFrom: '@Ada',
+        replyNeeded: 'today',
+      }),
+    ).toBe('Waiting on a key. Help from @Ada. Reply needed today.');
+  });
+
+  it('drops unknown reply values when reading stored answers', () => {
+    expect(
+      answersFromStorage({
+        blockers: { text: 'Stuck', helpFrom: '@Ada', replyNeeded: 'tomorrow' },
+      }).blockers,
+    ).toEqual({ text: 'Stuck', helpFrom: '@Ada' });
   });
 });
 

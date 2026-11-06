@@ -27,6 +27,7 @@ import {
   answerDisplay,
   answersAreComplete,
   answersFromStorage,
+  blockerLine,
   mirrorBuiltinColumns,
   questionsForSave,
   questionsFromStorage,
@@ -405,6 +406,26 @@ export class StandupsService {
     return answers;
   }
 
+  private summaryBlockers(
+    entry: {
+      blockers: string | null;
+      answersJson?: unknown;
+    },
+    questions: StandupQuestion[],
+  ): string | null {
+    const answers = answersFromStorage(entry.answersJson);
+    const question = questions.find(
+      (item) => item.builtin === 'blockers' && item.enabled,
+    );
+    if (question) {
+      const line = blockerLine(answers[question.id]);
+      if (line) {
+        return line;
+      }
+    }
+    return entry.blockers;
+  }
+
   private classicMarkdownSummary(
     entries: Array<{
       userId: string;
@@ -445,7 +466,10 @@ export class StandupsService {
           if (!question.enabled) {
             continue;
           }
-          const value = answerDisplay(question, answers[question.id]);
+          const value =
+            question.builtin === 'blockers'
+              ? blockerLine(answers[question.id])
+              : answerDisplay(question, answers[question.id]);
           if (!value) {
             continue;
           }
@@ -567,7 +591,7 @@ export class StandupsService {
         displayName: e.user.displayName || e.user.email || e.userId,
         yesterday: e.yesterday,
         today: e.today,
-        blockers: e.blockers,
+        blockers: this.summaryBlockers(e, questions),
       })),
     });
     const content = aiMarkdown ?? classic;

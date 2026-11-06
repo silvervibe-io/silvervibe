@@ -27,6 +27,7 @@ import {
   StandupFacade,
   type MentionIssueView,
   type StandupAccessInput,
+  type ReplyNeeded,
   type StandupAnswerValue,
   type StandupQuestion,
   type TeamMemberView,
@@ -38,6 +39,8 @@ type AnswerRow = {
   text: string;
   optionId: string;
   otherText: string;
+  helpFrom: string;
+  replyNeeded: '' | ReplyNeeded;
 };
 
 type MentionSession = {
@@ -200,6 +203,8 @@ export class MyStandup implements OnInit {
             ),
             optionId: answer?.optionId ?? '',
             otherText: answer?.otherText ?? '',
+            helpFrom: answer?.helpFrom ?? '',
+            replyNeeded: answer?.replyNeeded ?? '',
           };
         }),
       );
@@ -423,6 +428,10 @@ export class MyStandup implements OnInit {
     }
   }
 
+  memberMention(member: TeamMemberView): string {
+    return personMention(member.displayName || member.email || member.userId);
+  }
+
   updateRow(questionId: string, patch: Partial<AnswerRow>): void {
     this.rows.update((rows) =>
       rows.map((row) =>
@@ -494,6 +503,8 @@ export class MyStandup implements OnInit {
         text: row.text,
         ...(row.optionId ? { optionId: row.optionId } : {}),
         ...(row.otherText ? { otherText: row.otherText } : {}),
+        ...(row.helpFrom ? { helpFrom: row.helpFrom } : {}),
+        ...(row.replyNeeded ? { replyNeeded: row.replyNeeded } : {}),
       };
       const question = this.questionFor(row);
       if (question?.builtin === 'yesterday') {

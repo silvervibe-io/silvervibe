@@ -131,6 +131,14 @@ function asAnswers(value: unknown): Record<string, StandupAnswerValue> {
       ...(typeof row['otherText'] === 'string'
         ? { otherText: row['otherText'] }
         : {}),
+      ...(typeof row['helpFrom'] === 'string' && row['helpFrom'].trim()
+        ? { helpFrom: row['helpFrom'] }
+        : {}),
+      ...(row['replyNeeded'] === 'today' ||
+      row['replyNeeded'] === 'week' ||
+      row['replyNeeded'] === 'none'
+        ? { replyNeeded: row['replyNeeded'] }
+        : {}),
     };
   }
   return answers;
