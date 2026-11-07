@@ -2,6 +2,24 @@
   "badge": "Personal project · In development",
   "headline": "Async standups without the meeting.",
   "body": "Share yesterday, today, and blockers asynchronously — when your team is ready.",
+  "home": {
+    "featuresTitle": "A standup people can follow",
+    "featureClockTitle": "Post on your own clock",
+    "featureClockBody": "The reminder arrives at the start of your work day, in your time zone.",
+    "featureHelpTitle": "Needs help comes first",
+    "featureHelpBody": "The summary leads with who is stuck, then today, then yesterday.",
+    "featureDigestTitle": "One summary, every tool",
+    "featureDigestBody": "The same daily summary can go to Slack, GitHub, Jira, and Linear.",
+    "stepsTitle": "How a day works",
+    "stepOneTitle": "Open your team",
+    "stepOneBody": "Sign in and choose the team you are posting for.",
+    "stepTwoTitle": "Write three short lines",
+    "stepTwoBody": "Yesterday, today, and anything you need help with.",
+    "stepThreeTitle": "Read the summary",
+    "stepThreeBody": "Needs help stays open. Yesterday stays collapsed.",
+    "closeTitle": "Post when your day starts",
+    "closeBody": "Sign in and write today's standup."
+  },
   "cta": {
     "login": "Log in",
     "platform": "SilverVibe"

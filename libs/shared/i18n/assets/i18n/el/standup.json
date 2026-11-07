@@ -1,14 +1,32 @@
 {
-  "badge": "Personal project · In development",
-  "headline": "Async standups without the meeting.",
-  "body": "Share yesterday, today, and blockers asynchronously — when your team is ready.",
+  "badge": "Προσωπικό έργο · Υπό ανάπτυξη",
+  "headline": "Async standups χωρίς τη σύσκεψη.",
+  "body": "Μοιράσου το χθες, το σήμερα και τα εμπόδια όταν η ομάδα σου είναι έτοιμη.",
+  "home": {
+    "featuresTitle": "Ένα standup που μπορείς να ακολουθήσεις",
+    "featureClockTitle": "Γράψε στη δική σου ώρα",
+    "featureClockBody": "Η υπενθύμιση έρχεται στην αρχή της εργάσιμης μέρας σου, στη ζώνη ώρας σου.",
+    "featureHelpTitle": "Η βοήθεια έρχεται πρώτη",
+    "featureHelpBody": "Η σύνοψη ξεκινά από το ποιος κόλλησε, μετά το σήμερα, μετά το χθες.",
+    "featureDigestTitle": "Μία σύνοψη, κάθε εργαλείο",
+    "featureDigestBody": "Η ίδια ημερήσια σύνοψη μπορεί να πάει σε Slack, GitHub, Jira και Linear.",
+    "stepsTitle": "Πώς κυλά μια μέρα",
+    "stepOneTitle": "Άνοιξε την ομάδα σου",
+    "stepOneBody": "Συνδέσου και διάλεξε την ομάδα για την οποία γράφεις.",
+    "stepTwoTitle": "Γράψε τρεις σύντομες γραμμές",
+    "stepTwoBody": "Χθες, σήμερα και οτιδήποτε χρειάζεσαι βοήθεια.",
+    "stepThreeTitle": "Διάβασε τη σύνοψη",
+    "stepThreeBody": "Η βοήθεια μένει ανοιχτή. Το χθες μένει μαζεμένο.",
+    "closeTitle": "Γράψε όταν ξεκινά η μέρα σου",
+    "closeBody": "Συνδέσου και γράψε το standup της ημέρας."
+  },
   "cta": {
-    "login": "Log in",
+    "login": "Σύνδεση",
     "platform": "SilverVibe"
   },
   "footer": {
-    "legal": "Vibe Standup is part of Silver Vibe™, a personal open-source project (MIT).",
-    "github": "Source on GitHub"
+    "legal": "Το Vibe Standup είναι μέρος του Silver Vibe™, ενός προσωπικού έργου ανοιχτού κώδικα (MIT).",
+    "github": "Πηγαίος κώδικας στο GitHub"
   },
   "loading": "Loading…",
   "nav": {
