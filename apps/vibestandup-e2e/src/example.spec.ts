@@ -8,7 +8,9 @@ test('shows the Vibe Standup home page', async ({ page }) => {
       name: 'Async standups without the meeting.',
     }),
   ).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Log in' })).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'Log in' }).first(),
+  ).toBeVisible();
   await expect(
     page.getByRole('link', { name: 'SilverVibe', exact: true }),
   ).toBeVisible();

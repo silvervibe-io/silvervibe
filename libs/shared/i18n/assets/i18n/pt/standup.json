@@ -1,14 +1,32 @@
 {
-  "badge": "Personal project · In development",
-  "headline": "Async standups without the meeting.",
-  "body": "Share yesterday, today, and blockers asynchronously — when your team is ready.",
+  "badge": "Projeto pessoal · Em desenvolvimento",
+  "headline": "Standups async sem a reunião.",
+  "body": "Partilhe ontem, hoje e os bloqueios quando a equipa estiver pronta.",
+  "home": {
+    "featuresTitle": "Um standup que se consegue seguir",
+    "featureClockTitle": "Publique no seu horário",
+    "featureClockBody": "O lembrete chega no início do seu dia de trabalho, no seu fuso.",
+    "featureHelpTitle": "A ajuda vem primeiro",
+    "featureHelpBody": "O resumo começa por quem está preso, depois hoje, depois ontem.",
+    "featureDigestTitle": "Um resumo, cada ferramenta",
+    "featureDigestBody": "O mesmo resumo do dia pode ir para Slack, GitHub, Jira e Linear.",
+    "stepsTitle": "Como corre um dia",
+    "stepOneTitle": "Abra a equipa",
+    "stepOneBody": "Entre e escolha a equipa para a qual escreve.",
+    "stepTwoTitle": "Escreva três linhas curtas",
+    "stepTwoBody": "Ontem, hoje e tudo em que precisa de ajuda.",
+    "stepThreeTitle": "Leia o resumo",
+    "stepThreeBody": "A ajuda fica aberta. Ontem fica recolhido.",
+    "closeTitle": "Publique quando o dia começa",
+    "closeBody": "Entre e escreva o standup de hoje."
+  },
   "cta": {
-    "login": "Log in",
+    "login": "Entrar",
     "platform": "SilverVibe"
   },
   "footer": {
-    "legal": "Vibe Standup is part of Silver Vibe™, a personal open-source project (MIT).",
-    "github": "Source on GitHub"
+    "legal": "Vibe Standup faz parte de Silver Vibe™, um projeto pessoal open-source (MIT).",
+    "github": "Código no GitHub"
   },
   "loading": "Loading…",
   "nav": {
