@@ -417,6 +417,7 @@ export class StandupService {
       (row): row is MentionIssueView =>
         !!row &&
         (row.provider === 'github' ||
+          row.provider === 'gitlab' ||
           row.provider === 'jira' ||
           row.provider === 'linear') &&
         typeof row.key === 'string' &&

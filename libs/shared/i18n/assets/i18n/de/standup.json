@@ -79,7 +79,8 @@
     "mentionHow": "Gib @ für Personen und # für Issues ein.",
     "windowRange": "Standup-Fenster {{start}}–{{end}}.",
     "openUntil": "Offen bis {{time}}.",
-    "summaryAt": "Die Zusammenfassung erscheint um {{time}}."
+    "summaryAt": "Die Zusammenfassung erscheint um {{time}}.",
+    "providerGitlab": "GitLab"
   },
   "team": {
     "title": "Team admin",
@@ -247,7 +248,17 @@
     "upgradeToTeam": "Auf Team upgraden",
     "planUpgraded": "Workspace auf den Team-Plan aktualisiert.",
     "githubReposFailed": "GitHub konnte die Repositories nicht laden.",
-    "githubRequestFailed": "GitHub konnte diese Anfrage nicht abschließen."
+    "githubRequestFailed": "GitHub konnte diese Anfrage nicht abschließen.",
+    "gitlabTitle": "GitLab",
+    "gitlabConnect": "GitLab verbinden",
+    "gitlabDisconnect": "GitLab trennen",
+    "gitlabConnected": "GitLab verbunden.",
+    "gitlabDisconnected": "GitLab getrennt.",
+    "gitlabHint": "Verbinde GitLab, damit Personen Issues aus den Projekten dieses Kontos sehen und erwähnen können.",
+    "gitlabStatus": "Status",
+    "gitlabOAuthUnavailable": "GitLab OAuth ist auf dem Server noch nicht konfiguriert.",
+    "gitlabConnectFailed": "GitLab-Verbindung fehlgeschlagen.",
+    "gitlabRequestFailed": "GitLab konnte die Anfrage nicht abschließen."
   },
   "invite": {
     "title": "Join team",

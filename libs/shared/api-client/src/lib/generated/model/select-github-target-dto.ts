@@ -20,7 +20,7 @@ export interface SelectGithubTargetDto {
    */
   repo: string;
   /**
-   * Issue number that receives standup digest comments
+   * Ignored. Digests use a standing issue in the repository.
    */
-  issueNumber: number;
+  issueNumber?: number;
 }

@@ -14,6 +14,7 @@ describe('flag and tool keys', () => {
   it('exposes workspace tool keys', () => {
     expect(TOOL_KEYS.vibestandup).toBe('vibestandup');
     expect(TOOL_KEYS.addonsGithub).toBe('addons.github');
+    expect(TOOL_KEYS.addonsGitlab).toBe('addons.gitlab');
   });
 
   it('detects known tool keys', () => {

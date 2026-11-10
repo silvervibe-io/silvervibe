@@ -101,6 +101,14 @@ describe('WorkspaceAdmin', () => {
                     githubIssue: 'Issue',
                     githubIssuePlaceholder: 'Select…',
                     githubOAuthUnavailable: 'OAuth unavailable',
+                    gitlabTitle: 'GitLab',
+                    gitlabHint: 'Connect GitLab',
+                    gitlabStatus: 'Status',
+                    gitlabConnect: 'Connect GitLab',
+                    gitlabDisconnect: 'Disconnect GitLab',
+                    gitlabConnected: 'GitLab connected',
+                    gitlabDisconnected: 'GitLab disconnected',
+                    gitlabOAuthUnavailable: 'OAuth unavailable',
                     jiraTitle: 'Jira',
                     jiraHint: 'Connect Jira',
                     jiraStatus: 'Status',
@@ -171,5 +179,50 @@ describe('WorkspaceAdmin', () => {
     expect(el.textContent).toContain('Admin WS');
     expect(el.querySelector('fieldset select')).toBeTruthy();
     expect(el.textContent).toContain('Admins only');
+  });
+
+  it('starts GitLab OAuth when Connect GitLab is clicked', async () => {
+    const http = TestBed.inject(HttpTestingController);
+    const open = vi
+      .spyOn(fixture.componentInstance, 'openAuthorizeUrl')
+      .mockImplementation(() => undefined);
+    const load = fixture.componentInstance['workspaces'].loadMyWorkspaces();
+    http.expectOne('/api/me/workspaces').flush([
+      {
+        id: 'ws-admin',
+        name: 'Admin WS',
+        slug: 'admin',
+        planKey: 'free',
+        role: 'OWNER',
+        tools: [],
+      },
+    ]);
+    await load;
+    fixture.componentInstance.gitlab.set({
+      status: 'DISCONNECTED',
+      configured: false,
+      accountLogin: null,
+      toolEnabled: false,
+      oauthAvailable: true,
+    });
+    fixture.detectChanges();
+
+    const button = [
+      ...(fixture.nativeElement as HTMLElement).querySelectorAll('button'),
+    ].find((item) => item.textContent?.includes('Connect GitLab'));
+    expect(button).toBeTruthy();
+    button?.click();
+
+    const start = http.expectOne(
+      '/api/workspaces/ws-admin/addons/gitlab/oauth/start',
+    );
+    expect(start.request.method).toBe('GET');
+    start.flush({
+      authorizeUrl: 'https://gitlab.com/oauth/authorize?client_id=app',
+    });
+    await fixture.whenStable();
+    expect(open).toHaveBeenCalledWith(
+      'https://gitlab.com/oauth/authorize?client_id=app',
+    );
   });
 });

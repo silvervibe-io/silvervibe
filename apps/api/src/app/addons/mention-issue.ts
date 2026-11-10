@@ -1,5 +1,5 @@
 export type MentionIssue = {
-  provider: 'github' | 'jira' | 'linear';
+  provider: 'github' | 'gitlab' | 'jira' | 'linear';
   key: string;
   title: string;
   url: string;

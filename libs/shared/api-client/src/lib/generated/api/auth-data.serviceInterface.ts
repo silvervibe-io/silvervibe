@@ -16,8 +16,14 @@ import { Observable } from 'rxjs';
 import { CustomTokenDto } from '../model/models';
 import { MeDto } from '../model/models';
 import { MeWorkspaceDto } from '../model/models';
+import { UpdateUserScheduleDto } from '../model/models';
+import { UserScheduleDto } from '../model/models';
 
 import { Configuration } from '../configuration';
+
+export interface UsersControllerUpdateScheduleRequestParams {
+  updateUserScheduleDto: UpdateUserScheduleDto;
+}
 
 export interface AuthDataServiceInterface {
   defaultHeaders: HttpHeaders;
@@ -44,4 +50,22 @@ export interface AuthDataServiceInterface {
   usersControllerMyWorkspaces(
     extraHttpRequestParams?: any,
   ): Observable<Array<MeWorkspaceDto>>;
+
+  /**
+   * Timezone and default working hours
+   *
+   */
+  usersControllerSchedule(
+    extraHttpRequestParams?: any,
+  ): Observable<UserScheduleDto>;
+
+  /**
+   * Update timezone and default working hours
+   *
+   * @param requestParameters
+   */
+  usersControllerUpdateSchedule(
+    requestParameters: UsersControllerUpdateScheduleRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<UserScheduleDto>;
 }
