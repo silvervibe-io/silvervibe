@@ -14,6 +14,7 @@ export interface UpsertStandupEntryDto {
   yesterday: string;
   today: string;
   blockers: string;
+  answers?: { [key: string]: any };
   status: UpsertStandupEntryDtoStatusEnum;
 }
 export enum UpsertStandupEntryDtoStatusEnum {

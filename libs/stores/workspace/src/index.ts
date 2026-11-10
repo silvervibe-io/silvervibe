@@ -9,6 +9,8 @@ export type {
   GithubIssueView,
   GithubOAuthStartView,
   GithubRepoView,
+  GitlabConnectionView,
+  GitlabOAuthStartView,
   JiraConnectionView,
   JiraIssueView,
   JiraOAuthStartView,

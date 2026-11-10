@@ -9,10 +9,23 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { StandupQuestionDto } from './standup-question-dto';
 
 export interface UpdateStandupConfigDto {
   timezone: string;
   reminderHour: number;
   reminderMinute: number;
-  questionsJson: object;
+  scheduleKind: UpdateStandupConfigDtoScheduleKindEnum;
+  windowStartHour: number;
+  windowStartMinute: number;
+  reveal: UpdateStandupConfigDtoRevealEnum;
+  questionsJson: Array<StandupQuestionDto>;
+}
+export enum UpdateStandupConfigDtoScheduleKindEnum {
+  deadline = 'deadline',
+  window = 'window',
+}
+export enum UpdateStandupConfigDtoRevealEnum {
+  live = 'live',
+  together = 'together',
 }

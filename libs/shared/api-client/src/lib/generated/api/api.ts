@@ -10,6 +10,8 @@ export * from './flags-data.service';
 export * from './flags-data.serviceInterface';
 export * from './github-data.service';
 export * from './github-data.serviceInterface';
+export * from './gitlab-data.service';
+export * from './gitlab-data.serviceInterface';
 export * from './health-data.service';
 export * from './health-data.serviceInterface';
 export * from './jira-data.service';

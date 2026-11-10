@@ -51,6 +51,583 @@
         ]
       }
     },
+    "/api/teams/{teamId}/standup-config": {
+      "get": {
+        "operationId": "StandupsController_getConfig",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandupConfigDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get standup questions/timezone for a team",
+        "tags": [
+          "standups"
+        ]
+      },
+      "put": {
+        "operationId": "StandupsController_updateConfig",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStandupConfigDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandupConfigDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update standup config (team admin)",
+        "tags": [
+          "standups"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/standups/me": {
+      "get": {
+        "operationId": "StandupsController_getMine",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandupEntryDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get or create my standup entry for a date",
+        "tags": [
+          "standups"
+        ]
+      },
+      "put": {
+        "operationId": "StandupsController_upsertMine",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertStandupEntryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandupEntryDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Save draft or submit my standup",
+        "tags": [
+          "standups"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/mentions/issues": {
+      "get": {
+        "operationId": "StandupsController_searchIssues",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MentionIssueDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Search issues in connected GitHub, Jira, and Linear accounts",
+        "tags": [
+          "standups"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/mentions/recent": {
+      "get": {
+        "operationId": "StandupsController_recentIssues",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MentionIssueDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Recent GitHub, Jira, and Linear items for optional standup lines",
+        "tags": [
+          "standups"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/standups/away": {
+      "get": {
+        "operationId": "StandupsController_listAway",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandupAwayDatesDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List days this member will not post",
+        "tags": [
+          "standups"
+        ]
+      },
+      "put": {
+        "operationId": "StandupsController_setAway",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetStandupAwayDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandupAwayDatesDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark or clear one away day",
+        "tags": [
+          "standups"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/standups/roster": {
+      "get": {
+        "operationId": "StandupsController_roster",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StandupRosterMemberDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Who posted, who is still open, and who is away",
+        "tags": [
+          "standups"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/standups/recent": {
+      "get": {
+        "operationId": "StandupsController_recent",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StandupRecentDayDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Last 14 daily summaries, newest first",
+        "tags": [
+          "standups"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/standups": {
+      "get": {
+        "operationId": "StandupsController_list",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StandupEntryDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List team standup entries for a date (admin)",
+        "tags": [
+          "standups"
+        ]
+      }
+    },
+    "/api/teams/{teamId}/standups/summary": {
+      "get": {
+        "operationId": "StandupsController_getSummary",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandupSummaryDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get daily team summary if present",
+        "tags": [
+          "standups"
+        ]
+      },
+      "post": {
+        "operationId": "StandupsController_rebuildSummary",
+        "parameters": [
+          {
+            "name": "teamId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandupSummaryDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Rebuild daily summary from submitted entries",
+        "tags": [
+          "standups"
+        ]
+      }
+    },
     "/api/auth/custom-token": {
       "post": {
         "description": "Caller sends a valid ID token; response is a short-lived custom token consumable via `signInWithCustomToken` on another authorized domain.",
@@ -147,17 +724,44 @@
         ]
       }
     },
-    "/api/workspaces": {
-      "post": {
-        "description": "Creates a workspace, adds the caller as OWNER, and enables vibestandup by default.",
-        "operationId": "WorkspacesController_create",
+    "/api/me/schedule": {
+      "get": {
+        "operationId": "UsersController_schedule",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserScheduleDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Timezone and default working hours",
+        "tags": [
+          "auth"
+        ]
+      },
+      "patch": {
+        "operationId": "UsersController_updateSchedule",
         "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateWorkspaceDto"
+                "$ref": "#/components/schemas/UpdateUserScheduleDto"
               }
             }
           }
@@ -168,7 +772,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WorkspaceDto"
+                  "$ref": "#/components/schemas/UserScheduleDto"
                 }
               }
             }
@@ -182,169 +786,9 @@
             "bearer": []
           }
         ],
-        "summary": "Create a workspace",
+        "summary": "Update timezone and default working hours",
         "tags": [
-          "workspaces"
-        ]
-      }
-    },
-    "/api/workspaces/{workspaceId}/plan": {
-      "put": {
-        "description": "Pre-billing unlock: OWNER may set `free` or `team`. Nest enforces VibeStandup team/member limits from `plans.catalog` for the stored planKey. Not Stripe billing.",
-        "operationId": "WorkspacesController_setPlan",
-        "parameters": [
-          {
-            "name": "workspaceId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetWorkspacePlanDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WorkspaceDto"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": ""
-          },
-          "403": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Set workspace commercial plan",
-        "tags": [
-          "workspaces"
-        ]
-      }
-    },
-    "/api/workspaces/{workspaceId}/tools": {
-      "get": {
-        "description": "Ownership rows from `workspace_tools` (not GrowthBook rollout flags). Requires workspace membership.",
-        "operationId": "WorkspacesController_listTools",
-        "parameters": [
-          {
-            "name": "workspaceId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/WorkspaceToolDto"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": ""
-          },
-          "403": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "List workspace tool entitlements",
-        "tags": [
-          "workspaces"
-        ]
-      }
-    },
-    "/api/workspaces/{workspaceId}/tools/{toolKey}": {
-      "put": {
-        "description": "`enabled: true` grants (upserts); `enabled: false` revokes. `toolKey` must be a known TOOL_KEYS value. Requires workspace OWNER or ADMIN.",
-        "operationId": "WorkspacesController_setTool",
-        "parameters": [
-          {
-            "name": "workspaceId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "toolKey",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetToolEntitlementDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WorkspaceToolDto"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": ""
-          },
-          "403": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Grant or revoke a tool entitlement",
-        "tags": [
-          "workspaces"
+          "auth"
         ]
       }
     },
@@ -720,336 +1164,6 @@
         "summary": "Accept a pending team invite by token",
         "tags": [
           "teams"
-        ]
-      }
-    },
-    "/api/teams/{teamId}/standup-config": {
-      "get": {
-        "operationId": "StandupsController_getConfig",
-        "parameters": [
-          {
-            "name": "teamId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StandupConfigDto"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get standup questions/timezone for a team",
-        "tags": [
-          "standups"
-        ]
-      },
-      "put": {
-        "operationId": "StandupsController_updateConfig",
-        "parameters": [
-          {
-            "name": "teamId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateStandupConfigDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StandupConfigDto"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Update standup config (team admin)",
-        "tags": [
-          "standups"
-        ]
-      }
-    },
-    "/api/teams/{teamId}/standups/me": {
-      "get": {
-        "operationId": "StandupsController_getMine",
-        "parameters": [
-          {
-            "name": "teamId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "date",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StandupEntryDto"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get or create my standup entry for a date",
-        "tags": [
-          "standups"
-        ]
-      },
-      "put": {
-        "operationId": "StandupsController_upsertMine",
-        "parameters": [
-          {
-            "name": "teamId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "date",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpsertStandupEntryDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StandupEntryDto"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Save draft or submit my standup",
-        "tags": [
-          "standups"
-        ]
-      }
-    },
-    "/api/teams/{teamId}/standups": {
-      "get": {
-        "operationId": "StandupsController_list",
-        "parameters": [
-          {
-            "name": "teamId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "date",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/StandupEntryDto"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "List team standup entries for a date (admin)",
-        "tags": [
-          "standups"
-        ]
-      }
-    },
-    "/api/teams/{teamId}/standups/summary": {
-      "get": {
-        "operationId": "StandupsController_getSummary",
-        "parameters": [
-          {
-            "name": "teamId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "date",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StandupSummaryDto"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get daily team summary if present",
-        "tags": [
-          "standups"
-        ]
-      },
-      "post": {
-        "operationId": "StandupsController_rebuildSummary",
-        "parameters": [
-          {
-            "name": "teamId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "date",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StandupSummaryDto"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Rebuild daily summary from submitted entries",
-        "tags": [
-          "standups"
         ]
       }
     },
@@ -2585,6 +2699,167 @@
         ]
       }
     },
+    "/api/addons/gitlab/status": {
+      "get": {
+        "operationId": "GitlabController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddonStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "GitLab add-on status",
+        "tags": [
+          "gitlab"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/gitlab": {
+      "get": {
+        "operationId": "GitlabController_getConnection",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GitlabConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get GitLab connection for a workspace (secret never returned)",
+        "tags": [
+          "gitlab"
+        ]
+      },
+      "delete": {
+        "operationId": "GitlabController_disconnect",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GitlabConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Disconnect GitLab (clears OAuth token)",
+        "tags": [
+          "gitlab"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/gitlab/oauth/start": {
+      "get": {
+        "operationId": "GitlabController_startOAuth",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GitlabOAuthStartDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Start GitLab OAuth; returns authorize URL for the browser",
+        "tags": [
+          "gitlab"
+        ]
+      }
+    },
+    "/api/addons/gitlab/oauth/callback": {
+      "get": {
+        "operationId": "GitlabController_oauthCallback",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "GitLab OAuth callback (public); redirects to standup workspace admin",
+        "tags": [
+          "gitlab"
+        ]
+      }
+    },
     "/api/addons/jira/status": {
       "get": {
         "operationId": "JiraController_status",
@@ -3246,6 +3521,207 @@
         ]
       }
     },
+    "/api/workspaces": {
+      "post": {
+        "description": "Creates a workspace, adds the caller as OWNER, and enables vibestandup by default.",
+        "operationId": "WorkspacesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkspaceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a workspace",
+        "tags": [
+          "workspaces"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/plan": {
+      "put": {
+        "description": "Pre-billing unlock: OWNER may set `free` or `team`. Nest enforces VibeStandup team/member limits from `plans.catalog` for the stored planKey. Not Stripe billing.",
+        "operationId": "WorkspacesController_setPlan",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetWorkspacePlanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Set workspace commercial plan",
+        "tags": [
+          "workspaces"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/tools": {
+      "get": {
+        "description": "Ownership rows from `workspace_tools` (not GrowthBook rollout flags). Requires workspace membership.",
+        "operationId": "WorkspacesController_listTools",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkspaceToolDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List workspace tool entitlements",
+        "tags": [
+          "workspaces"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/tools/{toolKey}": {
+      "put": {
+        "description": "`enabled: true` grants (upserts); `enabled: false` revokes. `toolKey` must be a known TOOL_KEYS value. Requires workspace OWNER or ADMIN.",
+        "operationId": "WorkspacesController_setTool",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "toolKey",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetToolEntitlementDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceToolDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Grant or revoke a tool entitlement",
+        "tags": [
+          "workspaces"
+        ]
+      }
+    },
     "/api/flags/vibestandup": {
       "get": {
         "operationId": "FeatureFlagsController_vibestandup",
@@ -3353,6 +3829,390 @@
           "status"
         ]
       },
+      "StandupQuestionOptionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label"
+        ]
+      },
+      "StandupQuestionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "choice"
+            ]
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "builtin": {
+            "type": "string",
+            "enum": [
+              "yesterday",
+              "today",
+              "blockers",
+              "location",
+              "hours"
+            ]
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StandupQuestionOptionDto"
+            }
+          },
+          "allowOther": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "prompt",
+          "enabled",
+          "required"
+        ]
+      },
+      "StandupConfigDto": {
+        "type": "object",
+        "properties": {
+          "teamId": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "reminderHour": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 23
+          },
+          "reminderMinute": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 59
+          },
+          "scheduleKind": {
+            "type": "string",
+            "enum": [
+              "deadline",
+              "window"
+            ]
+          },
+          "windowStartHour": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 23
+          },
+          "windowStartMinute": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 59
+          },
+          "reveal": {
+            "type": "string",
+            "enum": [
+              "live",
+              "together"
+            ]
+          },
+          "questionsJson": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StandupQuestionDto"
+            }
+          }
+        },
+        "required": [
+          "teamId",
+          "timezone",
+          "reminderHour",
+          "reminderMinute",
+          "scheduleKind",
+          "windowStartHour",
+          "windowStartMinute",
+          "reveal",
+          "questionsJson"
+        ]
+      },
+      "UpdateStandupConfigDto": {
+        "type": "object",
+        "properties": {
+          "timezone": {
+            "type": "string"
+          },
+          "reminderHour": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 23
+          },
+          "reminderMinute": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 59
+          },
+          "scheduleKind": {
+            "type": "string",
+            "enum": [
+              "deadline",
+              "window"
+            ]
+          },
+          "windowStartHour": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 23
+          },
+          "windowStartMinute": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 59
+          },
+          "reveal": {
+            "type": "string",
+            "enum": [
+              "live",
+              "together"
+            ]
+          },
+          "questionsJson": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StandupQuestionDto"
+            }
+          }
+        },
+        "required": [
+          "timezone",
+          "reminderHour",
+          "reminderMinute",
+          "scheduleKind",
+          "windowStartHour",
+          "windowStartMinute",
+          "reveal",
+          "questionsJson"
+        ]
+      },
+      "StandupEntryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "teamId": {
+            "type": "string"
+          },
+          "entryDate": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "SUBMITTED"
+            ]
+          },
+          "yesterday": {
+            "type": "object",
+            "nullable": true
+          },
+          "today": {
+            "type": "object",
+            "nullable": true
+          },
+          "blockers": {
+            "type": "object",
+            "nullable": true
+          },
+          "answersJson": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "id",
+          "teamId",
+          "entryDate",
+          "status",
+          "answersJson"
+        ]
+      },
+      "UpsertStandupEntryDto": {
+        "type": "object",
+        "properties": {
+          "yesterday": {
+            "type": "string"
+          },
+          "today": {
+            "type": "string"
+          },
+          "blockers": {
+            "type": "string"
+          },
+          "answers": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "SUBMITTED"
+            ]
+          }
+        },
+        "required": [
+          "yesterday",
+          "today",
+          "blockers",
+          "status"
+        ]
+      },
+      "MentionIssueDto": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "github",
+              "gitlab",
+              "jira",
+              "linear"
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "key",
+          "title",
+          "url"
+        ]
+      },
+      "StandupAwayDatesDto": {
+        "type": "object",
+        "properties": {
+          "dates": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "dates"
+        ]
+      },
+      "SetStandupAwayDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "away": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "date",
+          "away"
+        ]
+      },
+      "StandupRosterMemberDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "posted",
+              "open",
+              "away"
+            ]
+          },
+          "today": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "userId",
+          "name",
+          "status"
+        ]
+      },
+      "StandupRecentDayDto": {
+        "type": "object",
+        "properties": {
+          "entryDate": {
+            "type": "string"
+          },
+          "content": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "entryDate"
+        ]
+      },
+      "StandupSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "teamId": {
+            "type": "string"
+          },
+          "entryDate": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "teamId",
+          "entryDate",
+          "content"
+        ]
+      },
       "CustomTokenDto": {
         "type": "object",
         "properties": {
@@ -3447,92 +4307,36 @@
           "tools"
         ]
       },
-      "CreateWorkspaceDto": {
+      "UserScheduleDto": {
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string",
-            "example": "Acme"
-          },
-          "slug": {
-            "type": "string",
-            "example": "acme"
-          }
-        },
-        "required": [
-          "name",
-          "slug"
-        ]
-      },
-      "WorkspaceDto": {
-        "type": "object",
-        "properties": {
-          "id": {
+          "timezone": {
             "type": "string"
           },
-          "name": {
+          "workHours": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "timezone",
+          "workHours"
+        ]
+      },
+      "UpdateUserScheduleDto": {
+        "type": "object",
+        "properties": {
+          "timezone": {
             "type": "string"
           },
-          "slug": {
-            "type": "string"
-          },
-          "planKey": {
-            "type": "string",
-            "enum": [
-              "free",
-              "team"
-            ]
+          "workHours": {
+            "type": "object",
+            "additionalProperties": true
           }
         },
         "required": [
-          "id",
-          "name",
-          "slug",
-          "planKey"
-        ]
-      },
-      "SetWorkspacePlanDto": {
-        "type": "object",
-        "properties": {
-          "planKey": {
-            "type": "string",
-            "enum": [
-              "free",
-              "team"
-            ],
-            "description": "Workspace commercial plan (pre-billing unlock). Enforced for team/member limits."
-          }
-        },
-        "required": [
-          "planKey"
-        ]
-      },
-      "WorkspaceToolDto": {
-        "type": "object",
-        "properties": {
-          "toolKey": {
-            "type": "string",
-            "example": "vibestandup"
-          },
-          "enabled": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "toolKey",
-          "enabled"
-        ]
-      },
-      "SetToolEntitlementDto": {
-        "type": "object",
-        "properties": {
-          "enabled": {
-            "type": "boolean",
-            "description": "true = grant / keep entitlement; false = revoke"
-          }
-        },
-        "required": [
-          "enabled"
+          "timezone",
+          "workHours"
         ]
       },
       "MyTeamDto": {
@@ -3621,12 +4425,21 @@
           "displayName": {
             "type": "object",
             "nullable": true
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "workHoursJson": {
+            "type": "object",
+            "additionalProperties": true
           }
         },
         "required": [
           "id",
           "userId",
-          "role"
+          "role",
+          "timezone",
+          "workHoursJson"
         ]
       },
       "InviteTeamMemberDto": {
@@ -3749,153 +4562,6 @@
           "teamId",
           "workspaceId",
           "member"
-        ]
-      },
-      "StandupConfigDto": {
-        "type": "object",
-        "properties": {
-          "teamId": {
-            "type": "string"
-          },
-          "timezone": {
-            "type": "string"
-          },
-          "reminderHour": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 23
-          },
-          "reminderMinute": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 59
-          },
-          "questionsJson": {
-            "type": "object"
-          }
-        },
-        "required": [
-          "teamId",
-          "timezone",
-          "reminderHour",
-          "reminderMinute",
-          "questionsJson"
-        ]
-      },
-      "UpdateStandupConfigDto": {
-        "type": "object",
-        "properties": {
-          "timezone": {
-            "type": "string"
-          },
-          "reminderHour": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 23
-          },
-          "reminderMinute": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 59
-          },
-          "questionsJson": {
-            "type": "object"
-          }
-        },
-        "required": [
-          "timezone",
-          "reminderHour",
-          "reminderMinute",
-          "questionsJson"
-        ]
-      },
-      "StandupEntryDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "teamId": {
-            "type": "string"
-          },
-          "entryDate": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "DRAFT",
-              "SUBMITTED"
-            ]
-          },
-          "yesterday": {
-            "type": "object",
-            "nullable": true
-          },
-          "today": {
-            "type": "object",
-            "nullable": true
-          },
-          "blockers": {
-            "type": "object",
-            "nullable": true
-          }
-        },
-        "required": [
-          "id",
-          "teamId",
-          "entryDate",
-          "status"
-        ]
-      },
-      "UpsertStandupEntryDto": {
-        "type": "object",
-        "properties": {
-          "yesterday": {
-            "type": "string"
-          },
-          "today": {
-            "type": "string"
-          },
-          "blockers": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "DRAFT",
-              "SUBMITTED"
-            ]
-          }
-        },
-        "required": [
-          "yesterday",
-          "today",
-          "blockers",
-          "status"
-        ]
-      },
-      "StandupSummaryDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "teamId": {
-            "type": "string"
-          },
-          "entryDate": {
-            "type": "string"
-          },
-          "content": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "teamId",
-          "entryDate",
-          "content"
         ]
       },
       "AddonStatusDto": {
@@ -4359,13 +5025,12 @@
           },
           "issueNumber": {
             "type": "number",
-            "description": "Issue number that receives standup digest comments"
+            "description": "Ignored. Digests use a standing issue in the repository."
           }
         },
         "required": [
           "owner",
-          "repo",
-          "issueNumber"
+          "repo"
         ]
       },
       "TeamGithubTargetDto": {
@@ -4437,13 +5102,60 @@
           },
           "issueNumber": {
             "type": "number",
-            "description": "Issue number that receives standup digest comments"
+            "description": "Ignored. Digests use a standing issue in the repository."
           }
         },
         "required": [
           "owner",
-          "repo",
-          "issueNumber"
+          "repo"
+        ]
+      },
+      "GitlabConnectionDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "DISCONNECTED",
+              "PENDING",
+              "CONNECTED",
+              "ERROR"
+            ]
+          },
+          "configured": {
+            "type": "boolean",
+            "description": "True when an OAuth access token is stored (secret never returned)"
+          },
+          "accountLogin": {
+            "type": "object",
+            "nullable": true
+          },
+          "toolEnabled": {
+            "type": "boolean",
+            "description": "Whether workspace tool entitlement addons.gitlab is enabled"
+          },
+          "oauthAvailable": {
+            "type": "boolean",
+            "description": "True when GITLAB_CLIENT_ID / GITLAB_CLIENT_SECRET are set"
+          }
+        },
+        "required": [
+          "status",
+          "configured",
+          "toolEnabled",
+          "oauthAvailable"
+        ]
+      },
+      "GitlabOAuthStartDto": {
+        "type": "object",
+        "properties": {
+          "authorizeUrl": {
+            "type": "string",
+            "description": "GitLab OAuth authorize URL to open in the browser"
+          }
+        },
+        "required": [
+          "authorizeUrl"
         ]
       },
       "JiraConnectionDto": {
@@ -4587,13 +5299,12 @@
           },
           "issueKey": {
             "type": "string",
-            "description": "Issue key for digest comments, e.g. ENG-12"
+            "description": "Ignored. Digests use a standing issue in the project."
           }
         },
         "required": [
           "cloudId",
-          "projectKey",
-          "issueKey"
+          "projectKey"
         ]
       },
       "TeamJiraTargetDto": {
@@ -4675,13 +5386,100 @@
           },
           "issueKey": {
             "type": "string",
-            "description": "Issue key for digest comments, e.g. ENG-12"
+            "description": "Ignored. Digests use a standing issue in the project."
           }
         },
         "required": [
           "cloudId",
-          "projectKey",
-          "issueKey"
+          "projectKey"
+        ]
+      },
+      "CreateWorkspaceDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Acme"
+          },
+          "slug": {
+            "type": "string",
+            "example": "acme"
+          }
+        },
+        "required": [
+          "name",
+          "slug"
+        ]
+      },
+      "WorkspaceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "planKey": {
+            "type": "string",
+            "enum": [
+              "free",
+              "team"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "planKey"
+        ]
+      },
+      "SetWorkspacePlanDto": {
+        "type": "object",
+        "properties": {
+          "planKey": {
+            "type": "string",
+            "enum": [
+              "free",
+              "team"
+            ],
+            "description": "Workspace commercial plan (pre-billing unlock). Enforced for team/member limits."
+          }
+        },
+        "required": [
+          "planKey"
+        ]
+      },
+      "WorkspaceToolDto": {
+        "type": "object",
+        "properties": {
+          "toolKey": {
+            "type": "string",
+            "example": "vibestandup"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "toolKey",
+          "enabled"
+        ]
+      },
+      "SetToolEntitlementDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": "true = grant / keep entitlement; false = revoke"
+          }
+        },
+        "required": [
+          "enabled"
         ]
       },
       "FlagEvaluationDto": {

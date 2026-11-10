@@ -1,6 +1,7 @@
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { VerifiedUser } from '../auth/firebase-auth.service';
 import { GithubService } from '../addons/github/github.service';
+import { GitlabService } from '../addons/gitlab/gitlab.service';
 import { JiraService } from '../addons/jira/jira.service';
 import { LinearService } from '../addons/linear/linear.service';
 import { TeamsService } from '../teams/teams.service';
@@ -23,6 +24,10 @@ describe('MentionsService', () => {
     searchMentionIssues: jest.fn(),
     recentMentionIssues: jest.fn(),
   };
+  const gitlab = {
+    searchMentionIssues: jest.fn(),
+    recentMentionIssues: jest.fn(),
+  };
   const jira = {
     searchMentionIssues: jest.fn(),
     recentMentionIssues: jest.fn(),
@@ -37,6 +42,7 @@ describe('MentionsService', () => {
       users as unknown as UsersService,
       teams as unknown as TeamsService,
       github as unknown as GithubService,
+      gitlab as unknown as GitlabService,
       jira as unknown as JiraService,
       linear as unknown as LinearService,
     );
@@ -78,11 +84,25 @@ describe('MentionsService', () => {
         url: 'https://example.atlassian.net/browse/PROJ-12',
       },
     ]);
+    gitlab.searchMentionIssues.mockResolvedValue([
+      {
+        provider: 'gitlab',
+        key: 'acme/app#3',
+        title: 'GitLab mention',
+        url: 'https://gitlab.com/acme/app/-/issues/3',
+      },
+    ]);
     linear.searchMentionIssues.mockResolvedValue([]);
 
     await expect(
       service().searchIssues('team-1', member, 'ship'),
     ).resolves.toEqual([
+      {
+        provider: 'gitlab',
+        key: 'acme/app#3',
+        title: 'GitLab mention',
+        url: 'https://gitlab.com/acme/app/-/issues/3',
+      },
       {
         provider: 'jira',
         key: 'PROJ-12',
@@ -94,6 +114,7 @@ describe('MentionsService', () => {
 
   it('keeps suggestions when one provider cannot list recent work', async () => {
     github.recentMentionIssues.mockRejectedValue(new Error('bad credentials'));
+    gitlab.recentMentionIssues.mockResolvedValue([]);
     jira.recentMentionIssues.mockResolvedValue([
       {
         provider: 'jira',

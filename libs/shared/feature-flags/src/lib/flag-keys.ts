@@ -5,6 +5,7 @@ export const TOOL_KEYS = {
   addonsJira: 'addons.jira',
   addonsLinear: 'addons.linear',
   addonsGithub: 'addons.github',
+  addonsGitlab: 'addons.gitlab',
 } as const;
 
 export type ToolKey = (typeof TOOL_KEYS)[keyof typeof TOOL_KEYS];
