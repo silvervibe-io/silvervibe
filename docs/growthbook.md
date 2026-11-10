@@ -59,8 +59,6 @@ Outputs under `libs/shared/feature-flags/growthbook/`:
 
 Suggested GrowthBook attributes for targeting: `id`, `firebaseUid`, `workspaceId`, `planKey`.
 
-`vibestandup.digestPublish.enabled` (default off) shows the team-admin switches that post the standup summary to GitHub, Jira, and Linear. Each switch is stored on the team and stays off until an admin turns it on. The API posts to a tool only when both the flag and that switch are on.
-
 After editing the catalog or defaults, regenerate and create/update matching features in GrowthBook (same keys + defaults).
 
 ## Create a GrowthBook project

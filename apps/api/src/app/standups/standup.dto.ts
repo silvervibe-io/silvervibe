@@ -100,15 +100,6 @@ export class StandupConfigDto {
   @ApiProperty({ enum: ['live', 'together'] })
   reveal!: 'live' | 'together';
 
-  @ApiProperty({ description: 'Post the team summary to GitHub. Default off.' })
-  publishGithub!: boolean;
-
-  @ApiProperty({ description: 'Post the team summary to Jira. Default off.' })
-  publishJira!: boolean;
-
-  @ApiProperty({ description: 'Post the team summary to Linear. Default off.' })
-  publishLinear!: boolean;
-
   @ApiProperty({ type: [StandupQuestionDto] })
   questionsJson!: StandupQuestionDto[];
 }
@@ -151,21 +142,6 @@ export class UpdateStandupConfigDto {
   @ApiProperty({ enum: ['live', 'together'] })
   @IsIn(['live', 'together'])
   reveal!: 'live' | 'together';
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsBoolean()
-  publishGithub?: boolean;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsBoolean()
-  publishJira?: boolean;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsBoolean()
-  publishLinear?: boolean;
 
   @ApiProperty({ type: [StandupQuestionDto] })
   @IsArray()

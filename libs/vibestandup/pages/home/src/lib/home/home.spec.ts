@@ -41,9 +41,8 @@ describe('Home', () => {
                       'The reminder arrives at the start of your work day.',
                     featureHelpTitle: 'Needs help comes first',
                     featureHelpBody: 'The summary leads with who is stuck.',
-                    featureDigestTitle: 'One summary, every tool',
-                    featureDigestBody:
-                      'The same daily summary can go to Slack, GitHub, Jira, and Linear.',
+                    featureDigestTitle: 'One summary in chat',
+                    featureDigestBody: 'The daily summary is posted in Slack.',
                     stepsTitle: 'How a day works',
                     stepOneTitle: 'Open your team',
                     stepOneBody: 'Sign in and choose the team.',
@@ -85,7 +84,7 @@ describe('Home', () => {
     expect(compiled.textContent).toContain('Log in');
     expect(compiled.textContent).toContain('Post on your own clock');
     expect(compiled.textContent).toContain('Needs help comes first');
-    expect(compiled.textContent).toContain('One summary, every tool');
+    expect(compiled.textContent).toContain('One summary in chat');
     expect(compiled.textContent).toContain('How a day works');
     expect(compiled.querySelector('a[href="/auth"]')).toBeTruthy();
     expect(compiled.textContent).not.toContain('Save draft');

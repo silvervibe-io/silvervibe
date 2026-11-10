@@ -82,9 +82,6 @@ export type StandupConfigView = {
   windowStartHour: number;
   windowStartMinute: number;
   reveal: 'live' | 'together';
-  publishGithub: boolean;
-  publishJira: boolean;
-  publishLinear: boolean;
   questionsJson: StandupQuestion[];
 };
 
@@ -103,9 +100,6 @@ export type StandupConfigInput = {
   windowStartHour: number;
   windowStartMinute: number;
   reveal: 'live' | 'together';
-  publishGithub: boolean;
-  publishJira: boolean;
-  publishLinear: boolean;
   questionsJson: StandupQuestion[];
 };
 

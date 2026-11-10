@@ -6,15 +6,10 @@ import {
 } from '@nestjs/common';
 
 import { StandupEntryStatus } from '@prisma/client';
-import { FLAG_KEYS } from '@silvervibe/shared/feature-flags';
 import { AiService } from '../ai/ai.service';
-import { GithubService } from '../addons/github/github.service';
-import { JiraService } from '../addons/jira/jira.service';
-import { LinearService } from '../addons/linear/linear.service';
 import { SlackService } from '../addons/slack/slack.service';
 import { TeamsService as MsTeamsService } from '../addons/teams/teams.service';
 import { VerifiedUser } from '../auth/firebase-auth.service';
-import { FeatureFlagsService } from '../feature-flags/feature-flags.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { TeamsService } from '../teams/teams.service';
 import { UsersService } from '../users/users.service';
@@ -64,10 +59,6 @@ export class StandupsService {
     private readonly ai: AiService,
     private readonly slack: SlackService,
     private readonly msTeams: MsTeamsService,
-    private readonly linear: LinearService,
-    private readonly github: GithubService,
-    private readonly jira: JiraService,
-    private readonly flags: FeatureFlagsService,
   ) {}
 
   private ensureDb(): void {
@@ -124,9 +115,6 @@ export class StandupsService {
       windowStartHour?: number | null;
       windowStartMinute?: number | null;
       reveal?: string | null;
-      publishGithub?: boolean | null;
-      publishJira?: boolean | null;
-      publishLinear?: boolean | null;
       questionsJson: unknown;
     },
   ): StandupConfigDto {
@@ -140,9 +128,6 @@ export class StandupsService {
       windowStartHour: schedule.windowStartHour,
       windowStartMinute: schedule.windowStartMinute,
       reveal: schedule.reveal,
-      publishGithub: config.publishGithub === true,
-      publishJira: config.publishJira === true,
-      publishLinear: config.publishLinear === true,
       questionsJson: questionsFromStorage(config.questionsJson),
     };
   }
@@ -178,9 +163,6 @@ export class StandupsService {
       windowStartHour: number;
       windowStartMinute: number;
       reveal: 'live' | 'together';
-      publishGithub?: boolean;
-      publishJira?: boolean;
-      publishLinear?: boolean;
       questionsJson: unknown;
     },
   ): Promise<StandupConfigDto> {
@@ -221,9 +203,6 @@ export class StandupsService {
         windowStartHour: body.windowStartHour,
         windowStartMinute: body.windowStartMinute,
         reveal: body.reveal === 'together' ? 'TOGETHER' : 'LIVE',
-        publishGithub: body.publishGithub === true,
-        publishJira: body.publishJira === true,
-        publishLinear: body.publishLinear === true,
         questionsJson,
       },
       update: {
@@ -234,9 +213,6 @@ export class StandupsService {
         windowStartHour: body.windowStartHour,
         windowStartMinute: body.windowStartMinute,
         reveal: body.reveal === 'together' ? 'TOGETHER' : 'LIVE',
-        publishGithub: body.publishGithub === true,
-        publishJira: body.publishJira === true,
-        publishLinear: body.publishLinear === true,
         questionsJson,
       },
     });
@@ -797,30 +773,6 @@ export class StandupsService {
         }
         if (!providers.teams) {
           providers.teams = await this.msTeams.postStandupDigest(digest);
-        }
-        const publishRollout = await this.flags.booleanFlag(
-          FLAG_KEYS.vibestandupDigestPublish,
-          false,
-          { workspaceId: team.workspaceId },
-        );
-        const publishConfig = await this.prisma.standupConfig.findUnique({
-          where: { teamId },
-          select: {
-            publishGithub: true,
-            publishJira: true,
-            publishLinear: true,
-          },
-        });
-        const allowPublish = (enabled: boolean | null | undefined): boolean =>
-          publishRollout && enabled === true;
-        if (!providers.linear && allowPublish(publishConfig?.publishLinear)) {
-          providers.linear = await this.linear.postStandupDigest(digest);
-        }
-        if (!providers.github && allowPublish(publishConfig?.publishGithub)) {
-          providers.github = await this.github.postStandupDigest(digest);
-        }
-        if (!providers.jira && allowPublish(publishConfig?.publishJira)) {
-          providers.jira = await this.jira.postStandupDigest(digest);
         }
 
         await this.prisma.standupSummary.update({

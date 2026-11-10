@@ -25,12 +25,8 @@ import {
 import {
   WorkspaceFacade,
   type GithubConnectionView,
-  type GithubRepoView,
   type JiraConnectionView,
-  type JiraProjectView,
-  type JiraSiteView,
   type LinearConnectionView,
-  type LinearProjectView,
   type SlackConnectionView,
 } from '@silvervibe/stores/workspace';
 
@@ -142,19 +138,13 @@ export class WorkspaceAdmin implements OnInit {
   readonly slackError = signal<string | null>(null);
   readonly slackConnecting = signal(false);
   readonly linear = signal<LinearConnectionView | null>(null);
-  readonly linearProjects = signal<LinearProjectView[]>([]);
   readonly linearError = signal<string | null>(null);
   readonly linearConnecting = signal(false);
   readonly github = signal<GithubConnectionView | null>(null);
-  readonly githubRepos = signal<GithubRepoView[]>([]);
-  readonly githubSelectedRepo = signal<string>('');
   readonly githubError = signal<string | null>(null);
   readonly githubErrorStatus = signal(0);
   readonly githubConnecting = signal(false);
   readonly jira = signal<JiraConnectionView | null>(null);
-  readonly jiraSites = signal<JiraSiteView[]>([]);
-  readonly jiraProjects = signal<JiraProjectView[]>([]);
-  readonly jiraSelectedProject = signal<string>('');
   readonly jiraError = signal<string | null>(null);
   readonly jiraConnecting = signal(false);
 
@@ -258,16 +248,10 @@ export class WorkspaceAdmin implements OnInit {
     this.slack.set(null);
     this.slackError.set(null);
     this.linear.set(null);
-    this.linearProjects.set([]);
     this.linearError.set(null);
     this.github.set(null);
-    this.githubRepos.set([]);
-    this.githubSelectedRepo.set('');
     this.githubError.set(null);
     this.jira.set(null);
-    this.jiraSites.set([]);
-    this.jiraProjects.set([]);
-    this.jiraSelectedProject.set('');
     this.jiraError.set(null);
     if (this.isAdmin()) {
       await Promise.all([
@@ -294,21 +278,6 @@ export class WorkspaceAdmin implements OnInit {
     try {
       const conn = await this.workspaces.getLinearConnection(workspaceId);
       this.linear.set(conn);
-      if (conn.configured) {
-        try {
-          const projects =
-            await this.workspaces.listLinearProjects(workspaceId);
-          this.linearProjects.set(projects);
-        } catch (err: unknown) {
-          this.linearError.set(
-            err instanceof Error
-              ? err.message
-              : 'Failed to load Linear projects',
-          );
-        }
-      } else {
-        this.linearProjects.set([]);
-      }
     } catch (err: unknown) {
       this.linearError.set(
         err instanceof Error ? err.message : 'Failed to load Linear connection',
@@ -397,25 +366,6 @@ export class WorkspaceAdmin implements OnInit {
     }
   }
 
-  async selectLinearProject(projectId: string): Promise<void> {
-    const ws = this.selected();
-    if (!ws || !this.isAdmin() || !projectId.trim()) {
-      return;
-    }
-    this.linearError.set(null);
-    try {
-      const conn = await this.workspaces.selectLinearProject(ws.id, {
-        projectId: projectId.trim(),
-      });
-      this.linear.set(conn);
-      this.message.set('standup.workspace.linearProjectSaved');
-    } catch (err: unknown) {
-      this.linearError.set(
-        err instanceof Error ? err.message : 'Failed to save Linear project',
-      );
-    }
-  }
-
   async disconnectLinear(): Promise<void> {
     const ws = this.selected();
     if (!ws || !this.isAdmin()) {
@@ -425,7 +375,6 @@ export class WorkspaceAdmin implements OnInit {
     try {
       const conn = await this.workspaces.disconnectLinear(ws.id);
       this.linear.set(conn);
-      this.linearProjects.set([]);
       this.message.set('standup.workspace.linearDisconnected');
     } catch (err: unknown) {
       this.linearError.set(
@@ -438,18 +387,6 @@ export class WorkspaceAdmin implements OnInit {
     try {
       const conn = await this.workspaces.getGithubConnection(workspaceId);
       this.github.set(conn);
-      if (conn.configured) {
-        try {
-          const repos = await this.workspaces.listGithubRepos(workspaceId);
-          this.githubRepos.set(repos);
-          this.githubSelectedRepo.set(conn.repoFullName ?? '');
-        } catch (err: unknown) {
-          this.noteGithub(err, 'standup.workspace.githubReposFailed');
-        }
-      } else {
-        this.githubRepos.set([]);
-        this.githubSelectedRepo.set('');
-      }
     } catch (err: unknown) {
       this.noteGithub(err, 'standup.workspace.githubRequestFailed');
     }
@@ -471,26 +408,6 @@ export class WorkspaceAdmin implements OnInit {
     }
   }
 
-  async onGithubRepoChange(fullName: string): Promise<void> {
-    const ws = this.selected();
-    this.githubSelectedRepo.set(fullName);
-    const slash = fullName.indexOf('/');
-    if (!ws || !this.isAdmin() || slash <= 0) {
-      return;
-    }
-    this.githubError.set(null);
-    try {
-      const conn = await this.workspaces.selectGithubTarget(ws.id, {
-        owner: fullName.slice(0, slash),
-        repo: fullName.slice(slash + 1),
-      });
-      this.github.set(conn);
-      this.message.set('standup.workspace.githubTargetSaved');
-    } catch (err: unknown) {
-      this.noteGithub(err, 'standup.workspace.githubRequestFailed');
-    }
-  }
-
   async disconnectGithub(): Promise<void> {
     const ws = this.selected();
     if (!ws || !this.isAdmin()) {
@@ -500,8 +417,6 @@ export class WorkspaceAdmin implements OnInit {
     try {
       const conn = await this.workspaces.disconnectGithub(ws.id);
       this.github.set(conn);
-      this.githubRepos.set([]);
-      this.githubSelectedRepo.set('');
       this.message.set('standup.workspace.githubDisconnected');
     } catch (err: unknown) {
       this.noteGithub(err, 'standup.workspace.githubRequestFailed');
@@ -527,29 +442,6 @@ export class WorkspaceAdmin implements OnInit {
     try {
       const conn = await this.workspaces.getJiraConnection(workspaceId);
       this.jira.set(conn);
-      if (conn.configured) {
-        try {
-          const sites = await this.workspaces.listJiraSites(workspaceId);
-          this.jiraSites.set(sites);
-          if (conn.cloudId) {
-            const projects =
-              await this.workspaces.listJiraProjects(workspaceId);
-            this.jiraProjects.set(projects);
-            this.jiraSelectedProject.set(conn.projectKey ?? '');
-          } else {
-            this.jiraProjects.set([]);
-            this.jiraSelectedProject.set('');
-          }
-        } catch (err: unknown) {
-          this.jiraError.set(
-            err instanceof Error ? err.message : 'Failed to load Jira sites',
-          );
-        }
-      } else {
-        this.jiraSites.set([]);
-        this.jiraProjects.set([]);
-        this.jiraSelectedProject.set('');
-      }
     } catch (err: unknown) {
       this.jiraError.set(
         err instanceof Error ? err.message : 'Failed to load Jira connection',
@@ -575,51 +467,6 @@ export class WorkspaceAdmin implements OnInit {
     }
   }
 
-  async onJiraSiteChange(cloudId: string): Promise<void> {
-    const ws = this.selected();
-    if (!ws || !this.isAdmin() || !cloudId.trim()) {
-      return;
-    }
-    this.jiraError.set(null);
-    this.jiraProjects.set([]);
-    this.jiraSelectedProject.set('');
-    try {
-      const conn = await this.workspaces.selectJiraSite(ws.id, {
-        cloudId: cloudId.trim(),
-      });
-      this.jira.set(conn);
-      const projects = await this.workspaces.listJiraProjects(ws.id);
-      this.jiraProjects.set(projects);
-    } catch (err: unknown) {
-      this.jiraError.set(
-        err instanceof Error ? err.message : 'Failed to select Jira site',
-      );
-    }
-  }
-
-  async onJiraProjectChange(projectKey: string): Promise<void> {
-    const ws = this.selected();
-    const conn = this.jira();
-    this.jiraSelectedProject.set(projectKey);
-    if (!ws || !this.isAdmin() || !conn?.cloudId || !projectKey.trim()) {
-      return;
-    }
-    this.jiraError.set(null);
-    try {
-      const next = await this.workspaces.selectJiraTarget(ws.id, {
-        cloudId: conn.cloudId,
-        projectKey: projectKey.trim(),
-      });
-      this.jira.set(next);
-      this.jiraSelectedProject.set(next.projectKey ?? projectKey.trim());
-      this.message.set('standup.workspace.jiraTargetSaved');
-    } catch (err: unknown) {
-      this.jiraError.set(
-        apiErrorMessage(err, 'Could not save the Jira project'),
-      );
-    }
-  }
-
   async disconnectJira(): Promise<void> {
     const ws = this.selected();
     if (!ws || !this.isAdmin()) {
@@ -629,9 +476,6 @@ export class WorkspaceAdmin implements OnInit {
     try {
       const conn = await this.workspaces.disconnectJira(ws.id);
       this.jira.set(conn);
-      this.jiraSites.set([]);
-      this.jiraProjects.set([]);
-      this.jiraSelectedProject.set('');
       this.message.set('standup.workspace.jiraDisconnected');
     } catch (err: unknown) {
       this.jiraError.set(

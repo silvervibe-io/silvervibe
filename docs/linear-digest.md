@@ -7,9 +7,10 @@ Issue: [#110](https://github.com/silvervibe-io/silvervibe/issues/110)
 1. Workspace admin starts **Connect Linear** (OAuth). Nest stores tokens on
    `addon_connections` (provider `LINEAR`), enables tool entitlement
    `addons.linear`, and redirects back to Workspace admin.
-2. Admin picks a Linear **project**. Digests post as Linear **project updates**.
-3. When a team standup summary is rebuilt (submit or Rebuild), Nest creates a
-   project update if `addons.linear` is enabled and a project is selected.
+2. The connection is for mention search and recent-work suggestions. The
+   standup summary stays in Slack.
+   [#182](https://github.com/silvervibe-io/silvervibe/issues/182) stopped
+   posting that summary as a Linear project update.
 
 ## Setup (local / Cloud Run)
 
