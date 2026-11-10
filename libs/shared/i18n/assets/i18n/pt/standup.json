@@ -170,6 +170,12 @@
     "tabStandup": "Standup",
     "tabQuestions": "Perguntas",
     "tabDigests": "Relatórios",
+    "publishTitle": "Publicar também o resumo",
+    "publishHint": "Desligado por defeito. Ligue uma ferramenta para publicar lá o resumo desta equipa, além do Slack.",
+    "publishGithub": "Publicar o resumo no GitHub",
+    "publishJira": "Publicar o resumo no Jira",
+    "publishLinear": "Publicar o resumo no Linear",
+    "publishSave": "Guardar publicação",
     "tabPeople": "Pessoas",
     "reconnectAddon": "A ligação foi recusada (HTTP {{status}}). Volte a ligá-la na administração do espaço.",
     "reconnectLink": "Abrir a administração do espaço."

@@ -170,6 +170,12 @@
     "tabStandup": "Standup",
     "tabQuestions": "Questions",
     "tabDigests": "Digests",
+    "publishTitle": "Also post the summary",
+    "publishHint": "Off by default. Turn a tool on to post this team's summary there, as well as in Slack.",
+    "publishGithub": "Post the summary to GitHub",
+    "publishJira": "Post the summary to Jira",
+    "publishLinear": "Post the summary to Linear",
+    "publishSave": "Save posting",
     "tabPeople": "People",
     "reconnectAddon": "The connection was rejected (HTTP {{status}}). Reconnect it in Workspace admin.",
     "reconnectLink": "Open Workspace admin."

@@ -22,6 +22,12 @@
       "defaultValue": false
     },
     {
+      "key": "vibestandup.digestPublish.enabled",
+      "valueType": "boolean",
+      "description": "Show team-admin switches that post the standup summary to GitHub, Jira, and Linear. Each switch stays off until a team admin turns it on.",
+      "defaultValue": false
+    },
+    {
       "key": "plans.catalog",
       "valueType": "json",
       "description": "Remote-readable copy of the workspace plan catalog (limits are authoritative in Neon when plans ship).",

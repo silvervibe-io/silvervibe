@@ -14,6 +14,11 @@
     "defaultValue": false,
     "description": "Roll out multi-team UI/API beyond the free-plan single-team default. Enforce limits in Neon."
   },
+  "vibestandup.digestPublish.enabled": {
+    "valueType": "boolean",
+    "defaultValue": false,
+    "description": "Show team-admin switches that post the standup summary to GitHub, Jira, and Linear. Each switch stays off until a team admin turns it on."
+  },
   "plans.catalog": {
     "valueType": "json",
     "defaultValueFrom": "plans.catalog",

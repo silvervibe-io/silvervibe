@@ -170,6 +170,12 @@
     "tabStandup": "Standup",
     "tabQuestions": "Domande",
     "tabDigests": "Riepiloghi",
+    "publishTitle": "Pubblica anche il riepilogo",
+    "publishHint": "Spento per impostazione predefinita. Attiva uno strumento per pubblicare lì il riepilogo di questo team, oltre a Slack.",
+    "publishGithub": "Pubblica il riepilogo su GitHub",
+    "publishJira": "Pubblica il riepilogo su Jira",
+    "publishLinear": "Pubblica il riepilogo su Linear",
+    "publishSave": "Salva pubblicazione",
     "tabPeople": "Persone",
     "reconnectAddon": "La connessione è stata rifiutata (HTTP {{status}}). Ricollegala nell’amministrazione dello spazio.",
     "reconnectLink": "Apri l’amministrazione dello spazio."

@@ -286,7 +286,50 @@
       }
     </form>
 
-    @if (adminSection() === 'digests') {
+    @if (adminSection() === 'digests') { @if (digestPublishEnabled()) {
+    <section class="flex max-w-xl flex-col gap-3">
+      <h2 class="text-xl font-semibold">
+        {{ 'standup.team.publishTitle' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.team.publishHint' | transloco }}
+      </p>
+      <label class="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          class="checkbox checkbox-sm"
+          [checked]="configModel().publishGithub"
+          (change)="setPublish('publishGithub', $any($event.target).checked)"
+        />
+        {{ 'standup.team.publishGithub' | transloco }}
+      </label>
+      <label class="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          class="checkbox checkbox-sm"
+          [checked]="configModel().publishJira"
+          (change)="setPublish('publishJira', $any($event.target).checked)"
+        />
+        {{ 'standup.team.publishJira' | transloco }}
+      </label>
+      <label class="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          class="checkbox checkbox-sm"
+          [checked]="configModel().publishLinear"
+          (change)="setPublish('publishLinear', $any($event.target).checked)"
+        />
+        {{ 'standup.team.publishLinear' | transloco }}
+      </label>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm self-start"
+        (click)="savePublish()"
+      >
+        {{ 'standup.team.publishSave' | transloco }}
+      </button>
+    </section>
+    }
     <section class="flex max-w-xl flex-col gap-3">
       <h2 class="text-xl font-semibold">
         {{ 'standup.team.slackChannelTitle' | transloco }}

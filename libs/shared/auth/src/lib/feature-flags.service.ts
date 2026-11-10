@@ -44,6 +44,7 @@ export class FeatureFlagsService {
         new StaticBooleanProvider({
           [FLAG_KEYS.toolsVibestandupEnabled]: true,
           [FLAG_KEYS.addonsGithubWebhooks]: false,
+          [FLAG_KEYS.vibestandupDigestPublish]: false,
         }),
       );
       this.usingGrowthBookSignal.set(false);

@@ -8,6 +8,7 @@ import { VerifiedUser } from '../auth/firebase-auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { TeamsService } from '../teams/teams.service';
 import { UsersService } from '../users/users.service';
+import { FeatureFlagsService } from '../feature-flags/feature-flags.service';
 import { StandupsService } from './standups.service';
 
 const user: VerifiedUser = { uid: 'uid-1', email: 'member@example.com' };
@@ -55,6 +56,9 @@ function service(role: 'MEMBER' | 'ADMIN'): StandupsService {
     {} as LinearService,
     {} as GithubService,
     {} as JiraService,
+    {
+      booleanFlag: jest.fn().mockResolvedValue(false),
+    } as unknown as FeatureFlagsService,
   );
 }
 

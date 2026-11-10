@@ -24,6 +24,7 @@ export const FLAG_KEYS = {
   toolsVibestandupEnabled: 'tools.vibestandup.enabled',
   addonsGithubWebhooks: 'addons.github.webhooks',
   vibestandupMultiTeamEnabled: 'vibestandup.multiTeam.enabled',
+  vibestandupDigestPublish: 'vibestandup.digestPublish.enabled',
   plansCatalog: 'plans.catalog',
   vibestandupLimits: 'vibestandup.limits',
 } as const;
