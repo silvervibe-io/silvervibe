@@ -188,9 +188,6 @@ function mapConfig(dto: StandupConfigDto): StandupConfigView {
     windowStartHour?: number;
     windowStartMinute?: number;
     reveal?: string;
-    publishGithub?: boolean;
-    publishJira?: boolean;
-    publishLinear?: boolean;
   };
   return {
     teamId: dto.teamId,
@@ -201,9 +198,6 @@ function mapConfig(dto: StandupConfigDto): StandupConfigView {
     windowStartHour: extra.windowStartHour ?? 8,
     windowStartMinute: extra.windowStartMinute ?? 0,
     reveal: extra.reveal === 'together' ? 'together' : 'live',
-    publishGithub: extra.publishGithub === true,
-    publishJira: extra.publishJira === true,
-    publishLinear: extra.publishLinear === true,
     questionsJson: asQuestions(dto.questionsJson),
   };
 }
@@ -392,9 +386,6 @@ export class StandupService {
           windowStartHour: body.windowStartHour,
           windowStartMinute: body.windowStartMinute,
           reveal: body.reveal,
-          publishGithub: body.publishGithub,
-          publishJira: body.publishJira,
-          publishLinear: body.publishLinear,
           questionsJson: body.questionsJson,
         } as unknown as UpdateStandupConfigDto,
       }),

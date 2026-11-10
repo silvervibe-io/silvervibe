@@ -7,10 +7,10 @@ Issue: [#113](https://github.com/silvervibe-io/silvervibe/issues/113)
 1. Workspace admin starts **Connect GitHub** (OAuth App). Nest stores the token
    on `addon_connections` (provider `GITHUB`), enables `addons.github`, and
    redirects back to Workspace admin.
-2. Admin picks a **repository** and an open **issue**. Digests post as issue
-   comments.
-3. When a team standup summary is rebuilt (submit or Rebuild), Nest creates a
-   comment if `addons.github` is enabled and a target is selected.
+2. The connection is for mention search and recent-work suggestions across the
+   repositories that account can access. The standup summary stays in Slack.
+   [#182](https://github.com/silvervibe-io/silvervibe/issues/182) stopped
+   posting that summary as a GitHub issue comment.
 
 ## Setup (local / Cloud Run)
 

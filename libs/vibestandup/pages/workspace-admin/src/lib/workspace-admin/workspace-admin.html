@@ -137,28 +137,9 @@
         <span class="font-medium">{{ conn.status }}</span>
         @if (conn.organizationName) {
         <span class="text-base-content/70"> — {{ conn.organizationName }}</span>
-        } @if (conn.projectName) {
-        <span class="text-base-content/70"> / {{ conn.projectName }}</span>
         }
       </p>
       @if (conn.configured) {
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'standup.workspace.linearProject' | transloco }}
-        </legend>
-        <select
-          class="select select-bordered w-full"
-          [value]="conn.projectId ?? ''"
-          (change)="selectLinearProject($any($event.target).value)"
-        >
-          <option value="">
-            {{ 'standup.workspace.linearProjectPlaceholder' | transloco }}
-          </option>
-          @for (project of linearProjects(); track project.id) {
-          <option [value]="project.id">{{ project.name }}</option>
-          }
-        </select>
-      </fieldset>
       <button
         type="button"
         class="btn btn-outline btn-sm self-start"
@@ -197,28 +178,9 @@
         <span class="font-medium">{{ conn.status }}</span>
         @if (conn.accountLogin) {
         <span class="text-base-content/70"> — @{{ conn.accountLogin }}</span>
-        } @if (conn.repoFullName) {
-        <span class="text-base-content/70"> / {{ conn.repoFullName }}</span>
         }
       </p>
       @if (conn.configured) {
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'standup.workspace.githubRepo' | transloco }}
-        </legend>
-        <select
-          class="select select-bordered w-full"
-          [value]="githubSelectedRepo()"
-          (change)="onGithubRepoChange($any($event.target).value)"
-        >
-          <option value="">
-            {{ 'standup.workspace.githubRepoPlaceholder' | transloco }}
-          </option>
-          @for (repo of githubRepos(); track repo.fullName) {
-          <option [value]="repo.fullName">{{ repo.fullName }}</option>
-          }
-        </select>
-      </fieldset>
       <button
         type="button"
         class="btn btn-outline btn-sm self-start"
@@ -257,49 +219,8 @@
       <p class="text-sm">
         {{ 'standup.workspace.jiraStatus' | transloco }}:
         <span class="font-medium">{{ conn.status }}</span>
-        @if (conn.siteName) {
-        <span class="text-base-content/70"> — {{ conn.siteName }}</span>
-        } @if (conn.projectKey) {
-        <span class="text-base-content/70"> / {{ conn.projectKey }}</span>
-        }
       </p>
       @if (conn.configured) {
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'standup.workspace.jiraSite' | transloco }}
-        </legend>
-        <select
-          class="select select-bordered w-full"
-          [value]="conn.cloudId ?? ''"
-          (change)="onJiraSiteChange($any($event.target).value)"
-        >
-          <option value="">
-            {{ 'standup.workspace.jiraSitePlaceholder' | transloco }}
-          </option>
-          @for (site of jiraSites(); track site.cloudId) {
-          <option [value]="site.cloudId">{{ site.name }}</option>
-          }
-        </select>
-      </fieldset>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'standup.workspace.jiraProject' | transloco }}
-        </legend>
-        <select
-          class="select select-bordered w-full"
-          [value]="jiraSelectedProject()"
-          (change)="onJiraProjectChange($any($event.target).value)"
-        >
-          <option value="">
-            {{ 'standup.workspace.jiraProjectPlaceholder' | transloco }}
-          </option>
-          @for (project of jiraProjects(); track project.key) {
-          <option [value]="project.key">
-            {{ project.key }} — {{ project.name }}
-          </option>
-          }
-        </select>
-      </fieldset>
       <button
         type="button"
         class="btn btn-outline btn-sm self-start"

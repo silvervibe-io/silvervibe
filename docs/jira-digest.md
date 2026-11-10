@@ -7,10 +7,10 @@ Issue: [#116](https://github.com/silvervibe-io/silvervibe/issues/116)
 1. Workspace admin starts **Connect Jira** (Atlassian OAuth 2.0 / 3LO). Nest
    stores tokens on `addon_connections` (provider `JIRA`), enables
    `addons.jira`, and redirects back to Workspace admin.
-2. Admin picks a **Cloud site**, **project**, and **issue**. Digests post as
-   issue comments (ADF).
-3. When a team standup summary is rebuilt (submit or Rebuild), Nest adds a
-   comment if `addons.jira` is enabled and a target is selected.
+2. The connection is for mention search and recent-work suggestions. The
+   standup summary stays in Slack.
+   [#182](https://github.com/silvervibe-io/silvervibe/issues/182) stopped
+   posting that summary as a Jira comment.
 
 ## Setup (local / Cloud Run)
 

@@ -6,7 +6,6 @@ import { LinearModule } from '../addons/linear/linear.module';
 import { SlackModule } from '../addons/slack/slack.module';
 import { TeamsModule as MsTeamsModule } from '../addons/teams/teams.module';
 import { AuthModule } from '../auth/auth.module';
-import { FeatureFlagsModule } from '../feature-flags/feature-flags.module';
 import { WorkspaceTeamsModule } from '../teams/teams.module';
 import { UsersModule } from '../users/users.module';
 import { MentionsService } from './mentions.service';
@@ -16,7 +15,6 @@ import { StandupsService } from './standups.service';
 @Module({
   imports: [
     AuthModule,
-    FeatureFlagsModule,
     UsersModule,
     WorkspaceTeamsModule,
     AiModule,
