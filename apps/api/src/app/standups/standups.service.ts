@@ -7,9 +7,6 @@ import {
 
 import { StandupEntryStatus } from '@prisma/client';
 import { AiService } from '../ai/ai.service';
-import { GithubService } from '../addons/github/github.service';
-import { JiraService } from '../addons/jira/jira.service';
-import { LinearService } from '../addons/linear/linear.service';
 import { SlackService } from '../addons/slack/slack.service';
 import { TeamsService as MsTeamsService } from '../addons/teams/teams.service';
 import { VerifiedUser } from '../auth/firebase-auth.service';
@@ -62,9 +59,6 @@ export class StandupsService {
     private readonly ai: AiService,
     private readonly slack: SlackService,
     private readonly msTeams: MsTeamsService,
-    private readonly linear: LinearService,
-    private readonly github: GithubService,
-    private readonly jira: JiraService,
   ) {}
 
   private ensureDb(): void {
@@ -779,15 +773,6 @@ export class StandupsService {
         }
         if (!providers.teams) {
           providers.teams = await this.msTeams.postStandupDigest(digest);
-        }
-        if (!providers.linear) {
-          providers.linear = await this.linear.postStandupDigest(digest);
-        }
-        if (!providers.github) {
-          providers.github = await this.github.postStandupDigest(digest);
-        }
-        if (!providers.jira) {
-          providers.jira = await this.jira.postStandupDigest(digest);
         }
 
         await this.prisma.standupSummary.update({

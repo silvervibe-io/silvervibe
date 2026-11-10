@@ -1,8 +1,5 @@
 import { StandupEntryStatus } from '@prisma/client';
 import { AiService } from '../ai/ai.service';
-import { GithubService } from '../addons/github/github.service';
-import { JiraService } from '../addons/jira/jira.service';
-import { LinearService } from '../addons/linear/linear.service';
 import { SlackService } from '../addons/slack/slack.service';
 import { TeamsService as MsTeamsService } from '../addons/teams/teams.service';
 import { VerifiedUser } from '../auth/firebase-auth.service';
@@ -28,18 +25,6 @@ const slackStub = {
 const msTeamsStub = {
   postStandupDigest: jest.fn().mockResolvedValue(false),
 } as unknown as MsTeamsService;
-
-const linearStub = {
-  postStandupDigest: jest.fn().mockResolvedValue(false),
-} as unknown as LinearService;
-
-const githubStub = {
-  postStandupDigest: jest.fn().mockResolvedValue(false),
-} as unknown as GithubService;
-
-const jiraStub = {
-  postStandupDigest: jest.fn().mockResolvedValue(false),
-} as unknown as JiraService;
 
 describe('StandupsService auto-summary', () => {
   it('rebuilds the team summary after a submit', async () => {
@@ -114,9 +99,6 @@ describe('StandupsService auto-summary', () => {
 
     const postStandupDigest = jest.fn().mockResolvedValue(true);
     const postTeamsDigest = jest.fn().mockResolvedValue(true);
-    const postLinearDigest = jest.fn().mockResolvedValue(true);
-    const postGithubDigest = jest.fn().mockResolvedValue(true);
-    const postJiraDigest = jest.fn().mockResolvedValue(true);
     const summarizeStandup = jest.fn().mockResolvedValue(null);
     const service = new StandupsService(
       prisma as unknown as PrismaService,
@@ -125,9 +107,6 @@ describe('StandupsService auto-summary', () => {
       { summarizeStandup } as unknown as AiService,
       { postStandupDigest } as unknown as SlackService,
       { postStandupDigest: postTeamsDigest } as unknown as MsTeamsService,
-      { postStandupDigest: postLinearDigest } as unknown as LinearService,
-      { postStandupDigest: postGithubDigest } as unknown as GithubService,
-      { postStandupDigest: postJiraDigest } as unknown as JiraService,
     );
 
     const result = await service.upsertMine('team1', member, {
@@ -158,25 +137,6 @@ describe('StandupsService auto-summary', () => {
         teamName: 'Alpha',
       }),
     );
-    expect(postLinearDigest).toHaveBeenCalledWith(
-      expect.objectContaining({
-        workspaceId: 'ws1',
-        teamName: 'Alpha',
-      }),
-    );
-    expect(postGithubDigest).toHaveBeenCalledWith(
-      expect.objectContaining({
-        workspaceId: 'ws1',
-        teamName: 'Alpha',
-      }),
-    );
-    expect(postJiraDigest).toHaveBeenCalledWith(
-      expect.objectContaining({
-        workspaceId: 'ws1',
-        teamId: 'team1',
-        teamName: 'Alpha',
-      }),
-    );
     expect(summaryUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: 's1' },
@@ -186,9 +146,6 @@ describe('StandupsService auto-summary', () => {
             providers: {
               slack: true,
               teams: true,
-              linear: true,
-              github: true,
-              jira: true,
             },
           },
         },
@@ -288,9 +245,6 @@ describe('StandupsService auto-summary', () => {
       } as unknown as AiService,
       { postStandupDigest } as unknown as SlackService,
       { postStandupDigest: jest.fn() } as unknown as MsTeamsService,
-      { postStandupDigest: jest.fn() } as unknown as LinearService,
-      { postStandupDigest: jest.fn() } as unknown as GithubService,
-      { postStandupDigest: jest.fn() } as unknown as JiraService,
     );
 
     await service.upsertMine('team1', member, {
@@ -342,9 +296,6 @@ describe('StandupsService auto-summary', () => {
       aiStub,
       slackStub,
       msTeamsStub,
-      linearStub,
-      githubStub,
-      jiraStub,
     );
 
     await expect(
@@ -426,9 +377,6 @@ describe('StandupsService auto-summary', () => {
       { summarizeStandup } as unknown as AiService,
       slackStub,
       msTeamsStub,
-      linearStub,
-      githubStub,
-      jiraStub,
     );
 
     await service.upsertMine('team1', member, {
@@ -486,9 +434,6 @@ describe('StandupsService auto-summary', () => {
       aiStub,
       slackStub,
       msTeamsStub,
-      linearStub,
-      githubStub,
-      jiraStub,
     );
 
     await service.upsertMine('team1', member, {

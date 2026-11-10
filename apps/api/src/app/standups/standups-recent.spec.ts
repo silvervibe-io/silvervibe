@@ -1,7 +1,4 @@
 import { AiService } from '../ai/ai.service';
-import { GithubService } from '../addons/github/github.service';
-import { JiraService } from '../addons/jira/jira.service';
-import { LinearService } from '../addons/linear/linear.service';
 import { SlackService } from '../addons/slack/slack.service';
 import { TeamsService as MsTeamsService } from '../addons/teams/teams.service';
 import { VerifiedUser } from '../auth/firebase-auth.service';
@@ -52,9 +49,6 @@ function service(role: 'MEMBER' | 'ADMIN'): StandupsService {
     {} as AiService,
     {} as SlackService,
     {} as MsTeamsService,
-    {} as LinearService,
-    {} as GithubService,
-    {} as JiraService,
   );
 }
 
