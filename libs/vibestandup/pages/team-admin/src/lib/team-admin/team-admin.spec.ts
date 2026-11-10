@@ -8,7 +8,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
 import { provideSilvervibeApiClient } from '@silvervibe/shared/api-client';
-import { API_BASE_URL } from '@silvervibe/shared/auth';
+import { API_BASE_URL, FeatureFlagsService } from '@silvervibe/shared/auth';
 import {
   PREVIEW_SWITCHER_EMAILS,
   PREVIEW_SWITCHER_USER_EMAIL,
@@ -37,6 +37,10 @@ describe('TeamAdmin', () => {
         },
         WorkspaceFacade,
         StandupFacade,
+        {
+          provide: FeatureFlagsService,
+          useValue: { isEnabled: () => Promise.resolve(false) },
+        },
         ...provideTransloco({
           config: {
             availableLangs: ['en'],
@@ -121,6 +125,8 @@ describe('TeamAdmin', () => {
                     jiraIssue: 'Issue',
                     jiraTargetSaved: 'Jira saved',
                     jiraTargetCleared: 'Jira cleared',
+                    publishTitle: 'Also post the summary',
+                    publishGithub: 'Post the summary to GitHub',
                   },
                   invite: {
                     title: 'Join',
@@ -211,6 +217,27 @@ describe('TeamAdmin', () => {
       reconnect: false,
       status: 400,
     });
+  });
+
+  it('shows summary posting on the digests tab only when the flag is on', async () => {
+    const http = TestBed.inject(HttpTestingController);
+    const pending = TestBed.inject(StandupFacade).loadMyTeams('ws1');
+    http
+      .expectOne('/api/workspaces/ws1/teams/mine')
+      .flush([{ id: 't1', name: 'Alpha', slug: 'alpha', role: 'ADMIN' }]);
+    await pending;
+    fixture.componentInstance.adminSection.set('digests');
+    fixture.detectChanges();
+    const text = () => (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text()).not.toContain('Also post the summary');
+    fixture.componentInstance.digestPublishEnabled.set(true);
+    fixture.detectChanges();
+    expect(text()).toContain('Also post the summary');
+    expect(text()).toContain('Post the summary to GitHub');
+    fixture.componentInstance.setPublish('publishGithub', true);
+    expect(fixture.componentInstance.configModel().publishGithub).toBe(true);
+    expect(fixture.componentInstance.configModel().publishJira).toBe(false);
+    expect(fixture.componentInstance.configModel().publishLinear).toBe(false);
   });
 
   it('adds a custom text question', () => {

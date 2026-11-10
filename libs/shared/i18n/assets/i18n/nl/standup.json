@@ -170,6 +170,12 @@
     "tabStandup": "Standup",
     "tabQuestions": "Vragen",
     "tabDigests": "Overzichten",
+    "publishTitle": "Ook de samenvatting plaatsen",
+    "publishHint": "Standaard uit. Zet een hulpmiddel aan om de samenvatting van dit team daar te plaatsen, naast Slack.",
+    "publishGithub": "Plaats de samenvatting op GitHub",
+    "publishJira": "Plaats de samenvatting in Jira",
+    "publishLinear": "Plaats de samenvatting in Linear",
+    "publishSave": "Plaatsen opslaan",
     "tabPeople": "Mensen",
     "reconnectAddon": "De verbinding is geweigerd (HTTP {{status}}). Verbind opnieuw in Workspace-beheer.",
     "reconnectLink": "Open Workspace-beheer."

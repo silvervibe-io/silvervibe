@@ -170,6 +170,12 @@
     "tabStandup": "Standup",
     "tabQuestions": "Fragen",
     "tabDigests": "Digests",
+    "publishTitle": "Zusammenfassung auch posten",
+    "publishHint": "Standardmäßig aus. Schalte ein Werkzeug ein, um die Zusammenfassung dieses Teams dort zu posten, zusätzlich zu Slack.",
+    "publishGithub": "Zusammenfassung auf GitHub posten",
+    "publishJira": "Zusammenfassung in Jira posten",
+    "publishLinear": "Zusammenfassung in Linear posten",
+    "publishSave": "Posten speichern",
     "tabPeople": "Personen",
     "reconnectAddon": "Die Verbindung wurde abgelehnt (HTTP {{status}}). Verbinde sie in der Workspace-Verwaltung erneut.",
     "reconnectLink": "Workspace-Verwaltung öffnen."

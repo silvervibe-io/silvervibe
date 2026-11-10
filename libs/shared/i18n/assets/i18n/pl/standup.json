@@ -170,6 +170,12 @@
     "tabStandup": "Standup",
     "tabQuestions": "Pytania",
     "tabDigests": "Raporty",
+    "publishTitle": "Opublikuj też podsumowanie",
+    "publishHint": "Domyślnie wyłączone. Włącz narzędzie, aby publikować tam podsumowanie tego zespołu, oprócz Slacka.",
+    "publishGithub": "Publikuj podsumowanie na GitHubie",
+    "publishJira": "Publikuj podsumowanie w Jirze",
+    "publishLinear": "Publikuj podsumowanie w Linearze",
+    "publishSave": "Zapisz publikowanie",
     "tabPeople": "Osoby",
     "reconnectAddon": "Połączenie zostało odrzucone (HTTP {{status}}). Połącz je ponownie w administracji obszaru roboczego.",
     "reconnectLink": "Otwórz administrację obszaru roboczego."

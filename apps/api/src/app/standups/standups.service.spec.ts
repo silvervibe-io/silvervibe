@@ -10,7 +10,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { TeamsService } from '../teams/teams.service';
 import { UsersService } from '../users/users.service';
 import { calendarDateInTimezone } from './standup-date.util';
+import { FeatureFlagsService } from '../feature-flags/feature-flags.service';
 import { StandupsService } from './standups.service';
+
+function digestFlags(enabled = false): FeatureFlagsService {
+  return {
+    booleanFlag: jest.fn().mockResolvedValue(enabled),
+  } as unknown as FeatureFlagsService;
+}
 
 const member: VerifiedUser = {
   uid: 'uid-1',
@@ -128,6 +135,7 @@ describe('StandupsService auto-summary', () => {
       { postStandupDigest: postLinearDigest } as unknown as LinearService,
       { postStandupDigest: postGithubDigest } as unknown as GithubService,
       { postStandupDigest: postJiraDigest } as unknown as JiraService,
+      digestFlags(),
     );
 
     const result = await service.upsertMine('team1', member, {
@@ -158,25 +166,9 @@ describe('StandupsService auto-summary', () => {
         teamName: 'Alpha',
       }),
     );
-    expect(postLinearDigest).toHaveBeenCalledWith(
-      expect.objectContaining({
-        workspaceId: 'ws1',
-        teamName: 'Alpha',
-      }),
-    );
-    expect(postGithubDigest).toHaveBeenCalledWith(
-      expect.objectContaining({
-        workspaceId: 'ws1',
-        teamName: 'Alpha',
-      }),
-    );
-    expect(postJiraDigest).toHaveBeenCalledWith(
-      expect.objectContaining({
-        workspaceId: 'ws1',
-        teamId: 'team1',
-        teamName: 'Alpha',
-      }),
-    );
+    expect(postLinearDigest).not.toHaveBeenCalled();
+    expect(postGithubDigest).not.toHaveBeenCalled();
+    expect(postJiraDigest).not.toHaveBeenCalled();
     expect(summaryUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: 's1' },
@@ -186,14 +178,105 @@ describe('StandupsService auto-summary', () => {
             providers: {
               slack: true,
               teams: true,
-              linear: true,
-              github: true,
-              jira: true,
             },
           },
         },
       }),
     );
+  });
+
+  it('posts GitHub, Jira, and Linear only when the flag and team switches are on', async () => {
+    const entryDate = new Date('2026-10-20T00:00:00.000Z');
+    const upsert = jest.fn().mockResolvedValue({
+      id: 'e1',
+      teamId: 'team1',
+      entryDate,
+      status: StandupEntryStatus.SUBMITTED,
+      yesterday: 'y',
+      today: 'shipped auto-summary',
+      blockers: null,
+    });
+    const findMany = jest.fn().mockResolvedValue([
+      {
+        userId: 'user-1',
+        yesterday: 'y',
+        today: 'shipped auto-summary',
+        blockers: null,
+        submittedAt: new Date(),
+        user: {
+          displayName: 'Member',
+          email: 'member@example.com',
+          id: 'user-1',
+        },
+      },
+    ]);
+    const prisma = {
+      isEnabled: () => true,
+      standupConfig: {
+        findUnique: jest.fn().mockResolvedValue({
+          timezone: 'UTC',
+          reminderHour: 23,
+          reminderMinute: 59,
+          scheduleKind: 'DEADLINE',
+          reveal: 'LIVE',
+          publishGithub: true,
+          publishJira: false,
+          publishLinear: true,
+        }),
+      },
+      standupEntry: { upsert, findMany },
+      standupSummary: {
+        upsert: jest.fn().mockResolvedValue({
+          id: 's1',
+          teamId: 'team1',
+          entryDate,
+          content: 'summary',
+        }),
+        findUnique: jest.fn().mockResolvedValue(null),
+        update: jest.fn().mockResolvedValue({}),
+      },
+      team: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({ workspaceId: 'ws1', name: 'Alpha' }),
+      },
+    };
+    const postLinearDigest = jest.fn().mockResolvedValue(true);
+    const postGithubDigest = jest.fn().mockResolvedValue(true);
+    const postJiraDigest = jest.fn().mockResolvedValue(true);
+    const service = new StandupsService(
+      prisma as unknown as PrismaService,
+      {
+        upsertFromFirebase: jest.fn().mockResolvedValue({ id: 'user-1' }),
+      } as unknown as UsersService,
+      {
+        requireTeamMember: jest.fn().mockResolvedValue(undefined),
+      } as unknown as TeamsService,
+      {
+        summarizeStandup: jest.fn().mockResolvedValue(null),
+      } as unknown as AiService,
+      {
+        postStandupDigest: jest.fn().mockResolvedValue(true),
+      } as unknown as SlackService,
+      {
+        postStandupDigest: jest.fn().mockResolvedValue(true),
+      } as unknown as MsTeamsService,
+      { postStandupDigest: postLinearDigest } as unknown as LinearService,
+      { postStandupDigest: postGithubDigest } as unknown as GithubService,
+      { postStandupDigest: postJiraDigest } as unknown as JiraService,
+      digestFlags(true),
+    );
+
+    await service.upsertMine('team1', member, {
+      status: 'SUBMITTED',
+      yesterday: 'y',
+      today: 'shipped auto-summary',
+      blockers: '',
+    });
+
+    expect(postGithubDigest).toHaveBeenCalled();
+    expect(postLinearDigest).toHaveBeenCalled();
+    expect(postJiraDigest).not.toHaveBeenCalled();
   });
 
   it('skips digests already delivered for unchanged summary content', async () => {
@@ -291,6 +374,7 @@ describe('StandupsService auto-summary', () => {
       { postStandupDigest: jest.fn() } as unknown as LinearService,
       { postStandupDigest: jest.fn() } as unknown as GithubService,
       { postStandupDigest: jest.fn() } as unknown as JiraService,
+      digestFlags(),
     );
 
     await service.upsertMine('team1', member, {
@@ -345,6 +429,7 @@ describe('StandupsService auto-summary', () => {
       linearStub,
       githubStub,
       jiraStub,
+      digestFlags(),
     );
 
     await expect(
@@ -429,6 +514,7 @@ describe('StandupsService auto-summary', () => {
       linearStub,
       githubStub,
       jiraStub,
+      digestFlags(),
     );
 
     await service.upsertMine('team1', member, {
@@ -489,6 +575,7 @@ describe('StandupsService auto-summary', () => {
       linearStub,
       githubStub,
       jiraStub,
+      digestFlags(),
     );
 
     await service.upsertMine('team1', member, {

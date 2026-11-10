@@ -7,6 +7,9 @@ describe('flag and tool keys', () => {
     expect(FLAG_KEYS.vibestandupMultiTeamEnabled).toBe(
       'vibestandup.multiTeam.enabled',
     );
+    expect(FLAG_KEYS.vibestandupDigestPublish).toBe(
+      'vibestandup.digestPublish.enabled',
+    );
     expect(FLAG_KEYS.plansCatalog).toBe('plans.catalog');
     expect(FLAG_KEYS.vibestandupLimits).toBe('vibestandup.limits');
   });

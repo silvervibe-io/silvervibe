@@ -18,6 +18,8 @@ import {
 } from '@angular/forms/signals';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { FeatureFlagsService } from '@silvervibe/shared/auth';
+import { FLAG_KEYS } from '@silvervibe/shared/feature-flags';
 import { MentionText, Shell, StandupSummary } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import {
@@ -53,6 +55,9 @@ type ConfigModel = {
   reminderMinute: string;
   windowStartHour: string;
   windowStartMinute: string;
+  publishGithub: boolean;
+  publishJira: boolean;
+  publishLinear: boolean;
 };
 
 type InviteModel = {
@@ -81,11 +86,13 @@ export class TeamAdmin implements OnInit {
   private readonly preview = inject(PreviewContextStore);
   private readonly route = inject(ActivatedRoute);
   private readonly transloco = inject(TranslocoService);
+  private readonly flags = inject(FeatureFlagsService);
   private readonly lang = toSignal(this.transloco.langChanges$, {
     initialValue: this.transloco.getActiveLang(),
   });
 
   readonly ready = signal(false);
+  readonly digestPublishEnabled = signal(false);
   readonly error = this.standup.error;
   readonly teams = this.standup.teams;
   readonly selectedTeamId = this.standup.selectedTeamId;
@@ -156,6 +163,9 @@ export class TeamAdmin implements OnInit {
     reminderMinute: '0',
     windowStartHour: '8',
     windowStartMinute: '0',
+    publishGithub: false,
+    publishJira: false,
+    publishLinear: false,
   });
 
   readonly reminderHourOptions = Array.from({ length: 24 }, (_, h) =>
@@ -185,6 +195,9 @@ export class TeamAdmin implements OnInit {
   });
 
   async ngOnInit(): Promise<void> {
+    void this.flags
+      .isEnabled(FLAG_KEYS.vibestandupDigestPublish, false)
+      .then((enabled) => this.digestPublishEnabled.set(enabled));
     try {
       await this.workspaces.loadMyWorkspaces(
         this.route.snapshot.queryParamMap.get('workspaceId'),
@@ -243,6 +256,9 @@ export class TeamAdmin implements OnInit {
           Math.min(23, Math.max(0, Math.trunc(config.windowStartHour))),
         ),
         windowStartMinute: startMinute,
+        publishGithub: config.publishGithub,
+        publishJira: config.publishJira,
+        publishLinear: config.publishLinear,
       });
       this.questions.set(
         config.questionsJson.map((question) => ({ ...question })),
@@ -702,6 +718,21 @@ export class TeamAdmin implements OnInit {
     );
   }
 
+  setPublish(
+    tool: 'publishGithub' | 'publishJira' | 'publishLinear',
+    enabled: boolean,
+  ): void {
+    this.configModel.update((model) => ({ ...model, [tool]: enabled }));
+  }
+
+  async savePublish(): Promise<void> {
+    const teamId = this.selectedTeamId();
+    if (!teamId) {
+      return;
+    }
+    await this.persistConfig(teamId);
+  }
+
   async saveConfig(event: Event): Promise<void> {
     event.preventDefault();
     const teamId = this.selectedTeamId();
@@ -710,33 +741,40 @@ export class TeamAdmin implements OnInit {
     }
     await submit(this.configForm, {
       action: async () => {
-        const m = this.configModel();
-        await this.standup.saveConfig(teamId, {
-          timezone: m.timezone,
-          scheduleKind: m.scheduleKind,
-          reveal: m.reveal,
-          reminderHour: Math.min(
-            23,
-            Math.max(0, Math.trunc(Number(m.reminderHour)) || 0),
-          ),
-          reminderMinute: Math.min(
-            45,
-            Math.max(0, Math.trunc(Number(m.reminderMinute)) || 0),
-          ),
-          windowStartHour: Math.min(
-            23,
-            Math.max(0, Math.trunc(Number(m.windowStartHour)) || 0),
-          ),
-          windowStartMinute: Math.min(
-            45,
-            Math.max(0, Math.trunc(Number(m.windowStartMinute)) || 0),
-          ),
-          questionsJson: this.questions(),
-        });
-        this.message.set('standup.team.saved');
+        await this.persistConfig(teamId);
         return undefined;
       },
     });
+  }
+
+  private async persistConfig(teamId: string): Promise<void> {
+    const m = this.configModel();
+    await this.standup.saveConfig(teamId, {
+      timezone: m.timezone,
+      scheduleKind: m.scheduleKind,
+      reveal: m.reveal,
+      reminderHour: Math.min(
+        23,
+        Math.max(0, Math.trunc(Number(m.reminderHour)) || 0),
+      ),
+      reminderMinute: Math.min(
+        45,
+        Math.max(0, Math.trunc(Number(m.reminderMinute)) || 0),
+      ),
+      windowStartHour: Math.min(
+        23,
+        Math.max(0, Math.trunc(Number(m.windowStartHour)) || 0),
+      ),
+      windowStartMinute: Math.min(
+        45,
+        Math.max(0, Math.trunc(Number(m.windowStartMinute)) || 0),
+      ),
+      publishGithub: m.publishGithub,
+      publishJira: m.publishJira,
+      publishLinear: m.publishLinear,
+      questionsJson: this.questions(),
+    });
+    this.message.set('standup.team.saved');
   }
 
   async invite(event: Event): Promise<void> {

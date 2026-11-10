@@ -30,6 +30,7 @@ export class FeatureFlagsService implements OnModuleInit {
         new StaticBooleanProvider({
           [FLAG_KEYS.toolsVibestandupEnabled]: true,
           [FLAG_KEYS.addonsGithubWebhooks]: false,
+          [FLAG_KEYS.vibestandupDigestPublish]: false,
         }),
       );
       this.logger.warn(

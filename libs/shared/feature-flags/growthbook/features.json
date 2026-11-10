@@ -10,6 +10,9 @@
     "vibestandup.multiTeam.enabled": {
       "defaultValue": false
     },
+    "vibestandup.digestPublish.enabled": {
+      "defaultValue": false
+    },
     "plans.catalog": {
       "defaultValue": {
         "defaultPlanKey": "free",
