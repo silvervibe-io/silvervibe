@@ -13,8 +13,13 @@ import { HttpHeaders } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
 
+import { MentionIssueDto } from '../model/models';
+import { SetStandupAwayDto } from '../model/models';
+import { StandupAwayDatesDto } from '../model/models';
 import { StandupConfigDto } from '../model/models';
 import { StandupEntryDto } from '../model/models';
+import { StandupRecentDayDto } from '../model/models';
+import { StandupRosterMemberDto } from '../model/models';
 import { StandupSummaryDto } from '../model/models';
 import { UpdateStandupConfigDto } from '../model/models';
 import { UpsertStandupEntryDto } from '../model/models';
@@ -40,9 +45,35 @@ export interface StandupsControllerListRequestParams {
   date: string;
 }
 
+export interface StandupsControllerListAwayRequestParams {
+  teamId: string;
+}
+
 export interface StandupsControllerRebuildSummaryRequestParams {
   teamId: string;
   date: string;
+}
+
+export interface StandupsControllerRecentRequestParams {
+  teamId: string;
+}
+
+export interface StandupsControllerRecentIssuesRequestParams {
+  teamId: string;
+}
+
+export interface StandupsControllerRosterRequestParams {
+  teamId: string;
+  date: string;
+}
+
+export interface StandupsControllerSearchIssuesRequestParams {
+  teamId: string;
+}
+
+export interface StandupsControllerSetAwayRequestParams {
+  teamId: string;
+  setStandupAwayDto: SetStandupAwayDto;
 }
 
 export interface StandupsControllerUpdateConfigRequestParams {
@@ -101,6 +132,16 @@ export interface StandupsDataServiceInterface {
   ): Observable<Array<StandupEntryDto>>;
 
   /**
+   * List days this member will not post
+   *
+   * @param requestParameters
+   */
+  standupsControllerListAway(
+    requestParameters: StandupsControllerListAwayRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<StandupAwayDatesDto>;
+
+  /**
    * Rebuild daily summary from submitted entries
    *
    * @param requestParameters
@@ -109,6 +150,56 @@ export interface StandupsDataServiceInterface {
     requestParameters: StandupsControllerRebuildSummaryRequestParams,
     extraHttpRequestParams?: any,
   ): Observable<StandupSummaryDto>;
+
+  /**
+   * Last 14 daily summaries, newest first
+   *
+   * @param requestParameters
+   */
+  standupsControllerRecent(
+    requestParameters: StandupsControllerRecentRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<Array<StandupRecentDayDto>>;
+
+  /**
+   * Recent GitHub, Jira, and Linear items for optional standup lines
+   *
+   * @param requestParameters
+   */
+  standupsControllerRecentIssues(
+    requestParameters: StandupsControllerRecentIssuesRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<Array<MentionIssueDto>>;
+
+  /**
+   * Who posted, who is still open, and who is away
+   *
+   * @param requestParameters
+   */
+  standupsControllerRoster(
+    requestParameters: StandupsControllerRosterRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<Array<StandupRosterMemberDto>>;
+
+  /**
+   * Search issues in connected GitHub, Jira, and Linear accounts
+   *
+   * @param requestParameters
+   */
+  standupsControllerSearchIssues(
+    requestParameters: StandupsControllerSearchIssuesRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<Array<MentionIssueDto>>;
+
+  /**
+   * Mark or clear one away day
+   *
+   * @param requestParameters
+   */
+  standupsControllerSetAway(
+    requestParameters: StandupsControllerSetAwayRequestParams,
+    extraHttpRequestParams?: any,
+  ): Observable<StandupAwayDatesDto>;
 
   /**
    * Update standup config (team admin)

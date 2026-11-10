@@ -25,6 +25,8 @@ import type {
   GithubIssueView,
   GithubOAuthStartView,
   GithubRepoView,
+  GitlabConnectionView,
+  GitlabOAuthStartView,
   JiraConnectionView,
   JiraIssueView,
   JiraOAuthStartView,
@@ -482,6 +484,30 @@ export class WorkspaceService {
     return firstValueFrom(
       this.http.delete<GithubConnectionView>(
         `${this.apiBase}/workspaces/${workspaceId}/addons/github`,
+      ),
+    );
+  }
+
+  getGitlabConnection(workspaceId: string): Promise<GitlabConnectionView> {
+    return firstValueFrom(
+      this.http.get<GitlabConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/gitlab`,
+      ),
+    );
+  }
+
+  startGitlabOAuth(workspaceId: string): Promise<GitlabOAuthStartView> {
+    return firstValueFrom(
+      this.http.get<GitlabOAuthStartView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/gitlab/oauth/start`,
+      ),
+    );
+  }
+
+  disconnectGitlab(workspaceId: string): Promise<GitlabConnectionView> {
+    return firstValueFrom(
+      this.http.delete<GitlabConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/gitlab`,
       ),
     );
   }

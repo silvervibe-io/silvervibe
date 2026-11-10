@@ -210,6 +210,47 @@
 
     <section class="flex max-w-xl flex-col gap-3">
       <h2 class="text-xl font-semibold">
+        {{ 'standup.workspace.gitlabTitle' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/70">
+        {{ 'standup.workspace.gitlabHint' | transloco }}
+      </p>
+      @if (gitlab(); as conn) {
+      <p class="text-sm">
+        {{ 'standup.workspace.gitlabStatus' | transloco }}:
+        <span class="font-medium">{{ conn.status }}</span>
+        @if (conn.accountLogin) {
+        <span class="text-base-content/70"> — @{{ conn.accountLogin }}</span>
+        }
+      </p>
+      @if (conn.configured) {
+      <button
+        type="button"
+        class="btn btn-outline btn-sm self-start"
+        (click)="disconnectGitlab()"
+      >
+        {{ 'standup.workspace.gitlabDisconnect' | transloco }}
+      </button>
+      } @else if (conn.oauthAvailable) {
+      <button
+        type="button"
+        class="btn btn-secondary btn-sm self-start"
+        [disabled]="gitlabConnecting()"
+        (click)="connectGitlab()"
+      >
+        {{ 'standup.workspace.gitlabConnect' | transloco }}
+      </button>
+      } @else {
+      <p class="text-sm text-warning">
+        {{ 'standup.workspace.gitlabOAuthUnavailable' | transloco }}
+      </p>
+      } } @if (gitlabError()) {
+      <p class="text-error text-sm">{{ gitlabError() }}</p>
+      }
+    </section>
+
+    <section class="flex max-w-xl flex-col gap-3">
+      <h2 class="text-xl font-semibold">
         {{ 'standup.workspace.jiraTitle' | transloco }}
       </h2>
       <p class="text-sm text-base-content/70">

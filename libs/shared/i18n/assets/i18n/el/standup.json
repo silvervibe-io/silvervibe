@@ -79,7 +79,8 @@
     "mentionHow": "Πληκτρολογήστε @ για άτομα και # για θέματα.",
     "windowRange": "Παράθυρο standup {{start}}–{{end}}.",
     "openUntil": "Ανοιχτό έως {{time}}.",
-    "summaryAt": "Η σύνοψη εμφανίζεται στις {{time}}."
+    "summaryAt": "Η σύνοψη εμφανίζεται στις {{time}}.",
+    "providerGitlab": "GitLab"
   },
   "team": {
     "title": "Team admin",
@@ -247,7 +248,17 @@
     "upgradeToTeam": "Αναβάθμιση σε Team",
     "planUpgraded": "Ο χώρος εργασίας αναβαθμίστηκε στο πλάνο Team.",
     "githubReposFailed": "Το GitHub δεν μπόρεσε να φορτώσει τα αποθετήρια.",
-    "githubRequestFailed": "Το GitHub δεν μπόρεσε να ολοκληρώσει αυτό το αίτημα."
+    "githubRequestFailed": "Το GitHub δεν μπόρεσε να ολοκληρώσει αυτό το αίτημα.",
+    "gitlabTitle": "GitLab",
+    "gitlabConnect": "Σύνδεση GitLab",
+    "gitlabDisconnect": "Αποσύνδεση GitLab",
+    "gitlabConnected": "Το GitLab συνδέθηκε.",
+    "gitlabDisconnected": "Το GitLab αποσυνδέθηκε.",
+    "gitlabHint": "Σύνδεσε το GitLab ώστε οι άνθρωποι να βλέπουν και να αναφέρουν issues από τα projects αυτού του λογαριασμού.",
+    "gitlabStatus": "Κατάσταση",
+    "gitlabOAuthUnavailable": "Το GitLab OAuth δεν έχει ρυθμιστεί ακόμη στον διακομιστή.",
+    "gitlabConnectFailed": "Η σύνδεση με το GitLab απέτυχε.",
+    "gitlabRequestFailed": "Το GitLab δεν μπόρεσε να ολοκληρώσει το αίτημα."
   },
   "invite": {
     "title": "Join team",

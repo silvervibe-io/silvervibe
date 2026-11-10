@@ -13,6 +13,8 @@ import type {
   GithubIssueView,
   GithubOAuthStartView,
   GithubRepoView,
+  GitlabConnectionView,
+  GitlabOAuthStartView,
   JiraConnectionView,
   JiraIssueView,
   JiraOAuthStartView,
@@ -287,6 +289,18 @@ export class WorkspaceFacade {
 
   disconnectGithub(workspaceId: string): Promise<GithubConnectionView> {
     return this.api.disconnectGithub(workspaceId);
+  }
+
+  getGitlabConnection(workspaceId: string): Promise<GitlabConnectionView> {
+    return this.api.getGitlabConnection(workspaceId);
+  }
+
+  startGitlabOAuth(workspaceId: string): Promise<GitlabOAuthStartView> {
+    return this.api.startGitlabOAuth(workspaceId);
+  }
+
+  disconnectGitlab(workspaceId: string): Promise<GitlabConnectionView> {
+    return this.api.disconnectGitlab(workspaceId);
   }
 
   getJiraConnection(workspaceId: string): Promise<JiraConnectionView> {

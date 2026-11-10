@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { FeatureFlagsModule } from './feature-flags/feature-flags.module';
 import { GithubModule } from './addons/github/github.module';
+import { GitlabModule } from './addons/gitlab/gitlab.module';
 import { JiraModule } from './addons/jira/jira.module';
 import { LinearModule } from './addons/linear/linear.module';
 import { JobsModule } from './jobs/jobs.module';
@@ -32,6 +33,7 @@ import { WorkspacesModule } from './workspaces/workspaces.module';
     JiraModule,
     LinearModule,
     GithubModule,
+    GitlabModule,
   ],
   controllers: [AppController],
   providers: [AppService],

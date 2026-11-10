@@ -18,6 +18,7 @@ export interface StandupEntryDto {
   yesterday?: object | null;
   today?: object | null;
   blockers?: object | null;
+  answersJson: { [key: string]: any };
 }
 export enum StandupEntryDtoStatusEnum {
   DRAFT = 'DRAFT',

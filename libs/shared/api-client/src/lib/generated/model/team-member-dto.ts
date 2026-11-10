@@ -16,6 +16,8 @@ export interface TeamMemberDto {
   role: TeamMemberDtoRoleEnum;
   email?: object | null;
   displayName?: object | null;
+  timezone: string;
+  workHoursJson: { [key: string]: any };
 }
 export enum TeamMemberDtoRoleEnum {
   ADMIN = 'ADMIN',

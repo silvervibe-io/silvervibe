@@ -25,6 +25,7 @@ import {
 import {
   WorkspaceFacade,
   type GithubConnectionView,
+  type GitlabConnectionView,
   type JiraConnectionView,
   type LinearConnectionView,
   type SlackConnectionView,
@@ -144,6 +145,9 @@ export class WorkspaceAdmin implements OnInit {
   readonly githubError = signal<string | null>(null);
   readonly githubErrorStatus = signal(0);
   readonly githubConnecting = signal(false);
+  readonly gitlab = signal<GitlabConnectionView | null>(null);
+  readonly gitlabError = signal<string | null>(null);
+  readonly gitlabConnecting = signal(false);
   readonly jira = signal<JiraConnectionView | null>(null);
   readonly jiraError = signal<string | null>(null);
   readonly jiraConnecting = signal(false);
@@ -168,6 +172,7 @@ export class WorkspaceAdmin implements OnInit {
         this.refreshSlack(ws.id),
         this.refreshLinear(ws.id),
         this.refreshGithub(ws.id),
+        this.refreshGitlab(ws.id),
         this.refreshJira(ws.id),
       ]);
     }
@@ -188,6 +193,7 @@ export class WorkspaceAdmin implements OnInit {
     const slack = params.get('slack');
     const linear = params.get('linear');
     const github = params.get('github');
+    const gitlab = params.get('gitlab');
     const jira = params.get('jira');
     const clear: Record<string, null> = {};
     if (slack) {
@@ -223,6 +229,17 @@ export class WorkspaceAdmin implements OnInit {
       clear['github'] = null;
       clear['githubDetail'] = null;
     }
+    if (gitlab) {
+      if (gitlab === 'connected') {
+        this.message.set('standup.workspace.gitlabConnected');
+      } else if (gitlab === 'error') {
+        this.gitlabError.set(
+          params.get('gitlabDetail') || 'standup.workspace.gitlabConnectFailed',
+        );
+      }
+      clear['gitlab'] = null;
+      clear['gitlabDetail'] = null;
+    }
     if (jira) {
       if (jira === 'connected') {
         this.message.set('standup.workspace.jiraConnected');
@@ -251,6 +268,8 @@ export class WorkspaceAdmin implements OnInit {
     this.linearError.set(null);
     this.github.set(null);
     this.githubError.set(null);
+    this.gitlab.set(null);
+    this.gitlabError.set(null);
     this.jira.set(null);
     this.jiraError.set(null);
     if (this.isAdmin()) {
@@ -258,6 +277,7 @@ export class WorkspaceAdmin implements OnInit {
         this.refreshSlack(workspaceId),
         this.refreshLinear(workspaceId),
         this.refreshGithub(workspaceId),
+        this.refreshGitlab(workspaceId),
         this.refreshJira(workspaceId),
       ]);
     }
@@ -436,6 +456,62 @@ export class WorkspaceAdmin implements OnInit {
       err instanceof HttpErrorResponse ? err.status : 0,
     );
     this.githubError.set(fallback);
+  }
+
+  private async refreshGitlab(workspaceId: string): Promise<void> {
+    try {
+      const conn = await this.workspaces.getGitlabConnection(workspaceId);
+      this.gitlab.set(conn);
+    } catch (err: unknown) {
+      this.gitlabError.set(
+        err instanceof Error
+          ? err.message
+          : 'standup.workspace.gitlabRequestFailed',
+      );
+    }
+  }
+
+  openAuthorizeUrl(url: string): void {
+    window.location.assign(url);
+  }
+
+  async connectGitlab(): Promise<void> {
+    const ws = this.selected();
+    if (!ws || !this.isAdmin()) {
+      return;
+    }
+    this.gitlabError.set(null);
+    this.gitlabConnecting.set(true);
+    try {
+      const { authorizeUrl } = await this.workspaces.startGitlabOAuth(ws.id);
+      this.openAuthorizeUrl(authorizeUrl);
+    } catch (err: unknown) {
+      this.gitlabConnecting.set(false);
+      this.gitlabError.set(
+        err instanceof Error
+          ? err.message
+          : 'standup.workspace.gitlabConnectFailed',
+      );
+    }
+  }
+
+  async disconnectGitlab(): Promise<void> {
+    const ws = this.selected();
+    if (!ws || !this.isAdmin()) {
+      return;
+    }
+    this.gitlabError.set(null);
+    try {
+      const conn = await this.workspaces.disconnectGitlab(ws.id);
+      this.gitlab.set(conn);
+      this.message.set('standup.workspace.gitlabDisconnected');
+    } catch (err: unknown) {
+      this.gitlabError.set(
+        err instanceof Error
+          ? err.message
+          : 'standup.workspace.gitlabRequestFailed',
+      );
+    }
   }
 
   private async refreshJira(workspaceId: string): Promise<void> {

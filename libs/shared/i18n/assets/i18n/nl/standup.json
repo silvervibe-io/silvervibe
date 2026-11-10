@@ -79,7 +79,8 @@
     "mentionHow": "Typ @ voor mensen en # voor issues.",
     "windowRange": "Standupvenster {{start}}–{{end}}.",
     "openUntil": "Open tot {{time}}.",
-    "summaryAt": "De samenvatting verschijnt om {{time}}."
+    "summaryAt": "De samenvatting verschijnt om {{time}}.",
+    "providerGitlab": "GitLab"
   },
   "team": {
     "title": "Team admin",
@@ -247,7 +248,17 @@
     "upgradeToTeam": "Upgraden naar Team",
     "planUpgraded": "Workspace geüpgraded naar het Team-abonnement.",
     "githubReposFailed": "GitHub kon de repositories niet laden.",
-    "githubRequestFailed": "GitHub kon dit verzoek niet afronden."
+    "githubRequestFailed": "GitHub kon dit verzoek niet afronden.",
+    "gitlabTitle": "GitLab",
+    "gitlabConnect": "GitLab verbinden",
+    "gitlabDisconnect": "GitLab verbreken",
+    "gitlabConnected": "GitLab verbonden.",
+    "gitlabDisconnected": "GitLab verbroken.",
+    "gitlabHint": "Verbind GitLab zodat mensen issues kunnen zien en noemen uit de projecten van dit account.",
+    "gitlabStatus": "Status",
+    "gitlabOAuthUnavailable": "GitLab OAuth is nog niet op de server ingesteld.",
+    "gitlabConnectFailed": "Verbinden met GitLab is mislukt.",
+    "gitlabRequestFailed": "GitLab kon dat verzoek niet voltooien."
   },
   "invite": {
     "title": "Join team",

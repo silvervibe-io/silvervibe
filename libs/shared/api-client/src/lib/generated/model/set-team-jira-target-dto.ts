@@ -20,7 +20,7 @@ export interface SetTeamJiraTargetDto {
    */
   projectKey: string;
   /**
-   * Issue key for digest comments, e.g. ENG-12
+   * Ignored. Digests use a standing issue in the project.
    */
-  issueKey: string;
+  issueKey?: string;
 }
