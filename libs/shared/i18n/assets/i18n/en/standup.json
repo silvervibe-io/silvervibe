@@ -81,7 +81,8 @@
     "openUntil": "Open until {{time}}.",
     "summaryAt": "The summary appears at {{time}}.",
     "providerGitlab": "GitLab",
-    "providerBitbucket": "Bitbucket"
+    "providerBitbucket": "Bitbucket",
+    "providerTrello": "Trello"
   },
   "team": {
     "title": "Team admin",
@@ -278,7 +279,17 @@
     "bitbucketStatus": "Status",
     "bitbucketOAuthUnavailable": "Bitbucket OAuth is not configured on the server yet.",
     "bitbucketConnectFailed": "Bitbucket connect failed.",
-    "bitbucketRequestFailed": "Bitbucket could not complete that request."
+    "bitbucketRequestFailed": "Bitbucket could not complete that request.",
+    "trelloTitle": "Trello",
+    "trelloConnect": "Connect Trello",
+    "trelloDisconnect": "Disconnect Trello",
+    "trelloConnected": "Trello connected.",
+    "trelloDisconnected": "Trello disconnected.",
+    "trelloHint": "Connect Trello so people can see and mention cards from the boards this account can access.",
+    "trelloStatus": "Status",
+    "trelloOAuthUnavailable": "Trello OAuth is not configured on the server yet.",
+    "trelloConnectFailed": "Trello connect failed.",
+    "trelloRequestFailed": "Trello could not complete that request."
   },
   "settings": {
     "title": "Working hours",

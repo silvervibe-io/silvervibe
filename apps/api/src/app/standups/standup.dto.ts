@@ -218,8 +218,10 @@ export class UpsertStandupEntryDto {
 }
 
 export class MentionIssueDto {
-  @ApiProperty({ enum: ['github', 'gitlab', 'bitbucket', 'jira', 'linear'] })
-  provider!: 'github' | 'gitlab' | 'bitbucket' | 'jira' | 'linear';
+  @ApiProperty({
+    enum: ['github', 'gitlab', 'bitbucket', 'trello', 'jira', 'linear'],
+  })
+  provider!: 'github' | 'gitlab' | 'bitbucket' | 'trello' | 'jira' | 'linear';
 
   @ApiProperty()
   key!: string;

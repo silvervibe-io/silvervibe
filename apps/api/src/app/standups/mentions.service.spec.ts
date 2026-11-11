@@ -1,6 +1,7 @@
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { VerifiedUser } from '../auth/firebase-auth.service';
 import { BitbucketService } from '../addons/bitbucket/bitbucket.service';
+import { TrelloService } from '../addons/trello/trello.service';
 import { GithubService } from '../addons/github/github.service';
 import { GitlabService } from '../addons/gitlab/gitlab.service';
 import { JiraService } from '../addons/jira/jira.service';
@@ -33,6 +34,10 @@ describe('MentionsService', () => {
     searchMentionIssues: jest.fn(),
     recentMentionIssues: jest.fn(),
   };
+  const trello = {
+    searchMentionIssues: jest.fn(),
+    recentMentionIssues: jest.fn(),
+  };
   const jira = {
     searchMentionIssues: jest.fn(),
     recentMentionIssues: jest.fn(),
@@ -49,6 +54,7 @@ describe('MentionsService', () => {
       github as unknown as GithubService,
       gitlab as unknown as GitlabService,
       bitbucket as unknown as BitbucketService,
+      trello as unknown as TrelloService,
       jira as unknown as JiraService,
       linear as unknown as LinearService,
     );
@@ -100,6 +106,7 @@ describe('MentionsService', () => {
     ]);
     linear.searchMentionIssues.mockResolvedValue([]);
     bitbucket.searchMentionIssues.mockResolvedValue([]);
+    trello.searchMentionIssues.mockResolvedValue([]);
 
     await expect(
       service().searchIssues('team-1', member, 'ship'),
@@ -123,6 +130,7 @@ describe('MentionsService', () => {
     github.recentMentionIssues.mockRejectedValue(new Error('bad credentials'));
     gitlab.recentMentionIssues.mockResolvedValue([]);
     bitbucket.recentMentionIssues.mockResolvedValue([]);
+    trello.recentMentionIssues.mockResolvedValue([]);
     jira.recentMentionIssues.mockResolvedValue([
       {
         provider: 'jira',

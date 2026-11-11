@@ -24,6 +24,8 @@ api/standups-data.service.ts
 api/standups-data.serviceInterface.ts
 api/teams-data.service.ts
 api/teams-data.serviceInterface.ts
+api/trello-data.service.ts
+api/trello-data.serviceInterface.ts
 api/workspaces-data.service.ts
 api/workspaces-data.serviceInterface.ts
 configuration.ts
@@ -93,6 +95,8 @@ model/team-linear-project-dto.ts
 model/team-member-dto.ts
 model/team-slack-channel-dto.ts
 model/teams-connection-dto.ts
+model/trello-connection-dto.ts
+model/trello-o-auth-start-dto.ts
 model/update-standup-config-dto.ts
 model/update-user-schedule-dto.ts
 model/upsert-standup-entry-dto.ts

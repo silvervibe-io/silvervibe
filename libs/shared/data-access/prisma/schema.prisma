@@ -49,6 +49,7 @@ enum AddonProvider {
   GITHUB
   GITLAB
   BITBUCKET
+  TRELLO
 }
 
 enum AddonConnectionStatus {

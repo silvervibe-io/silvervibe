@@ -81,7 +81,8 @@
     "openUntil": "Abierto hasta {{time}}.",
     "summaryAt": "El resumen aparece a las {{time}}.",
     "providerGitlab": "GitLab",
-    "providerBitbucket": "Bitbucket"
+    "providerBitbucket": "Bitbucket",
+    "providerTrello": "Trello"
   },
   "team": {
     "title": "Team admin",
@@ -269,7 +270,17 @@
     "bitbucketStatus": "Estado",
     "bitbucketOAuthUnavailable": "OAuth de Bitbucket aún no está configurado en el servidor.",
     "bitbucketConnectFailed": "No se pudo conectar Bitbucket.",
-    "bitbucketRequestFailed": "Bitbucket no pudo completar esa solicitud."
+    "bitbucketRequestFailed": "Bitbucket no pudo completar esa solicitud.",
+    "trelloTitle": "Trello",
+    "trelloConnect": "Conectar Trello",
+    "trelloDisconnect": "Desconectar Trello",
+    "trelloConnected": "Trello conectado.",
+    "trelloDisconnected": "Trello desconectado.",
+    "trelloHint": "Conecta Trello para que las personas puedan ver y mencionar tarjetas de los tableros a los que esta cuenta puede acceder.",
+    "trelloStatus": "Estado",
+    "trelloOAuthUnavailable": "OAuth de Trello aún no está configurado en el servidor.",
+    "trelloConnectFailed": "No se pudo conectar Trello.",
+    "trelloRequestFailed": "Trello no pudo completar esa solicitud."
   },
   "invite": {
     "title": "Join team",

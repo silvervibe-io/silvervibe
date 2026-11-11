@@ -419,6 +419,7 @@ export class StandupService {
         (row.provider === 'github' ||
           row.provider === 'gitlab' ||
           row.provider === 'bitbucket' ||
+          row.provider === 'trello' ||
           row.provider === 'jira' ||
           row.provider === 'linear') &&
         typeof row.key === 'string' &&
