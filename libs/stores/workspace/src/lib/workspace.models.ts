@@ -171,6 +171,18 @@ export type GitlabOAuthStartView = {
   authorizeUrl: string;
 };
 
+export type BitbucketConnectionView = {
+  status: 'DISCONNECTED' | 'PENDING' | 'CONNECTED' | 'ERROR';
+  configured: boolean;
+  accountLogin: string | null;
+  toolEnabled: boolean;
+  oauthAvailable: boolean;
+};
+
+export type BitbucketOAuthStartView = {
+  authorizeUrl: string;
+};
+
 export type GithubRepoView = {
   fullName: string;
   owner: string;

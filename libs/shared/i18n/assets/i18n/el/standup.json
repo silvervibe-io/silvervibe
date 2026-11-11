@@ -80,7 +80,8 @@
     "windowRange": "Παράθυρο standup {{start}}–{{end}}.",
     "openUntil": "Ανοιχτό έως {{time}}.",
     "summaryAt": "Η σύνοψη εμφανίζεται στις {{time}}.",
-    "providerGitlab": "GitLab"
+    "providerGitlab": "GitLab",
+    "providerBitbucket": "Bitbucket"
   },
   "team": {
     "title": "Team admin",
@@ -258,7 +259,17 @@
     "gitlabStatus": "Κατάσταση",
     "gitlabOAuthUnavailable": "Το GitLab OAuth δεν έχει ρυθμιστεί ακόμη στον διακομιστή.",
     "gitlabConnectFailed": "Η σύνδεση με το GitLab απέτυχε.",
-    "gitlabRequestFailed": "Το GitLab δεν μπόρεσε να ολοκληρώσει το αίτημα."
+    "gitlabRequestFailed": "Το GitLab δεν μπόρεσε να ολοκληρώσει το αίτημα.",
+    "bitbucketTitle": "Bitbucket",
+    "bitbucketConnect": "Σύνδεση Bitbucket",
+    "bitbucketDisconnect": "Αποσύνδεση Bitbucket",
+    "bitbucketConnected": "Το Bitbucket συνδέθηκε.",
+    "bitbucketDisconnected": "Το Bitbucket αποσυνδέθηκε.",
+    "bitbucketHint": "Συνδέστε το Bitbucket ώστε οι άνθρωποι να βλέπουν και να αναφέρουν θέματα από τα αποθετήρια στα οποία έχει πρόσβαση αυτός ο λογαριασμός.",
+    "bitbucketStatus": "Κατάσταση",
+    "bitbucketOAuthUnavailable": "Το OAuth του Bitbucket δεν έχει ρυθμιστεί ακόμα στον διακομιστή.",
+    "bitbucketConnectFailed": "Η σύνδεση με το Bitbucket απέτυχε.",
+    "bitbucketRequestFailed": "Το Bitbucket δεν μπόρεσε να ολοκληρώσει αυτό το αίτημα."
   },
   "invite": {
     "title": "Join team",

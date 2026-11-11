@@ -80,7 +80,8 @@
     "windowRange": "Finestra di standup {{start}}–{{end}}.",
     "openUntil": "Aperto fino alle {{time}}.",
     "summaryAt": "Il riepilogo compare alle {{time}}.",
-    "providerGitlab": "GitLab"
+    "providerGitlab": "GitLab",
+    "providerBitbucket": "Bitbucket"
   },
   "team": {
     "title": "Team admin",
@@ -258,7 +259,17 @@
     "gitlabStatus": "Stato",
     "gitlabOAuthUnavailable": "OAuth di GitLab non è ancora configurato sul server.",
     "gitlabConnectFailed": "Connessione a GitLab non riuscita.",
-    "gitlabRequestFailed": "GitLab non ha potuto completare la richiesta."
+    "gitlabRequestFailed": "GitLab non ha potuto completare la richiesta.",
+    "bitbucketTitle": "Bitbucket",
+    "bitbucketConnect": "Connetti Bitbucket",
+    "bitbucketDisconnect": "Disconnetti Bitbucket",
+    "bitbucketConnected": "Bitbucket connesso.",
+    "bitbucketDisconnected": "Bitbucket disconnesso.",
+    "bitbucketHint": "Collega Bitbucket così le persone possono vedere e citare le issue dei repository a cui questo account può accedere.",
+    "bitbucketStatus": "Stato",
+    "bitbucketOAuthUnavailable": "OAuth di Bitbucket non è ancora configurato sul server.",
+    "bitbucketConnectFailed": "Connessione a Bitbucket non riuscita.",
+    "bitbucketRequestFailed": "Bitbucket non ha potuto completare la richiesta."
   },
   "invite": {
     "title": "Join team",

@@ -48,6 +48,7 @@ enum AddonProvider {
   LINEAR
   GITHUB
   GITLAB
+  BITBUCKET
 }
 
 enum AddonConnectionStatus {
