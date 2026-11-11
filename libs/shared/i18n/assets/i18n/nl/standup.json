@@ -80,7 +80,8 @@
     "windowRange": "Standupvenster {{start}}–{{end}}.",
     "openUntil": "Open tot {{time}}.",
     "summaryAt": "De samenvatting verschijnt om {{time}}.",
-    "providerGitlab": "GitLab"
+    "providerGitlab": "GitLab",
+    "providerBitbucket": "Bitbucket"
   },
   "team": {
     "title": "Team admin",
@@ -258,7 +259,17 @@
     "gitlabStatus": "Status",
     "gitlabOAuthUnavailable": "GitLab OAuth is nog niet op de server ingesteld.",
     "gitlabConnectFailed": "Verbinden met GitLab is mislukt.",
-    "gitlabRequestFailed": "GitLab kon dat verzoek niet voltooien."
+    "gitlabRequestFailed": "GitLab kon dat verzoek niet voltooien.",
+    "bitbucketTitle": "Bitbucket",
+    "bitbucketConnect": "Bitbucket verbinden",
+    "bitbucketDisconnect": "Bitbucket verbreken",
+    "bitbucketConnected": "Bitbucket verbonden.",
+    "bitbucketDisconnected": "Bitbucket verbroken.",
+    "bitbucketHint": "Verbind Bitbucket zodat mensen issues kunnen zien en noemen uit de repositories waartoe dit account toegang heeft.",
+    "bitbucketStatus": "Status",
+    "bitbucketOAuthUnavailable": "Bitbucket OAuth is nog niet op de server geconfigureerd.",
+    "bitbucketConnectFailed": "Verbinden met Bitbucket is mislukt.",
+    "bitbucketRequestFailed": "Bitbucket kon dat verzoek niet afronden."
   },
   "invite": {
     "title": "Join team",

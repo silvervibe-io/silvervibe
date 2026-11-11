@@ -80,7 +80,8 @@
     "windowRange": "Standup window {{start}}–{{end}}.",
     "openUntil": "Open until {{time}}.",
     "summaryAt": "The summary appears at {{time}}.",
-    "providerGitlab": "GitLab"
+    "providerGitlab": "GitLab",
+    "providerBitbucket": "Bitbucket"
   },
   "team": {
     "title": "Team admin",
@@ -267,7 +268,17 @@
     "gitlabStatus": "Status",
     "gitlabOAuthUnavailable": "GitLab OAuth is not configured on the server yet.",
     "gitlabConnectFailed": "GitLab connect failed.",
-    "gitlabRequestFailed": "GitLab could not complete that request."
+    "gitlabRequestFailed": "GitLab could not complete that request.",
+    "bitbucketTitle": "Bitbucket",
+    "bitbucketConnect": "Connect Bitbucket",
+    "bitbucketDisconnect": "Disconnect Bitbucket",
+    "bitbucketConnected": "Bitbucket connected.",
+    "bitbucketDisconnected": "Bitbucket disconnected.",
+    "bitbucketHint": "Connect Bitbucket so people can see and mention issues from the repositories this account can access.",
+    "bitbucketStatus": "Status",
+    "bitbucketOAuthUnavailable": "Bitbucket OAuth is not configured on the server yet.",
+    "bitbucketConnectFailed": "Bitbucket connect failed.",
+    "bitbucketRequestFailed": "Bitbucket could not complete that request."
   },
   "settings": {
     "title": "Working hours",

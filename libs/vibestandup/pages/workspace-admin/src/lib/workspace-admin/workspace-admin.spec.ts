@@ -109,6 +109,14 @@ describe('WorkspaceAdmin', () => {
                     gitlabConnected: 'GitLab connected',
                     gitlabDisconnected: 'GitLab disconnected',
                     gitlabOAuthUnavailable: 'OAuth unavailable',
+                    bitbucketTitle: 'Bitbucket',
+                    bitbucketHint: 'Connect Bitbucket',
+                    bitbucketStatus: 'Status',
+                    bitbucketConnect: 'Connect Bitbucket',
+                    bitbucketDisconnect: 'Disconnect Bitbucket',
+                    bitbucketConnected: 'Bitbucket connected',
+                    bitbucketDisconnected: 'Bitbucket disconnected',
+                    bitbucketOAuthUnavailable: 'OAuth unavailable',
                     jiraTitle: 'Jira',
                     jiraHint: 'Connect Jira',
                     jiraStatus: 'Status',
@@ -223,6 +231,51 @@ describe('WorkspaceAdmin', () => {
     await fixture.whenStable();
     expect(open).toHaveBeenCalledWith(
       'https://gitlab.com/oauth/authorize?client_id=app',
+    );
+  });
+
+  it('starts Bitbucket OAuth when Connect Bitbucket is clicked', async () => {
+    const http = TestBed.inject(HttpTestingController);
+    const open = vi
+      .spyOn(fixture.componentInstance, 'openAuthorizeUrl')
+      .mockImplementation(() => undefined);
+    const load = fixture.componentInstance['workspaces'].loadMyWorkspaces();
+    http.expectOne('/api/me/workspaces').flush([
+      {
+        id: 'ws-admin',
+        name: 'Admin WS',
+        slug: 'admin',
+        planKey: 'free',
+        role: 'OWNER',
+        tools: [],
+      },
+    ]);
+    await load;
+    fixture.componentInstance.bitbucket.set({
+      status: 'DISCONNECTED',
+      configured: false,
+      accountLogin: null,
+      toolEnabled: false,
+      oauthAvailable: true,
+    });
+    fixture.detectChanges();
+
+    const button = [
+      ...(fixture.nativeElement as HTMLElement).querySelectorAll('button'),
+    ].find((item) => item.textContent?.includes('Connect Bitbucket'));
+    expect(button).toBeTruthy();
+    button?.click();
+
+    const start = http.expectOne(
+      '/api/workspaces/ws-admin/addons/bitbucket/oauth/start',
+    );
+    expect(start.request.method).toBe('GET');
+    start.flush({
+      authorizeUrl: 'https://bitbucket.org/site/oauth2/authorize?client_id=app',
+    });
+    await fixture.whenStable();
+    expect(open).toHaveBeenCalledWith(
+      'https://bitbucket.org/site/oauth2/authorize?client_id=app',
     );
   });
 });

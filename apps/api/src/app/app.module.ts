@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { FeatureFlagsModule } from './feature-flags/feature-flags.module';
+import { BitbucketModule } from './addons/bitbucket/bitbucket.module';
 import { GithubModule } from './addons/github/github.module';
 import { GitlabModule } from './addons/gitlab/gitlab.module';
 import { JiraModule } from './addons/jira/jira.module';
@@ -34,6 +35,7 @@ import { WorkspacesModule } from './workspaces/workspaces.module';
     LinearModule,
     GithubModule,
     GitlabModule,
+    BitbucketModule,
   ],
   controllers: [AppController],
   providers: [AppService],

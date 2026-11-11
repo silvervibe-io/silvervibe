@@ -11,6 +11,8 @@ export type {
   GithubRepoView,
   GitlabConnectionView,
   GitlabOAuthStartView,
+  BitbucketConnectionView,
+  BitbucketOAuthStartView,
   JiraConnectionView,
   JiraIssueView,
   JiraOAuthStartView,

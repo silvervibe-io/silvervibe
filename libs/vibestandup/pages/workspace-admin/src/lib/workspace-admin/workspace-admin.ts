@@ -26,6 +26,7 @@ import {
   WorkspaceFacade,
   type GithubConnectionView,
   type GitlabConnectionView,
+  type BitbucketConnectionView,
   type JiraConnectionView,
   type LinearConnectionView,
   type SlackConnectionView,
@@ -148,6 +149,9 @@ export class WorkspaceAdmin implements OnInit {
   readonly gitlab = signal<GitlabConnectionView | null>(null);
   readonly gitlabError = signal<string | null>(null);
   readonly gitlabConnecting = signal(false);
+  readonly bitbucket = signal<BitbucketConnectionView | null>(null);
+  readonly bitbucketError = signal<string | null>(null);
+  readonly bitbucketConnecting = signal(false);
   readonly jira = signal<JiraConnectionView | null>(null);
   readonly jiraError = signal<string | null>(null);
   readonly jiraConnecting = signal(false);
@@ -173,6 +177,7 @@ export class WorkspaceAdmin implements OnInit {
         this.refreshLinear(ws.id),
         this.refreshGithub(ws.id),
         this.refreshGitlab(ws.id),
+        this.refreshBitbucket(ws.id),
         this.refreshJira(ws.id),
       ]);
     }
@@ -194,6 +199,7 @@ export class WorkspaceAdmin implements OnInit {
     const linear = params.get('linear');
     const github = params.get('github');
     const gitlab = params.get('gitlab');
+    const bitbucket = params.get('bitbucket');
     const jira = params.get('jira');
     const clear: Record<string, null> = {};
     if (slack) {
@@ -240,6 +246,18 @@ export class WorkspaceAdmin implements OnInit {
       clear['gitlab'] = null;
       clear['gitlabDetail'] = null;
     }
+    if (bitbucket) {
+      if (bitbucket === 'connected') {
+        this.message.set('standup.workspace.bitbucketConnected');
+      } else if (bitbucket === 'error') {
+        this.bitbucketError.set(
+          params.get('bitbucketDetail') ||
+            'standup.workspace.bitbucketConnectFailed',
+        );
+      }
+      clear['bitbucket'] = null;
+      clear['bitbucketDetail'] = null;
+    }
     if (jira) {
       if (jira === 'connected') {
         this.message.set('standup.workspace.jiraConnected');
@@ -270,6 +288,8 @@ export class WorkspaceAdmin implements OnInit {
     this.githubError.set(null);
     this.gitlab.set(null);
     this.gitlabError.set(null);
+    this.bitbucket.set(null);
+    this.bitbucketError.set(null);
     this.jira.set(null);
     this.jiraError.set(null);
     if (this.isAdmin()) {
@@ -278,6 +298,7 @@ export class WorkspaceAdmin implements OnInit {
         this.refreshLinear(workspaceId),
         this.refreshGithub(workspaceId),
         this.refreshGitlab(workspaceId),
+        this.refreshBitbucket(workspaceId),
         this.refreshJira(workspaceId),
       ]);
     }
@@ -510,6 +531,58 @@ export class WorkspaceAdmin implements OnInit {
         err instanceof Error
           ? err.message
           : 'standup.workspace.gitlabRequestFailed',
+      );
+    }
+  }
+
+  private async refreshBitbucket(workspaceId: string): Promise<void> {
+    try {
+      const conn = await this.workspaces.getBitbucketConnection(workspaceId);
+      this.bitbucket.set(conn);
+    } catch (err: unknown) {
+      this.bitbucketError.set(
+        err instanceof Error
+          ? err.message
+          : 'standup.workspace.bitbucketRequestFailed',
+      );
+    }
+  }
+
+  async connectBitbucket(): Promise<void> {
+    const ws = this.selected();
+    if (!ws || !this.isAdmin()) {
+      return;
+    }
+    this.bitbucketError.set(null);
+    this.bitbucketConnecting.set(true);
+    try {
+      const { authorizeUrl } = await this.workspaces.startBitbucketOAuth(ws.id);
+      this.openAuthorizeUrl(authorizeUrl);
+    } catch (err: unknown) {
+      this.bitbucketConnecting.set(false);
+      this.bitbucketError.set(
+        err instanceof Error
+          ? err.message
+          : 'standup.workspace.bitbucketConnectFailed',
+      );
+    }
+  }
+
+  async disconnectBitbucket(): Promise<void> {
+    const ws = this.selected();
+    if (!ws || !this.isAdmin()) {
+      return;
+    }
+    this.bitbucketError.set(null);
+    try {
+      const conn = await this.workspaces.disconnectBitbucket(ws.id);
+      this.bitbucket.set(conn);
+      this.message.set('standup.workspace.bitbucketDisconnected');
+    } catch (err: unknown) {
+      this.bitbucketError.set(
+        err instanceof Error
+          ? err.message
+          : 'standup.workspace.bitbucketRequestFailed',
       );
     }
   }

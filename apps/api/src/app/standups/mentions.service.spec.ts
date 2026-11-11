@@ -1,5 +1,6 @@
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { VerifiedUser } from '../auth/firebase-auth.service';
+import { BitbucketService } from '../addons/bitbucket/bitbucket.service';
 import { GithubService } from '../addons/github/github.service';
 import { GitlabService } from '../addons/gitlab/gitlab.service';
 import { JiraService } from '../addons/jira/jira.service';
@@ -28,6 +29,10 @@ describe('MentionsService', () => {
     searchMentionIssues: jest.fn(),
     recentMentionIssues: jest.fn(),
   };
+  const bitbucket = {
+    searchMentionIssues: jest.fn(),
+    recentMentionIssues: jest.fn(),
+  };
   const jira = {
     searchMentionIssues: jest.fn(),
     recentMentionIssues: jest.fn(),
@@ -43,6 +48,7 @@ describe('MentionsService', () => {
       teams as unknown as TeamsService,
       github as unknown as GithubService,
       gitlab as unknown as GitlabService,
+      bitbucket as unknown as BitbucketService,
       jira as unknown as JiraService,
       linear as unknown as LinearService,
     );
@@ -93,6 +99,7 @@ describe('MentionsService', () => {
       },
     ]);
     linear.searchMentionIssues.mockResolvedValue([]);
+    bitbucket.searchMentionIssues.mockResolvedValue([]);
 
     await expect(
       service().searchIssues('team-1', member, 'ship'),
@@ -115,6 +122,7 @@ describe('MentionsService', () => {
   it('keeps suggestions when one provider cannot list recent work', async () => {
     github.recentMentionIssues.mockRejectedValue(new Error('bad credentials'));
     gitlab.recentMentionIssues.mockResolvedValue([]);
+    bitbucket.recentMentionIssues.mockResolvedValue([]);
     jira.recentMentionIssues.mockResolvedValue([
       {
         provider: 'jira',

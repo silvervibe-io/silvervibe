@@ -4,7 +4,7 @@ export type MentionSegment =
   | { kind: 'person'; text: string };
 
 export type MentionIssueView = {
-  provider: 'github' | 'gitlab' | 'jira' | 'linear';
+  provider: 'github' | 'gitlab' | 'bitbucket' | 'jira' | 'linear';
   key: string;
   title: string;
   url: string;
