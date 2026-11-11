@@ -29,6 +29,8 @@ import type {
   GitlabOAuthStartView,
   BitbucketConnectionView,
   BitbucketOAuthStartView,
+  TrelloConnectionView,
+  TrelloOAuthStartView,
   JiraConnectionView,
   JiraIssueView,
   JiraOAuthStartView,
@@ -536,6 +538,30 @@ export class WorkspaceService {
     return firstValueFrom(
       this.http.delete<BitbucketConnectionView>(
         `${this.apiBase}/workspaces/${workspaceId}/addons/bitbucket`,
+      ),
+    );
+  }
+
+  getTrelloConnection(workspaceId: string): Promise<TrelloConnectionView> {
+    return firstValueFrom(
+      this.http.get<TrelloConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/trello`,
+      ),
+    );
+  }
+
+  startTrelloOAuth(workspaceId: string): Promise<TrelloOAuthStartView> {
+    return firstValueFrom(
+      this.http.get<TrelloOAuthStartView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/trello/oauth/start`,
+      ),
+    );
+  }
+
+  disconnectTrello(workspaceId: string): Promise<TrelloConnectionView> {
+    return firstValueFrom(
+      this.http.delete<TrelloConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/trello`,
       ),
     );
   }

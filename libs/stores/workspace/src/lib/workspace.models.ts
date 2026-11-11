@@ -183,6 +183,18 @@ export type BitbucketOAuthStartView = {
   authorizeUrl: string;
 };
 
+export type TrelloConnectionView = {
+  status: 'DISCONNECTED' | 'PENDING' | 'CONNECTED' | 'ERROR';
+  configured: boolean;
+  accountLogin: string | null;
+  toolEnabled: boolean;
+  oauthAvailable: boolean;
+};
+
+export type TrelloOAuthStartView = {
+  authorizeUrl: string;
+};
+
 export type GithubRepoView = {
   fullName: string;
   owner: string;

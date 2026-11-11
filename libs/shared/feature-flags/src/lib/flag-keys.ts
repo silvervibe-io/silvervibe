@@ -7,6 +7,7 @@ export const TOOL_KEYS = {
   addonsGithub: 'addons.github',
   addonsGitlab: 'addons.gitlab',
   addonsBitbucket: 'addons.bitbucket',
+  addonsTrello: 'addons.trello',
 } as const;
 
 export type ToolKey = (typeof TOOL_KEYS)[keyof typeof TOOL_KEYS];

@@ -117,6 +117,14 @@ describe('WorkspaceAdmin', () => {
                     bitbucketConnected: 'Bitbucket connected',
                     bitbucketDisconnected: 'Bitbucket disconnected',
                     bitbucketOAuthUnavailable: 'OAuth unavailable',
+                    trelloTitle: 'Trello',
+                    trelloHint: 'Connect Trello',
+                    trelloStatus: 'Status',
+                    trelloConnect: 'Connect Trello',
+                    trelloDisconnect: 'Disconnect Trello',
+                    trelloConnected: 'Trello connected',
+                    trelloDisconnected: 'Trello disconnected',
+                    trelloOAuthUnavailable: 'OAuth unavailable',
                     jiraTitle: 'Jira',
                     jiraHint: 'Connect Jira',
                     jiraStatus: 'Status',
@@ -276,6 +284,51 @@ describe('WorkspaceAdmin', () => {
     await fixture.whenStable();
     expect(open).toHaveBeenCalledWith(
       'https://bitbucket.org/site/oauth2/authorize?client_id=app',
+    );
+  });
+
+  it('starts Trello OAuth when Connect Trello is clicked', async () => {
+    const http = TestBed.inject(HttpTestingController);
+    const open = vi
+      .spyOn(fixture.componentInstance, 'openAuthorizeUrl')
+      .mockImplementation(() => undefined);
+    const load = fixture.componentInstance['workspaces'].loadMyWorkspaces();
+    http.expectOne('/api/me/workspaces').flush([
+      {
+        id: 'ws-admin',
+        name: 'Admin WS',
+        slug: 'admin',
+        planKey: 'free',
+        role: 'OWNER',
+        tools: [],
+      },
+    ]);
+    await load;
+    fixture.componentInstance.trello.set({
+      status: 'DISCONNECTED',
+      configured: false,
+      accountLogin: null,
+      toolEnabled: false,
+      oauthAvailable: true,
+    });
+    fixture.detectChanges();
+
+    const button = [
+      ...(fixture.nativeElement as HTMLElement).querySelectorAll('button'),
+    ].find((item) => item.textContent?.includes('Connect Trello'));
+    expect(button).toBeTruthy();
+    button?.click();
+
+    const start = http.expectOne(
+      '/api/workspaces/ws-admin/addons/trello/oauth/start',
+    );
+    expect(start.request.method).toBe('GET');
+    start.flush({
+      authorizeUrl: 'https://auth.atlassian.com/authorize?client_id=app',
+    });
+    await fixture.whenStable();
+    expect(open).toHaveBeenCalledWith(
+      'https://auth.atlassian.com/authorize?client_id=app',
     );
   });
 });

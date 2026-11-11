@@ -81,7 +81,8 @@
     "openUntil": "Ανοιχτό έως {{time}}.",
     "summaryAt": "Η σύνοψη εμφανίζεται στις {{time}}.",
     "providerGitlab": "GitLab",
-    "providerBitbucket": "Bitbucket"
+    "providerBitbucket": "Bitbucket",
+    "providerTrello": "Trello"
   },
   "team": {
     "title": "Team admin",
@@ -269,7 +270,17 @@
     "bitbucketStatus": "Κατάσταση",
     "bitbucketOAuthUnavailable": "Το OAuth του Bitbucket δεν έχει ρυθμιστεί ακόμα στον διακομιστή.",
     "bitbucketConnectFailed": "Η σύνδεση με το Bitbucket απέτυχε.",
-    "bitbucketRequestFailed": "Το Bitbucket δεν μπόρεσε να ολοκληρώσει αυτό το αίτημα."
+    "bitbucketRequestFailed": "Το Bitbucket δεν μπόρεσε να ολοκληρώσει αυτό το αίτημα.",
+    "trelloTitle": "Trello",
+    "trelloConnect": "Σύνδεση Trello",
+    "trelloDisconnect": "Αποσύνδεση Trello",
+    "trelloConnected": "Το Trello συνδέθηκε.",
+    "trelloDisconnected": "Το Trello αποσυνδέθηκε.",
+    "trelloHint": "Συνδέστε το Trello ώστε οι άνθρωποι να βλέπουν και να αναφέρουν κάρτες από τους πίνακες στους οποίους έχει πρόσβαση αυτός ο λογαριασμός.",
+    "trelloStatus": "Κατάσταση",
+    "trelloOAuthUnavailable": "Το OAuth του Trello δεν έχει ρυθμιστεί ακόμα στον διακομιστή.",
+    "trelloConnectFailed": "Η σύνδεση με το Trello απέτυχε.",
+    "trelloRequestFailed": "Το Trello δεν μπόρεσε να ολοκληρώσει αυτό το αίτημα."
   },
   "invite": {
     "title": "Join team",
