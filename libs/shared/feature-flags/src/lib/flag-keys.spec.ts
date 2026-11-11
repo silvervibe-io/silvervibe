@@ -16,6 +16,7 @@ describe('flag and tool keys', () => {
     expect(TOOL_KEYS.addonsGithub).toBe('addons.github');
     expect(TOOL_KEYS.addonsGitlab).toBe('addons.gitlab');
     expect(TOOL_KEYS.addonsBitbucket).toBe('addons.bitbucket');
+    expect(TOOL_KEYS.addonsTrello).toBe('addons.trello');
   });
 
   it('detects known tool keys', () => {

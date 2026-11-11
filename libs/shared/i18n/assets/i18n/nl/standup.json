@@ -81,7 +81,8 @@
     "openUntil": "Open tot {{time}}.",
     "summaryAt": "De samenvatting verschijnt om {{time}}.",
     "providerGitlab": "GitLab",
-    "providerBitbucket": "Bitbucket"
+    "providerBitbucket": "Bitbucket",
+    "providerTrello": "Trello"
   },
   "team": {
     "title": "Team admin",
@@ -269,7 +270,17 @@
     "bitbucketStatus": "Status",
     "bitbucketOAuthUnavailable": "Bitbucket OAuth is nog niet op de server geconfigureerd.",
     "bitbucketConnectFailed": "Verbinden met Bitbucket is mislukt.",
-    "bitbucketRequestFailed": "Bitbucket kon dat verzoek niet afronden."
+    "bitbucketRequestFailed": "Bitbucket kon dat verzoek niet afronden.",
+    "trelloTitle": "Trello",
+    "trelloConnect": "Trello verbinden",
+    "trelloDisconnect": "Trello verbreken",
+    "trelloConnected": "Trello verbonden.",
+    "trelloDisconnected": "Trello verbroken.",
+    "trelloHint": "Verbind Trello zodat mensen kaarten kunnen zien en noemen van de borden waartoe dit account toegang heeft.",
+    "trelloStatus": "Status",
+    "trelloOAuthUnavailable": "Trello OAuth is nog niet op de server geconfigureerd.",
+    "trelloConnectFailed": "Verbinden met Trello is mislukt.",
+    "trelloRequestFailed": "Trello kon dat verzoek niet afronden."
   },
   "invite": {
     "title": "Join team",

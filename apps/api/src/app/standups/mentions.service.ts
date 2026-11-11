@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { BitbucketService } from '../addons/bitbucket/bitbucket.service';
+import { TrelloService } from '../addons/trello/trello.service';
 import { GithubService } from '../addons/github/github.service';
 import { GitlabService } from '../addons/gitlab/gitlab.service';
 import { JiraService } from '../addons/jira/jira.service';
@@ -17,6 +18,7 @@ export class MentionsService {
     private readonly github: GithubService,
     private readonly gitlab: GitlabService,
     private readonly bitbucket: BitbucketService,
+    private readonly trello: TrelloService,
     private readonly jira: JiraService,
     private readonly linear: LinearService,
   ) {}
@@ -32,14 +34,17 @@ export class MentionsService {
     }
     const userId = (await this.users.upsertFromFirebase(user)).id;
     const { workspaceId } = await this.teams.requireTeamMember(teamId, userId);
-    const [github, gitlab, bitbucket, jira, linear] = await Promise.all([
-      this.safe(() => this.github.searchMentionIssues(workspaceId, q)),
-      this.safe(() => this.gitlab.searchMentionIssues(workspaceId, q)),
-      this.safe(() => this.bitbucket.searchMentionIssues(workspaceId, q)),
-      this.safe(() => this.jira.searchMentionIssues(workspaceId, q)),
-      this.safe(() => this.linear.searchMentionIssues(workspaceId, q)),
-    ]);
-    return [...github, ...gitlab, ...bitbucket, ...jira, ...linear];
+    const [github, gitlab, bitbucket, trello, jira, linear] = await Promise.all(
+      [
+        this.safe(() => this.github.searchMentionIssues(workspaceId, q)),
+        this.safe(() => this.gitlab.searchMentionIssues(workspaceId, q)),
+        this.safe(() => this.bitbucket.searchMentionIssues(workspaceId, q)),
+        this.safe(() => this.trello.searchMentionIssues(workspaceId, q)),
+        this.safe(() => this.jira.searchMentionIssues(workspaceId, q)),
+        this.safe(() => this.linear.searchMentionIssues(workspaceId, q)),
+      ],
+    );
+    return [...github, ...gitlab, ...bitbucket, ...trello, ...jira, ...linear];
   }
 
   async recentIssues(
@@ -48,17 +53,21 @@ export class MentionsService {
   ): Promise<MentionIssue[]> {
     const userId = (await this.users.upsertFromFirebase(user)).id;
     const { workspaceId } = await this.teams.requireTeamMember(teamId, userId);
-    const [github, gitlab, bitbucket, jira, linear] = await Promise.all([
-      this.safe(() => this.github.recentMentionIssues(workspaceId)),
-      this.safe(() => this.gitlab.recentMentionIssues(workspaceId)),
-      this.safe(() => this.bitbucket.recentMentionIssues(workspaceId)),
-      this.safe(() => this.jira.recentMentionIssues(workspaceId)),
-      this.safe(() => this.linear.recentMentionIssues(workspaceId)),
-    ]);
+    const [github, gitlab, bitbucket, trello, jira, linear] = await Promise.all(
+      [
+        this.safe(() => this.github.recentMentionIssues(workspaceId)),
+        this.safe(() => this.gitlab.recentMentionIssues(workspaceId)),
+        this.safe(() => this.bitbucket.recentMentionIssues(workspaceId)),
+        this.safe(() => this.trello.recentMentionIssues(workspaceId)),
+        this.safe(() => this.jira.recentMentionIssues(workspaceId)),
+        this.safe(() => this.linear.recentMentionIssues(workspaceId)),
+      ],
+    );
     return [
       ...github.slice(0, 3),
       ...gitlab.slice(0, 3),
       ...bitbucket.slice(0, 3),
+      ...trello.slice(0, 3),
       ...jira.slice(0, 3),
       ...linear.slice(0, 3),
     ];

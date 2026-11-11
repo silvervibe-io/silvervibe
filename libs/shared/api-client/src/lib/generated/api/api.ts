@@ -28,5 +28,7 @@ export * from './standups-data.service';
 export * from './standups-data.serviceInterface';
 export * from './teams-data.service';
 export * from './teams-data.serviceInterface';
+export * from './trello-data.service';
+export * from './trello-data.serviceInterface';
 export * from './workspaces-data.service';
 export * from './workspaces-data.serviceInterface';

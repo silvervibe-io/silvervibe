@@ -20,6 +20,7 @@ export enum MentionIssueDtoProviderEnum {
   github = 'github',
   gitlab = 'gitlab',
   bitbucket = 'bitbucket',
+  trello = 'trello',
   jira = 'jira',
   linear = 'linear',
 }

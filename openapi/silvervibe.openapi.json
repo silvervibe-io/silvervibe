@@ -3021,6 +3021,167 @@
         ]
       }
     },
+    "/api/addons/trello/status": {
+      "get": {
+        "operationId": "TrelloController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddonStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Trello add-on status",
+        "tags": [
+          "trello"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/trello": {
+      "get": {
+        "operationId": "TrelloController_getConnection",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrelloConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get Trello connection for a workspace (secret never returned)",
+        "tags": [
+          "trello"
+        ]
+      },
+      "delete": {
+        "operationId": "TrelloController_disconnect",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrelloConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Disconnect Trello (clears OAuth token)",
+        "tags": [
+          "trello"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/trello/oauth/start": {
+      "get": {
+        "operationId": "TrelloController_startOAuth",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrelloOAuthStartDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Start Trello OAuth; returns authorize URL for the browser",
+        "tags": [
+          "trello"
+        ]
+      }
+    },
+    "/api/addons/trello/oauth/callback": {
+      "get": {
+        "operationId": "TrelloController_oauthCallback",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Trello OAuth callback (public); redirects to standup workspace admin",
+        "tags": [
+          "trello"
+        ]
+      }
+    },
     "/api/addons/jira/status": {
       "get": {
         "operationId": "JiraController_status",
@@ -4259,6 +4420,7 @@
               "github",
               "gitlab",
               "bitbucket",
+              "trello",
               "jira",
               "linear"
             ]
@@ -5362,6 +5524,54 @@
           "authorizeUrl": {
             "type": "string",
             "description": "Bitbucket OAuth authorize URL to open in the browser"
+          }
+        },
+        "required": [
+          "authorizeUrl"
+        ]
+      },
+      "TrelloConnectionDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "DISCONNECTED",
+              "PENDING",
+              "CONNECTED",
+              "ERROR"
+            ]
+          },
+          "configured": {
+            "type": "boolean",
+            "description": "True when an OAuth access token is stored (secret never returned)"
+          },
+          "accountLogin": {
+            "type": "object",
+            "nullable": true
+          },
+          "toolEnabled": {
+            "type": "boolean",
+            "description": "Whether workspace tool entitlement addons.trello is enabled"
+          },
+          "oauthAvailable": {
+            "type": "boolean",
+            "description": "True when TRELLO_CLIENT_ID / TRELLO_CLIENT_SECRET are set"
+          }
+        },
+        "required": [
+          "status",
+          "configured",
+          "toolEnabled",
+          "oauthAvailable"
+        ]
+      },
+      "TrelloOAuthStartDto": {
+        "type": "object",
+        "properties": {
+          "authorizeUrl": {
+            "type": "string",
+            "description": "Trello OAuth authorize URL to open in the browser"
           }
         },
         "required": [

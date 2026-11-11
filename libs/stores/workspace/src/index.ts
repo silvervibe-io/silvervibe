@@ -13,6 +13,8 @@ export type {
   GitlabOAuthStartView,
   BitbucketConnectionView,
   BitbucketOAuthStartView,
+  TrelloConnectionView,
+  TrelloOAuthStartView,
   JiraConnectionView,
   JiraIssueView,
   JiraOAuthStartView,

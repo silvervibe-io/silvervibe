@@ -27,6 +27,7 @@ import {
   type GithubConnectionView,
   type GitlabConnectionView,
   type BitbucketConnectionView,
+  type TrelloConnectionView,
   type JiraConnectionView,
   type LinearConnectionView,
   type SlackConnectionView,
@@ -152,6 +153,9 @@ export class WorkspaceAdmin implements OnInit {
   readonly bitbucket = signal<BitbucketConnectionView | null>(null);
   readonly bitbucketError = signal<string | null>(null);
   readonly bitbucketConnecting = signal(false);
+  readonly trello = signal<TrelloConnectionView | null>(null);
+  readonly trelloError = signal<string | null>(null);
+  readonly trelloConnecting = signal(false);
   readonly jira = signal<JiraConnectionView | null>(null);
   readonly jiraError = signal<string | null>(null);
   readonly jiraConnecting = signal(false);
@@ -178,6 +182,7 @@ export class WorkspaceAdmin implements OnInit {
         this.refreshGithub(ws.id),
         this.refreshGitlab(ws.id),
         this.refreshBitbucket(ws.id),
+        this.refreshTrello(ws.id),
         this.refreshJira(ws.id),
       ]);
     }
@@ -200,6 +205,7 @@ export class WorkspaceAdmin implements OnInit {
     const github = params.get('github');
     const gitlab = params.get('gitlab');
     const bitbucket = params.get('bitbucket');
+    const trello = params.get('trello');
     const jira = params.get('jira');
     const clear: Record<string, null> = {};
     if (slack) {
@@ -258,6 +264,17 @@ export class WorkspaceAdmin implements OnInit {
       clear['bitbucket'] = null;
       clear['bitbucketDetail'] = null;
     }
+    if (trello) {
+      if (trello === 'connected') {
+        this.message.set('standup.workspace.trelloConnected');
+      } else if (trello === 'error') {
+        this.trelloError.set(
+          params.get('trelloDetail') || 'standup.workspace.trelloConnectFailed',
+        );
+      }
+      clear['trello'] = null;
+      clear['trelloDetail'] = null;
+    }
     if (jira) {
       if (jira === 'connected') {
         this.message.set('standup.workspace.jiraConnected');
@@ -290,6 +307,8 @@ export class WorkspaceAdmin implements OnInit {
     this.gitlabError.set(null);
     this.bitbucket.set(null);
     this.bitbucketError.set(null);
+    this.trello.set(null);
+    this.trelloError.set(null);
     this.jira.set(null);
     this.jiraError.set(null);
     if (this.isAdmin()) {
@@ -299,6 +318,7 @@ export class WorkspaceAdmin implements OnInit {
         this.refreshGithub(workspaceId),
         this.refreshGitlab(workspaceId),
         this.refreshBitbucket(workspaceId),
+        this.refreshTrello(workspaceId),
         this.refreshJira(workspaceId),
       ]);
     }
@@ -583,6 +603,58 @@ export class WorkspaceAdmin implements OnInit {
         err instanceof Error
           ? err.message
           : 'standup.workspace.bitbucketRequestFailed',
+      );
+    }
+  }
+
+  private async refreshTrello(workspaceId: string): Promise<void> {
+    try {
+      const conn = await this.workspaces.getTrelloConnection(workspaceId);
+      this.trello.set(conn);
+    } catch (err: unknown) {
+      this.trelloError.set(
+        err instanceof Error
+          ? err.message
+          : 'standup.workspace.trelloRequestFailed',
+      );
+    }
+  }
+
+  async connectTrello(): Promise<void> {
+    const ws = this.selected();
+    if (!ws || !this.isAdmin()) {
+      return;
+    }
+    this.trelloError.set(null);
+    this.trelloConnecting.set(true);
+    try {
+      const { authorizeUrl } = await this.workspaces.startTrelloOAuth(ws.id);
+      this.openAuthorizeUrl(authorizeUrl);
+    } catch (err: unknown) {
+      this.trelloConnecting.set(false);
+      this.trelloError.set(
+        err instanceof Error
+          ? err.message
+          : 'standup.workspace.trelloConnectFailed',
+      );
+    }
+  }
+
+  async disconnectTrello(): Promise<void> {
+    const ws = this.selected();
+    if (!ws || !this.isAdmin()) {
+      return;
+    }
+    this.trelloError.set(null);
+    try {
+      const conn = await this.workspaces.disconnectTrello(ws.id);
+      this.trello.set(conn);
+      this.message.set('standup.workspace.trelloDisconnected');
+    } catch (err: unknown) {
+      this.trelloError.set(
+        err instanceof Error
+          ? err.message
+          : 'standup.workspace.trelloRequestFailed',
       );
     }
   }

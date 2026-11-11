@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { FeatureFlagsModule } from './feature-flags/feature-flags.module';
 import { BitbucketModule } from './addons/bitbucket/bitbucket.module';
+import { TrelloModule } from './addons/trello/trello.module';
 import { GithubModule } from './addons/github/github.module';
 import { GitlabModule } from './addons/gitlab/gitlab.module';
 import { JiraModule } from './addons/jira/jira.module';
@@ -36,6 +37,7 @@ import { WorkspacesModule } from './workspaces/workspaces.module';
     GithubModule,
     GitlabModule,
     BitbucketModule,
+    TrelloModule,
   ],
   controllers: [AppController],
   providers: [AppService],

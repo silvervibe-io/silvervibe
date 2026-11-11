@@ -17,6 +17,8 @@ import type {
   GitlabOAuthStartView,
   BitbucketConnectionView,
   BitbucketOAuthStartView,
+  TrelloConnectionView,
+  TrelloOAuthStartView,
   JiraConnectionView,
   JiraIssueView,
   JiraOAuthStartView,
@@ -317,6 +319,18 @@ export class WorkspaceFacade {
 
   disconnectBitbucket(workspaceId: string): Promise<BitbucketConnectionView> {
     return this.api.disconnectBitbucket(workspaceId);
+  }
+
+  getTrelloConnection(workspaceId: string): Promise<TrelloConnectionView> {
+    return this.api.getTrelloConnection(workspaceId);
+  }
+
+  startTrelloOAuth(workspaceId: string): Promise<TrelloOAuthStartView> {
+    return this.api.startTrelloOAuth(workspaceId);
+  }
+
+  disconnectTrello(workspaceId: string): Promise<TrelloConnectionView> {
+    return this.api.disconnectTrello(workspaceId);
   }
 
   getJiraConnection(workspaceId: string): Promise<JiraConnectionView> {

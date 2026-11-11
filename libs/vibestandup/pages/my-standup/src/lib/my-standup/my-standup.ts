@@ -380,9 +380,11 @@ export class MyStandup implements OnInit {
           ? 'standup.my.providerGitlab'
           : provider === 'bitbucket'
             ? 'standup.my.providerBitbucket'
-            : provider === 'jira'
-              ? 'standup.my.providerJira'
-              : 'standup.my.providerLinear';
+            : provider === 'trello'
+              ? 'standup.my.providerTrello'
+              : provider === 'jira'
+                ? 'standup.my.providerJira'
+                : 'standup.my.providerLinear';
     return this.transloco.translate(key);
   }
 

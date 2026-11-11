@@ -61,6 +61,8 @@ export * from './team-linear-project-dto';
 export * from './team-member-dto';
 export * from './team-slack-channel-dto';
 export * from './teams-connection-dto';
+export * from './trello-connection-dto';
+export * from './trello-o-auth-start-dto';
 export * from './update-standup-config-dto';
 export * from './update-user-schedule-dto';
 export * from './upsert-standup-entry-dto';
