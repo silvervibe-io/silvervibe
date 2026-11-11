@@ -1,5 +1,7 @@
 export * from './accept-team-invite-dto';
 export * from './addon-status-dto';
+export * from './bitbucket-connection-dto';
+export * from './bitbucket-o-auth-start-dto';
 export * from './connect-slack-dto';
 export * from './connect-teams-dto';
 export * from './create-team-dto';

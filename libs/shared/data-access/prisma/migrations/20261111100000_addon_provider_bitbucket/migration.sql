@@ -1,0 +1,1 @@
+ALTER TYPE "AddonProvider" ADD VALUE 'BITBUCKET';

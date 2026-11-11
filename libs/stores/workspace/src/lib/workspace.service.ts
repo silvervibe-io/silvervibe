@@ -27,6 +27,8 @@ import type {
   GithubRepoView,
   GitlabConnectionView,
   GitlabOAuthStartView,
+  BitbucketConnectionView,
+  BitbucketOAuthStartView,
   JiraConnectionView,
   JiraIssueView,
   JiraOAuthStartView,
@@ -508,6 +510,32 @@ export class WorkspaceService {
     return firstValueFrom(
       this.http.delete<GitlabConnectionView>(
         `${this.apiBase}/workspaces/${workspaceId}/addons/gitlab`,
+      ),
+    );
+  }
+
+  getBitbucketConnection(
+    workspaceId: string,
+  ): Promise<BitbucketConnectionView> {
+    return firstValueFrom(
+      this.http.get<BitbucketConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/bitbucket`,
+      ),
+    );
+  }
+
+  startBitbucketOAuth(workspaceId: string): Promise<BitbucketOAuthStartView> {
+    return firstValueFrom(
+      this.http.get<BitbucketOAuthStartView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/bitbucket/oauth/start`,
+      ),
+    );
+  }
+
+  disconnectBitbucket(workspaceId: string): Promise<BitbucketConnectionView> {
+    return firstValueFrom(
+      this.http.delete<BitbucketConnectionView>(
+        `${this.apiBase}/workspaces/${workspaceId}/addons/bitbucket`,
       ),
     );
   }

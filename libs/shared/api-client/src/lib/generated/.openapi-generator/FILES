@@ -2,6 +2,8 @@ api.module.ts
 api/api.ts
 api/auth-data.service.ts
 api/auth-data.serviceInterface.ts
+api/bitbucket-data.service.ts
+api/bitbucket-data.serviceInterface.ts
 api/flags-data.service.ts
 api/flags-data.serviceInterface.ts
 api/github-data.service.ts
@@ -29,6 +31,8 @@ encoder.ts
 index.ts
 model/accept-team-invite-dto.ts
 model/addon-status-dto.ts
+model/bitbucket-connection-dto.ts
+model/bitbucket-o-auth-start-dto.ts
 model/connect-slack-dto.ts
 model/connect-teams-dto.ts
 model/create-team-dto.ts

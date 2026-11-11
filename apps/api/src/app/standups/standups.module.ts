@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AiModule } from '../ai/ai.module';
+import { BitbucketModule } from '../addons/bitbucket/bitbucket.module';
 import { GithubModule } from '../addons/github/github.module';
 import { GitlabModule } from '../addons/gitlab/gitlab.module';
 import { JiraModule } from '../addons/jira/jira.module';
@@ -24,6 +25,7 @@ import { StandupsService } from './standups.service';
     LinearModule,
     GithubModule,
     GitlabModule,
+    BitbucketModule,
     JiraModule,
   ],
   controllers: [StandupsController],

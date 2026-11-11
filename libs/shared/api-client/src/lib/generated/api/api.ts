@@ -6,6 +6,8 @@
  */
 export * from './auth-data.service';
 export * from './auth-data.serviceInterface';
+export * from './bitbucket-data.service';
+export * from './bitbucket-data.serviceInterface';
 export * from './flags-data.service';
 export * from './flags-data.serviceInterface';
 export * from './github-data.service';

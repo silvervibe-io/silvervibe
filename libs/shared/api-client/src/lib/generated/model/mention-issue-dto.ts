@@ -19,6 +19,7 @@ export interface MentionIssueDto {
 export enum MentionIssueDtoProviderEnum {
   github = 'github',
   gitlab = 'gitlab',
+  bitbucket = 'bitbucket',
   jira = 'jira',
   linear = 'linear',
 }

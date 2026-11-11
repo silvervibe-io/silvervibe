@@ -2860,6 +2860,167 @@
         ]
       }
     },
+    "/api/addons/bitbucket/status": {
+      "get": {
+        "operationId": "BitbucketController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddonStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Bitbucket add-on status",
+        "tags": [
+          "bitbucket"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/bitbucket": {
+      "get": {
+        "operationId": "BitbucketController_getConnection",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BitbucketConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get Bitbucket connection for a workspace (secret never returned)",
+        "tags": [
+          "bitbucket"
+        ]
+      },
+      "delete": {
+        "operationId": "BitbucketController_disconnect",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BitbucketConnectionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Disconnect Bitbucket (clears OAuth token)",
+        "tags": [
+          "bitbucket"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/addons/bitbucket/oauth/start": {
+      "get": {
+        "operationId": "BitbucketController_startOAuth",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BitbucketOAuthStartDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          },
+          "403": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Start Bitbucket OAuth; returns authorize URL for the browser",
+        "tags": [
+          "bitbucket"
+        ]
+      }
+    },
+    "/api/addons/bitbucket/oauth/callback": {
+      "get": {
+        "operationId": "BitbucketController_oauthCallback",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Bitbucket OAuth callback (public); redirects to standup workspace admin",
+        "tags": [
+          "bitbucket"
+        ]
+      }
+    },
     "/api/addons/jira/status": {
       "get": {
         "operationId": "JiraController_status",
@@ -4097,6 +4258,7 @@
             "enum": [
               "github",
               "gitlab",
+              "bitbucket",
               "jira",
               "linear"
             ]
@@ -5152,6 +5314,54 @@
           "authorizeUrl": {
             "type": "string",
             "description": "GitLab OAuth authorize URL to open in the browser"
+          }
+        },
+        "required": [
+          "authorizeUrl"
+        ]
+      },
+      "BitbucketConnectionDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "DISCONNECTED",
+              "PENDING",
+              "CONNECTED",
+              "ERROR"
+            ]
+          },
+          "configured": {
+            "type": "boolean",
+            "description": "True when an OAuth access token is stored (secret never returned)"
+          },
+          "accountLogin": {
+            "type": "object",
+            "nullable": true
+          },
+          "toolEnabled": {
+            "type": "boolean",
+            "description": "Whether workspace tool entitlement addons.bitbucket is enabled"
+          },
+          "oauthAvailable": {
+            "type": "boolean",
+            "description": "True when BITBUCKET_CLIENT_ID / BITBUCKET_CLIENT_SECRET are set"
+          }
+        },
+        "required": [
+          "status",
+          "configured",
+          "toolEnabled",
+          "oauthAvailable"
+        ]
+      },
+      "BitbucketOAuthStartDto": {
+        "type": "object",
+        "properties": {
+          "authorizeUrl": {
+            "type": "string",
+            "description": "Bitbucket OAuth authorize URL to open in the browser"
           }
         },
         "required": [
