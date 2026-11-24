@@ -22,7 +22,9 @@ if (!project) {
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 if (
   (command === 'serve' || command === 'build') &&
-  (project === 'silvervibe' || project === 'vibestandup')
+  (project === 'silvervibe' ||
+    project === 'vibestandup' ||
+    project === 'vibepoll')
 ) {
   const sync = spawnSync(
     process.execPath,

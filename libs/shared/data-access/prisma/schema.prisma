@@ -59,6 +59,12 @@ enum AddonConnectionStatus {
   ERROR
 }
 
+enum PollStatus {
+  DRAFT
+  OPEN
+  CLOSED
+}
+
 model User {
   id          String   @id @default(cuid())
   firebaseUid String   @unique @map("firebase_uid")
@@ -74,6 +80,9 @@ model User {
   standupEntries  StandupEntry[]
   standupAways    StandupAway[]
   invitesSent     TeamInvite[]      @relation("TeamInvitesSent")
+  pollsCreated    Poll[]            @relation("PollsCreated")
+  pollInvites     PollInvite[]
+  pollVotes       PollVote[]
 
   @@map("users")
 }
@@ -91,6 +100,7 @@ model Workspace {
   tools            WorkspaceTool[]
   addonConnections AddonConnection[]
   teams            Team[]
+  polls            Poll[]
 
   @@map("workspaces")
 }
@@ -263,4 +273,71 @@ model StandupAway {
   @@unique([teamId, userId, entryDate])
   @@index([teamId, entryDate])
   @@map("standup_aways")
+}
+
+model Poll {
+  id              String     @id @default(cuid())
+  workspaceId     String     @map("workspace_id")
+  createdById     String     @map("created_by_id")
+  question        String
+  allowMulti      Boolean    @default(false) @map("allow_multi")
+  allowSuggest    Boolean    @default(false) @map("allow_suggest")
+  status          PollStatus @default(OPEN)
+  startsAt        DateTime?  @map("starts_at")
+  endsAt          DateTime?  @map("ends_at")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  workspace Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy User         @relation("PollsCreated", fields: [createdById], references: [id], onDelete: Cascade)
+  options   PollOption[]
+  invites   PollInvite[]
+  votes     PollVote[]
+
+  @@index([workspaceId, status])
+  @@map("polls")
+}
+
+model PollOption {
+  id        String   @id @default(cuid())
+  pollId    String   @map("poll_id")
+  label     String
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  poll  Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes PollVote[]
+
+  @@index([pollId])
+  @@map("poll_options")
+}
+
+model PollInvite {
+  id        String   @id @default(cuid())
+  pollId    String   @map("poll_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  poll Poll @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([pollId, userId])
+  @@map("poll_invites")
+}
+
+model PollVote {
+  id        String   @id @default(cuid())
+  pollId    String   @map("poll_id")
+  userId    String   @map("user_id")
+  optionId  String   @map("option_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  poll   Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  option PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@unique([pollId, userId, optionId])
+  @@index([pollId, userId])
+  @@map("poll_votes")
 }

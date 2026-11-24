@@ -69,6 +69,15 @@
           >
             {{ 'portal.openTool' | transloco }}
           </button>
+          } @else if (tool.toolKey === 'vibepoll') {
+          <button
+            type="button"
+            class="btn btn-primary btn-sm"
+            [disabled]="openingTool()"
+            (click)="openVibePoll()"
+          >
+            {{ 'portal.openTool' | transloco }}
+          </button>
           }
         </li>
         }

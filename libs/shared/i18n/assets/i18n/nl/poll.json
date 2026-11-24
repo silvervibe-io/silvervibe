@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "polls": "Polls",
+    "create": "Maken",
+    "account": "Account"
+  },
+  "list": {
+    "title": "Teampolls",
+    "lead": "Polls voor {{workspace}}",
+    "create": "Nieuwe poll",
+    "loading": "Polls laden…",
+    "empty": "Nog geen polls. Maak er een voor je workspace.",
+    "meta": "{{status}} · {{options}} opties · {{invites}} uitgenodigd"
+  },
+  "create": {
+    "title": "Poll maken",
+    "lead": "Nodig workspaceleden in de app uit. Geen e-mail in deze versie.",
+    "question": "Vraag",
+    "options": "Opties (minstens twee)",
+    "allowMulti": "Meer dan één optie toestaan",
+    "startsAt": "Start (optioneel)",
+    "endsAt": "Einde (optioneel)",
+    "invites": "Leden uitnodigen",
+    "invitesHint": "Jij bent altijd inbegrepen. Anderen moeten workspaceleden zijn.",
+    "submit": "Poll maken",
+    "cancel": "Annuleren",
+    "noWorkspace": "Selecteer eerst een workspace.",
+    "needOptions": "Voeg minstens twee opties toe."
+  },
+  "detail": {
+    "loading": "Poll laden…",
+    "back": "Alle polls",
+    "meta": "Status: {{status}}",
+    "voteTitle": "Jouw stem",
+    "submitVote": "Stem indienen",
+    "changeVote": "Stem wijzigen",
+    "notOpen": "Stemmen is nu niet open.",
+    "resultsTitle": "Resultaten",
+    "ballots": "{{count}} stembiljet(ten)",
+    "close": "Poll sluiten"
+  }
+}

@@ -11,4 +11,6 @@ export const environment = {
   apiBaseUrl: publicUrls.apiBaseUrl,
   /** Vibestandup origin for portal handoff / tool links. */
   standupAppOrigin: publicUrls.standupAppOrigin,
+  /** VibePoll origin for portal handoff / tool links. */
+  pollAppOrigin: publicUrls.pollAppOrigin,
 };

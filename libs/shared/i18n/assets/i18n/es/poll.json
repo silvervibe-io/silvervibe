@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "polls": "Encuestas",
+    "create": "Crear",
+    "account": "Cuenta"
+  },
+  "list": {
+    "title": "Encuestas del equipo",
+    "lead": "Encuestas para {{workspace}}",
+    "create": "Nueva encuesta",
+    "loading": "Cargando encuestas…",
+    "empty": "Aún no hay encuestas. Crea una para tu espacio.",
+    "meta": "{{status}} · {{options}} opciones · {{invites}} invitados"
+  },
+  "create": {
+    "title": "Crear encuesta",
+    "lead": "Invita a miembros del espacio en la app. Sin correo en esta versión.",
+    "question": "Pregunta",
+    "options": "Opciones (al menos dos)",
+    "allowMulti": "Permitir varias opciones",
+    "startsAt": "Inicio (opcional)",
+    "endsAt": "Fin (opcional)",
+    "invites": "Invitar miembros",
+    "invitesHint": "Siempre estás incluido. Los demás deben ser miembros del espacio.",
+    "submit": "Crear encuesta",
+    "cancel": "Cancelar",
+    "noWorkspace": "Selecciona primero un espacio.",
+    "needOptions": "Añade al menos dos opciones."
+  },
+  "detail": {
+    "loading": "Cargando encuesta…",
+    "back": "Todas las encuestas",
+    "meta": "Estado: {{status}}",
+    "voteTitle": "Tu voto",
+    "submitVote": "Enviar voto",
+    "changeVote": "Cambiar voto",
+    "notOpen": "La votación no está abierta ahora.",
+    "resultsTitle": "Resultados",
+    "ballots": "{{count}} boleta(s)",
+    "close": "Cerrar encuesta"
+  }
+}

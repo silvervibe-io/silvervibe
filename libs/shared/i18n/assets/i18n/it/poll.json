@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "polls": "Sondaggi",
+    "create": "Crea",
+    "account": "Account"
+  },
+  "list": {
+    "title": "Sondaggi del team",
+    "lead": "Sondaggi per {{workspace}}",
+    "create": "Nuovo sondaggio",
+    "loading": "Caricamento sondaggi…",
+    "empty": "Nessun sondaggio ancora. Creane uno per il workspace.",
+    "meta": "{{status}} · {{options}} opzioni · {{invites}} invitati"
+  },
+  "create": {
+    "title": "Crea un sondaggio",
+    "lead": "Invita i membri del workspace nell’app. Niente email in questa versione.",
+    "question": "Domanda",
+    "options": "Opzioni (almeno due)",
+    "allowMulti": "Consenti più opzioni",
+    "startsAt": "Inizio (opzionale)",
+    "endsAt": "Fine (opzionale)",
+    "invites": "Invita membri",
+    "invitesHint": "Sei sempre incluso. Gli altri devono essere membri del workspace.",
+    "submit": "Crea sondaggio",
+    "cancel": "Annulla",
+    "noWorkspace": "Seleziona prima un workspace.",
+    "needOptions": "Aggiungi almeno due opzioni."
+  },
+  "detail": {
+    "loading": "Caricamento sondaggio…",
+    "back": "Tutti i sondaggi",
+    "meta": "Stato: {{status}}",
+    "voteTitle": "Il tuo voto",
+    "submitVote": "Invia voto",
+    "changeVote": "Cambia voto",
+    "notOpen": "La votazione non è aperta in questo momento.",
+    "resultsTitle": "Risultati",
+    "ballots": "{{count}} scheda/e",
+    "close": "Chiudi sondaggio"
+  }
+}

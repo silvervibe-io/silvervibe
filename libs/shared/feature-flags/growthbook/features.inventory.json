@@ -10,6 +10,12 @@
       "defaultValue": true
     },
     {
+      "key": "tools.vibepoll.enabled",
+      "valueType": "boolean",
+      "description": "Roll out the VibePoll product surface (not proof of workspace entitlement).",
+      "defaultValue": true
+    },
+    {
       "key": "addons.github.webhooks",
       "valueType": "boolean",
       "description": "Roll out GitHub webhook handling for add-ons.",
@@ -37,6 +43,9 @@
                 "enabledByDefault": true,
                 "maxTeams": 1,
                 "maxMembersPerTeam": 12
+              },
+              "vibepoll": {
+                "enabledByDefault": false
               }
             }
           },
@@ -49,6 +58,9 @@
                 "enabledByDefault": true,
                 "maxTeams": 10,
                 "maxMembersPerTeam": 50
+              },
+              "vibepoll": {
+                "enabledByDefault": false
               }
             }
           }

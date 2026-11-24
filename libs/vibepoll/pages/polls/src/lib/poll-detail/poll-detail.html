@@ -1,0 +1,93 @@
+<sv-shell [title]="'VibePoll'" [links]="links()">
+  <div class="mx-auto max-w-2xl space-y-6">
+    @if (loading() && !poll()) {
+    <p class="text-sm text-base-content/60">
+      {{ 'poll.detail.loading' | transloco }}
+    </p>
+    } @else if (error() && !poll()) {
+    <p class="text-error">{{ error() }}</p>
+    } @else if (poll(); as item) {
+    <header class="space-y-2">
+      <p class="text-sm text-base-content/60">
+        <a routerLink="/app" class="link link-hover"
+          >{{ 'poll.detail.back' | transloco }}</a
+        >
+      </p>
+      <h1 class="text-3xl font-bold tracking-tight">{{ item.question }}</h1>
+      <p class="text-sm text-base-content/60">
+        {{ 'poll.detail.meta' | transloco : { status: item.status } }}
+      </p>
+    </header>
+
+    @if (item.canVote) {
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold">
+        {{ 'poll.detail.voteTitle' | transloco }}
+      </h2>
+      <ul class="space-y-2">
+        @for (option of item.options; track option.id) {
+        <li>
+          <label class="label cursor-pointer justify-start gap-3">
+            <input
+              [type]="item.allowMulti ? 'checkbox' : 'radio'"
+              [class]="item.allowMulti ? 'checkbox checkbox-primary' : 'radio radio-primary'"
+              name="poll-option"
+              [checked]="isSelected(option.id)"
+              (change)="
+                toggleOption(
+                  option.id,
+                  item.allowMulti,
+                  $any($event.target).checked
+                )
+              "
+            />
+            <span>{{ option.label }}</span>
+          </label>
+        </li>
+        }
+      </ul>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        [disabled]="loading() || selectedOptionIds().length === 0"
+        (click)="submitVote()"
+      >
+        {{ (item.hasVoted ? 'poll.detail.changeVote' : 'poll.detail.submitVote')
+        | transloco }}
+      </button>
+    </section>
+    } @else if (item.status === 'OPEN') {
+    <p class="text-base-content/70">{{ 'poll.detail.notOpen' | transloco }}</p>
+    } @if (item.canSeeResults && results(); as tally) {
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold">
+        {{ 'poll.detail.resultsTitle' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/60">
+        {{ 'poll.detail.ballots' | transloco : { count: tally.totalBallots } }}
+      </p>
+      <ul class="space-y-2">
+        @for (option of tally.options; track option.optionId) {
+        <li
+          class="flex items-center justify-between gap-3 border-b border-base-300 py-2"
+        >
+          <span>{{ option.label }}</span>
+          <span class="font-medium">{{ option.voteCount }}</span>
+        </li>
+        }
+      </ul>
+    </section>
+    } @if (item.canClose) {
+    <button
+      type="button"
+      class="btn btn-outline btn-sm"
+      [disabled]="loading()"
+      (click)="closePoll()"
+    >
+      {{ 'poll.detail.close' | transloco }}
+    </button>
+    } @if (error()) {
+    <p class="text-error text-sm">{{ error() }}</p>
+    } }
+  </div>
+</sv-shell>

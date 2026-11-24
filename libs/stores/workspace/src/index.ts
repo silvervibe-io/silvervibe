@@ -1,4 +1,8 @@
-export { resolvePortalEntry, vibestandupReturnUrl } from './lib/portal-entry';
+export {
+  resolvePortalEntry,
+  vibestandupReturnUrl,
+  vibepollReturnUrl,
+} from './lib/portal-entry';
 export type { PortalEntry } from './lib/portal-entry';
 export { WorkspaceFacade } from './lib/workspace.facade';
 export type {

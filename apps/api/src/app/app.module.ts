@@ -14,6 +14,7 @@ import { MailModule } from './mail/mail.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SlackModule } from './addons/slack/slack.module';
 import { TeamsModule } from './addons/teams/teams.module';
+import { PollsModule } from './polls/polls.module';
 import { StandupsModule } from './standups/standups.module';
 import { WorkspaceTeamsModule } from './teams/teams.module';
 import { UsersModule } from './users/users.module';
@@ -29,6 +30,7 @@ import { WorkspacesModule } from './workspaces/workspaces.module';
     WorkspacesModule,
     WorkspaceTeamsModule,
     StandupsModule,
+    PollsModule,
     FeatureFlagsModule,
     SlackModule,
     TeamsModule,

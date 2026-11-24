@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "polls": "Enquetes",
+    "create": "Criar",
+    "account": "Conta"
+  },
+  "list": {
+    "title": "Enquetes da equipe",
+    "lead": "Enquetes para {{workspace}}",
+    "create": "Nova enquete",
+    "loading": "A carregar enquetes…",
+    "empty": "Ainda não há enquetes. Crie uma para o espaço.",
+    "meta": "{{status}} · {{options}} opções · {{invites}} convidados"
+  },
+  "create": {
+    "title": "Criar enquete",
+    "lead": "Convide membros do espaço na app. Sem e-mail nesta versão.",
+    "question": "Pergunta",
+    "options": "Opções (pelo menos duas)",
+    "allowMulti": "Permitir várias opções",
+    "startsAt": "Início (opcional)",
+    "endsAt": "Fim (opcional)",
+    "invites": "Convidar membros",
+    "invitesHint": "Você está sempre incluído. Os outros devem ser membros do espaço.",
+    "submit": "Criar enquete",
+    "cancel": "Cancelar",
+    "noWorkspace": "Selecione um espaço primeiro.",
+    "needOptions": "Adicione pelo menos duas opções."
+  },
+  "detail": {
+    "loading": "A carregar enquete…",
+    "back": "Todas as enquetes",
+    "meta": "Estado: {{status}}",
+    "voteTitle": "O seu voto",
+    "submitVote": "Enviar voto",
+    "changeVote": "Alterar voto",
+    "notOpen": "A votação não está aberta agora.",
+    "resultsTitle": "Resultados",
+    "ballots": "{{count}} boletim(ns)",
+    "close": "Fechar enquete"
+  }
+}

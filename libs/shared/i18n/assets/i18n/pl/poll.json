@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "polls": "Ankiety",
+    "create": "Utwórz",
+    "account": "Konto"
+  },
+  "list": {
+    "title": "Ankiety zespołu",
+    "lead": "Ankiety dla {{workspace}}",
+    "create": "Nowa ankieta",
+    "loading": "Ładowanie ankiet…",
+    "empty": "Brak ankiet. Utwórz jedną dla przestrzeni.",
+    "meta": "{{status}} · {{options}} opcji · {{invites}} zaproszonych"
+  },
+  "create": {
+    "title": "Utwórz ankietę",
+    "lead": "Zaproś członków przestrzeni w aplikacji. Bez e-maila w tej wersji.",
+    "question": "Pytanie",
+    "options": "Opcje (co najmniej dwie)",
+    "allowMulti": "Zezwól na wiele opcji",
+    "startsAt": "Start (opcjonalnie)",
+    "endsAt": "Koniec (opcjonalnie)",
+    "invites": "Zaproś członków",
+    "invitesHint": "Zawsze jesteś uwzględniony. Inni muszą być członkami przestrzeni.",
+    "submit": "Utwórz ankietę",
+    "cancel": "Anuluj",
+    "noWorkspace": "Najpierw wybierz przestrzeń.",
+    "needOptions": "Dodaj co najmniej dwie opcje."
+  },
+  "detail": {
+    "loading": "Ładowanie ankiety…",
+    "back": "Wszystkie ankiety",
+    "meta": "Status: {{status}}",
+    "voteTitle": "Twój głos",
+    "submitVote": "Oddaj głos",
+    "changeVote": "Zmień głos",
+    "notOpen": "Głosowanie nie jest teraz otwarte.",
+    "resultsTitle": "Wyniki",
+    "ballots": "{{count}} głos(ów)",
+    "close": "Zamknij ankietę"
+  }
+}
