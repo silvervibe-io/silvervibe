@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "polls": "Sondages",
+    "create": "Créer",
+    "account": "Compte"
+  },
+  "list": {
+    "title": "Sondages d’équipe",
+    "lead": "Sondages pour {{workspace}}",
+    "create": "Nouveau sondage",
+    "loading": "Chargement des sondages…",
+    "empty": "Aucun sondage pour l’instant. Créez-en un pour votre espace.",
+    "meta": "{{status}} · {{options}} options · {{invites}} invités"
+  },
+  "create": {
+    "title": "Créer un sondage",
+    "lead": "Invitez les membres dans l’app. Pas d’e-mail dans cette version.",
+    "question": "Question",
+    "options": "Options (au moins deux)",
+    "allowMulti": "Autoriser plusieurs choix",
+    "startsAt": "Début (optionnel)",
+    "endsAt": "Fin (optionnel)",
+    "invites": "Inviter des membres",
+    "invitesHint": "Vous êtes toujours inclus. Les autres doivent être membres de l’espace.",
+    "submit": "Créer le sondage",
+    "cancel": "Annuler",
+    "noWorkspace": "Sélectionnez d’abord un espace.",
+    "needOptions": "Ajoutez au moins deux options."
+  },
+  "detail": {
+    "loading": "Chargement du sondage…",
+    "back": "Tous les sondages",
+    "meta": "Statut : {{status}}",
+    "voteTitle": "Votre vote",
+    "submitVote": "Envoyer le vote",
+    "changeVote": "Modifier le vote",
+    "notOpen": "Le vote n’est pas ouvert pour le moment.",
+    "resultsTitle": "Résultats",
+    "ballots": "{{count}} bulletin(s)",
+    "close": "Clôturer le sondage"
+  }
+}

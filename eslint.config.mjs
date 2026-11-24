@@ -29,6 +29,10 @@ export default [
               onlyDependOnLibsWithTags: ['scope:shared', 'scope:vibestandup'],
             },
             {
+              sourceTag: 'scope:vibepoll',
+              onlyDependOnLibsWithTags: ['scope:shared', 'scope:vibepoll'],
+            },
+            {
               sourceTag: 'scope:api',
               onlyDependOnLibsWithTags: ['scope:api', 'scope:shared'],
             },

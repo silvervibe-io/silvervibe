@@ -12,6 +12,7 @@ import {
   FeatureFlagsService,
   provideSilvervibeAuth,
   provideSilvervibeFeatureFlags,
+  POLL_APP_ORIGIN,
   STANDUP_APP_ORIGIN,
 } from '@silvervibe/shared/auth';
 import { provideSilvervibeI18n } from '@silvervibe/shared/i18n';
@@ -42,6 +43,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: STANDUP_APP_ORIGIN,
       useValue: environment.standupAppOrigin,
+    },
+    {
+      provide: POLL_APP_ORIGIN,
+      useValue: environment.pollAppOrigin,
     },
     provideSilvervibeFeatureFlags(environment.growthbook),
     {

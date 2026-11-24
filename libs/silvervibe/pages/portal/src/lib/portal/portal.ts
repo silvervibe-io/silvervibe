@@ -9,13 +9,18 @@ import {
 import { form, FormField, required, submit } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { AuthService, STANDUP_APP_ORIGIN } from '@silvervibe/shared/auth';
+import {
+  AuthService,
+  POLL_APP_ORIGIN,
+  STANDUP_APP_ORIGIN,
+} from '@silvervibe/shared/auth';
 import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
 import { Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import { UserFacade } from '@silvervibe/stores/user';
 import {
   resolvePortalEntry,
+  vibepollReturnUrl,
   vibestandupReturnUrl,
   WorkspaceFacade,
 } from '@silvervibe/stores/workspace';
@@ -43,6 +48,8 @@ export class Portal implements OnInit {
   private readonly router = inject(Router);
   private readonly standupOrigin =
     inject(STANDUP_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4201';
+  private readonly pollOrigin =
+    inject(POLL_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4202';
 
   readonly loading = this.workspaces.loading;
   readonly error = this.workspaces.error;
@@ -133,6 +140,22 @@ export class Portal implements OnInit {
       this.assignLocation(url.toString());
     } catch {
       this.assignLocation(`${this.standupOrigin}/auth`);
+    } finally {
+      this.openingTool.set(false);
+    }
+  }
+
+  async openVibePoll(workspaceId?: string): Promise<void> {
+    const id = workspaceId ?? this.selected()?.id;
+    this.openingTool.set(true);
+    try {
+      const { customToken } = await this.users.createCustomToken();
+      const url = new URL('/auth/handoff', this.pollOrigin);
+      url.searchParams.set('token', customToken);
+      url.searchParams.set('returnUrl', vibepollReturnUrl(id));
+      this.assignLocation(url.toString());
+    } catch {
+      this.assignLocation(`${this.pollOrigin}/auth`);
     } finally {
       this.openingTool.set(false);
     }

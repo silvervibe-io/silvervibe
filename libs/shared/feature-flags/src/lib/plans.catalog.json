@@ -10,6 +10,9 @@
           "enabledByDefault": true,
           "maxTeams": 1,
           "maxMembersPerTeam": 12
+        },
+        "vibepoll": {
+          "enabledByDefault": false
         }
       }
     },
@@ -22,6 +25,9 @@
           "enabledByDefault": true,
           "maxTeams": 10,
           "maxMembersPerTeam": 50
+        },
+        "vibepoll": {
+          "enabledByDefault": false
         }
       }
     }

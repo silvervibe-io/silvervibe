@@ -2,4 +2,5 @@
 export const publicUrls = {
   apiBaseUrl: '/api',
   standupAppOrigin: 'http://localhost:4201',
+  pollAppOrigin: 'http://localhost:4202',
 } as const;

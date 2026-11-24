@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { resolvePortalEntry, vibestandupReturnUrl } from './portal-entry';
+import {
+  resolvePortalEntry,
+  vibepollReturnUrl,
+  vibestandupReturnUrl,
+} from './portal-entry';
 
 const standup = { toolKey: 'vibestandup', enabled: true };
 const slack = { toolKey: 'addons.slack', enabled: true };
@@ -43,5 +47,11 @@ describe('vibestandupReturnUrl', () => {
 
   it('omits a blank workspace id', () => {
     expect(vibestandupReturnUrl('  ')).toBe('/app?enter=1');
+  });
+});
+
+describe('vibepollReturnUrl', () => {
+  it('includes enter and the workspace id', () => {
+    expect(vibepollReturnUrl('ws1')).toBe('/app?enter=1&workspaceId=ws1');
   });
 });

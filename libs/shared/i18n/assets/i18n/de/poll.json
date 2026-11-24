@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "polls": "Umfragen",
+    "create": "Erstellen",
+    "account": "Konto"
+  },
+  "list": {
+    "title": "Team-Umfragen",
+    "lead": "Umfragen für {{workspace}}",
+    "create": "Neue Umfrage",
+    "loading": "Umfragen werden geladen…",
+    "empty": "Noch keine Umfragen. Erstelle eine für deinen Workspace.",
+    "meta": "{{status}} · {{options}} Optionen · {{invites}} eingeladen"
+  },
+  "create": {
+    "title": "Umfrage erstellen",
+    "lead": "Lade Workspace-Mitglieder in der App ein. Keine E-Mail in dieser Version.",
+    "question": "Frage",
+    "options": "Optionen (mindestens zwei)",
+    "allowMulti": "Mehrfachauswahl erlauben",
+    "startsAt": "Start (optional)",
+    "endsAt": "Ende (optional)",
+    "invites": "Mitglieder einladen",
+    "invitesHint": "Du bist immer dabei. Andere müssen Workspace-Mitglieder sein.",
+    "submit": "Umfrage erstellen",
+    "cancel": "Abbrechen",
+    "noWorkspace": "Zuerst einen Workspace wählen.",
+    "needOptions": "Mindestens zwei Optionen hinzufügen."
+  },
+  "detail": {
+    "loading": "Umfrage wird geladen…",
+    "back": "Alle Umfragen",
+    "meta": "Status: {{status}}",
+    "voteTitle": "Deine Stimme",
+    "submitVote": "Stimme abgeben",
+    "changeVote": "Stimme ändern",
+    "notOpen": "Die Abstimmung ist gerade nicht offen.",
+    "resultsTitle": "Ergebnisse",
+    "ballots": "{{count}} Stimmzettel",
+    "close": "Umfrage schließen"
+  }
+}

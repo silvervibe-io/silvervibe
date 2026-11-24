@@ -9,6 +9,7 @@ import dePrivacy from '../../assets/i18n/de/privacy.json';
 import deShell from '../../assets/i18n/de/shell.json';
 import deStandup from '../../assets/i18n/de/standup.json';
 import deTools from '../../assets/i18n/de/tools.json';
+import dePoll from '../../assets/i18n/de/poll.json';
 import elAbout from '../../assets/i18n/el/about.json';
 import elAuth from '../../assets/i18n/el/auth.json';
 import elCommon from '../../assets/i18n/el/common.json';
@@ -19,6 +20,7 @@ import elPrivacy from '../../assets/i18n/el/privacy.json';
 import elShell from '../../assets/i18n/el/shell.json';
 import elStandup from '../../assets/i18n/el/standup.json';
 import elTools from '../../assets/i18n/el/tools.json';
+import elPoll from '../../assets/i18n/el/poll.json';
 import enAbout from '../../assets/i18n/en/about.json';
 import enAuth from '../../assets/i18n/en/auth.json';
 import enCommon from '../../assets/i18n/en/common.json';
@@ -29,6 +31,7 @@ import enPrivacy from '../../assets/i18n/en/privacy.json';
 import enShell from '../../assets/i18n/en/shell.json';
 import enStandup from '../../assets/i18n/en/standup.json';
 import enTools from '../../assets/i18n/en/tools.json';
+import enPoll from '../../assets/i18n/en/poll.json';
 import esAbout from '../../assets/i18n/es/about.json';
 import esAuth from '../../assets/i18n/es/auth.json';
 import esCommon from '../../assets/i18n/es/common.json';
@@ -39,6 +42,7 @@ import esPrivacy from '../../assets/i18n/es/privacy.json';
 import esShell from '../../assets/i18n/es/shell.json';
 import esStandup from '../../assets/i18n/es/standup.json';
 import esTools from '../../assets/i18n/es/tools.json';
+import esPoll from '../../assets/i18n/es/poll.json';
 import frAbout from '../../assets/i18n/fr/about.json';
 import frAuth from '../../assets/i18n/fr/auth.json';
 import frCommon from '../../assets/i18n/fr/common.json';
@@ -49,6 +53,7 @@ import frPrivacy from '../../assets/i18n/fr/privacy.json';
 import frShell from '../../assets/i18n/fr/shell.json';
 import frStandup from '../../assets/i18n/fr/standup.json';
 import frTools from '../../assets/i18n/fr/tools.json';
+import frPoll from '../../assets/i18n/fr/poll.json';
 import itAbout from '../../assets/i18n/it/about.json';
 import itAuth from '../../assets/i18n/it/auth.json';
 import itCommon from '../../assets/i18n/it/common.json';
@@ -59,6 +64,7 @@ import itPrivacy from '../../assets/i18n/it/privacy.json';
 import itShell from '../../assets/i18n/it/shell.json';
 import itStandup from '../../assets/i18n/it/standup.json';
 import itTools from '../../assets/i18n/it/tools.json';
+import itPoll from '../../assets/i18n/it/poll.json';
 import nlAbout from '../../assets/i18n/nl/about.json';
 import nlAuth from '../../assets/i18n/nl/auth.json';
 import nlCommon from '../../assets/i18n/nl/common.json';
@@ -69,6 +75,7 @@ import nlPrivacy from '../../assets/i18n/nl/privacy.json';
 import nlShell from '../../assets/i18n/nl/shell.json';
 import nlStandup from '../../assets/i18n/nl/standup.json';
 import nlTools from '../../assets/i18n/nl/tools.json';
+import nlPoll from '../../assets/i18n/nl/poll.json';
 import plAbout from '../../assets/i18n/pl/about.json';
 import plAuth from '../../assets/i18n/pl/auth.json';
 import plCommon from '../../assets/i18n/pl/common.json';
@@ -79,6 +86,7 @@ import plPrivacy from '../../assets/i18n/pl/privacy.json';
 import plShell from '../../assets/i18n/pl/shell.json';
 import plStandup from '../../assets/i18n/pl/standup.json';
 import plTools from '../../assets/i18n/pl/tools.json';
+import plPoll from '../../assets/i18n/pl/poll.json';
 import ptAbout from '../../assets/i18n/pt/about.json';
 import ptAuth from '../../assets/i18n/pt/auth.json';
 import ptCommon from '../../assets/i18n/pt/common.json';
@@ -89,6 +97,7 @@ import ptPrivacy from '../../assets/i18n/pt/privacy.json';
 import ptShell from '../../assets/i18n/pt/shell.json';
 import ptStandup from '../../assets/i18n/pt/standup.json';
 import ptTools from '../../assets/i18n/pt/tools.json';
+import ptPoll from '../../assets/i18n/pt/poll.json';
 import type { SilvervibeLang } from './langs';
 
 function pack(
@@ -102,6 +111,7 @@ function pack(
   about: Translation,
   tools: Translation,
   portal: Translation,
+  poll: Translation,
 ): Translation {
   return {
     common,
@@ -114,6 +124,7 @@ function pack(
     about,
     tools,
     portal,
+    poll,
   };
 }
 
@@ -130,6 +141,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     enAbout,
     enTools,
     enPortal,
+    enPoll,
   ),
   nl: pack(
     nlCommon,
@@ -142,6 +154,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     nlAbout,
     nlTools,
     nlPortal,
+    nlPoll,
   ),
   de: pack(
     deCommon,
@@ -154,6 +167,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     deAbout,
     deTools,
     dePortal,
+    dePoll,
   ),
   fr: pack(
     frCommon,
@@ -166,6 +180,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     frAbout,
     frTools,
     frPortal,
+    frPoll,
   ),
   el: pack(
     elCommon,
@@ -178,6 +193,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     elAbout,
     elTools,
     elPortal,
+    elPoll,
   ),
   es: pack(
     esCommon,
@@ -190,6 +206,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     esAbout,
     esTools,
     esPortal,
+    esPoll,
   ),
   pt: pack(
     ptCommon,
@@ -202,6 +219,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     ptAbout,
     ptTools,
     ptPortal,
+    ptPoll,
   ),
   it: pack(
     itCommon,
@@ -214,6 +232,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     itAbout,
     itTools,
     itPortal,
+    itPoll,
   ),
   pl: pack(
     plCommon,
@@ -226,6 +245,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     plAbout,
     plTools,
     plPortal,
+    plPoll,
   ),
 };
 

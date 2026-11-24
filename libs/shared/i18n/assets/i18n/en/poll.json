@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "polls": "Polls",
+    "create": "Create",
+    "account": "Account"
+  },
+  "list": {
+    "title": "Team polls",
+    "lead": "Polls for {{workspace}}",
+    "create": "New poll",
+    "loading": "Loading polls…",
+    "empty": "No polls yet. Create one for your workspace.",
+    "meta": "{{status}} · {{options}} options · {{invites}} invited"
+  },
+  "create": {
+    "title": "Create a poll",
+    "lead": "Invite workspace members in-app. No email in this version.",
+    "question": "Question",
+    "options": "Options (at least two)",
+    "allowMulti": "Allow selecting more than one option",
+    "startsAt": "Starts (optional)",
+    "endsAt": "Ends (optional)",
+    "invites": "Invite members",
+    "invitesHint": "You are always included. Others must be workspace members.",
+    "submit": "Create poll",
+    "cancel": "Cancel",
+    "noWorkspace": "Select a workspace first.",
+    "needOptions": "Add at least two options."
+  },
+  "detail": {
+    "loading": "Loading poll…",
+    "back": "All polls",
+    "meta": "Status: {{status}}",
+    "voteTitle": "Your vote",
+    "submitVote": "Submit vote",
+    "changeVote": "Change vote",
+    "notOpen": "Voting is not open right now.",
+    "resultsTitle": "Results",
+    "ballots": "{{count}} ballot(s)",
+    "close": "Close poll"
+  }
+}

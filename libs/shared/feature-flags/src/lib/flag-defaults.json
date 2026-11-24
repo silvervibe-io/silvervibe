@@ -4,6 +4,12 @@
     "defaultValue": true,
     "description": "Roll out the VibeStandup product surface (not proof of workspace entitlement)."
   },
+  "tools.vibepoll.enabled": {
+    "valueType": "boolean",
+    "defaultValue": true,
+    "description": "Roll out the VibePoll product surface (not proof of workspace entitlement)."
+  },
+
   "addons.github.webhooks": {
     "valueType": "boolean",
     "defaultValue": false,

@@ -14,6 +14,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import {
   getVibestandupLimits,
   PLAN_KEYS,
+  TOOL_KEYS,
 } from '@silvervibe/shared/feature-flags';
 import { Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
@@ -132,7 +133,19 @@ export class WorkspaceAdmin implements OnInit {
       !this.previewActive() &&
       this.workspacePlan()?.planKey === PLAN_KEYS.free,
   );
-  readonly tools = computed(() => this.selected()?.tools ?? []);
+  readonly tools = computed(() => {
+    const existing = this.selected()?.tools ?? [];
+    const byKey = new Map(existing.map((tool) => [tool.toolKey, tool]));
+    for (const toolKey of [TOOL_KEYS.vibestandup, TOOL_KEYS.vibepoll]) {
+      if (!byKey.has(toolKey)) {
+        byKey.set(toolKey, { toolKey, enabled: false });
+      }
+    }
+    return [...byKey.values()].sort((a, b) =>
+      a.toolKey.localeCompare(b.toolKey),
+    );
+  });
+
   readonly message = signal<string | null>(null);
   readonly planBusy = signal(false);
   readonly planError = signal<string | null>(null);
