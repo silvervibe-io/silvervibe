@@ -47,6 +47,21 @@ describe('Home', () => {
                   featureMeetingsBody: 'The update is written once.',
                   featureToolTitle: 'VibeStandup comes first',
                   featureToolBody: 'A daily standup with a short summary.',
+                  toolsTitle: 'Tools on Silver Vibe',
+                  toolsLead: 'One workspace, shared sign-in.',
+                  toolsAvailable: 'Available',
+                  toolsComingSoon: 'Coming soon',
+                  toolsStandupTitle: 'VibeStandup',
+                  toolsStandupBody: 'Async daily standups.',
+                  toolsStandupCta: 'About VibeStandup',
+                  toolsRetroTitle: 'VibeRetro',
+                  toolsRetroBody: 'Async retrospectives.',
+                  toolsFeedbackTitle: 'VibeFeedback',
+                  toolsFeedbackBody: 'Structured feedback.',
+                  toolsMeetingTitle: 'VibeMeeting',
+                  toolsMeetingBody: 'Agenda and decisions.',
+                  toolsPollTitle: 'VibePoll',
+                  toolsPollBody: 'Short team polls.',
                   stepsTitle: 'How it works',
                   stepOneTitle: 'Sign in',
                   stepOneBody: 'Use the account you already have.',
@@ -88,6 +103,12 @@ describe('Home', () => {
     expect(compiled.textContent).toContain('Work across time zones');
     expect(compiled.textContent).toContain('Fewer status meetings');
     expect(compiled.textContent).toContain('VibeStandup comes first');
+    expect(compiled.textContent).toContain('Tools on Silver Vibe');
+    expect(compiled.textContent).toContain('Coming soon');
+    expect(compiled.textContent).toContain('VibeRetro');
+    expect(compiled.textContent).toContain('VibeFeedback');
+    expect(compiled.textContent).toContain('VibeMeeting');
+    expect(compiled.textContent).toContain('VibePoll');
     expect(compiled.textContent).toContain('How it works');
     expect(compiled.querySelector('header a.btn-primary')).toBeTruthy();
     expect(compiled.textContent).toContain('personal open-source');
