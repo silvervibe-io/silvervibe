@@ -96,6 +96,15 @@
           >
             {{ 'portal.openTool' | transloco }}
           </button>
+          } @else if (tool.toolKey === 'vibemeeting') {
+          <button
+            type="button"
+            class="btn btn-primary btn-sm"
+            [disabled]="openingTool()"
+            (click)="openVibeMeeting()"
+          >
+            {{ 'portal.openTool' | transloco }}
+          </button>
           }
         </li>
         }

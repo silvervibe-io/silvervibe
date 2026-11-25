@@ -1,0 +1,48 @@
+<sv-shell [title]="'VibeMeeting'" [links]="links()">
+  <div class="space-y-6">
+    <header class="flex flex-wrap items-end justify-between gap-3">
+      <div class="space-y-1">
+        <h1 class="text-3xl font-bold tracking-tight">
+          {{ 'meeting.list.title' | transloco }}
+        </h1>
+        <p class="text-base-content/70">
+          {{ 'meeting.list.lead' | transloco : { workspace: workspaceName() } }}
+        </p>
+      </div>
+      <a routerLink="/app/create" class="btn btn-primary btn-sm">
+        {{ 'meeting.list.create' | transloco }}
+      </a>
+    </header>
+
+    @if (loading()) {
+    <p class="text-sm text-base-content/60">
+      {{ 'meeting.list.loading' | transloco }}
+    </p>
+    } @else if (error()) {
+    <p class="text-error">{{ error() }}</p>
+    } @else if (items().length === 0) {
+    <p class="text-base-content/70">{{ 'meeting.list.empty' | transloco }}</p>
+    } @else {
+    <ul class="divide-y divide-base-300">
+      @for (meeting of items(); track meeting.id) {
+      <li class="flex flex-wrap items-center justify-between gap-3 py-4">
+        <div class="space-y-1">
+          <a
+            [routerLink]="['/app/meetings', meeting.id]"
+            class="link link-hover text-lg font-semibold"
+          >
+            {{ meeting.title }}
+          </a>
+          <p class="text-sm text-base-content/60">
+            {{ 'meeting.list.meta' | transloco : { status: meeting.status,
+            agenda: meeting.agendaCount, decisions: meeting.decisionCount,
+            actions: meeting.actionCount, invites: meeting.inviteCount, } }}
+          </p>
+        </div>
+        <span class="badge badge-outline">{{ meeting.status }}</span>
+      </li>
+      }
+    </ul>
+    }
+  </div>
+</sv-shell>

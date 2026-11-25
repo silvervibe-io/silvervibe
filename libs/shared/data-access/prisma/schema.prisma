@@ -106,6 +106,24 @@ enum FeedbackClosePolicy {
   ANY_INVITEE
 }
 
+enum MeetingStatus {
+  DRAFT
+  OPEN
+  CLOSED
+}
+
+enum MeetingEditPolicy {
+  CREATOR_OR_ADMIN
+  CREATOR_ONLY
+  ANY_INVITEE
+}
+
+enum MeetingClosePolicy {
+  CREATOR_OR_ADMIN
+  CREATOR_ONLY
+  ANY_INVITEE
+}
+
 model User {
   id          String   @id @default(cuid())
   firebaseUid String   @unique @map("firebase_uid")
@@ -130,6 +148,8 @@ model User {
   feedbackCreated    FeedbackRequest[]  @relation("FeedbackCreated")
   feedbackInvites    FeedbackInvite[]
   feedbackAnswers    FeedbackAnswer[]
+  meetingsCreated    Meeting[]          @relation("MeetingCreated")
+  meetingInvites     MeetingInvite[]
 
   @@map("users")
 }
@@ -150,6 +170,7 @@ model Workspace {
   polls            Poll[]
   retros           Retro[]
   feedbackRequests FeedbackRequest[]
+  meetings         Meeting[]
 
   @@map("workspaces")
 }
@@ -512,4 +533,87 @@ model FeedbackAnswer {
   @@unique([promptId, authorId])
   @@index([requestId, authorId])
   @@map("feedback_answers")
+}
+
+model Meeting {
+  id          String             @id @default(cuid())
+  workspaceId String             @map("workspace_id")
+  createdById String             @map("created_by_id")
+  title       String
+  context     String?
+  status      MeetingStatus      @default(OPEN)
+  editPolicy  MeetingEditPolicy  @default(CREATOR_OR_ADMIN) @map("edit_policy")
+  closePolicy MeetingClosePolicy @default(CREATOR_OR_ADMIN) @map("close_policy")
+  scheduledAt DateTime?          @map("scheduled_at")
+  recap       String?
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+
+  workspace   Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy   User                @relation("MeetingCreated", fields: [createdById], references: [id], onDelete: Cascade)
+  agendaItems MeetingAgendaItem[]
+  invites     MeetingInvite[]
+  decisions   MeetingDecision[]
+  actions     MeetingAction[]
+
+  @@index([workspaceId, status])
+  @@map("meetings")
+}
+
+model MeetingAgendaItem {
+  id        String   @id @default(cuid())
+  meetingId String   @map("meeting_id")
+  body      String
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId])
+  @@map("meeting_agenda_items")
+}
+
+model MeetingInvite {
+  id        String   @id @default(cuid())
+  meetingId String   @map("meeting_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([meetingId, userId])
+  @@map("meeting_invites")
+}
+
+model MeetingDecision {
+  id          String   @id @default(cuid())
+  meetingId   String   @map("meeting_id")
+  body        String
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdById String   @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId])
+  @@map("meeting_decisions")
+}
+
+model MeetingAction {
+  id          String   @id @default(cuid())
+  meetingId   String   @map("meeting_id")
+  body        String
+  assigneeId  String?  @map("assignee_id")
+  done        Boolean  @default(false)
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdById String   @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId])
+  @@map("meeting_actions")
 }

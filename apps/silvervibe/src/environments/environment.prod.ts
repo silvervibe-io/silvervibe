@@ -18,4 +18,5 @@ export const environment = {
   pollAppOrigin: publicUrls.pollAppOrigin,
   retroAppOrigin: publicUrls.retroAppOrigin,
   feedbackAppOrigin: publicUrls.feedbackAppOrigin,
+  meetingAppOrigin: publicUrls.meetingAppOrigin,
 };

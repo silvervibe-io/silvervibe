@@ -1,0 +1,222 @@
+<sv-shell [title]="'VibeMeeting'" [links]="links()">
+  <div class="space-y-6">
+    @if (loading() && !meeting()) {
+    <p class="text-sm text-base-content/60">
+      {{ 'meeting.detail.loading' | transloco }}
+    </p>
+    } @else if (error() && !meeting()) {
+    <p class="text-error">{{ error() }}</p>
+    } @else if (meeting(); as item) {
+    <header class="space-y-2">
+      <p class="text-sm text-base-content/60">
+        <a routerLink="/app" class="link link-hover"
+          >{{ 'meeting.detail.back' | transloco }}</a
+        >
+      </p>
+      <h1 class="text-3xl font-bold tracking-tight">{{ item.title }}</h1>
+      @if (item.context) {
+      <p class="whitespace-pre-wrap text-base-content/80">{{ item.context }}</p>
+      }
+      <p class="text-sm text-base-content/60">
+        {{ 'meeting.detail.meta' | transloco : { status: item.status, edit:
+        item.editPolicy, close: item.closePolicy, } }}
+      </p>
+      @if (item.scheduledAt) {
+      <p class="text-sm text-base-content/60">
+        {{ 'meeting.detail.scheduledAt' | transloco : { date: (item.scheduledAt
+        | date : 'medium') } }}
+      </p>
+      }
+    </header>
+
+    <section class="space-y-2">
+      <h2 class="text-lg font-semibold">
+        {{ 'meeting.detail.agendaTitle' | transloco }}
+      </h2>
+      <ol class="list-decimal space-y-1 pl-6">
+        @for (agenda of item.agendaItems; track agenda.id) {
+        <li>{{ agenda.body }}</li>
+        } @empty {
+        <li class="list-none text-sm text-base-content/50">
+          {{ 'meeting.detail.emptyAgenda' | transloco }}
+        </li>
+        }
+      </ol>
+    </section>
+
+    @if (item.canEditNotes && item.status === 'OPEN') {
+    <section class="max-w-2xl space-y-3">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="text-lg font-semibold">
+          {{ 'meeting.detail.decisionsTitle' | transloco }}
+        </h2>
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs"
+          (click)="addDecision()"
+        >
+          {{ 'meeting.detail.addDecision' | transloco }}
+        </button>
+      </div>
+      @for (decision of decisionDrafts(); track $index; let i = $index) {
+      <div class="flex gap-2">
+        <input
+          class="input input-bordered w-full"
+          [value]="decision"
+          (input)="updateDecision(i, $any($event.target).value)"
+          [attr.placeholder]="'meeting.detail.decisionPlaceholder' | transloco"
+        />
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          (click)="removeDecision(i)"
+        >
+          {{ 'meeting.detail.remove' | transloco }}
+        </button>
+      </div>
+      }
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        [disabled]="loading()"
+        (click)="saveDecisions()"
+      >
+        {{ 'meeting.detail.saveDecisions' | transloco }}
+      </button>
+    </section>
+
+    <section class="max-w-2xl space-y-3">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="text-lg font-semibold">
+          {{ 'meeting.detail.actionsTitle' | transloco }}
+        </h2>
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs"
+          (click)="addAction()"
+        >
+          {{ 'meeting.detail.addAction' | transloco }}
+        </button>
+      </div>
+      @for (action of actionDrafts(); track $index; let i = $index) {
+      <div class="flex flex-wrap items-center gap-2">
+        <input
+          type="checkbox"
+          class="checkbox checkbox-sm"
+          [checked]="action.done"
+          (change)="updateAction(i, { done: $any($event.target).checked })"
+          [attr.aria-label]="'meeting.detail.done' | transloco"
+        />
+        <input
+          class="input input-bordered min-w-48 flex-1"
+          [value]="action.body"
+          (input)="updateAction(i, { body: $any($event.target).value })"
+          [attr.placeholder]="'meeting.detail.actionPlaceholder' | transloco"
+        />
+        <select
+          class="select select-bordered"
+          [value]="action.assigneeId"
+          (change)="updateAction(i, { assigneeId: $any($event.target).value })"
+        >
+          <option value="">
+            {{ 'meeting.detail.unassigned' | transloco }}
+          </option>
+          @for (invite of item.invites; track invite.userId) {
+          <option
+            [value]="invite.userId"
+            [selected]="invite.userId === action.assigneeId"
+          >
+            {{ invite.displayName || invite.email || invite.userId }}
+          </option>
+          }
+        </select>
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          (click)="removeAction(i)"
+        >
+          {{ 'meeting.detail.remove' | transloco }}
+        </button>
+      </div>
+      }
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        [disabled]="loading()"
+        (click)="saveActions()"
+      >
+        {{ 'meeting.detail.saveActions' | transloco }}
+      </button>
+    </section>
+    } @else {
+    <section class="space-y-2">
+      <h2 class="text-lg font-semibold">
+        {{ 'meeting.detail.decisionsTitle' | transloco }}
+      </h2>
+      <ul class="list-disc space-y-1 pl-6">
+        @for (decision of item.decisions; track decision.id) {
+        <li class="whitespace-pre-wrap">{{ decision.body }}</li>
+        } @empty {
+        <li class="list-none text-sm text-base-content/50">
+          {{ 'meeting.detail.emptyDecisions' | transloco }}
+        </li>
+        }
+      </ul>
+    </section>
+
+    <section class="space-y-2">
+      <h2 class="text-lg font-semibold">
+        {{ 'meeting.detail.actionsTitle' | transloco }}
+      </h2>
+      <ul class="space-y-1">
+        @for (action of item.actions; track action.id) {
+        <li class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            class="checkbox checkbox-sm"
+            [checked]="action.done"
+            disabled
+          />
+          <span [class.line-through]="action.done">{{ action.body }}</span>
+        </li>
+        } @empty {
+        <li class="text-sm text-base-content/50">
+          {{ 'meeting.detail.emptyActions' | transloco }}
+        </li>
+        }
+      </ul>
+    </section>
+    } @if (item.status === 'CLOSED') {
+    <section class="space-y-2">
+      <h2 class="text-lg font-semibold">
+        {{ 'meeting.detail.recapTitle' | transloco }}
+      </h2>
+      <p class="whitespace-pre-wrap">
+        {{ item.recap || ('meeting.detail.recapEmpty' | transloco) }}
+      </p>
+    </section>
+    } @else if (item.canClose) {
+    <section class="flex max-w-2xl flex-col gap-3">
+      <h2 class="text-lg font-semibold">
+        {{ 'meeting.detail.closeTitle' | transloco }}
+      </h2>
+      <textarea
+        class="textarea textarea-bordered min-h-24 w-full"
+        [value]="recapDraft()"
+        (input)="recapDraft.set($any($event.target).value)"
+        [attr.placeholder]="'meeting.detail.recapPlaceholder' | transloco"
+      ></textarea>
+      <button
+        type="button"
+        class="btn btn-outline btn-sm self-start"
+        [disabled]="loading()"
+        (click)="closeMeeting()"
+      >
+        {{ 'meeting.detail.close' | transloco }}
+      </button>
+    </section>
+    } @if (error()) {
+    <p class="text-error text-sm">{{ error() }}</p>
+    } }
+  </div>
+</sv-shell>

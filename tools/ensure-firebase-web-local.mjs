@@ -25,6 +25,7 @@ for (const app of [
   'vibepoll',
   'viberetro',
   'vibefeedback',
+  'vibemeeting',
 ]) {
   const dir = join(root, 'apps', app, 'src', 'environments');
   for (const [localName, exampleName] of [

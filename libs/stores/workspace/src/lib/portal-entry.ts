@@ -14,6 +14,7 @@ const PRODUCT_TOOL_KEYS = new Set<string>([
   TOOL_KEYS.vibepoll,
   TOOL_KEYS.viberetro,
   TOOL_KEYS.vibefeedback,
+  TOOL_KEYS.vibemeeting,
 ]);
 
 /**
@@ -72,6 +73,16 @@ export function viberetroReturnUrl(workspaceId?: string): string {
 
 /** Feedback app URL that opens the list with the chosen workspace. */
 export function vibefeedbackReturnUrl(workspaceId?: string): string {
+  const params = new URLSearchParams({ enter: '1' });
+  const id = workspaceId?.trim();
+  if (id) {
+    params.set('workspaceId', id);
+  }
+  return `/app?${params.toString()}`;
+}
+
+/** Meeting app URL that opens the list with the chosen workspace. */
+export function vibemeetingReturnUrl(workspaceId?: string): string {
   const params = new URLSearchParams({ enter: '1' });
   const id = workspaceId?.trim();
   if (id) {

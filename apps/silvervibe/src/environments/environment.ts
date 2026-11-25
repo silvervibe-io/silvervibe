@@ -17,4 +17,6 @@ export const environment = {
   retroAppOrigin: publicUrls.retroAppOrigin,
   /** VibeFeedback origin for portal handoff / tool links. */
   feedbackAppOrigin: publicUrls.feedbackAppOrigin,
+  /** VibeMeeting origin for portal handoff / tool links. */
+  meetingAppOrigin: publicUrls.meetingAppOrigin,
 };
