@@ -33,6 +33,10 @@ export default [
               onlyDependOnLibsWithTags: ['scope:shared', 'scope:vibepoll'],
             },
             {
+              sourceTag: 'scope:viberetro',
+              onlyDependOnLibsWithTags: ['scope:shared', 'scope:viberetro'],
+            },
+            {
               sourceTag: 'scope:api',
               onlyDependOnLibsWithTags: ['scope:api', 'scope:shared'],
             },

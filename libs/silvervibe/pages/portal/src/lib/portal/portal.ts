@@ -12,6 +12,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import {
   AuthService,
   POLL_APP_ORIGIN,
+  RETRO_APP_ORIGIN,
   STANDUP_APP_ORIGIN,
 } from '@silvervibe/shared/auth';
 import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
@@ -21,6 +22,7 @@ import { UserFacade } from '@silvervibe/stores/user';
 import {
   resolvePortalEntry,
   vibepollReturnUrl,
+  viberetroReturnUrl,
   vibestandupReturnUrl,
   WorkspaceFacade,
 } from '@silvervibe/stores/workspace';
@@ -50,6 +52,8 @@ export class Portal implements OnInit {
     inject(STANDUP_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4201';
   private readonly pollOrigin =
     inject(POLL_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4202';
+  private readonly retroOrigin =
+    inject(RETRO_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4203';
 
   readonly loading = this.workspaces.loading;
   readonly error = this.workspaces.error;
@@ -156,6 +160,22 @@ export class Portal implements OnInit {
       this.assignLocation(url.toString());
     } catch {
       this.assignLocation(`${this.pollOrigin}/auth`);
+    } finally {
+      this.openingTool.set(false);
+    }
+  }
+
+  async openVibeRetro(workspaceId?: string): Promise<void> {
+    const id = workspaceId ?? this.selected()?.id;
+    this.openingTool.set(true);
+    try {
+      const { customToken } = await this.users.createCustomToken();
+      const url = new URL('/auth/handoff', this.retroOrigin);
+      url.searchParams.set('token', customToken);
+      url.searchParams.set('returnUrl', viberetroReturnUrl(id));
+      this.assignLocation(url.toString());
+    } catch {
+      this.assignLocation(`${this.retroOrigin}/auth`);
     } finally {
       this.openingTool.set(false);
     }

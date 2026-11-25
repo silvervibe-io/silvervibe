@@ -16,4 +16,5 @@ export const environment = {
   apiBaseUrl: publicUrls.apiBaseUrl,
   standupAppOrigin: publicUrls.standupAppOrigin,
   pollAppOrigin: publicUrls.pollAppOrigin,
+  retroAppOrigin: publicUrls.retroAppOrigin,
 };

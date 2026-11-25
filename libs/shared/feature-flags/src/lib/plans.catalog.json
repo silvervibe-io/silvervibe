@@ -13,6 +13,9 @@
         },
         "vibepoll": {
           "enabledByDefault": false
+        },
+        "viberetro": {
+          "enabledByDefault": false
         }
       }
     },
@@ -27,6 +30,9 @@
           "maxMembersPerTeam": 50
         },
         "vibepoll": {
+          "enabledByDefault": false
+        },
+        "viberetro": {
           "enabledByDefault": false
         }
       }

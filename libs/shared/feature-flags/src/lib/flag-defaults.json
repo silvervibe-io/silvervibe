@@ -9,6 +9,11 @@
     "defaultValue": true,
     "description": "Roll out the VibePoll product surface (not proof of workspace entitlement)."
   },
+  "tools.viberetro.enabled": {
+    "valueType": "boolean",
+    "defaultValue": true,
+    "description": "Roll out the VibeRetro product surface (not proof of workspace entitlement)."
+  },
 
   "addons.github.webhooks": {
     "valueType": "boolean",

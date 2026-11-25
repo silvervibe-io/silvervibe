@@ -62,7 +62,11 @@
       "@silvervibe/vibepoll/pages/polls": [
         "./libs/vibepoll/pages/polls/src/index.ts"
       ],
-      "@silvervibe/stores/poll": ["./libs/stores/poll/src/index.ts"]
+      "@silvervibe/stores/poll": ["./libs/stores/poll/src/index.ts"],
+      "@silvervibe/viberetro/pages/retros": [
+        "./libs/viberetro/pages/retros/src/index.ts"
+      ],
+      "@silvervibe/stores/retro": ["./libs/stores/retro/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
