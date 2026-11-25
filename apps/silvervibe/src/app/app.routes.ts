@@ -27,7 +27,7 @@ export const appRoutes: Route[] = [
     data: {
       productTitle: 'Silver Vibe',
       blurbKey: 'auth.signIn.blurb.platform',
-      accountPath: '/portal?enter=1',
+      accountPath: '/portal',
     },
   },
   {

@@ -7,6 +7,8 @@ import {
 } from './portal-entry';
 
 const standup = { toolKey: 'vibestandup', enabled: true };
+const poll = { toolKey: 'vibepoll', enabled: true };
+const retro = { toolKey: 'viberetro', enabled: true };
 const slack = { toolKey: 'addons.slack', enabled: true };
 
 describe('resolvePortalEntry', () => {
@@ -34,10 +36,16 @@ describe('resolvePortalEntry', () => {
     ).toEqual({ kind: 'stay' });
   });
 
-  it('opens vibestandup for the only entitled workspace', () => {
+  it('opens vibestandup when it is the only enabled product', () => {
     expect(
       resolvePortalEntry([{ id: 'ws1', tools: [slack, standup] }]),
     ).toEqual({ kind: 'vibestandup', workspaceId: 'ws1' });
+  });
+
+  it('stays when multiple product tools are enabled', () => {
+    expect(
+      resolvePortalEntry([{ id: 'ws1', tools: [standup, poll, retro] }]),
+    ).toEqual({ kind: 'stay' });
   });
 });
 

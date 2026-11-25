@@ -189,7 +189,7 @@ describe('Portal enter', () => {
     vi.restoreAllMocks();
   });
 
-  it('hands off the only vibestandup workspace when enter=1', async () => {
+  it('hands off when enter=1 and standup is the only product', async () => {
     await TestBed.configureTestingModule({
       providers: providers(),
     }).compileComponents();
@@ -214,6 +214,31 @@ describe('Portal enter', () => {
     expect(assignLocation).toHaveBeenCalledWith(
       expect.stringContaining('enter%3D1'),
     );
+    http.verify();
+  });
+
+  it('stays on the portal when enter=1 but multiple products are enabled', async () => {
+    await TestBed.configureTestingModule({
+      providers: providers(),
+    }).compileComponents();
+    const pending = RouterTestingHarness.create('/portal?enter=1');
+    const http = TestBed.inject(HttpTestingController);
+    const harness = await pending;
+    http.expectOne('/api/me/workspaces').flush([
+      {
+        id: 'ws1',
+        name: 'Acme',
+        slug: 'acme',
+        role: 'OWNER',
+        tools: [
+          { toolKey: 'vibestandup', enabled: true },
+          { toolKey: 'viberetro', enabled: true },
+        ],
+      },
+    ]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await harness.fixture.whenStable();
+    expect(assignLocation).not.toHaveBeenCalled();
     http.verify();
   });
 });
