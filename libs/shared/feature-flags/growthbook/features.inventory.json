@@ -16,6 +16,12 @@
       "defaultValue": true
     },
     {
+      "key": "tools.viberetro.enabled",
+      "valueType": "boolean",
+      "description": "Roll out the VibeRetro product surface (not proof of workspace entitlement).",
+      "defaultValue": true
+    },
+    {
       "key": "addons.github.webhooks",
       "valueType": "boolean",
       "description": "Roll out GitHub webhook handling for add-ons.",
@@ -46,6 +52,9 @@
               },
               "vibepoll": {
                 "enabledByDefault": false
+              },
+              "viberetro": {
+                "enabledByDefault": false
               }
             }
           },
@@ -60,6 +69,9 @@
                 "maxMembersPerTeam": 50
               },
               "vibepoll": {
+                "enabledByDefault": false
+              },
+              "viberetro": {
                 "enabledByDefault": false
               }
             }

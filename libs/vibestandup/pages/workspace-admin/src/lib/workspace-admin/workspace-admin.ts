@@ -136,7 +136,11 @@ export class WorkspaceAdmin implements OnInit {
   readonly tools = computed(() => {
     const existing = this.selected()?.tools ?? [];
     const byKey = new Map(existing.map((tool) => [tool.toolKey, tool]));
-    for (const toolKey of [TOOL_KEYS.vibestandup, TOOL_KEYS.vibepoll]) {
+    for (const toolKey of [
+      TOOL_KEYS.vibestandup,
+      TOOL_KEYS.vibepoll,
+      TOOL_KEYS.viberetro,
+    ]) {
       if (!byKey.has(toolKey)) {
         byKey.set(toolKey, { toolKey, enabled: false });
       }

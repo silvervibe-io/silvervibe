@@ -5,6 +5,9 @@
   "tools.vibepoll.enabled": {
     "defaultValue": true
   },
+  "tools.viberetro.enabled": {
+    "defaultValue": true
+  },
   "addons.github.webhooks": {
     "defaultValue": false
   },
@@ -27,6 +30,9 @@
             },
             "vibepoll": {
               "enabledByDefault": false
+            },
+            "viberetro": {
+              "enabledByDefault": false
             }
           }
         },
@@ -41,6 +47,9 @@
               "maxMembersPerTeam": 50
             },
             "vibepoll": {
+              "enabledByDefault": false
+            },
+            "viberetro": {
               "enabledByDefault": false
             }
           }

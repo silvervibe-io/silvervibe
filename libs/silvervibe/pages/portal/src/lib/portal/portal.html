@@ -78,6 +78,15 @@
           >
             {{ 'portal.openTool' | transloco }}
           </button>
+          } @else if (tool.toolKey === 'viberetro') {
+          <button
+            type="button"
+            class="btn btn-primary btn-sm"
+            [disabled]="openingTool()"
+            (click)="openVibeRetro()"
+          >
+            {{ 'portal.openTool' | transloco }}
+          </button>
           }
         </li>
         }

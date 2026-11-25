@@ -2,6 +2,7 @@ export {
   resolvePortalEntry,
   vibestandupReturnUrl,
   vibepollReturnUrl,
+  viberetroReturnUrl,
 } from './lib/portal-entry';
 export type { PortalEntry } from './lib/portal-entry';
 export { WorkspaceFacade } from './lib/workspace.facade';

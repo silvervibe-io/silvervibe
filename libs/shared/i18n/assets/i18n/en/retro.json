@@ -1,0 +1,58 @@
+{
+  "nav": {
+    "retros": "Retros",
+    "create": "Create",
+    "account": "Account"
+  },
+  "list": {
+    "title": "Team retros",
+    "lead": "Retros for {{workspace}}",
+    "create": "New retro",
+    "loading": "Loading retros…",
+    "empty": "No retros yet. Create one for your workspace.",
+    "meta": "{{status}} · {{notes}} notes · {{invites}} invited"
+  },
+  "create": {
+    "title": "Create a retro",
+    "lead": "Invite workspace members in-app. No email in this version.",
+    "name": "Title",
+    "visibility": "Note visibility",
+    "closePolicy": "Who can close",
+    "endsAt": "Ends (optional)",
+    "invites": "Invite members",
+    "invitesHint": "You are always included. Others must be workspace members.",
+    "submit": "Create retro",
+    "cancel": "Cancel",
+    "noWorkspace": "Select a workspace first."
+  },
+  "visibility": {
+    "LIVE": "Live — everyone sees notes as they are added",
+    "PRIVATE_UNTIL_CLOSE": "Private until close — only your own notes until closed",
+    "AFTER_CONTRIBUTE": "After contribute — see others after you add a note"
+  },
+  "closePolicy": {
+    "CREATOR_OR_ADMIN": "Creator or workspace admin",
+    "CREATOR_ONLY": "Creator only",
+    "ANY_INVITEE": "Any invitee"
+  },
+  "column": {
+    "WENT_WELL": "Went well",
+    "IMPROVE": "Improve",
+    "ACTIONS": "Actions"
+  },
+  "board": {
+    "loading": "Loading retro…",
+    "back": "All retros",
+    "meta": "{{status}} · {{visibility}} · {{close}}",
+    "addNote": "Add a note",
+    "notePlaceholder": "Write your note…",
+    "submitNote": "Add note",
+    "deleteNote": "Delete",
+    "emptyColumn": "No notes yet",
+    "summaryTitle": "Summary",
+    "summaryEmpty": "No summary provided.",
+    "closeTitle": "Close retro",
+    "summaryPlaceholder": "Optional short summary…",
+    "close": "Close retro"
+  }
+}

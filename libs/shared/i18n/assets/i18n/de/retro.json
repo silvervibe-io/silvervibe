@@ -1,0 +1,58 @@
+{
+  "nav": {
+    "retros": "Retros",
+    "create": "Erstellen",
+    "account": "Konto"
+  },
+  "list": {
+    "title": "Team-Retros",
+    "lead": "Retros für {{workspace}}",
+    "create": "Neues Retro",
+    "loading": "Retros werden geladen…",
+    "empty": "Noch keine Retros. Erstelle eines für deinen Workspace.",
+    "meta": "{{status}} · {{notes}} Notizen · {{invites}} eingeladen"
+  },
+  "create": {
+    "title": "Retro erstellen",
+    "lead": "Lade Workspace-Mitglieder in der App ein. Keine E-Mail in dieser Version.",
+    "name": "Titel",
+    "visibility": "Notizsichtbarkeit",
+    "closePolicy": "Wer schließen darf",
+    "endsAt": "Ende (optional)",
+    "invites": "Mitglieder einladen",
+    "invitesHint": "Du bist immer eingeschlossen. Andere müssen Workspace-Mitglieder sein.",
+    "submit": "Retro erstellen",
+    "cancel": "Abbrechen",
+    "noWorkspace": "Wähle zuerst einen Workspace."
+  },
+  "visibility": {
+    "LIVE": "Live — alle sehen Notizen beim Hinzufügen",
+    "PRIVATE_UNTIL_CLOSE": "Privat bis Schließen — nur eigene Notizen bis zum Schließen",
+    "AFTER_CONTRIBUTE": "Nach Beitrag — andere sehen, nachdem du eine Notiz hinzufügst"
+  },
+  "closePolicy": {
+    "CREATOR_OR_ADMIN": "Ersteller oder Workspace-Admin",
+    "CREATOR_ONLY": "Nur Ersteller",
+    "ANY_INVITEE": "Jeder Eingeladene"
+  },
+  "column": {
+    "WENT_WELL": "Ging gut",
+    "IMPROVE": "Verbessern",
+    "ACTIONS": "Aktionen"
+  },
+  "board": {
+    "loading": "Retro wird geladen…",
+    "back": "Alle Retros",
+    "meta": "{{status}} · {{visibility}} · {{close}}",
+    "addNote": "Notiz hinzufügen",
+    "notePlaceholder": "Schreibe deine Notiz…",
+    "submitNote": "Notiz hinzufügen",
+    "deleteNote": "Löschen",
+    "emptyColumn": "Noch keine Notizen",
+    "summaryTitle": "Zusammenfassung",
+    "summaryEmpty": "Keine Zusammenfassung vorhanden.",
+    "closeTitle": "Retro schließen",
+    "summaryPlaceholder": "Optionale kurze Zusammenfassung…",
+    "close": "Retro schließen"
+  }
+}

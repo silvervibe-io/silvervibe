@@ -65,6 +65,30 @@ enum PollStatus {
   CLOSED
 }
 
+enum RetroStatus {
+  DRAFT
+  OPEN
+  CLOSED
+}
+
+enum RetroNoteVisibility {
+  LIVE
+  PRIVATE_UNTIL_CLOSE
+  AFTER_CONTRIBUTE
+}
+
+enum RetroClosePolicy {
+  CREATOR_OR_ADMIN
+  CREATOR_ONLY
+  ANY_INVITEE
+}
+
+enum RetroNoteColumn {
+  WENT_WELL
+  IMPROVE
+  ACTIONS
+}
+
 model User {
   id          String   @id @default(cuid())
   firebaseUid String   @unique @map("firebase_uid")
@@ -83,6 +107,9 @@ model User {
   pollsCreated    Poll[]            @relation("PollsCreated")
   pollInvites     PollInvite[]
   pollVotes       PollVote[]
+  retrosCreated   Retro[]           @relation("RetrosCreated")
+  retroInvites    RetroInvite[]
+  retroNotes      RetroNote[]
 
   @@map("users")
 }
@@ -101,6 +128,7 @@ model Workspace {
   addonConnections AddonConnection[]
   teams            Team[]
   polls            Poll[]
+  retros           Retro[]
 
   @@map("workspaces")
 }
@@ -340,4 +368,57 @@ model PollVote {
   @@unique([pollId, userId, optionId])
   @@index([pollId, userId])
   @@map("poll_votes")
+}
+
+model Retro {
+  id             String              @id @default(cuid())
+  workspaceId    String              @map("workspace_id")
+  createdById    String              @map("created_by_id")
+  title          String
+  status         RetroStatus         @default(OPEN)
+  noteVisibility RetroNoteVisibility @default(LIVE) @map("note_visibility")
+  closePolicy    RetroClosePolicy    @default(CREATOR_OR_ADMIN) @map("close_policy")
+  startsAt       DateTime?           @map("starts_at")
+  endsAt         DateTime?           @map("ends_at")
+  summary        String?
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedAt      DateTime            @updatedAt @map("updated_at")
+
+  workspace Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy User         @relation("RetrosCreated", fields: [createdById], references: [id], onDelete: Cascade)
+  invites   RetroInvite[]
+  notes     RetroNote[]
+
+  @@index([workspaceId, status])
+  @@map("retros")
+}
+
+model RetroInvite {
+  id        String   @id @default(cuid())
+  retroId   String   @map("retro_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  retro Retro @relation(fields: [retroId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([retroId, userId])
+  @@map("retro_invites")
+}
+
+model RetroNote {
+  id        String          @id @default(cuid())
+  retroId   String          @map("retro_id")
+  authorId  String          @map("author_id")
+  column    RetroNoteColumn
+  body      String
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
+
+  retro  Retro @relation(fields: [retroId], references: [id], onDelete: Cascade)
+  author User  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([retroId, column])
+  @@index([retroId, authorId])
+  @@map("retro_notes")
 }

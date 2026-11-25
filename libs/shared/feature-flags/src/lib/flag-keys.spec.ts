@@ -13,6 +13,8 @@ describe('flag and tool keys', () => {
 
   it('exposes workspace tool keys', () => {
     expect(TOOL_KEYS.vibestandup).toBe('vibestandup');
+    expect(TOOL_KEYS.vibepoll).toBe('vibepoll');
+    expect(TOOL_KEYS.viberetro).toBe('viberetro');
     expect(TOOL_KEYS.addonsGithub).toBe('addons.github');
     expect(TOOL_KEYS.addonsGitlab).toBe('addons.gitlab');
     expect(TOOL_KEYS.addonsBitbucket).toBe('addons.bitbucket');

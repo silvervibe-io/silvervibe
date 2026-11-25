@@ -1,6 +1,7 @@
 export const TOOL_KEYS = {
   vibestandup: 'vibestandup',
   vibepoll: 'vibepoll',
+  viberetro: 'viberetro',
   addonsSlack: 'addons.slack',
   addonsTeams: 'addons.teams',
   addonsJira: 'addons.jira',
@@ -27,6 +28,7 @@ export function isKnownToolKey(key: string): key is ToolKey {
 export const FLAG_KEYS = {
   toolsVibestandupEnabled: 'tools.vibestandup.enabled',
   toolsVibepollEnabled: 'tools.vibepoll.enabled',
+  toolsViberetroEnabled: 'tools.viberetro.enabled',
   addonsGithubWebhooks: 'addons.github.webhooks',
   vibestandupMultiTeamEnabled: 'vibestandup.multiTeam.enabled',
   plansCatalog: 'plans.catalog',

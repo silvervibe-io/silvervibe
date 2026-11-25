@@ -1,0 +1,113 @@
+<sv-shell [title]="'VibeRetro'" [links]="links()">
+  <form
+    class="mx-auto flex max-w-xl flex-col gap-4"
+    (submit)="onSubmit($event)"
+  >
+    <header class="space-y-1">
+      <h1 class="text-3xl font-bold tracking-tight">
+        {{ 'retro.create.title' | transloco }}
+      </h1>
+      <p class="text-base-content/70">{{ 'retro.create.lead' | transloco }}</p>
+    </header>
+
+    <fieldset class="fieldset w-full">
+      <legend class="fieldset-legend">
+        {{ 'retro.create.name' | transloco }}
+      </legend>
+      <input
+        class="input input-bordered w-full"
+        [formField]="retroForm.title"
+      />
+    </fieldset>
+
+    <fieldset class="fieldset w-full">
+      <legend class="fieldset-legend">
+        {{ 'retro.create.visibility' | transloco }}
+      </legend>
+      <select
+        class="select select-bordered w-full"
+        [formField]="retroForm.noteVisibility"
+      >
+        @for (option of visibilityOptions; track option) {
+        <option [value]="option">
+          {{ ('retro.visibility.' + option) | transloco }}
+        </option>
+        }
+      </select>
+    </fieldset>
+
+    <fieldset class="fieldset w-full">
+      <legend class="fieldset-legend">
+        {{ 'retro.create.closePolicy' | transloco }}
+      </legend>
+      <select
+        class="select select-bordered w-full"
+        [formField]="retroForm.closePolicy"
+      >
+        @for (option of closeOptions; track option) {
+        <option [value]="option">
+          {{ ('retro.closePolicy.' + option) | transloco }}
+        </option>
+        }
+      </select>
+    </fieldset>
+
+    <fieldset class="fieldset w-full">
+      <legend class="fieldset-legend">
+        {{ 'retro.create.endsAt' | transloco }}
+      </legend>
+      <input
+        type="datetime-local"
+        class="input input-bordered w-full"
+        [formField]="retroForm.endsAt"
+      />
+    </fieldset>
+
+    <section class="space-y-2">
+      <h2 class="text-lg font-semibold">
+        {{ 'retro.create.invites' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/60">
+        {{ 'retro.create.invitesHint' | transloco }}
+      </p>
+      <ul class="space-y-2">
+        @for (member of members(); track member.userId) {
+        <li>
+          <label class="label cursor-pointer justify-start gap-3">
+            <input
+              type="checkbox"
+              class="checkbox checkbox-sm"
+              [checked]="isInvited(member.userId)"
+              (change)="
+                toggleInvite(member.userId, $any($event.target).checked)
+              "
+            />
+            <span>
+              {{ member.displayName || member.email || member.userId }}
+            </span>
+          </label>
+        </li>
+        }
+      </ul>
+    </section>
+
+    @if (formError()) {
+    <p class="text-error text-sm">{{ formError()! | transloco }}</p>
+    } @if (error()) {
+    <p class="text-error text-sm">{{ error() }}</p>
+    }
+
+    <div class="flex flex-wrap gap-2">
+      <button
+        type="submit"
+        class="btn btn-primary btn-sm"
+        [disabled]="loading()"
+      >
+        {{ 'retro.create.submit' | transloco }}
+      </button>
+      <a routerLink="/app" class="btn btn-ghost btn-sm">
+        {{ 'retro.create.cancel' | transloco }}
+      </a>
+    </div>
+  </form>
+</sv-shell>

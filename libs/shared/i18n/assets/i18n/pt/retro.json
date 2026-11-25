@@ -1,0 +1,58 @@
+{
+  "nav": {
+    "retros": "Retros",
+    "create": "Criar",
+    "account": "Conta"
+  },
+  "list": {
+    "title": "Retros da equipa",
+    "lead": "Retros de {{workspace}}",
+    "create": "Nova retro",
+    "loading": "A carregar retros…",
+    "empty": "Ainda sem retros. Crie uma para o seu workspace.",
+    "meta": "{{status}} · {{notes}} notas · {{invites}} convidados"
+  },
+  "create": {
+    "title": "Criar uma retro",
+    "lead": "Convide membros do workspace na app. Sem e-mail nesta versão.",
+    "name": "Título",
+    "visibility": "Visibilidade das notas",
+    "closePolicy": "Quem pode fechar",
+    "endsAt": "Fim (opcional)",
+    "invites": "Convidar membros",
+    "invitesHint": "Está sempre incluído. Os outros devem ser membros do workspace.",
+    "submit": "Criar retro",
+    "cancel": "Cancelar",
+    "noWorkspace": "Selecione primeiro um workspace."
+  },
+  "visibility": {
+    "LIVE": "Ao vivo — todos veem as notas à medida que são adicionadas",
+    "PRIVATE_UNTIL_CLOSE": "Privado até fechar — só as suas notas até fechar",
+    "AFTER_CONTRIBUTE": "Após contribuir — ver outros depois de adicionar uma nota"
+  },
+  "closePolicy": {
+    "CREATOR_OR_ADMIN": "Criador ou admin do workspace",
+    "CREATOR_ONLY": "Apenas o criador",
+    "ANY_INVITEE": "Qualquer convidado"
+  },
+  "column": {
+    "WENT_WELL": "Correu bem",
+    "IMPROVE": "Melhorar",
+    "ACTIONS": "Ações"
+  },
+  "board": {
+    "loading": "A carregar retro…",
+    "back": "Todas as retros",
+    "meta": "{{status}} · {{visibility}} · {{close}}",
+    "addNote": "Adicionar uma nota",
+    "notePlaceholder": "Escreva a sua nota…",
+    "submitNote": "Adicionar nota",
+    "deleteNote": "Eliminar",
+    "emptyColumn": "Ainda sem notas",
+    "summaryTitle": "Resumo",
+    "summaryEmpty": "Nenhum resumo fornecido.",
+    "closeTitle": "Fechar retro",
+    "summaryPlaceholder": "Resumo curto opcional…",
+    "close": "Fechar retro"
+  }
+}

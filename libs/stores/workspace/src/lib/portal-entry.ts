@@ -49,3 +49,13 @@ export function vibepollReturnUrl(workspaceId?: string): string {
   }
   return `/app?${params.toString()}`;
 }
+
+/** Retro app URL that opens the list with the chosen workspace. */
+export function viberetroReturnUrl(workspaceId?: string): string {
+  const params = new URLSearchParams({ enter: '1' });
+  const id = workspaceId?.trim();
+  if (id) {
+    params.set('workspaceId', id);
+  }
+  return `/app?${params.toString()}`;
+}

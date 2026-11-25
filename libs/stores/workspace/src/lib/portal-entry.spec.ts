@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   resolvePortalEntry,
   vibepollReturnUrl,
+  viberetroReturnUrl,
   vibestandupReturnUrl,
 } from './portal-entry';
 
@@ -53,5 +54,11 @@ describe('vibestandupReturnUrl', () => {
 describe('vibepollReturnUrl', () => {
   it('includes enter and the workspace id', () => {
     expect(vibepollReturnUrl('ws1')).toBe('/app?enter=1&workspaceId=ws1');
+  });
+});
+
+describe('viberetroReturnUrl', () => {
+  it('includes enter and the workspace id', () => {
+    expect(viberetroReturnUrl('ws1')).toBe('/app?enter=1&workspaceId=ws1');
   });
 });
