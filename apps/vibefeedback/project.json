@@ -1,0 +1,110 @@
+{
+  "name": "vibefeedback",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "vf",
+  "sourceRoot": "apps/vibefeedback/src",
+  "tags": ["type:app", "scope:vibefeedback"],
+  "targets": {
+    "sync-firebase-web": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/sync-firebase-web-from-env.mjs"
+      }
+    },
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "dependsOn": ["sync-firebase-web"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/vibefeedback",
+        "browser": "apps/vibefeedback/src/main.ts",
+        "tsConfig": "apps/vibefeedback/tsconfig.app.json",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/vibefeedback/public"
+          },
+          {
+            "glob": "**/*",
+            "input": "libs/shared/ui/assets/icons",
+            "output": "icons"
+          },
+          {
+            "glob": "**/*",
+            "input": "libs/shared/ui/assets/brand",
+            "output": "brand"
+          },
+          {
+            "glob": "**/*",
+            "input": "libs/shared/i18n/assets/i18n",
+            "output": "i18n"
+          }
+        ],
+        "styles": ["apps/vibefeedback/src/styles.css"]
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1.16mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      }
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "defaultConfiguration": "development",
+      "dependsOn": ["sync-firebase-web"],
+      "options": {
+        "port": 4204,
+        "proxyConfig": "apps/vibefeedback/proxy.conf.json",
+        "prebundle": false
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "vibefeedback:build:production"
+        },
+        "development": {
+          "buildTarget": "vibefeedback:build:development"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "coverage/apps/vibefeedback"
+      }
+    },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "vibefeedback:build",
+        "port": 4204,
+        "staticFilePath": "dist/apps/vibefeedback/browser",
+        "spa": true
+      }
+    }
+  }
+}

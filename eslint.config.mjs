@@ -37,6 +37,10 @@ export default [
               onlyDependOnLibsWithTags: ['scope:shared', 'scope:viberetro'],
             },
             {
+              sourceTag: 'scope:vibefeedback',
+              onlyDependOnLibsWithTags: ['scope:shared', 'scope:vibefeedback'],
+            },
+            {
               sourceTag: 'scope:api',
               onlyDependOnLibsWithTags: ['scope:api', 'scope:shared'],
             },

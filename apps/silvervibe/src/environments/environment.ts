@@ -15,4 +15,6 @@ export const environment = {
   pollAppOrigin: publicUrls.pollAppOrigin,
   /** VibeRetro origin for portal handoff / tool links. */
   retroAppOrigin: publicUrls.retroAppOrigin,
+  /** VibeFeedback origin for portal handoff / tool links. */
+  feedbackAppOrigin: publicUrls.feedbackAppOrigin,
 };

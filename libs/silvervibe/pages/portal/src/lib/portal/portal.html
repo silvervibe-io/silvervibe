@@ -87,6 +87,15 @@
           >
             {{ 'portal.openTool' | transloco }}
           </button>
+          } @else if (tool.toolKey === 'vibefeedback') {
+          <button
+            type="button"
+            class="btn btn-primary btn-sm"
+            [disabled]="openingTool()"
+            (click)="openVibeFeedback()"
+          >
+            {{ 'portal.openTool' | transloco }}
+          </button>
           }
         </li>
         }

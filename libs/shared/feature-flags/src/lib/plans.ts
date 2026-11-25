@@ -14,10 +14,15 @@ export type ViberetroPlanLimits = {
   enabledByDefault: boolean;
 };
 
+export type VibefeedbackPlanLimits = {
+  enabledByDefault: boolean;
+};
+
 export type PlanToolLimits = {
   vibestandup?: VibestandupPlanLimits;
   vibepoll?: VibepollPlanLimits;
   viberetro?: ViberetroPlanLimits;
+  vibefeedback?: VibefeedbackPlanLimits;
 };
 
 export type WorkspacePlanDefinition = {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   resolvePortalEntry,
+  vibefeedbackReturnUrl,
   vibepollReturnUrl,
   viberetroReturnUrl,
   vibestandupReturnUrl,
@@ -9,6 +10,7 @@ import {
 const standup = { toolKey: 'vibestandup', enabled: true };
 const poll = { toolKey: 'vibepoll', enabled: true };
 const retro = { toolKey: 'viberetro', enabled: true };
+const feedback = { toolKey: 'vibefeedback', enabled: true };
 const slack = { toolKey: 'addons.slack', enabled: true };
 
 describe('resolvePortalEntry', () => {
@@ -44,7 +46,9 @@ describe('resolvePortalEntry', () => {
 
   it('stays when multiple product tools are enabled', () => {
     expect(
-      resolvePortalEntry([{ id: 'ws1', tools: [standup, poll, retro] }]),
+      resolvePortalEntry([
+        { id: 'ws1', tools: [standup, poll, retro, feedback] },
+      ]),
     ).toEqual({ kind: 'stay' });
   });
 });
@@ -68,5 +72,11 @@ describe('vibepollReturnUrl', () => {
 describe('viberetroReturnUrl', () => {
   it('includes enter and the workspace id', () => {
     expect(viberetroReturnUrl('ws1')).toBe('/app?enter=1&workspaceId=ws1');
+  });
+});
+
+describe('vibefeedbackReturnUrl', () => {
+  it('includes enter and the workspace id', () => {
+    expect(vibefeedbackReturnUrl('ws1')).toBe('/app?enter=1&workspaceId=ws1');
   });
 });

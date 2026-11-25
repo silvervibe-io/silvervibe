@@ -25,7 +25,8 @@ if (
   (project === 'silvervibe' ||
     project === 'vibestandup' ||
     project === 'vibepoll' ||
-    project === 'viberetro')
+    project === 'viberetro' ||
+    project === 'vibefeedback')
 ) {
   const sync = spawnSync(
     process.execPath,

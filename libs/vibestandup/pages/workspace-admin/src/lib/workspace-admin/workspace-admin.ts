@@ -140,6 +140,7 @@ export class WorkspaceAdmin implements OnInit {
       TOOL_KEYS.vibestandup,
       TOOL_KEYS.vibepoll,
       TOOL_KEYS.viberetro,
+      TOOL_KEYS.vibefeedback,
     ]) {
       if (!byKey.has(toolKey)) {
         byKey.set(toolKey, { toolKey, enabled: false });
