@@ -19,6 +19,9 @@
         },
         "vibefeedback": {
           "enabledByDefault": false
+        },
+        "vibemeeting": {
+          "enabledByDefault": false
         }
       }
     },
@@ -39,6 +42,9 @@
           "enabledByDefault": false
         },
         "vibefeedback": {
+          "enabledByDefault": false
+        },
+        "vibemeeting": {
           "enabledByDefault": false
         }
       }

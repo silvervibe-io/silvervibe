@@ -70,7 +70,11 @@
       "@silvervibe/vibefeedback/pages/feedback": [
         "./libs/vibefeedback/pages/feedback/src/index.ts"
       ],
-      "@silvervibe/stores/feedback": ["./libs/stores/feedback/src/index.ts"]
+      "@silvervibe/stores/feedback": ["./libs/stores/feedback/src/index.ts"],
+      "@silvervibe/vibemeeting/pages/meeting": [
+        "./libs/vibemeeting/pages/meeting/src/index.ts"
+      ],
+      "@silvervibe/stores/meeting": ["./libs/stores/meeting/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

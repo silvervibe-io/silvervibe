@@ -12,6 +12,7 @@ import deTools from '../../assets/i18n/de/tools.json';
 import dePoll from '../../assets/i18n/de/poll.json';
 import deRetro from '../../assets/i18n/de/retro.json';
 import deFeedback from '../../assets/i18n/de/feedback.json';
+import deMeeting from '../../assets/i18n/de/meeting.json';
 import elAbout from '../../assets/i18n/el/about.json';
 import elAuth from '../../assets/i18n/el/auth.json';
 import elCommon from '../../assets/i18n/el/common.json';
@@ -25,6 +26,7 @@ import elTools from '../../assets/i18n/el/tools.json';
 import elPoll from '../../assets/i18n/el/poll.json';
 import elRetro from '../../assets/i18n/el/retro.json';
 import elFeedback from '../../assets/i18n/el/feedback.json';
+import elMeeting from '../../assets/i18n/el/meeting.json';
 import enAbout from '../../assets/i18n/en/about.json';
 import enAuth from '../../assets/i18n/en/auth.json';
 import enCommon from '../../assets/i18n/en/common.json';
@@ -38,6 +40,7 @@ import enTools from '../../assets/i18n/en/tools.json';
 import enPoll from '../../assets/i18n/en/poll.json';
 import enRetro from '../../assets/i18n/en/retro.json';
 import enFeedback from '../../assets/i18n/en/feedback.json';
+import enMeeting from '../../assets/i18n/en/meeting.json';
 import esAbout from '../../assets/i18n/es/about.json';
 import esAuth from '../../assets/i18n/es/auth.json';
 import esCommon from '../../assets/i18n/es/common.json';
@@ -51,6 +54,7 @@ import esTools from '../../assets/i18n/es/tools.json';
 import esPoll from '../../assets/i18n/es/poll.json';
 import esRetro from '../../assets/i18n/es/retro.json';
 import esFeedback from '../../assets/i18n/es/feedback.json';
+import esMeeting from '../../assets/i18n/es/meeting.json';
 import frAbout from '../../assets/i18n/fr/about.json';
 import frAuth from '../../assets/i18n/fr/auth.json';
 import frCommon from '../../assets/i18n/fr/common.json';
@@ -64,6 +68,7 @@ import frTools from '../../assets/i18n/fr/tools.json';
 import frPoll from '../../assets/i18n/fr/poll.json';
 import frRetro from '../../assets/i18n/fr/retro.json';
 import frFeedback from '../../assets/i18n/fr/feedback.json';
+import frMeeting from '../../assets/i18n/fr/meeting.json';
 import itAbout from '../../assets/i18n/it/about.json';
 import itAuth from '../../assets/i18n/it/auth.json';
 import itCommon from '../../assets/i18n/it/common.json';
@@ -77,6 +82,7 @@ import itTools from '../../assets/i18n/it/tools.json';
 import itPoll from '../../assets/i18n/it/poll.json';
 import itRetro from '../../assets/i18n/it/retro.json';
 import itFeedback from '../../assets/i18n/it/feedback.json';
+import itMeeting from '../../assets/i18n/it/meeting.json';
 import nlAbout from '../../assets/i18n/nl/about.json';
 import nlAuth from '../../assets/i18n/nl/auth.json';
 import nlCommon from '../../assets/i18n/nl/common.json';
@@ -90,6 +96,7 @@ import nlTools from '../../assets/i18n/nl/tools.json';
 import nlPoll from '../../assets/i18n/nl/poll.json';
 import nlRetro from '../../assets/i18n/nl/retro.json';
 import nlFeedback from '../../assets/i18n/nl/feedback.json';
+import nlMeeting from '../../assets/i18n/nl/meeting.json';
 import plAbout from '../../assets/i18n/pl/about.json';
 import plAuth from '../../assets/i18n/pl/auth.json';
 import plCommon from '../../assets/i18n/pl/common.json';
@@ -103,6 +110,7 @@ import plTools from '../../assets/i18n/pl/tools.json';
 import plPoll from '../../assets/i18n/pl/poll.json';
 import plRetro from '../../assets/i18n/pl/retro.json';
 import plFeedback from '../../assets/i18n/pl/feedback.json';
+import plMeeting from '../../assets/i18n/pl/meeting.json';
 import ptAbout from '../../assets/i18n/pt/about.json';
 import ptAuth from '../../assets/i18n/pt/auth.json';
 import ptCommon from '../../assets/i18n/pt/common.json';
@@ -116,6 +124,7 @@ import ptTools from '../../assets/i18n/pt/tools.json';
 import ptPoll from '../../assets/i18n/pt/poll.json';
 import ptRetro from '../../assets/i18n/pt/retro.json';
 import ptFeedback from '../../assets/i18n/pt/feedback.json';
+import ptMeeting from '../../assets/i18n/pt/meeting.json';
 import type { SilvervibeLang } from './langs';
 
 function pack(
@@ -132,6 +141,7 @@ function pack(
   poll: Translation,
   retro: Translation,
   feedback: Translation,
+  meeting: Translation,
 ): Translation {
   return {
     common,
@@ -147,6 +157,7 @@ function pack(
     poll,
     retro,
     feedback,
+    meeting,
   };
 }
 
@@ -166,6 +177,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     enPoll,
     enRetro,
     enFeedback,
+    enMeeting,
   ),
   nl: pack(
     nlCommon,
@@ -181,6 +193,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     nlPoll,
     nlRetro,
     nlFeedback,
+    nlMeeting,
   ),
   de: pack(
     deCommon,
@@ -196,6 +209,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     dePoll,
     deRetro,
     deFeedback,
+    deMeeting,
   ),
   fr: pack(
     frCommon,
@@ -211,6 +225,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     frPoll,
     frRetro,
     frFeedback,
+    frMeeting,
   ),
   el: pack(
     elCommon,
@@ -226,6 +241,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     elPoll,
     elRetro,
     elFeedback,
+    elMeeting,
   ),
   es: pack(
     esCommon,
@@ -241,6 +257,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     esPoll,
     esRetro,
     esFeedback,
+    esMeeting,
   ),
   pt: pack(
     ptCommon,
@@ -256,6 +273,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     ptPoll,
     ptRetro,
     ptFeedback,
+    ptMeeting,
   ),
   it: pack(
     itCommon,
@@ -271,6 +289,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     itPoll,
     itRetro,
     itFeedback,
+    itMeeting,
   ),
   pl: pack(
     plCommon,
@@ -286,6 +305,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     plPoll,
     plRetro,
     plFeedback,
+    plMeeting,
   ),
 };
 

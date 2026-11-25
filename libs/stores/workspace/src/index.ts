@@ -4,6 +4,7 @@ export {
   vibepollReturnUrl,
   viberetroReturnUrl,
   vibefeedbackReturnUrl,
+  vibemeetingReturnUrl,
 } from './lib/portal-entry';
 export type { PortalEntry } from './lib/portal-entry';
 export { WorkspaceFacade } from './lib/workspace.facade';

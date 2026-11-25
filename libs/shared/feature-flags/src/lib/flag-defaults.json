@@ -19,6 +19,11 @@
     "defaultValue": true,
     "description": "Roll out the VibeFeedback product surface (not proof of workspace entitlement)."
   },
+  "tools.vibemeeting.enabled": {
+    "valueType": "boolean",
+    "defaultValue": true,
+    "description": "Roll out the VibeMeeting product surface (not proof of workspace entitlement)."
+  },
 
   "addons.github.webhooks": {
     "valueType": "boolean",

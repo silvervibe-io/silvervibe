@@ -12,6 +12,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import {
   AuthService,
   FEEDBACK_APP_ORIGIN,
+  MEETING_APP_ORIGIN,
   POLL_APP_ORIGIN,
   RETRO_APP_ORIGIN,
   STANDUP_APP_ORIGIN,
@@ -23,6 +24,7 @@ import { UserFacade } from '@silvervibe/stores/user';
 import {
   resolvePortalEntry,
   vibefeedbackReturnUrl,
+  vibemeetingReturnUrl,
   vibepollReturnUrl,
   viberetroReturnUrl,
   vibestandupReturnUrl,
@@ -58,6 +60,8 @@ export class Portal implements OnInit {
     inject(RETRO_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4203';
   private readonly feedbackOrigin =
     inject(FEEDBACK_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4204';
+  private readonly meetingOrigin =
+    inject(MEETING_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4205';
 
   readonly loading = this.workspaces.loading;
   readonly error = this.workspaces.error;
@@ -196,6 +200,22 @@ export class Portal implements OnInit {
       this.assignLocation(url.toString());
     } catch {
       this.assignLocation(`${this.feedbackOrigin}/auth`);
+    } finally {
+      this.openingTool.set(false);
+    }
+  }
+
+  async openVibeMeeting(workspaceId?: string): Promise<void> {
+    const id = workspaceId ?? this.selected()?.id;
+    this.openingTool.set(true);
+    try {
+      const { customToken } = await this.users.createCustomToken();
+      const url = new URL('/auth/handoff', this.meetingOrigin);
+      url.searchParams.set('token', customToken);
+      url.searchParams.set('returnUrl', vibemeetingReturnUrl(id));
+      this.assignLocation(url.toString());
+    } catch {
+      this.assignLocation(`${this.meetingOrigin}/auth`);
     } finally {
       this.openingTool.set(false);
     }

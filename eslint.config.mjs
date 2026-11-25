@@ -41,6 +41,11 @@ export default [
               onlyDependOnLibsWithTags: ['scope:shared', 'scope:vibefeedback'],
             },
             {
+              sourceTag: 'scope:vibemeeting',
+              onlyDependOnLibsWithTags: ['scope:shared', 'scope:vibemeeting'],
+            },
+
+            {
               sourceTag: 'scope:api',
               onlyDependOnLibsWithTags: ['scope:api', 'scope:shared'],
             },

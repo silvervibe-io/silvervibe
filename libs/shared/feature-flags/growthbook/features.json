@@ -13,6 +13,9 @@
     "tools.vibefeedback.enabled": {
       "defaultValue": true
     },
+    "tools.vibemeeting.enabled": {
+      "defaultValue": true
+    },
     "addons.github.webhooks": {
       "defaultValue": false
     },
@@ -41,6 +44,9 @@
               },
               "vibefeedback": {
                 "enabledByDefault": false
+              },
+              "vibemeeting": {
+                "enabledByDefault": false
               }
             }
           },
@@ -61,6 +67,9 @@
                 "enabledByDefault": false
               },
               "vibefeedback": {
+                "enabledByDefault": false
+              },
+              "vibemeeting": {
                 "enabledByDefault": false
               }
             }

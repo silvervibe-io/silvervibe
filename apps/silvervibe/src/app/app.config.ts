@@ -13,6 +13,7 @@ import {
   provideSilvervibeAuth,
   provideSilvervibeFeatureFlags,
   FEEDBACK_APP_ORIGIN,
+  MEETING_APP_ORIGIN,
   POLL_APP_ORIGIN,
   RETRO_APP_ORIGIN,
   STANDUP_APP_ORIGIN,
@@ -57,6 +58,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: FEEDBACK_APP_ORIGIN,
       useValue: environment.feedbackAppOrigin,
+    },
+    {
+      provide: MEETING_APP_ORIGIN,
+      useValue: environment.meetingAppOrigin,
     },
     provideSilvervibeFeatureFlags(environment.growthbook),
     {
