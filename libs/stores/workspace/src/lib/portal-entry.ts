@@ -9,10 +9,16 @@ type PortalMembership = {
   tools: ReadonlyArray<{ toolKey: string; enabled: boolean }>;
 };
 
+const PRODUCT_TOOL_KEYS = new Set<string>([
+  TOOL_KEYS.vibestandup,
+  TOOL_KEYS.vibepoll,
+  TOOL_KEYS.viberetro,
+]);
+
 /**
- * After sign-in, leave the portal only when there is a single workspace
- * entitled to VibeStandup. Several workspaces, none, or a workspace without
- * that tool stay on the portal so the user can choose or create one.
+ * After platform sign-in, stay on the portal so the user can pick among
+ * products (Standup / Poll / Retro). Auto-enter Standup only when it is the
+ * sole enabled product on a single workspace (legacy single-tool workspaces).
  */
 export function resolvePortalEntry(
   memberships: readonly PortalMembership[],
@@ -21,13 +27,16 @@ export function resolvePortalEntry(
     return { kind: 'stay' };
   }
   const only = memberships[0];
-  const enabled = only.tools.some(
-    (tool) => tool.enabled && tool.toolKey === TOOL_KEYS.vibestandup,
+  const enabledProducts = only.tools.filter(
+    (tool) => tool.enabled && PRODUCT_TOOL_KEYS.has(tool.toolKey),
   );
-  if (!enabled) {
-    return { kind: 'stay' };
+  if (
+    enabledProducts.length === 1 &&
+    enabledProducts[0]?.toolKey === TOOL_KEYS.vibestandup
+  ) {
+    return { kind: 'vibestandup', workspaceId: only.id };
   }
-  return { kind: 'vibestandup', workspaceId: only.id };
+  return { kind: 'stay' };
 }
 
 /** Standup URL that runs the one-shot role home, keeping the chosen workspace. */
