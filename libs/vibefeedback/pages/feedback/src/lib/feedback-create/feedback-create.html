@@ -1,0 +1,166 @@
+<sv-shell [title]="'VibeFeedback'" [links]="links()">
+  <form
+    class="mx-auto flex max-w-xl flex-col gap-4"
+    (submit)="onSubmit($event)"
+  >
+    <header class="space-y-1">
+      <h1 class="text-3xl font-bold tracking-tight">
+        {{ 'feedback.create.title' | transloco }}
+      </h1>
+      <p class="text-base-content/70">
+        {{ 'feedback.create.lead' | transloco }}
+      </p>
+    </header>
+
+    <fieldset class="fieldset w-full">
+      <legend class="fieldset-legend">
+        {{ 'feedback.create.name' | transloco }}
+      </legend>
+      <input
+        class="input input-bordered w-full"
+        [formField]="feedbackForm.title"
+      />
+    </fieldset>
+
+    <fieldset class="fieldset w-full">
+      <legend class="fieldset-legend">
+        {{ 'feedback.create.context' | transloco }}
+      </legend>
+      <textarea
+        class="textarea textarea-bordered min-h-24 w-full"
+        [formField]="feedbackForm.context"
+      ></textarea>
+    </fieldset>
+
+    <section class="space-y-2">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="text-lg font-semibold">
+          {{ 'feedback.create.prompts' | transloco }}
+        </h2>
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs"
+          (click)="addPrompt()"
+        >
+          {{ 'feedback.create.addPrompt' | transloco }}
+        </button>
+      </div>
+      @for (prompt of prompts(); track $index; let i = $index) {
+      <div class="flex gap-2">
+        <input
+          class="input input-bordered w-full"
+          [value]="prompt"
+          (input)="updatePrompt(i, $any($event.target).value)"
+        />
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          [disabled]="prompts().length <= 1"
+          (click)="removePrompt(i)"
+        >
+          {{ 'feedback.create.removePrompt' | transloco }}
+        </button>
+      </div>
+      }
+    </section>
+
+    <fieldset class="fieldset w-full">
+      <legend class="fieldset-legend">
+        {{ 'feedback.create.visibility' | transloco }}
+      </legend>
+      <select
+        class="select select-bordered w-full"
+        [formField]="feedbackForm.answerVisibility"
+      >
+        @for (option of visibilityOptions; track option) {
+        <option [value]="option">
+          {{ ('feedback.visibility.' + option) | transloco }}
+        </option>
+        }
+      </select>
+    </fieldset>
+
+    <label class="label cursor-pointer justify-start gap-3">
+      <input
+        type="checkbox"
+        class="checkbox checkbox-sm"
+        [formField]="feedbackForm.anonymous"
+      />
+      <span>{{ 'feedback.create.anonymous' | transloco }}</span>
+    </label>
+
+    <fieldset class="fieldset w-full">
+      <legend class="fieldset-legend">
+        {{ 'feedback.create.closePolicy' | transloco }}
+      </legend>
+      <select
+        class="select select-bordered w-full"
+        [formField]="feedbackForm.closePolicy"
+      >
+        @for (option of closeOptions; track option) {
+        <option [value]="option">
+          {{ ('feedback.closePolicy.' + option) | transloco }}
+        </option>
+        }
+      </select>
+    </fieldset>
+
+    <fieldset class="fieldset w-full">
+      <legend class="fieldset-legend">
+        {{ 'feedback.create.endsAt' | transloco }}
+      </legend>
+      <input
+        type="datetime-local"
+        class="input input-bordered w-full"
+        [formField]="feedbackForm.endsAt"
+      />
+    </fieldset>
+
+    <section class="space-y-2">
+      <h2 class="text-lg font-semibold">
+        {{ 'feedback.create.invites' | transloco }}
+      </h2>
+      <p class="text-sm text-base-content/60">
+        {{ 'feedback.create.invitesHint' | transloco }}
+      </p>
+      <ul class="space-y-2">
+        @for (member of members(); track member.userId) {
+        <li>
+          <label class="label cursor-pointer justify-start gap-3">
+            <input
+              type="checkbox"
+              class="checkbox checkbox-sm"
+              [checked]="isInvited(member.userId)"
+              (change)="
+                toggleInvite(member.userId, $any($event.target).checked)
+              "
+            />
+            <span>
+              {{ member.displayName || member.email || member.userId }}
+            </span>
+          </label>
+        </li>
+        }
+      </ul>
+    </section>
+
+    @if (formError()) {
+    <p class="text-error text-sm">{{ formError()! | transloco }}</p>
+    } @if (error()) {
+    <p class="text-error text-sm">{{ error() }}</p>
+    }
+
+    <div class="flex flex-wrap gap-2">
+      <button
+        type="submit"
+        class="btn btn-primary btn-sm"
+        [disabled]="loading()"
+      >
+        {{ 'feedback.create.submit' | transloco }}
+      </button>
+      <a routerLink="/app" class="btn btn-ghost btn-sm">
+        {{ 'feedback.create.cancel' | transloco }}
+      </a>
+    </div>
+  </form>
+</sv-shell>

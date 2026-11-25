@@ -1,0 +1,58 @@
+{
+  "nav": {
+    "requests": "Requests",
+    "create": "Create",
+    "account": "Account"
+  },
+  "list": {
+    "title": "Feedback requests",
+    "lead": "Feedback for {{workspace}}",
+    "create": "New request",
+    "loading": "Loading requests…",
+    "empty": "No feedback requests yet. Create one for your workspace.",
+    "meta": "{{status}} · {{prompts}} prompts · {{answers}} answers · {{invites}} invited"
+  },
+  "create": {
+    "title": "Create a feedback request",
+    "lead": "Invite workspace members in-app. No email in this version.",
+    "name": "Title",
+    "context": "Context (optional)",
+    "prompts": "Prompts",
+    "addPrompt": "Add prompt",
+    "removePrompt": "Remove",
+    "visibility": "Answer visibility",
+    "anonymous": "Anonymous answers (hide author names)",
+    "closePolicy": "Who can close",
+    "endsAt": "Ends (optional)",
+    "invites": "Invite reviewers",
+    "invitesHint": "You are always included. Others must be workspace members.",
+    "submit": "Create request",
+    "cancel": "Cancel",
+    "noWorkspace": "Select a workspace first.",
+    "needPrompts": "Add at least one prompt."
+  },
+  "visibility": {
+    "PRIVATE_TO_REQUESTER": "Private to requester — reviewers only see their own answers",
+    "SHARED_WITH_INVITEES": "Shared with invitees — everyone invited can read answers"
+  },
+  "closePolicy": {
+    "CREATOR_OR_ADMIN": "Creator or workspace admin",
+    "CREATOR_ONLY": "Creator only",
+    "ANY_INVITEE": "Any invitee"
+  },
+  "detail": {
+    "loading": "Loading request…",
+    "back": "All requests",
+    "meta": "{{status}} · {{visibility}} · {{close}} · anonymous: {{anonymous}}",
+    "answerPlaceholder": "Write your answer…",
+    "saveAnswers": "Save answers",
+    "you": "You",
+    "anonymousAuthor": "Anonymous",
+    "emptyAnswers": "No answers yet",
+    "summaryTitle": "Summary",
+    "summaryEmpty": "No summary provided.",
+    "closeTitle": "Close request",
+    "summaryPlaceholder": "Optional short summary…",
+    "close": "Close request"
+  }
+}

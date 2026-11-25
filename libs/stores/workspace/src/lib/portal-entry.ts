@@ -13,12 +13,13 @@ const PRODUCT_TOOL_KEYS = new Set<string>([
   TOOL_KEYS.vibestandup,
   TOOL_KEYS.vibepoll,
   TOOL_KEYS.viberetro,
+  TOOL_KEYS.vibefeedback,
 ]);
 
 /**
  * After platform sign-in, stay on the portal so the user can pick among
- * products (Standup / Poll / Retro). Auto-enter Standup only when it is the
- * sole enabled product on a single workspace (legacy single-tool workspaces).
+ * products. Auto-enter Standup only when it is the sole enabled product on a
+ * single workspace (legacy single-tool workspaces).
  */
 export function resolvePortalEntry(
   memberships: readonly PortalMembership[],
@@ -61,6 +62,16 @@ export function vibepollReturnUrl(workspaceId?: string): string {
 
 /** Retro app URL that opens the list with the chosen workspace. */
 export function viberetroReturnUrl(workspaceId?: string): string {
+  const params = new URLSearchParams({ enter: '1' });
+  const id = workspaceId?.trim();
+  if (id) {
+    params.set('workspaceId', id);
+  }
+  return `/app?${params.toString()}`;
+}
+
+/** Feedback app URL that opens the list with the chosen workspace. */
+export function vibefeedbackReturnUrl(workspaceId?: string): string {
   const params = new URLSearchParams({ enter: '1' });
   const id = workspaceId?.trim();
   if (id) {

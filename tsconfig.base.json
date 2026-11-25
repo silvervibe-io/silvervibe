@@ -66,7 +66,11 @@
       "@silvervibe/viberetro/pages/retros": [
         "./libs/viberetro/pages/retros/src/index.ts"
       ],
-      "@silvervibe/stores/retro": ["./libs/stores/retro/src/index.ts"]
+      "@silvervibe/stores/retro": ["./libs/stores/retro/src/index.ts"],
+      "@silvervibe/vibefeedback/pages/feedback": [
+        "./libs/vibefeedback/pages/feedback/src/index.ts"
+      ],
+      "@silvervibe/stores/feedback": ["./libs/stores/feedback/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

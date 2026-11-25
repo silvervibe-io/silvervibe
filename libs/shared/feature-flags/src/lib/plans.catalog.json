@@ -16,6 +16,9 @@
         },
         "viberetro": {
           "enabledByDefault": false
+        },
+        "vibefeedback": {
+          "enabledByDefault": false
         }
       }
     },
@@ -33,6 +36,9 @@
           "enabledByDefault": false
         },
         "viberetro": {
+          "enabledByDefault": false
+        },
+        "vibefeedback": {
           "enabledByDefault": false
         }
       }

@@ -11,6 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import {
   AuthService,
+  FEEDBACK_APP_ORIGIN,
   POLL_APP_ORIGIN,
   RETRO_APP_ORIGIN,
   STANDUP_APP_ORIGIN,
@@ -21,6 +22,7 @@ import { PreviewContextStore } from '@silvervibe/stores/preview';
 import { UserFacade } from '@silvervibe/stores/user';
 import {
   resolvePortalEntry,
+  vibefeedbackReturnUrl,
   vibepollReturnUrl,
   viberetroReturnUrl,
   vibestandupReturnUrl,
@@ -54,6 +56,8 @@ export class Portal implements OnInit {
     inject(POLL_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4202';
   private readonly retroOrigin =
     inject(RETRO_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4203';
+  private readonly feedbackOrigin =
+    inject(FEEDBACK_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4204';
 
   readonly loading = this.workspaces.loading;
   readonly error = this.workspaces.error;
@@ -176,6 +180,22 @@ export class Portal implements OnInit {
       this.assignLocation(url.toString());
     } catch {
       this.assignLocation(`${this.retroOrigin}/auth`);
+    } finally {
+      this.openingTool.set(false);
+    }
+  }
+
+  async openVibeFeedback(workspaceId?: string): Promise<void> {
+    const id = workspaceId ?? this.selected()?.id;
+    this.openingTool.set(true);
+    try {
+      const { customToken } = await this.users.createCustomToken();
+      const url = new URL('/auth/handoff', this.feedbackOrigin);
+      url.searchParams.set('token', customToken);
+      url.searchParams.set('returnUrl', vibefeedbackReturnUrl(id));
+      this.assignLocation(url.toString());
+    } catch {
+      this.assignLocation(`${this.feedbackOrigin}/auth`);
     } finally {
       this.openingTool.set(false);
     }

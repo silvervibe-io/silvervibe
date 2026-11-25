@@ -89,6 +89,23 @@ enum RetroNoteColumn {
   ACTIONS
 }
 
+enum FeedbackStatus {
+  DRAFT
+  OPEN
+  CLOSED
+}
+
+enum FeedbackAnswerVisibility {
+  PRIVATE_TO_REQUESTER
+  SHARED_WITH_INVITEES
+}
+
+enum FeedbackClosePolicy {
+  CREATOR_OR_ADMIN
+  CREATOR_ONLY
+  ANY_INVITEE
+}
+
 model User {
   id          String   @id @default(cuid())
   firebaseUid String   @unique @map("firebase_uid")
@@ -107,9 +124,12 @@ model User {
   pollsCreated    Poll[]            @relation("PollsCreated")
   pollInvites     PollInvite[]
   pollVotes       PollVote[]
-  retrosCreated   Retro[]           @relation("RetrosCreated")
-  retroInvites    RetroInvite[]
-  retroNotes      RetroNote[]
+  retrosCreated      Retro[]            @relation("RetrosCreated")
+  retroInvites       RetroInvite[]
+  retroNotes         RetroNote[]
+  feedbackCreated    FeedbackRequest[]  @relation("FeedbackCreated")
+  feedbackInvites    FeedbackInvite[]
+  feedbackAnswers    FeedbackAnswer[]
 
   @@map("users")
 }
@@ -129,6 +149,7 @@ model Workspace {
   teams            Team[]
   polls            Poll[]
   retros           Retro[]
+  feedbackRequests FeedbackRequest[]
 
   @@map("workspaces")
 }
@@ -421,4 +442,74 @@ model RetroNote {
   @@index([retroId, column])
   @@index([retroId, authorId])
   @@map("retro_notes")
+}
+
+model FeedbackRequest {
+  id               String                    @id @default(cuid())
+  workspaceId      String                    @map("workspace_id")
+  createdById      String                    @map("created_by_id")
+  title            String
+  context          String?
+  status           FeedbackStatus            @default(OPEN)
+  answerVisibility FeedbackAnswerVisibility  @default(PRIVATE_TO_REQUESTER) @map("answer_visibility")
+  anonymous        Boolean                   @default(false)
+  closePolicy      FeedbackClosePolicy       @default(CREATOR_OR_ADMIN) @map("close_policy")
+  endsAt           DateTime?                 @map("ends_at")
+  summary          String?
+  createdAt        DateTime                  @default(now()) @map("created_at")
+  updatedAt        DateTime                  @updatedAt @map("updated_at")
+
+  workspace Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy User              @relation("FeedbackCreated", fields: [createdById], references: [id], onDelete: Cascade)
+  prompts   FeedbackPrompt[]
+  invites   FeedbackInvite[]
+  answers   FeedbackAnswer[]
+
+  @@index([workspaceId, status])
+  @@map("feedback_requests")
+}
+
+model FeedbackPrompt {
+  id        String   @id @default(cuid())
+  requestId String   @map("request_id")
+  body      String
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  request FeedbackRequest  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  answers FeedbackAnswer[]
+
+  @@index([requestId])
+  @@map("feedback_prompts")
+}
+
+model FeedbackInvite {
+  id        String   @id @default(cuid())
+  requestId String   @map("request_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  request FeedbackRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([requestId, userId])
+  @@map("feedback_invites")
+}
+
+model FeedbackAnswer {
+  id        String   @id @default(cuid())
+  requestId String   @map("request_id")
+  promptId  String   @map("prompt_id")
+  authorId  String   @map("author_id")
+  body      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  request FeedbackRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  prompt  FeedbackPrompt  @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  author  User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@unique([promptId, authorId])
+  @@index([requestId, authorId])
+  @@map("feedback_answers")
 }

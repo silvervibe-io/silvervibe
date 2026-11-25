@@ -10,6 +10,9 @@
     "tools.viberetro.enabled": {
       "defaultValue": true
     },
+    "tools.vibefeedback.enabled": {
+      "defaultValue": true
+    },
     "addons.github.webhooks": {
       "defaultValue": false
     },
@@ -35,6 +38,9 @@
               },
               "viberetro": {
                 "enabledByDefault": false
+              },
+              "vibefeedback": {
+                "enabledByDefault": false
               }
             }
           },
@@ -52,6 +58,9 @@
                 "enabledByDefault": false
               },
               "viberetro": {
+                "enabledByDefault": false
+              },
+              "vibefeedback": {
                 "enabledByDefault": false
               }
             }

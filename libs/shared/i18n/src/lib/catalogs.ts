@@ -11,6 +11,7 @@ import deStandup from '../../assets/i18n/de/standup.json';
 import deTools from '../../assets/i18n/de/tools.json';
 import dePoll from '../../assets/i18n/de/poll.json';
 import deRetro from '../../assets/i18n/de/retro.json';
+import deFeedback from '../../assets/i18n/de/feedback.json';
 import elAbout from '../../assets/i18n/el/about.json';
 import elAuth from '../../assets/i18n/el/auth.json';
 import elCommon from '../../assets/i18n/el/common.json';
@@ -23,6 +24,7 @@ import elStandup from '../../assets/i18n/el/standup.json';
 import elTools from '../../assets/i18n/el/tools.json';
 import elPoll from '../../assets/i18n/el/poll.json';
 import elRetro from '../../assets/i18n/el/retro.json';
+import elFeedback from '../../assets/i18n/el/feedback.json';
 import enAbout from '../../assets/i18n/en/about.json';
 import enAuth from '../../assets/i18n/en/auth.json';
 import enCommon from '../../assets/i18n/en/common.json';
@@ -35,6 +37,7 @@ import enStandup from '../../assets/i18n/en/standup.json';
 import enTools from '../../assets/i18n/en/tools.json';
 import enPoll from '../../assets/i18n/en/poll.json';
 import enRetro from '../../assets/i18n/en/retro.json';
+import enFeedback from '../../assets/i18n/en/feedback.json';
 import esAbout from '../../assets/i18n/es/about.json';
 import esAuth from '../../assets/i18n/es/auth.json';
 import esCommon from '../../assets/i18n/es/common.json';
@@ -47,6 +50,7 @@ import esStandup from '../../assets/i18n/es/standup.json';
 import esTools from '../../assets/i18n/es/tools.json';
 import esPoll from '../../assets/i18n/es/poll.json';
 import esRetro from '../../assets/i18n/es/retro.json';
+import esFeedback from '../../assets/i18n/es/feedback.json';
 import frAbout from '../../assets/i18n/fr/about.json';
 import frAuth from '../../assets/i18n/fr/auth.json';
 import frCommon from '../../assets/i18n/fr/common.json';
@@ -59,6 +63,7 @@ import frStandup from '../../assets/i18n/fr/standup.json';
 import frTools from '../../assets/i18n/fr/tools.json';
 import frPoll from '../../assets/i18n/fr/poll.json';
 import frRetro from '../../assets/i18n/fr/retro.json';
+import frFeedback from '../../assets/i18n/fr/feedback.json';
 import itAbout from '../../assets/i18n/it/about.json';
 import itAuth from '../../assets/i18n/it/auth.json';
 import itCommon from '../../assets/i18n/it/common.json';
@@ -71,6 +76,7 @@ import itStandup from '../../assets/i18n/it/standup.json';
 import itTools from '../../assets/i18n/it/tools.json';
 import itPoll from '../../assets/i18n/it/poll.json';
 import itRetro from '../../assets/i18n/it/retro.json';
+import itFeedback from '../../assets/i18n/it/feedback.json';
 import nlAbout from '../../assets/i18n/nl/about.json';
 import nlAuth from '../../assets/i18n/nl/auth.json';
 import nlCommon from '../../assets/i18n/nl/common.json';
@@ -83,6 +89,7 @@ import nlStandup from '../../assets/i18n/nl/standup.json';
 import nlTools from '../../assets/i18n/nl/tools.json';
 import nlPoll from '../../assets/i18n/nl/poll.json';
 import nlRetro from '../../assets/i18n/nl/retro.json';
+import nlFeedback from '../../assets/i18n/nl/feedback.json';
 import plAbout from '../../assets/i18n/pl/about.json';
 import plAuth from '../../assets/i18n/pl/auth.json';
 import plCommon from '../../assets/i18n/pl/common.json';
@@ -95,6 +102,7 @@ import plStandup from '../../assets/i18n/pl/standup.json';
 import plTools from '../../assets/i18n/pl/tools.json';
 import plPoll from '../../assets/i18n/pl/poll.json';
 import plRetro from '../../assets/i18n/pl/retro.json';
+import plFeedback from '../../assets/i18n/pl/feedback.json';
 import ptAbout from '../../assets/i18n/pt/about.json';
 import ptAuth from '../../assets/i18n/pt/auth.json';
 import ptCommon from '../../assets/i18n/pt/common.json';
@@ -107,6 +115,7 @@ import ptStandup from '../../assets/i18n/pt/standup.json';
 import ptTools from '../../assets/i18n/pt/tools.json';
 import ptPoll from '../../assets/i18n/pt/poll.json';
 import ptRetro from '../../assets/i18n/pt/retro.json';
+import ptFeedback from '../../assets/i18n/pt/feedback.json';
 import type { SilvervibeLang } from './langs';
 
 function pack(
@@ -122,6 +131,7 @@ function pack(
   portal: Translation,
   poll: Translation,
   retro: Translation,
+  feedback: Translation,
 ): Translation {
   return {
     common,
@@ -136,6 +146,7 @@ function pack(
     portal,
     poll,
     retro,
+    feedback,
   };
 }
 
@@ -154,6 +165,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     enPortal,
     enPoll,
     enRetro,
+    enFeedback,
   ),
   nl: pack(
     nlCommon,
@@ -168,6 +180,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     nlPortal,
     nlPoll,
     nlRetro,
+    nlFeedback,
   ),
   de: pack(
     deCommon,
@@ -182,6 +195,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     dePortal,
     dePoll,
     deRetro,
+    deFeedback,
   ),
   fr: pack(
     frCommon,
@@ -196,6 +210,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     frPortal,
     frPoll,
     frRetro,
+    frFeedback,
   ),
   el: pack(
     elCommon,
@@ -210,6 +225,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     elPortal,
     elPoll,
     elRetro,
+    elFeedback,
   ),
   es: pack(
     esCommon,
@@ -224,6 +240,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     esPortal,
     esPoll,
     esRetro,
+    esFeedback,
   ),
   pt: pack(
     ptCommon,
@@ -238,6 +255,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     ptPortal,
     ptPoll,
     ptRetro,
+    ptFeedback,
   ),
   it: pack(
     itCommon,
@@ -252,6 +270,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     itPortal,
     itPoll,
     itRetro,
+    itFeedback,
   ),
   pl: pack(
     plCommon,
@@ -266,6 +285,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     plPortal,
     plPoll,
     plRetro,
+    plFeedback,
   ),
 };
 

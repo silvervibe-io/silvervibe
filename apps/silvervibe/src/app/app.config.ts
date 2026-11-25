@@ -12,6 +12,7 @@ import {
   FeatureFlagsService,
   provideSilvervibeAuth,
   provideSilvervibeFeatureFlags,
+  FEEDBACK_APP_ORIGIN,
   POLL_APP_ORIGIN,
   RETRO_APP_ORIGIN,
   STANDUP_APP_ORIGIN,
@@ -52,6 +53,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: RETRO_APP_ORIGIN,
       useValue: environment.retroAppOrigin,
+    },
+    {
+      provide: FEEDBACK_APP_ORIGIN,
+      useValue: environment.feedbackAppOrigin,
     },
     provideSilvervibeFeatureFlags(environment.growthbook),
     {
