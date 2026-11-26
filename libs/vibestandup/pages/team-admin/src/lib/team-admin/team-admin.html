@@ -446,6 +446,9 @@
           {{ 'standup.team.rebuildSummary' | transloco }}
         </button>
       </div>
+      <p class="text-xs text-base-content/60">
+        {{ 'standup.team.aiDigestNotice' | transloco }}
+      </p>
       <ul class="space-y-2 text-sm">
         @for (person of roster(); track person.userId) {
         <li class="rounded-lg bg-base-200 p-3">

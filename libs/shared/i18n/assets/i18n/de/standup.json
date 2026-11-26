@@ -175,7 +175,8 @@
     "tabDigests": "Digests",
     "tabPeople": "Personen",
     "reconnectAddon": "Die Verbindung wurde abgelehnt (HTTP {{status}}). Verbinde sie in der Workspace-Verwaltung erneut.",
-    "reconnectLink": "Workspace-Verwaltung öffnen."
+    "reconnectLink": "Workspace-Verwaltung öffnen.",
+    "aiDigestNotice": "If AI digests are enabled on the server, rebuilding or posting a digest may send today’s standup answers to Google Gemini for polishing. See the Privacy notice."
   },
   "workspace": {
     "title": "Workspace admin",

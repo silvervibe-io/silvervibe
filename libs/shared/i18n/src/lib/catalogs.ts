@@ -6,6 +6,7 @@ import deLanding from '../../assets/i18n/de/landing.json';
 import deNav from '../../assets/i18n/de/nav.json';
 import dePortal from '../../assets/i18n/de/portal.json';
 import dePrivacy from '../../assets/i18n/de/privacy.json';
+import deTerms from '../../assets/i18n/de/terms.json';
 import deShell from '../../assets/i18n/de/shell.json';
 import deStandup from '../../assets/i18n/de/standup.json';
 import deTools from '../../assets/i18n/de/tools.json';
@@ -20,6 +21,7 @@ import elLanding from '../../assets/i18n/el/landing.json';
 import elNav from '../../assets/i18n/el/nav.json';
 import elPortal from '../../assets/i18n/el/portal.json';
 import elPrivacy from '../../assets/i18n/el/privacy.json';
+import elTerms from '../../assets/i18n/el/terms.json';
 import elShell from '../../assets/i18n/el/shell.json';
 import elStandup from '../../assets/i18n/el/standup.json';
 import elTools from '../../assets/i18n/el/tools.json';
@@ -34,6 +36,7 @@ import enLanding from '../../assets/i18n/en/landing.json';
 import enNav from '../../assets/i18n/en/nav.json';
 import enPortal from '../../assets/i18n/en/portal.json';
 import enPrivacy from '../../assets/i18n/en/privacy.json';
+import enTerms from '../../assets/i18n/en/terms.json';
 import enShell from '../../assets/i18n/en/shell.json';
 import enStandup from '../../assets/i18n/en/standup.json';
 import enTools from '../../assets/i18n/en/tools.json';
@@ -48,6 +51,7 @@ import esLanding from '../../assets/i18n/es/landing.json';
 import esNav from '../../assets/i18n/es/nav.json';
 import esPortal from '../../assets/i18n/es/portal.json';
 import esPrivacy from '../../assets/i18n/es/privacy.json';
+import esTerms from '../../assets/i18n/es/terms.json';
 import esShell from '../../assets/i18n/es/shell.json';
 import esStandup from '../../assets/i18n/es/standup.json';
 import esTools from '../../assets/i18n/es/tools.json';
@@ -62,6 +66,7 @@ import frLanding from '../../assets/i18n/fr/landing.json';
 import frNav from '../../assets/i18n/fr/nav.json';
 import frPortal from '../../assets/i18n/fr/portal.json';
 import frPrivacy from '../../assets/i18n/fr/privacy.json';
+import frTerms from '../../assets/i18n/fr/terms.json';
 import frShell from '../../assets/i18n/fr/shell.json';
 import frStandup from '../../assets/i18n/fr/standup.json';
 import frTools from '../../assets/i18n/fr/tools.json';
@@ -76,6 +81,7 @@ import itLanding from '../../assets/i18n/it/landing.json';
 import itNav from '../../assets/i18n/it/nav.json';
 import itPortal from '../../assets/i18n/it/portal.json';
 import itPrivacy from '../../assets/i18n/it/privacy.json';
+import itTerms from '../../assets/i18n/it/terms.json';
 import itShell from '../../assets/i18n/it/shell.json';
 import itStandup from '../../assets/i18n/it/standup.json';
 import itTools from '../../assets/i18n/it/tools.json';
@@ -90,6 +96,7 @@ import nlLanding from '../../assets/i18n/nl/landing.json';
 import nlNav from '../../assets/i18n/nl/nav.json';
 import nlPortal from '../../assets/i18n/nl/portal.json';
 import nlPrivacy from '../../assets/i18n/nl/privacy.json';
+import nlTerms from '../../assets/i18n/nl/terms.json';
 import nlShell from '../../assets/i18n/nl/shell.json';
 import nlStandup from '../../assets/i18n/nl/standup.json';
 import nlTools from '../../assets/i18n/nl/tools.json';
@@ -104,6 +111,7 @@ import plLanding from '../../assets/i18n/pl/landing.json';
 import plNav from '../../assets/i18n/pl/nav.json';
 import plPortal from '../../assets/i18n/pl/portal.json';
 import plPrivacy from '../../assets/i18n/pl/privacy.json';
+import plTerms from '../../assets/i18n/pl/terms.json';
 import plShell from '../../assets/i18n/pl/shell.json';
 import plStandup from '../../assets/i18n/pl/standup.json';
 import plTools from '../../assets/i18n/pl/tools.json';
@@ -118,6 +126,7 @@ import ptLanding from '../../assets/i18n/pt/landing.json';
 import ptNav from '../../assets/i18n/pt/nav.json';
 import ptPortal from '../../assets/i18n/pt/portal.json';
 import ptPrivacy from '../../assets/i18n/pt/privacy.json';
+import ptTerms from '../../assets/i18n/pt/terms.json';
 import ptShell from '../../assets/i18n/pt/shell.json';
 import ptStandup from '../../assets/i18n/pt/standup.json';
 import ptTools from '../../assets/i18n/pt/tools.json';
@@ -133,6 +142,7 @@ function pack(
   auth: Translation,
   landing: Translation,
   privacy: Translation,
+  terms: Translation,
   standup: Translation,
   nav: Translation,
   about: Translation,
@@ -149,6 +159,7 @@ function pack(
     auth,
     landing,
     privacy,
+    terms,
     standup,
     nav,
     about,
@@ -169,6 +180,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     enAuth,
     enLanding,
     enPrivacy,
+    enTerms,
     enStandup,
     enNav,
     enAbout,
@@ -185,6 +197,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     nlAuth,
     nlLanding,
     nlPrivacy,
+    nlTerms,
     nlStandup,
     nlNav,
     nlAbout,
@@ -201,6 +214,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     deAuth,
     deLanding,
     dePrivacy,
+    deTerms,
     deStandup,
     deNav,
     deAbout,
@@ -217,6 +231,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     frAuth,
     frLanding,
     frPrivacy,
+    frTerms,
     frStandup,
     frNav,
     frAbout,
@@ -233,6 +248,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     elAuth,
     elLanding,
     elPrivacy,
+    elTerms,
     elStandup,
     elNav,
     elAbout,
@@ -249,6 +265,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     esAuth,
     esLanding,
     esPrivacy,
+    esTerms,
     esStandup,
     esNav,
     esAbout,
@@ -265,6 +282,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     ptAuth,
     ptLanding,
     ptPrivacy,
+    ptTerms,
     ptStandup,
     ptNav,
     ptAbout,
@@ -281,6 +299,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     itAuth,
     itLanding,
     itPrivacy,
+    itTerms,
     itStandup,
     itNav,
     itAbout,
@@ -297,6 +316,7 @@ const CATALOGS: Record<SilvervibeLang, Translation> = {
     plAuth,
     plLanding,
     plPrivacy,
+    plTerms,
     plStandup,
     plNav,
     plAbout,

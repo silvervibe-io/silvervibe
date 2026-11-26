@@ -86,6 +86,8 @@ describe('TeamAdmin', () => {
                     linkCopied: 'Copied',
                     todayEntries: 'Today',
                     rebuildSummary: 'Rebuild',
+                    aiDigestNotice:
+                      'AI digests may send standup text to Gemini.',
                     slackChannelTitle: 'Slack channel',
                     slackChannelHint: 'Override channel',
                     slackNotConnected: 'Not connected',

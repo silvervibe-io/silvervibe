@@ -59,6 +59,23 @@ export class SignIn {
   readonly busy = signal(false);
   readonly user = this.auth.user;
 
+  /** Legal docs live on the portal app; product apps open them on silvervibe.io / :4200. */
+  private readonly legalDocsOrigin = computed(() => {
+    if (typeof window === 'undefined') {
+      return 'https://silvervibe.io';
+    }
+    const { hostname, origin, port } = window.location;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return port === '4200' ? origin : 'http://localhost:4200';
+    }
+    if (hostname === 'silvervibe.io' || hostname === 'www.silvervibe.io') {
+      return origin;
+    }
+    return 'https://silvervibe.io';
+  });
+  readonly privacyHref = computed(() => `${this.legalDocsOrigin()}/privacy`);
+  readonly termsHref = computed(() => `${this.legalDocsOrigin()}/terms`);
+
   readonly loginModel = signal<SignInModel>({
     email: '',
     password: '',

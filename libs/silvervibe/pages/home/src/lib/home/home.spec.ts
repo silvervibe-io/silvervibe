@@ -76,6 +76,7 @@ describe('Home', () => {
                       'Silver Vibe™ is a personal open-source project (MIT).',
                     github: 'Source on GitHub',
                     privacy: 'Privacy',
+                    terms: 'Terms',
                   },
                 },
               });

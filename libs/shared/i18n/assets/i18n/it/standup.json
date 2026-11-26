@@ -175,7 +175,8 @@
     "tabDigests": "Riepiloghi",
     "tabPeople": "Persone",
     "reconnectAddon": "La connessione è stata rifiutata (HTTP {{status}}). Ricollegala nell’amministrazione dello spazio.",
-    "reconnectLink": "Apri l’amministrazione dello spazio."
+    "reconnectLink": "Apri l’amministrazione dello spazio.",
+    "aiDigestNotice": "If AI digests are enabled on the server, rebuilding or posting a digest may send today’s standup answers to Google Gemini for polishing. See the Privacy notice."
   },
   "workspace": {
     "title": "Workspace admin",

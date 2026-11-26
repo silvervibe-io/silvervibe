@@ -16,6 +16,12 @@
         >
         <span class="mx-2 text-base-content/30" aria-hidden="true">·</span>
         {{ 'privacy.crumb' | transloco }}
+        <span class="mx-2 text-base-content/30" aria-hidden="true">·</span>
+        <a
+          routerLink="/terms"
+          class="underline decoration-base-300 underline-offset-4 transition-colors hover:text-base-content"
+          >{{ 'landing.footer.terms' | transloco }}</a
+        >
       </p>
       <div class="flex items-center gap-2">
         <sv-lang-switch />
@@ -39,9 +45,34 @@
       class="mb-8 space-y-3 text-sm leading-relaxed text-base-content/75"
     >
       <h2 class="text-base font-semibold text-base-content">
+        {{ 'privacy.controller.title' | transloco }}
+      </h2>
+      <p>
+        {{ 'privacy.controller.body' | transloco }}
+        <a
+          class="underline decoration-base-300 underline-offset-4 hover:text-base-content"
+          href="mailto:info@silvervibe.io"
+          >info&#64;silvervibe.io</a
+        >.
+      </p>
+    </section>
+
+    <section
+      class="mb-8 space-y-3 text-sm leading-relaxed text-base-content/75"
+    >
+      <h2 class="text-base font-semibold text-base-content">
         {{ 'privacy.collect.title' | transloco }}
       </h2>
-      <p>{{ 'privacy.collect.body' | transloco }}</p>
+      <p>{{ 'privacy.collect.intro' | transloco }}</p>
+      <ul class="list-disc space-y-2 pl-5">
+        <li>{{ 'privacy.collect.account' | transloco }}</li>
+        <li>{{ 'privacy.collect.workspace' | transloco }}</li>
+        <li>{{ 'privacy.collect.standup' | transloco }}</li>
+        <li>{{ 'privacy.collect.products' | transloco }}</li>
+        <li>{{ 'privacy.collect.invites' | transloco }}</li>
+        <li>{{ 'privacy.collect.oauth' | transloco }}</li>
+        <li>{{ 'privacy.collect.technical' | transloco }}</li>
+      </ul>
     </section>
 
     <section
@@ -59,7 +90,33 @@
       <h2 class="text-base font-semibold text-base-content">
         {{ 'privacy.processors.title' | transloco }}
       </h2>
-      <p>{{ 'privacy.processors.body' | transloco }}</p>
+      <p>{{ 'privacy.processors.intro' | transloco }}</p>
+      <ul class="list-disc space-y-2 pl-5">
+        <li>{{ 'privacy.processors.firebase' | transloco }}</li>
+        <li>{{ 'privacy.processors.neon' | transloco }}</li>
+        <li>{{ 'privacy.processors.cloudflare' | transloco }}</li>
+        <li>{{ 'privacy.processors.cloudrun' | transloco }}</li>
+        <li>{{ 'privacy.processors.addons' | transloco }}</li>
+        <li>{{ 'privacy.processors.gemini' | transloco }}</li>
+      </ul>
+    </section>
+
+    <section
+      class="mb-8 space-y-3 text-sm leading-relaxed text-base-content/75"
+    >
+      <h2 class="text-base font-semibold text-base-content">
+        {{ 'privacy.transfers.title' | transloco }}
+      </h2>
+      <p>{{ 'privacy.transfers.body' | transloco }}</p>
+    </section>
+
+    <section
+      class="mb-8 space-y-3 text-sm leading-relaxed text-base-content/75"
+    >
+      <h2 class="text-base font-semibold text-base-content">
+        {{ 'privacy.ai.title' | transloco }}
+      </h2>
+      <p>{{ 'privacy.ai.body' | transloco }}</p>
     </section>
 
     <section
@@ -76,6 +133,7 @@
           >info&#64;silvervibe.io</a
         >.
       </p>
+      <p>{{ 'privacy.rightsExtra.body' | transloco }}</p>
     </section>
 
     <section class="space-y-3 text-sm leading-relaxed text-base-content/75">

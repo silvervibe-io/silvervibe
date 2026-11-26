@@ -20,8 +20,12 @@ export const I18N_SCOPES = [
   'auth',
   'landing',
   'privacy',
+  'terms',
   'standup',
   'poll',
+  'retro',
+  'feedback',
+  'meeting',
 ] as const;
 
 export type SilvervibeLang = (typeof AVAILABLE_LANGS)[number]['id'];

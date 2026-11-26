@@ -50,6 +50,10 @@ export const appRoutes: Route[] = [
     loadComponent: () => import('./privacy/privacy').then((m) => m.Privacy),
   },
   {
+    path: 'terms',
+    loadComponent: () => import('./terms/terms').then((m) => m.Terms),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

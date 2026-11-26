@@ -73,6 +73,10 @@ describe('SignIn', () => {
                     signedInAs: 'Signed in as {{ identity }}',
                     accountLink: 'Continue',
                     signOut: 'Sign out',
+                    legal:
+                      'By signing in you agree to the Terms of use and acknowledge the Privacy notice:',
+                    legalTerms: 'Terms of use',
+                    legalPrivacy: 'Privacy notice',
                   },
                 },
               });
@@ -94,6 +98,8 @@ describe('SignIn', () => {
     expect(compiled.textContent).toContain('Continue with GitHub');
     expect(compiled.querySelector('sv-icon[name="google"]')).toBeTruthy();
     expect(compiled.querySelector('sv-icon[name="github"]')).toBeTruthy();
+    expect(compiled.textContent).toContain('Terms of use');
+    expect(compiled.textContent).toContain('Privacy notice');
   });
 
   it('continues a signed-in user into the app without dropping the query', () => {

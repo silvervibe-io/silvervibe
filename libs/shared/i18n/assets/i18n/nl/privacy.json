@@ -1,25 +1,53 @@
 {
   "crumb": "Privacy",
-  "title": "Privacybeleid",
-  "updated": "Laatst bijgewerkt: 10 oktober 2026. Silver Vibe™ is een persoonlijk open-sourceproject. Contact",
+  "title": "Privacy notice",
+  "updated": "Last updated: 26 November 2026. Silver Vibe™ is a personal open-source project. This notice describes how we process personal data for the product at silvervibe.io. It is a working draft for transparency; a lawyer should review it before you rely on it for customers in the EEA/UK. Contact",
+  "controller": {
+    "title": "Who is responsible",
+    "body": "The project operator of Silver Vibe acts as controller for personal data processed through the hosted apps (portal, VibeStandup, VibePoll, VibeRetro, VibeFeedback, VibeMeeting) and the Nest API. Contact for privacy requests:"
+  },
   "collect": {
-    "title": "Wat we verzamelen",
-    "body": "Wanneer je inlogt (e-mail/wachtwoord, Google of GitHub via Firebase Authentication), verwerken we accountidentifiers zoals je e-mailadres, weergavenaam en Firebase-gebruikers-id. We slaan een bijbehorende gebruikersrij op in onze applicatiedatabase zodat de API je verzoeken kan autoriseren."
+    "title": "What we collect",
+    "intro": "Depending on which tools you use, we may process:",
+    "account": "Account identifiers from Firebase Authentication: email address, display name, and Firebase user id. We store a matching user row in Neon Postgres so the API can authorize requests.",
+    "workspace": "Workspace and team membership, roles, plan keys, and which tools are enabled for a workspace.",
+    "standup": "Standup entries (for example yesterday / today / needs help text), timezone, work-hours preferences, away periods, and generated team digests.",
+    "products": "Product content you create in other tools: poll questions and votes, retro notes, feedback prompts and answers, meeting agenda items, decisions, and actions.",
+    "invites": "In-app invites to workspace members (and any email addresses used only to send team invites when that feature is used).",
+    "oauth": "OAuth connection metadata and access tokens for add-ons you connect (Slack, Microsoft Teams, Jira, Linear, GitHub, GitLab, Bitbucket, Trello) so digests and mentions can run. Tokens are stored for the workspace and are not shown in the UI after connect.",
+    "technical": "Technical logs needed to operate and secure the service (for example request metadata on Cloud Run / Cloudflare)."
   },
   "use": {
-    "title": "Hoe we het gebruiken",
-    "body": "We gebruiken deze informatie alleen om inloggen te laten werken, API-routes te beschermen en het product te leveren. We verkopen geen persoonsgegevens. We gebruiken ze niet voor ongerelateerde reclame."
+    "title": "How we use it",
+    "body": "We use this data to provide sign-in, workspaces, the product tools you enable, digests and mentions to connected chat or trackers, and to secure and improve the service. We do not sell personal data. We do not use it for unrelated advertising. For EEA/UK users, the usual bases we rely on (subject to legal review) are performing the service you request and, where needed, legitimate interests in operating a secure product. Optional AI polish is described below."
   },
   "processors": {
-    "title": "Verwerkers",
-    "body": "Authenticatie wordt geleverd door Google Firebase Auth. Hosting en gerelateerde infrastructuur kunnen verzoeken verwerken om de dienst te laten draaien. Hun eigen privacyvoorwaarden gelden voor hun verwerking."
+    "title": "Processors and recipients",
+    "intro": "We use service providers that process data on our behalf or as independent providers of their own services:",
+    "firebase": "Google Firebase Authentication — sign-in.",
+    "neon": "Neon — Postgres application database.",
+    "cloudflare": "Cloudflare — DNS and Pages hosting for frontends.",
+    "cloudrun": "Google Cloud Run — Nest API and LangGraph AI service.",
+    "addons": "Slack, Microsoft Teams, Atlassian Jira, Linear, GitHub, GitLab, Bitbucket, and/or Trello — only when a workspace admin connects that add-on; digests or mentions may then include standup or related content you already stored.",
+    "gemini": "Google Gemini (via Google AI) — only when the operator enables AI standup digests and configures a Gemini API key; then standup entry text may be sent to Google to polish the digest. Classic (non-LLM) digests do not call Gemini."
+  },
+  "transfers": {
+    "title": "International transfers",
+    "body": "Several processors are based in the United States or process data globally (including Google and Cloudflare). Where GDPR applies, transfers rely on the safeguards those providers publish (for example Standard Contractual Clauses). Ask us if you need the current list of sub-processors for your workspace."
+  },
+  "ai": {
+    "title": "Optional AI polish (Gemini)",
+    "body": "AI digest polish is off unless the operator sets AI_STANDUP_SUMMARY on the API and a Gemini key on the AI service. When both are on, regenerating or posting a team digest may send that day’s standup answers to Google for rewriting. This is operator-controlled infrastructure configuration, not a per-user marketing consent box. Workspace admins should tell members before enabling it. You can ask us to confirm whether AI polish is currently enabled for the hosted environment."
   },
   "retention": {
-    "title": "Bewaring en rechten",
-    "body": "Accountgegevens worden bewaard zolang je account bestaat. Je kunt toegang of verwijdering aanvragen door te mailen naar"
+    "title": "Retention and your rights",
+    "body": "Account and product data are kept while your account and workspaces exist, and for a short period afterward in backups. You may request access, correction, deletion, restriction, or a copy of your data, and you may object where applicable, by emailing"
+  },
+  "rightsExtra": {
+    "body": "If you are in the EEA/UK you may also lodge a complaint with your local supervisory authority. Deleting your Firebase account does not automatically wipe every workspace row; contact us so we can help remove Neon data."
   },
   "changes": {
-    "title": "Wijzigingen",
-    "body": "We kunnen dit beleid bijwerken naarmate het project evolueert. De datum hierboven verandert dan. Voortgezet gebruik na een update betekent dat je het herziene beleid accepteert."
+    "title": "Changes",
+    "body": "We may update this notice as the product evolves. When we do, we change the date at the top of this page. Material changes will be called out on this page; we do not treat continued use alone as acceptance of a new policy. Please re-read this notice when the date changes."
   }
 }

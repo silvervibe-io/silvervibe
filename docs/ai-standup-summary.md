@@ -11,6 +11,11 @@ Issue: [#119](https://github.com/silvervibe-io/silvervibe/issues/119)
 3. Digests (Slack / Linear / GitHub / Jira) post the resulting markdown. AI
    failures soft-fall back to classic markdown.
 
+**Privacy:** AI digests are off unless `AI_STANDUP_SUMMARY` is enabled. Gemini
+polish only runs when that flag and a Gemini key are both set; standup answer
+text may then be sent to Google. Tell workspace members before turning this on.
+See [privacy.md](./privacy.md) and `/privacy`.
+
 ## Setup
 
 | Env                  | Where                           | Notes                                                                 |

@@ -1,0 +1,119 @@
+<main
+  class="relative min-h-screen overflow-hidden bg-base-100 px-6 py-16 text-base-content"
+>
+  <div
+    class="pointer-events-none absolute inset-0 bg-gradient-to-b from-base-200/90 via-base-100 to-base-100"
+    aria-hidden="true"
+  ></div>
+
+  <article class="relative z-10 mx-auto max-w-[40rem] text-left">
+    <div class="mb-6 flex items-center justify-between gap-4">
+      <p class="m-0 text-sm text-base-content/70">
+        <a
+          routerLink="/"
+          class="underline decoration-base-300 underline-offset-4 transition-colors hover:text-base-content"
+          >Silver Vibe</a
+        >
+        <span class="mx-2 text-base-content/30" aria-hidden="true">·</span>
+        {{ 'terms.crumb' | transloco }}
+        <span class="mx-2 text-base-content/30" aria-hidden="true">·</span>
+        <a
+          routerLink="/privacy"
+          class="underline decoration-base-300 underline-offset-4 transition-colors hover:text-base-content"
+          >{{ 'landing.footer.privacy' | transloco }}</a
+        >
+      </p>
+      <div class="flex items-center gap-2">
+        <sv-lang-switch />
+        <sv-theme-toggle />
+      </div>
+    </div>
+
+    <h1 class="mb-4 text-3xl font-bold tracking-[-0.04em] text-base-content">
+      {{ 'terms.title' | transloco }}
+    </h1>
+    <p class="mb-8 text-sm leading-relaxed text-base-content/70">
+      {{ 'terms.updated' | transloco }}
+      <a
+        class="underline decoration-base-300 underline-offset-4 hover:text-base-content"
+        href="mailto:info@silvervibe.io"
+        >info&#64;silvervibe.io</a
+      >.
+    </p>
+
+    <section
+      class="mb-8 space-y-3 text-sm leading-relaxed text-base-content/75"
+    >
+      <h2 class="text-base font-semibold text-base-content">
+        {{ 'terms.acceptance.title' | transloco }}
+      </h2>
+      <p>{{ 'terms.acceptance.body' | transloco }}</p>
+    </section>
+
+    <section
+      class="mb-8 space-y-3 text-sm leading-relaxed text-base-content/75"
+    >
+      <h2 class="text-base font-semibold text-base-content">
+        {{ 'terms.service.title' | transloco }}
+      </h2>
+      <p>{{ 'terms.service.body' | transloco }}</p>
+    </section>
+
+    <section
+      class="mb-8 space-y-3 text-sm leading-relaxed text-base-content/75"
+    >
+      <h2 class="text-base font-semibold text-base-content">
+        {{ 'terms.accounts.title' | transloco }}
+      </h2>
+      <p>{{ 'terms.accounts.body' | transloco }}</p>
+    </section>
+
+    <section
+      class="mb-8 space-y-3 text-sm leading-relaxed text-base-content/75"
+    >
+      <h2 class="text-base font-semibold text-base-content">
+        {{ 'terms.acceptable.title' | transloco }}
+      </h2>
+      <p>{{ 'terms.acceptable.body' | transloco }}</p>
+    </section>
+
+    <section
+      class="mb-8 space-y-3 text-sm leading-relaxed text-base-content/75"
+    >
+      <h2 class="text-base font-semibold text-base-content">
+        {{ 'terms.disclaimer.title' | transloco }}
+      </h2>
+      <p>{{ 'terms.disclaimer.body' | transloco }}</p>
+    </section>
+
+    <section
+      class="mb-8 space-y-3 text-sm leading-relaxed text-base-content/75"
+    >
+      <h2 class="text-base font-semibold text-base-content">
+        {{ 'terms.privacyLink.title' | transloco }}
+      </h2>
+      <p>
+        {{ 'terms.privacyLink.body' | transloco }}
+        <a
+          routerLink="/privacy"
+          class="underline decoration-base-300 underline-offset-4 hover:text-base-content"
+          >{{ 'landing.footer.privacy' | transloco }}</a
+        >.
+      </p>
+    </section>
+
+    <section class="space-y-3 text-sm leading-relaxed text-base-content/75">
+      <h2 class="text-base font-semibold text-base-content">
+        {{ 'terms.contact.title' | transloco }}
+      </h2>
+      <p>
+        {{ 'terms.contact.body' | transloco }}
+        <a
+          class="underline decoration-base-300 underline-offset-4 hover:text-base-content"
+          href="mailto:info@silvervibe.io"
+          >info&#64;silvervibe.io</a
+        >.
+      </p>
+    </section>
+  </article>
+</main>
