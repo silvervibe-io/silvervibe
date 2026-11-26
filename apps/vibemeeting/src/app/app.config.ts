@@ -5,7 +5,6 @@ import {
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
 import { provideSilvervibeApiClient } from '@silvervibe/shared/api-client';
@@ -17,7 +16,10 @@ import {
   provideSilvervibeAuth,
   provideSilvervibeFeatureFlags,
 } from '@silvervibe/shared/auth';
-import { provideSilvervibeI18n } from '@silvervibe/shared/i18n';
+import {
+  provideSilvervibeI18n,
+  toTranslocoReadySignal,
+} from '@silvervibe/shared/i18n';
 import { SHELL_LINKS, provideSilvervibeTheme } from '@silvervibe/shared/ui';
 import {
   PREVIEW_SWITCHER_EMAILS,
@@ -55,6 +57,7 @@ export const appConfig: ApplicationConfig = {
         return computed(() => auth.user()?.email ?? null);
       },
     },
+    ...provideSilvervibeI18n(),
     {
       provide: PORTAL_APP_ORIGIN,
       useFactory: () => defaultPortalAppOrigin(),
@@ -64,11 +67,9 @@ export const appConfig: ApplicationConfig = {
       useFactory: () => {
         const transloco = inject(TranslocoService);
         const portalOrigin = inject(PORTAL_APP_ORIGIN);
-        const lang = toSignal(transloco.langChanges$, {
-          initialValue: transloco.getActiveLang(),
-        });
+        const i18nReady = toTranslocoReadySignal(transloco);
         return computed(() => {
-          lang();
+          i18nReady();
           return meetingShellLinks(
             (key) => transloco.translate(key),
             `${portalOrigin}/portal`,
@@ -76,7 +77,6 @@ export const appConfig: ApplicationConfig = {
         });
       },
     },
-    ...provideSilvervibeI18n(),
     provideAppInitializer(initPlatform),
   ],
 };
