@@ -175,7 +175,8 @@
     "tabDigests": "Αναφορές",
     "tabPeople": "Άτομα",
     "reconnectAddon": "Η σύνδεση απορρίφθηκε (HTTP {{status}}). Συνδέστε την ξανά στη διαχείριση χώρου εργασίας.",
-    "reconnectLink": "Άνοιγμα διαχείρισης χώρου εργασίας."
+    "reconnectLink": "Άνοιγμα διαχείρισης χώρου εργασίας.",
+    "aiDigestNotice": "If AI digests are enabled on the server, rebuilding or posting a digest may send today’s standup answers to Google Gemini for polishing. See the Privacy notice."
   },
   "workspace": {
     "title": "Workspace admin",

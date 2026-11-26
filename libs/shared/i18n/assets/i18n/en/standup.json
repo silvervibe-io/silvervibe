@@ -111,6 +111,7 @@
     "stillOpen": "Still open",
     "away": "Away",
     "rebuildSummary": "Rebuild summary",
+    "aiDigestNotice": "If AI digests are enabled on the server, rebuilding or posting a digest may send today’s standup answers to Google Gemini for polishing. See the Privacy notice.",
     "reminderHour": "Reminder hour",
     "reminderMinute": "Reminder minute",
     "reminderHint": "A window reminds people when it opens. A deadline reminds them at that time. Together mode posts the summary then.",

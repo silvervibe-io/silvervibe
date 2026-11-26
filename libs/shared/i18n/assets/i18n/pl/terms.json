@@ -1,0 +1,33 @@
+{
+  "crumb": "Terms",
+  "title": "Terms of use",
+  "updated": "Last updated: 26 November 2026. Silver Vibe™ is a personal open-source project offered as-is. This short notice is a working draft; a lawyer should review it before you rely on it for customers in the EEA/UK. Contact",
+  "acceptance": {
+    "title": "Acceptance",
+    "body": "By creating an account or using the hosted apps at silvervibe.io (including product apps such as VibeStandup), you agree to these terms and to the Privacy notice. If you do not agree, do not use the service."
+  },
+  "service": {
+    "title": "The service",
+    "body": "Silver Vibe provides workspace tools for async standups and related team rituals. Features may change, break, or be withdrawn while the project is early. Source code is available under the MIT license on GitHub; hosting, branding, and the silvervibe.io domain remain under the project operator."
+  },
+  "accounts": {
+    "title": "Accounts and workspaces",
+    "body": "You must provide accurate sign-in details and keep credentials secure. Workspace admins control membership and which tools and add-ons are enabled. You are responsible for content you post (standup answers, polls, retros, feedback, meetings) and for complying with the rules of any third-party service you connect."
+  },
+  "acceptable": {
+    "title": "Acceptable use",
+    "body": "Do not abuse the service, attempt unauthorized access, scrape in a way that harms availability, upload unlawful content, or use the product to harass others. We may suspend accounts that put the service or other users at risk."
+  },
+  "disclaimer": {
+    "title": "Disclaimer",
+    "body": "The hosted service is provided without warranties of any kind, to the fullest extent permitted by law. The project operator is not liable for indirect or consequential loss arising from use of an early personal project. Nothing in these terms limits liability that cannot be limited under applicable law."
+  },
+  "privacyLink": {
+    "title": "Privacy",
+    "body": "Personal data is described in the Privacy notice."
+  },
+  "contact": {
+    "title": "Contact",
+    "body": "Questions about these terms:"
+  }
+}

@@ -29,24 +29,56 @@ describe('Privacy', () => {
                     toLight: 'Switch to light theme',
                   },
                 },
+                landing: { footer: { terms: 'Terms' } },
                 privacy: {
                   crumb: 'Privacy',
-                  title: 'Privacy policy',
-                  updated: 'Last updated: 10 October 2026.',
+                  title: 'Privacy notice',
+                  updated: 'Last updated: 26 November 2026.',
+                  controller: {
+                    title: 'Who is responsible',
+                    body: 'The project operator.',
+                  },
                   collect: {
                     title: 'What we collect',
-                    body: 'When you sign in via Firebase Authentication.',
+                    intro: 'We may process:',
+                    account: 'Firebase Authentication identifiers.',
+                    workspace: 'Workspace membership.',
+                    standup: 'Standup entries.',
+                    products: 'Other product content.',
+                    invites: 'Invites.',
+                    oauth: 'OAuth tokens.',
+                    technical: 'Technical logs.',
                   },
-                  use: { title: 'How we use it', body: 'Operate sign-in.' },
+                  use: { title: 'How we use it', body: 'Operate the product.' },
                   processors: {
-                    title: 'Processors',
-                    body: 'Google Firebase Auth.',
+                    title: 'Processors and recipients',
+                    intro: 'We use:',
+                    firebase: 'Google Firebase Auth.',
+                    neon: 'Neon Postgres.',
+                    cloudflare: 'Cloudflare.',
+                    cloudrun: 'Cloud Run.',
+                    addons: 'Connected add-ons.',
+                    gemini: 'Google Gemini when enabled.',
+                  },
+                  transfers: {
+                    title: 'International transfers',
+                    body: 'Some processors are in the United States.',
+                  },
+                  ai: {
+                    title: 'Optional AI polish (Gemini)',
+                    body: 'AI polish is off unless enabled.',
                   },
                   retention: {
-                    title: 'Retention & rights',
+                    title: 'Retention and your rights',
                     body: 'Account data is kept.',
                   },
-                  changes: { title: 'Changes', body: 'We may update.' },
+                  rightsExtra: {
+                    body: 'You may contact your supervisory authority.',
+                  },
+                  changes: {
+                    title: 'Changes',
+                    body: 'We update the date; continued use alone is not acceptance.',
+                  },
                 },
               });
             }
@@ -59,12 +91,17 @@ describe('Privacy', () => {
     fixture.detectChanges();
   });
 
-  it('renders the privacy policy heading', () => {
+  it('renders the privacy notice with processors and Gemini', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toContain(
-      'Privacy policy',
+      'Privacy notice',
     );
     expect(compiled.textContent).toContain('Firebase Authentication');
+    expect(compiled.textContent).toContain('Neon Postgres');
+    expect(compiled.textContent).toContain('Google Gemini');
     expect(compiled.textContent).toContain('info@silvervibe.io');
+    expect(compiled.textContent).toContain(
+      'continued use alone is not acceptance',
+    );
   });
 });

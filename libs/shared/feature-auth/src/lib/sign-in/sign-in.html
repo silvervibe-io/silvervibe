@@ -85,6 +85,24 @@
         {{ 'auth.signIn.github' | transloco }}
       </button>
     </div>
+    <p class="mt-6 text-xs leading-relaxed text-base-content/60">
+      {{ 'auth.signIn.legal' | transloco }}
+      <a
+        class="underline decoration-base-300 underline-offset-2 hover:text-base-content"
+        [href]="termsHref()"
+        target="_blank"
+        rel="noopener noreferrer"
+        >{{ 'auth.signIn.legalTerms' | transloco }}</a
+      >
+      ·
+      <a
+        class="underline decoration-base-300 underline-offset-2 hover:text-base-content"
+        [href]="privacyHref()"
+        target="_blank"
+        rel="noopener noreferrer"
+        >{{ 'auth.signIn.legalPrivacy' | transloco }}</a
+      >.
+    </p>
     } @if (error(); as message) {
     <p class="mt-6 text-sm text-error" role="alert">{{ message }}</p>
     }

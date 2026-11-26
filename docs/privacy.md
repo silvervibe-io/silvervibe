@@ -1,35 +1,68 @@
-# Privacy policy
+# Privacy notice
 
 Canonical page: [https://silvervibe.io/privacy](https://silvervibe.io/privacy)
 
-Last updated: 10 October 2026. Silver Vibe™ is a personal open-source project.
+Last updated: 26 November 2026. Silver Vibe™ is a personal open-source project.
+This markdown mirrors the in-app Transloco `privacy` catalog. It is a working
+draft for transparency; have a lawyer review controller identity, legal bases,
+retention, rights, and international transfers before relying on it for EEA/UK
+customers.
+
 Contact: info@silvervibe.io (delivery: [email-routing.md](./email-routing.md)).
+
+## Who is responsible
+
+The project operator of Silver Vibe acts as controller for personal data
+processed through the hosted apps (portal, VibeStandup, VibePoll, VibeRetro,
+VibeFeedback, VibeMeeting) and the Nest API.
 
 ## What we collect
 
-When you sign in (email/password, Google, or GitHub via Firebase Authentication),
-we process account identifiers such as your email address, display name, and
-Firebase user id. We store a matching user row in our application database so
-the API can authorize your requests.
+Depending on which tools you use, we may process:
+
+- **Account** — email, display name, Firebase user id; mirrored in Neon Postgres.
+- **Workspace** — membership, roles, plan keys, enabled tools.
+- **Standup** — entry text, timezone, work hours, away periods, team digests.
+- **Other products** — polls, retros, feedback answers, meeting notes.
+- **Invites** — in-app member invites (and invite emails when that feature is used).
+- **OAuth add-ons** — connection metadata and tokens for Slack, Teams, Jira,
+  Linear, GitHub, GitLab, Bitbucket, and/or Trello when connected.
+- **Technical** — logs needed to operate and secure Cloud Run / Cloudflare.
 
 ## How we use it
 
-We use this information only to operate sign-in, protect API routes, and provide
-the product. We do not sell personal data. We do not use it for unrelated
-advertising.
+To provide sign-in, workspaces, enabled tools, digests/mentions, and to secure
+the service. We do not sell personal data or use it for unrelated advertising.
 
-## Processors
+## Processors and recipients
 
-Authentication is provided by Google Firebase Auth. Hosting and related
-infrastructure may process requests as needed to run the service. Their own
-privacy terms apply to their processing.
+| Provider                                                             | Role                                                                                    |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Google Firebase Auth                                                 | Sign-in                                                                                 |
+| Neon                                                                 | Postgres app database                                                                   |
+| Cloudflare                                                           | DNS / Pages frontends                                                                   |
+| Google Cloud Run                                                     | Nest API + LangGraph AI                                                                 |
+| Slack / Teams / Jira / Linear / GitHub / GitLab / Bitbucket / Trello | Only when a workspace connects that add-on                                              |
+| Google Gemini                                                        | Only if AI digests + `GEMINI_API_KEY` are enabled (standup text may be sent for polish) |
+
+## International transfers
+
+Several processors process data in the US or globally. Where GDPR applies,
+transfers rely on the safeguards those providers publish (for example SCCs).
+
+## Optional AI polish (Gemini)
+
+Off unless the operator sets `AI_STANDUP_SUMMARY` on the API and a Gemini key
+on the AI service. See [ai-standup-summary.md](./ai-standup-summary.md).
+Workspace admins should tell members before enabling it.
 
 ## Retention and rights
 
-Account data is kept while your account exists. You may request access or
-deletion by emailing info@silvervibe.io.
+Data is kept while accounts/workspaces exist (plus short backup windows).
+Request access, correction, deletion, or a copy via info@silvervibe.io.
+EEA/UK users may also contact their supervisory authority.
 
 ## Changes
 
-We may update this policy as the project evolves. The date above will change
-when we do. Continued use after an update means you accept the revised policy.
+We update the date on this page when the notice changes. We do **not** treat
+continued use alone as acceptance of a new policy.
