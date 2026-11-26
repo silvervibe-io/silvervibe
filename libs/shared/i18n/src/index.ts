@@ -8,4 +8,5 @@ export {
   type SilvervibeLang,
 } from './lib/langs';
 export { provideSilvervibeI18n } from './lib/provide-i18n';
+export { toTranslocoReadySignal, translocoReady$ } from './lib/transloco-ready';
 export { SilvervibeTranslocoLoader } from './lib/transloco-loader';
