@@ -10,4 +10,16 @@ describe('feedbackShellLinks', () => {
       { label: 'feedback.nav.account', href: '/account' },
     ]);
   });
+
+  it('prepends an external portal link when provided', () => {
+    const links = feedbackShellLinks(
+      (key) => key,
+      'https://silvervibe.io/portal',
+    );
+    expect(links[0]).toEqual({
+      label: 'nav.portal',
+      href: 'https://silvervibe.io/portal',
+      external: true,
+    });
+  });
 });

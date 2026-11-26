@@ -10,4 +10,14 @@ describe('meetingShellLinks', () => {
       { label: 'meeting.nav.account', href: '/account' },
     ]);
   });
+
+  it('prepends an external portal link when provided', () => {
+    expect(
+      meetingShellLinks((key) => key, 'https://silvervibe.io/portal')[0],
+    ).toEqual({
+      label: 'nav.portal',
+      href: 'https://silvervibe.io/portal',
+      external: true,
+    });
+  });
 });

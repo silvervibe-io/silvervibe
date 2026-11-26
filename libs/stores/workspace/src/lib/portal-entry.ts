@@ -1,8 +1,8 @@
-import { TOOL_KEYS } from '@silvervibe/shared/feature-flags';
+import { TOOL_KEYS, type ToolKey } from '@silvervibe/shared/feature-flags';
 
 export type PortalEntry =
   | { kind: 'stay' }
-  | { kind: 'vibestandup'; workspaceId: string };
+  | { kind: 'product'; toolKey: ToolKey; workspaceId: string };
 
 type PortalMembership = {
   id: string;
@@ -19,8 +19,8 @@ const PRODUCT_TOOL_KEYS = new Set<string>([
 
 /**
  * After platform sign-in, stay on the portal so the user can pick among
- * products. Auto-enter Standup only when it is the sole enabled product on a
- * single workspace (legacy single-tool workspaces).
+ * products — unless there is exactly one workspace with exactly one enabled
+ * product tool, in which case auto-open that product.
  */
 export function resolvePortalEntry(
   memberships: readonly PortalMembership[],
@@ -32,13 +32,18 @@ export function resolvePortalEntry(
   const enabledProducts = only.tools.filter(
     (tool) => tool.enabled && PRODUCT_TOOL_KEYS.has(tool.toolKey),
   );
-  if (
-    enabledProducts.length === 1 &&
-    enabledProducts[0]?.toolKey === TOOL_KEYS.vibestandup
-  ) {
-    return { kind: 'vibestandup', workspaceId: only.id };
+  if (enabledProducts.length !== 1) {
+    return { kind: 'stay' };
   }
-  return { kind: 'stay' };
+  const toolKey = enabledProducts[0]?.toolKey;
+  if (!toolKey || !PRODUCT_TOOL_KEYS.has(toolKey)) {
+    return { kind: 'stay' };
+  }
+  return {
+    kind: 'product',
+    toolKey: toolKey as ToolKey,
+    workspaceId: only.id,
+  };
 }
 
 /** Standup URL that runs the one-shot role home, keeping the chosen workspace. */

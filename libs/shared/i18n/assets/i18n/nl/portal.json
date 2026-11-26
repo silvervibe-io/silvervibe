@@ -1,18 +1,43 @@
 {
-  "title": "Jouw portal",
-  "lead": "Werkruimtes en tools die voor jouw organisatie zijn ingeschakeld.",
-  "loading": "Werkruimtes laden…",
-  "empty": "Nog geen werkruimtes. Maak er hieronder een aan, of vraag een beheerder om je uit te nodigen.",
-  "workspace": "Werkruimte",
-  "tools": "Ingeschakelde tools",
-  "noTools": "Geen tools ingeschakeld voor deze werkruimte.",
+  "title": "Jouw workspace",
+  "lead": "Kies een workspace en open een tool. Admins kunnen tools hier aan- of uitzetten.",
+  "loading": "Workspaces laden…",
+  "empty": "Nog geen workspaces. Maak er hieronder een, of vraag een admin om je uit te nodigen.",
+  "workspace": "Workspace",
+  "tools": "Jouw tools",
+  "manageTools": "Tools beheren",
+  "noTools": "Nog geen tools ingeschakeld. Admins kunnen tools hieronder aanzetten.",
   "openTool": "Openen",
-  "adminHint": "Als werkruimtebeheerder kun je tools en teams beheren.",
-  "planHint": "Voorbeeldabonnement {{plan}}: max. {{teams}} teams, {{members}} leden per team (alleen UI — API gebruikt echte rollen).",
-  "createTitle": "Werkruimte aanmaken",
-  "addWorkspace": "Nog een werkruimte aanmaken",
+  "toolEnabled": "Aan",
+  "toolDisabled": "Uit",
+  "planHint": "Voorbeeldplan {{plan}}: tot {{teams}} teams, {{members}} leden per team (alleen preview — Nest gebruikt nog steeds de workspace-planKey).",
+  "createTitle": "Workspace maken",
+  "addWorkspace": "Nog een workspace maken",
   "createName": "Naam",
-  "createSlug": "Slug",
-  "createSubmit": "Aanmaken",
-  "createSuccess": "Werkruimte aangemaakt."
+  "createSlug": "URL-slug",
+  "createSlugAdvanced": "URL-slug bewerken",
+  "createSubmit": "Maken",
+  "createSuccess": "Workspace gemaakt.",
+  "tool": {
+    "vibestandup": {
+      "title": "VibeStandup",
+      "body": "Asynchrone daily standups voor je team."
+    },
+    "vibepoll": {
+      "title": "VibePoll",
+      "body": "Snelle polls en stemmen in de workspace."
+    },
+    "viberetro": {
+      "title": "VibeRetro",
+      "body": "Retrospectives met notities en een afsluitende samenvatting."
+    },
+    "vibefeedback": {
+      "title": "VibeFeedback",
+      "body": "Gestructureerde feedbackverzoeken en antwoorden."
+    },
+    "vibemeeting": {
+      "title": "VibeMeeting",
+      "body": "Meeting-agenda’s, besluiten en acties."
+    }
+  }
 }

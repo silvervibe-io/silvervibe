@@ -1,18 +1,43 @@
 {
-  "title": "Twój portal",
-  "lead": "Przestrzenie robocze i narzędzia włączone dla Twojej organizacji.",
+  "title": "Twoja przestrzeń robocza",
+  "lead": "Wybierz przestrzeń i otwórz narzędzie. Administratorzy mogą tu włączać i wyłączać narzędzia.",
   "loading": "Ładowanie przestrzeni…",
-  "empty": "Brak przestrzeni. Utwórz jedną poniżej albo poproś admina o zaproszenie.",
+  "empty": "Brak przestrzeni. Utwórz jedną poniżej albo poproś administratora o zaproszenie.",
   "workspace": "Przestrzeń robocza",
-  "tools": "Włączone narzędzia",
-  "noTools": "Brak włączonych narzędzi dla tej przestrzeni.",
+  "tools": "Twoje narzędzia",
+  "manageTools": "Zarządzaj narzędziami",
+  "noTools": "Brak włączonych narzędzi. Administratorzy mogą je włączyć poniżej.",
   "openTool": "Otwórz",
-  "adminHint": "Jako admin przestrzeni możesz zarządzać narzędziami i zespołami.",
-  "planHint": "Podgląd planu {{plan}}: do {{teams}} zespołów, {{members}} członków na zespół (tylko UI — API używa prawdziwych ról).",
+  "toolEnabled": "Włączone",
+  "toolDisabled": "Wyłączone",
+  "planHint": "Podgląd planu {{plan}}: do {{teams}} zespołów, {{members}} członków na zespół (tylko podgląd — Nest nadal egzekwuje planKey przestrzeni).",
   "createTitle": "Utwórz przestrzeń",
   "addWorkspace": "Utwórz kolejną przestrzeń",
   "createName": "Nazwa",
-  "createSlug": "Slug",
+  "createSlug": "Slug URL",
+  "createSlugAdvanced": "Edytuj slug URL",
   "createSubmit": "Utwórz",
-  "createSuccess": "Przestrzeń utworzona."
+  "createSuccess": "Przestrzeń utworzona.",
+  "tool": {
+    "vibestandup": {
+      "title": "VibeStandup",
+      "body": "Asynchroniczne codzienne standupy dla zespołu."
+    },
+    "vibepoll": {
+      "title": "VibePoll",
+      "body": "Szybkie ankiety i głosowania w przestrzeni."
+    },
+    "viberetro": {
+      "title": "VibeRetro",
+      "body": "Retrospektywy z notatkami i podsumowaniem zamknięcia."
+    },
+    "vibefeedback": {
+      "title": "VibeFeedback",
+      "body": "Ustrukturyzowane prośby o feedback i odpowiedzi."
+    },
+    "vibemeeting": {
+      "title": "VibeMeeting",
+      "body": "Agendy spotkań, decyzje i działania."
+    }
+  }
 }

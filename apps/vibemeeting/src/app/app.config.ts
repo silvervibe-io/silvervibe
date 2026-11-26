@@ -11,7 +11,9 @@ import { TranslocoService } from '@jsverse/transloco';
 import { provideSilvervibeApiClient } from '@silvervibe/shared/api-client';
 import {
   AuthService,
+  defaultPortalAppOrigin,
   FeatureFlagsService,
+  PORTAL_APP_ORIGIN,
   provideSilvervibeAuth,
   provideSilvervibeFeatureFlags,
 } from '@silvervibe/shared/auth';
@@ -54,15 +56,23 @@ export const appConfig: ApplicationConfig = {
       },
     },
     {
+      provide: PORTAL_APP_ORIGIN,
+      useFactory: () => defaultPortalAppOrigin(),
+    },
+    {
       provide: SHELL_LINKS,
       useFactory: () => {
         const transloco = inject(TranslocoService);
+        const portalOrigin = inject(PORTAL_APP_ORIGIN);
         const lang = toSignal(transloco.langChanges$, {
           initialValue: transloco.getActiveLang(),
         });
         return computed(() => {
           lang();
-          return meetingShellLinks((key) => transloco.translate(key));
+          return meetingShellLinks(
+            (key) => transloco.translate(key),
+            `${portalOrigin}/portal`,
+          );
         });
       },
     },

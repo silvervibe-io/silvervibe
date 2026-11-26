@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   OnInit,
   signal,
@@ -17,7 +18,11 @@ import {
   RETRO_APP_ORIGIN,
   STANDUP_APP_ORIGIN,
 } from '@silvervibe/shared/auth';
-import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
+import {
+  getVibestandupLimits,
+  TOOL_KEYS,
+  type ToolKey,
+} from '@silvervibe/shared/feature-flags';
 import { Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import { UserFacade } from '@silvervibe/stores/user';
@@ -35,6 +40,25 @@ type CreateWorkspaceModel = {
   name: string;
   slug: string;
 };
+
+const PRODUCT_TOOL_KEYS = [
+  TOOL_KEYS.vibestandup,
+  TOOL_KEYS.vibepoll,
+  TOOL_KEYS.viberetro,
+  TOOL_KEYS.vibefeedback,
+  TOOL_KEYS.vibemeeting,
+] as const;
+
+/** URL-safe slug from a workspace display name. */
+export function slugifyWorkspaceName(name: string): string {
+  const slug = name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 48);
+  return slug || 'workspace';
+}
 
 @Component({
   selector: 'sv-portal',
@@ -84,9 +108,21 @@ export class Portal implements OnInit {
       maxMembersPerTeam: limits.maxMembersPerTeam,
     };
   });
+  /** Product tools for admins to enable/disable on the hub. */
+  readonly manageTools = computed(() => {
+    const existing = this.selected()?.tools ?? [];
+    const byKey = new Map(existing.map((tool) => [tool.toolKey, tool]));
+    return PRODUCT_TOOL_KEYS.map((toolKey) => {
+      const current = byKey.get(toolKey);
+      return current ?? { toolKey, enabled: false };
+    });
+  });
   readonly openingTool = signal(false);
+  readonly togglingTool = signal<string | null>(null);
   readonly createMessage = signal<string | null>(null);
   readonly createError = signal<string | null>(null);
+  readonly showSlug = signal(false);
+  readonly slugManual = signal(false);
 
   readonly workspaceModel = signal<CreateWorkspaceModel>({
     name: '',
@@ -97,27 +133,44 @@ export class Portal implements OnInit {
     required(schemaPath.slug);
   });
 
-  async ngOnInit(): Promise<void> {
-    const enter = this.route.snapshot.queryParamMap.get('enter') === '1';
-    await this.workspaces.loadMyWorkspaces();
-    if (!enter) {
-      return;
-    }
-    const decision = resolvePortalEntry(this.workspaces.memberships());
-    if (decision.kind === 'vibestandup') {
-      await this.openVibeStandup(decision.workspaceId);
-      return;
-    }
-    await this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { enter: null },
-      queryParamsHandling: 'merge',
-      replaceUrl: true,
+  constructor() {
+    effect(() => {
+      const name = this.workspaceModel().name;
+      if (this.slugManual()) {
+        return;
+      }
+      const next = slugifyWorkspaceName(name);
+      if (this.workspaceModel().slug !== next) {
+        this.workspaceModel.update((model) => ({ ...model, slug: next }));
+      }
     });
+  }
+
+  async ngOnInit(): Promise<void> {
+    const hadEnter = this.route.snapshot.queryParamMap.get('enter') === '1';
+    await this.workspaces.loadMyWorkspaces();
+    const decision = resolvePortalEntry(this.workspaces.memberships());
+    if (decision.kind === 'product') {
+      await this.openProduct(decision.toolKey, decision.workspaceId);
+      return;
+    }
+    if (hadEnter) {
+      await this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { enter: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
   }
 
   selectWorkspace(workspaceId: string): void {
     this.workspaces.selectWorkspace(workspaceId);
+  }
+
+  markSlugManual(): void {
+    this.slugManual.set(true);
+    this.showSlug.set(true);
   }
 
   async createWorkspace(event: Event): Promise<void> {
@@ -128,8 +181,13 @@ export class Portal implements OnInit {
       action: async () => {
         try {
           const body = this.workspaceModel();
-          await this.workspaces.createWorkspace(body);
+          await this.workspaces.createWorkspace({
+            name: body.name.trim(),
+            slug: (body.slug || slugifyWorkspaceName(body.name)).trim(),
+          });
           this.workspaceModel.set({ name: '', slug: '' });
+          this.slugManual.set(false);
+          this.showSlug.set(false);
           this.createMessage.set('portal.createSuccess');
         } catch (err: unknown) {
           this.createError.set(
@@ -139,6 +197,46 @@ export class Portal implements OnInit {
         return undefined;
       },
     });
+  }
+
+  async toggleTool(toolKey: string, enabled: boolean): Promise<void> {
+    const ws = this.selected();
+    if (!ws || !this.isAdmin()) {
+      return;
+    }
+    this.togglingTool.set(toolKey);
+    try {
+      await this.workspaces.setToolEntitlement(ws.id, toolKey, enabled);
+      await this.workspaces.loadMyWorkspaces();
+      this.workspaces.selectWorkspace(ws.id);
+    } finally {
+      this.togglingTool.set(null);
+    }
+  }
+
+  async openProduct(
+    toolKey: ToolKey | string,
+    workspaceId?: string,
+  ): Promise<void> {
+    switch (toolKey) {
+      case TOOL_KEYS.vibestandup:
+        await this.openVibeStandup(workspaceId);
+        return;
+      case TOOL_KEYS.vibepoll:
+        await this.openVibePoll(workspaceId);
+        return;
+      case TOOL_KEYS.viberetro:
+        await this.openVibeRetro(workspaceId);
+        return;
+      case TOOL_KEYS.vibefeedback:
+        await this.openVibeFeedback(workspaceId);
+        return;
+      case TOOL_KEYS.vibemeeting:
+        await this.openVibeMeeting(workspaceId);
+        return;
+      default:
+        return;
+    }
   }
 
   async openVibeStandup(workspaceId?: string): Promise<void> {

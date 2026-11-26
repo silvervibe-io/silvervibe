@@ -1,18 +1,43 @@
 {
-  "title": "O seu portal",
-  "lead": "Espaços de trabalho e ferramentas ativadas para a sua organização.",
+  "title": "O seu espaço de trabalho",
+  "lead": "Escolha um espaço e abra uma ferramenta. Os admins podem ativar ou desativar ferramentas aqui.",
   "loading": "A carregar espaços…",
-  "empty": "Ainda não há espaços. Crie um abaixo, ou peça a um admin para o convidar.",
+  "empty": "Ainda sem espaços. Crie um abaixo, ou peça a um admin para o convidar.",
   "workspace": "Espaço de trabalho",
-  "tools": "Ferramentas ativadas",
-  "noTools": "Nenhuma ferramenta ativada para este espaço.",
+  "tools": "As suas ferramentas",
+  "manageTools": "Gerir ferramentas",
+  "noTools": "Ainda sem ferramentas ativas. Os admins podem ativá-las abaixo.",
   "openTool": "Abrir",
-  "adminHint": "Como admin do espaço pode gerir ferramentas e equipas.",
-  "planHint": "Plano de pré-visualização {{plan}}: até {{teams}} equipas, {{members}} membros por equipa (apenas UI — a API usa papéis reais).",
+  "toolEnabled": "Ativa",
+  "toolDisabled": "Inativa",
+  "planHint": "Pré-visualização do plano {{plan}}: até {{teams}} equipas, {{members}} membros por equipa (só pré-visualização — o Nest continua a aplicar o planKey do espaço).",
   "createTitle": "Criar um espaço",
   "addWorkspace": "Criar outro espaço",
   "createName": "Nome",
-  "createSlug": "Slug",
+  "createSlug": "Slug do URL",
+  "createSlugAdvanced": "Editar slug do URL",
   "createSubmit": "Criar",
-  "createSuccess": "Espaço criado."
+  "createSuccess": "Espaço criado.",
+  "tool": {
+    "vibestandup": {
+      "title": "VibeStandup",
+      "body": "Standups diários assíncronos para a sua equipa."
+    },
+    "vibepoll": {
+      "title": "VibePoll",
+      "body": "Sondagens e votos rápidos no espaço."
+    },
+    "viberetro": {
+      "title": "VibeRetro",
+      "body": "Retrospectivas com notas e um resumo de fecho."
+    },
+    "vibefeedback": {
+      "title": "VibeFeedback",
+      "body": "Pedidos e respostas de feedback estruturado."
+    },
+    "vibemeeting": {
+      "title": "VibeMeeting",
+      "body": "Agendas, decisões e ações de reunião."
+    }
+  }
 }
