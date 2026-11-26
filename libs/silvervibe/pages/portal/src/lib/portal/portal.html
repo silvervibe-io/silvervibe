@@ -59,53 +59,22 @@
         <li
           class="flex flex-wrap items-center justify-between gap-3 border-b border-base-300 py-3"
         >
-          <span class="font-medium">{{ tool.toolKey }}</span>
-          @if (tool.toolKey === 'vibestandup') {
+          <div class="min-w-0 space-y-0.5">
+            <p class="font-medium">
+              {{ 'portal.tool.' + tool.toolKey + '.title' | transloco }}
+            </p>
+            <p class="text-sm text-base-content/60">
+              {{ 'portal.tool.' + tool.toolKey + '.body' | transloco }}
+            </p>
+          </div>
           <button
             type="button"
             class="btn btn-primary btn-sm"
             [disabled]="openingTool()"
-            (click)="openVibeStandup()"
+            (click)="openProduct(tool.toolKey)"
           >
             {{ 'portal.openTool' | transloco }}
           </button>
-          } @else if (tool.toolKey === 'vibepoll') {
-          <button
-            type="button"
-            class="btn btn-primary btn-sm"
-            [disabled]="openingTool()"
-            (click)="openVibePoll()"
-          >
-            {{ 'portal.openTool' | transloco }}
-          </button>
-          } @else if (tool.toolKey === 'viberetro') {
-          <button
-            type="button"
-            class="btn btn-primary btn-sm"
-            [disabled]="openingTool()"
-            (click)="openVibeRetro()"
-          >
-            {{ 'portal.openTool' | transloco }}
-          </button>
-          } @else if (tool.toolKey === 'vibefeedback') {
-          <button
-            type="button"
-            class="btn btn-primary btn-sm"
-            [disabled]="openingTool()"
-            (click)="openVibeFeedback()"
-          >
-            {{ 'portal.openTool' | transloco }}
-          </button>
-          } @else if (tool.toolKey === 'vibemeeting') {
-          <button
-            type="button"
-            class="btn btn-primary btn-sm"
-            [disabled]="openingTool()"
-            (click)="openVibeMeeting()"
-          >
-            {{ 'portal.openTool' | transloco }}
-          </button>
-          }
         </li>
         }
       </ul>
@@ -113,9 +82,40 @@
     </section>
 
     @if (isAdmin()) {
-    <p class="text-sm text-base-content/60">
-      {{ 'portal.adminHint' | transloco }}
-    </p>
+    <section class="space-y-3">
+      <h2 class="text-xl font-semibold">
+        {{ 'portal.manageTools' | transloco }}
+      </h2>
+      <ul class="space-y-2">
+        @for (tool of manageTools(); track tool.toolKey) {
+        <li
+          class="flex flex-wrap items-center justify-between gap-3 border-b border-base-300 py-3"
+        >
+          <div class="min-w-0 space-y-0.5">
+            <p class="font-medium">
+              {{ 'portal.tool.' + tool.toolKey + '.title' | transloco }}
+            </p>
+            <p class="text-sm text-base-content/60">
+              {{ 'portal.tool.' + tool.toolKey + '.body' | transloco }}
+            </p>
+          </div>
+          <label class="label cursor-pointer gap-2">
+            <span class="text-sm text-base-content/70">
+              {{ (tool.enabled ? 'portal.toolEnabled' : 'portal.toolDisabled') |
+              transloco }}
+            </span>
+            <input
+              type="checkbox"
+              class="toggle toggle-primary"
+              [checked]="tool.enabled"
+              [disabled]="togglingTool() === tool.toolKey"
+              (change)="toggleTool(tool.toolKey, $any($event.target).checked)"
+            />
+          </label>
+        </li>
+        }
+      </ul>
+    </section>
     } }
 
     <form
@@ -135,6 +135,15 @@
           [formField]="workspaceForm.name"
         />
       </fieldset>
+      @if (!showSlug()) {
+      <button
+        type="button"
+        class="btn btn-ghost btn-sm self-start"
+        (click)="showSlug.set(true)"
+      >
+        {{ 'portal.createSlugAdvanced' | transloco }}
+      </button>
+      } @else {
       <fieldset class="fieldset w-full">
         <legend class="fieldset-legend">
           {{ 'portal.createSlug' | transloco }}
@@ -142,8 +151,10 @@
         <input
           class="input input-bordered w-full"
           [formField]="workspaceForm.slug"
+          (input)="markSlugManual()"
         />
       </fieldset>
+      }
       <button type="submit" class="btn btn-primary btn-sm self-start">
         {{ 'portal.createSubmit' | transloco }}
       </button>

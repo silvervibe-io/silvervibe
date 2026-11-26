@@ -11,7 +11,9 @@ import { TranslocoService } from '@jsverse/transloco';
 import { provideSilvervibeApiClient } from '@silvervibe/shared/api-client';
 import {
   AuthService,
+  defaultPortalAppOrigin,
   FeatureFlagsService,
+  PORTAL_APP_ORIGIN,
   provideSilvervibeAuth,
   provideSilvervibeFeatureFlags,
 } from '@silvervibe/shared/auth';
@@ -56,12 +58,17 @@ export const appConfig: ApplicationConfig = {
       },
     },
     {
+      provide: PORTAL_APP_ORIGIN,
+      useFactory: () => defaultPortalAppOrigin(),
+    },
+    {
       provide: SHELL_LINKS,
       useFactory: () => {
         const workspaces = inject(WorkspaceFacade);
         const standup = inject(StandupFacade);
         const preview = inject(PreviewContextStore);
         const transloco = inject(TranslocoService);
+        const portalOrigin = inject(PORTAL_APP_ORIGIN);
         const lang = toSignal(transloco.langChanges$, {
           initialValue: transloco.getActiveLang(),
         });
@@ -80,6 +87,7 @@ export const appConfig: ApplicationConfig = {
                 : standup.teams().map((team) => team.role),
             },
             (key) => transloco.translate(key),
+            `${portalOrigin}/portal`,
           );
         });
       },

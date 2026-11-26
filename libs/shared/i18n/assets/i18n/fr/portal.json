@@ -1,18 +1,43 @@
 {
-  "title": "Votre portail",
-  "lead": "Espaces de travail et outils activés pour votre organisation.",
+  "title": "Votre espace de travail",
+  "lead": "Choisissez un espace et ouvrez un outil. Les admins peuvent activer ou désactiver les outils ici.",
   "loading": "Chargement des espaces…",
-  "empty": "Aucun espace pour l’instant. Créez-en un ci-dessous, ou demandez une invitation à un admin.",
+  "empty": "Aucun espace pour l’instant. Créez-en un ci-dessous, ou demandez à un admin de vous inviter.",
   "workspace": "Espace de travail",
-  "tools": "Outils activés",
-  "noTools": "Aucun outil activé pour cet espace.",
+  "tools": "Vos outils",
+  "manageTools": "Gérer les outils",
+  "noTools": "Aucun outil activé. Les admins peuvent les activer ci-dessous.",
   "openTool": "Ouvrir",
-  "adminHint": "En tant qu’admin de l’espace, vous pouvez gérer les outils et les équipes.",
-  "planHint": "Plan d’aperçu {{plan}} : jusqu’à {{teams}} équipes, {{members}} membres par équipe (UI seulement — l’API utilise les vrais rôles).",
+  "toolEnabled": "Activé",
+  "toolDisabled": "Désactivé",
+  "planHint": "Aperçu du plan {{plan}} : jusqu’à {{teams}} équipes, {{members}} membres par équipe (aperçu uniquement — Nest applique toujours le planKey de l’espace).",
   "createTitle": "Créer un espace",
   "addWorkspace": "Créer un autre espace",
   "createName": "Nom",
-  "createSlug": "Slug",
+  "createSlug": "Slug d’URL",
+  "createSlugAdvanced": "Modifier le slug d’URL",
   "createSubmit": "Créer",
-  "createSuccess": "Espace créé."
+  "createSuccess": "Espace créé.",
+  "tool": {
+    "vibestandup": {
+      "title": "VibeStandup",
+      "body": "Standups quotidiens asynchrones pour votre équipe."
+    },
+    "vibepoll": {
+      "title": "VibePoll",
+      "body": "Sondages et votes rapides dans l’espace."
+    },
+    "viberetro": {
+      "title": "VibeRetro",
+      "body": "Rétrospectives avec notes et résumé de clôture."
+    },
+    "vibefeedback": {
+      "title": "VibeFeedback",
+      "body": "Demandes et réponses de feedback structurées."
+    },
+    "vibemeeting": {
+      "title": "VibeMeeting",
+      "body": "Ordres du jour, décisions et actions de réunion."
+    }
+  }
 }

@@ -28,7 +28,7 @@ describe('resolvePortalEntry', () => {
     ).toEqual({ kind: 'stay' });
   });
 
-  it('stays when the only workspace does not include vibestandup', () => {
+  it('stays when the only workspace has no enabled product', () => {
     expect(
       resolvePortalEntry([
         {
@@ -39,10 +39,22 @@ describe('resolvePortalEntry', () => {
     ).toEqual({ kind: 'stay' });
   });
 
-  it('opens vibestandup when it is the only enabled product', () => {
+  it('opens the only enabled product (standup)', () => {
     expect(
       resolvePortalEntry([{ id: 'ws1', tools: [slack, standup] }]),
-    ).toEqual({ kind: 'vibestandup', workspaceId: 'ws1' });
+    ).toEqual({
+      kind: 'product',
+      toolKey: 'vibestandup',
+      workspaceId: 'ws1',
+    });
+  });
+
+  it('opens the only enabled product (poll)', () => {
+    expect(resolvePortalEntry([{ id: 'ws1', tools: [poll] }])).toEqual({
+      kind: 'product',
+      toolKey: 'vibepoll',
+      workspaceId: 'ws1',
+    });
   });
 
   it('stays when multiple product tools are enabled', () => {

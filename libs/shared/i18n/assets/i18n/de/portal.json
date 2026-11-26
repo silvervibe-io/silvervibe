@@ -1,18 +1,43 @@
 {
-  "title": "Dein Portal",
-  "lead": "Workspaces und Tools, die für deine Organisation aktiviert sind.",
+  "title": "Dein Workspace",
+  "lead": "Wähle einen Workspace und öffne ein Tool. Admins können Tools hier ein- und ausschalten.",
   "loading": "Workspaces werden geladen…",
   "empty": "Noch keine Workspaces. Erstelle unten einen, oder bitte einen Admin um eine Einladung.",
   "workspace": "Workspace",
-  "tools": "Aktivierte Tools",
-  "noTools": "Für diesen Workspace sind keine Tools aktiviert.",
+  "tools": "Deine Tools",
+  "manageTools": "Tools verwalten",
+  "noTools": "Noch keine Tools aktiviert. Admins können Tools unten einschalten.",
   "openTool": "Öffnen",
-  "adminHint": "Als Workspace-Admin kannst du Tools und Teams verwalten.",
-  "planHint": "Vorschau-Plan {{plan}}: bis zu {{teams}} Teams, {{members}} Mitglieder pro Team (nur UI — API nutzt echte Rollen).",
+  "toolEnabled": "An",
+  "toolDisabled": "Aus",
+  "planHint": "Vorschau-Plan {{plan}}: bis zu {{teams}} Teams, {{members}} Mitglieder pro Team (nur Vorschau — Nest nutzt weiterhin den Workspace-planKey).",
   "createTitle": "Workspace erstellen",
   "addWorkspace": "Weiteren Workspace erstellen",
   "createName": "Name",
-  "createSlug": "Slug",
+  "createSlug": "URL-Slug",
+  "createSlugAdvanced": "URL-Slug bearbeiten",
   "createSubmit": "Erstellen",
-  "createSuccess": "Workspace erstellt."
+  "createSuccess": "Workspace erstellt.",
+  "tool": {
+    "vibestandup": {
+      "title": "VibeStandup",
+      "body": "Asynchrone Daily Standups für dein Team."
+    },
+    "vibepoll": {
+      "title": "VibePoll",
+      "body": "Schnelle Umfragen und Abstimmungen im Workspace."
+    },
+    "viberetro": {
+      "title": "VibeRetro",
+      "body": "Retrospektiven mit Notizen und Abschluss-Zusammenfassung."
+    },
+    "vibefeedback": {
+      "title": "VibeFeedback",
+      "body": "Strukturierte Feedback-Anfragen und Antworten."
+    },
+    "vibemeeting": {
+      "title": "VibeMeeting",
+      "body": "Meeting-Agenden, Entscheidungen und Maßnahmen."
+    }
+  }
 }

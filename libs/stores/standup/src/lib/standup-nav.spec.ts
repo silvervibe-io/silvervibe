@@ -77,4 +77,17 @@ describe('standupShellLinks', () => {
       '/account',
     ]);
   });
+
+  it('prepends an external portal link when provided', () => {
+    const links = standupShellLinks(
+      { workspaceRole: 'MEMBER', teamRoles: [] },
+      (key) => key,
+      'https://silvervibe.io/portal',
+    );
+    expect(links[0]).toEqual({
+      label: 'nav.portal',
+      href: 'https://silvervibe.io/portal',
+      external: true,
+    });
+  });
 });
