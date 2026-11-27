@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "polls": "Sondages",
+    "create": "Créer",
+    "account": "Compte"
+  },
+  "list": {
+    "title": "Sondages d’équipe",
+    "lead": "Sondages pour {{workspace}}",
+    "create": "Nouveau sondage",
+    "loading": "Chargement des sondages…",
+    "empty": "Aucun sondage pour l’instant. Créez-en un pour votre espace.",
+    "meta": "{{status}} · {{options}} options · {{invites}} invités"
+  },
+  "create": {
+    "title": "Créer un sondage",
+    "lead": "Invitez les membres dans l’app. Pas d’e-mail dans cette version.",
+    "question": "Question",
+    "options": "Options (au moins deux)",
+    "allowMulti": "Autoriser plusieurs choix",
+    "startsAt": "Début (optionnel)",
+    "endsAt": "Fin (optionnel)",
+    "invites": "Inviter des membres",
+    "invitesHint": "Vous êtes toujours inclus. Les autres doivent être membres de l’espace.",
+    "submit": "Créer le sondage",
+    "cancel": "Annuler",
+    "noWorkspace": "Sélectionnez d’abord un espace.",
+    "needOptions": "Ajoutez au moins deux options.",
+    "stepDetails": "Details",
+    "nextParticipants": "Next: Participants",
+    "sectionDetails": "Poll details",
+    "sectionDetailsPurpose": "Write a clear question and at least two options.",
+    "questionHelp": "Example: Which sprint goal should we prioritize?",
+    "optionsHelp": "Fill A and B at minimum. Leave unused options blank.",
+    "optional": "optional",
+    "noMembersTitle": "No workspace members yet",
+    "noMembersBody": "Invite people to the workspace first, then create the poll.",
+    "reviewTitle": "Ready to create?",
+    "reviewBody": "You can close the poll later from its detail page. Voting rules stay as set here."
+  },
+  "detail": {
+    "loading": "Chargement du sondage…",
+    "back": "Tous les sondages",
+    "meta": "Statut : {{status}}",
+    "voteTitle": "Votre vote",
+    "submitVote": "Envoyer le vote",
+    "changeVote": "Modifier le vote",
+    "notOpen": "Le vote n’est pas ouvert pour le moment.",
+    "resultsTitle": "Résultats",
+    "ballots": "{{count}} bulletin(s)",
+    "close": "Clôturer le sondage",
+    "settingsTitle": "Settings",
+    "settingsPurpose": "How this poll behaves for members.",
+    "settingsMulti": "Allow multiple options: {{value}}",
+    "settingsOptions": "{{count}} options",
+    "settingsStarts": "Starts: {{at}}",
+    "settingsEnds": "Ends: {{at}}",
+    "settingsEditHint": "Closing ends voting. Changing options after create is not available yet—create a new poll if you need different choices.",
+    "yes": "Yes",
+    "no": "No"
+  }
+}

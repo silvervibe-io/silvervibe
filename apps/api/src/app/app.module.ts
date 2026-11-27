@@ -14,6 +14,10 @@ import { MailModule } from './mail/mail.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SlackModule } from './addons/slack/slack.module';
 import { TeamsModule } from './addons/teams/teams.module';
+import { FeedbacksModule } from './feedback/feedbacks.module';
+import { MeetingsModule } from './meetings/meetings.module';
+import { PollsModule } from './polls/polls.module';
+import { RetrosModule } from './retros/retros.module';
 import { StandupsModule } from './standups/standups.module';
 import { WorkspaceTeamsModule } from './teams/teams.module';
 import { UsersModule } from './users/users.module';
@@ -29,6 +33,10 @@ import { WorkspacesModule } from './workspaces/workspaces.module';
     WorkspacesModule,
     WorkspaceTeamsModule,
     StandupsModule,
+    PollsModule,
+    RetrosModule,
+    FeedbacksModule,
+    MeetingsModule,
     FeatureFlagsModule,
     SlackModule,
     TeamsModule,

@@ -2,20 +2,44 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
+  ElementRef,
   inject,
   OnInit,
   signal,
+  viewChild,
 } from '@angular/core';
 import { form, FormField, required, submit } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { AuthService, STANDUP_APP_ORIGIN } from '@silvervibe/shared/auth';
-import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
-import { Shell } from '@silvervibe/shared/ui';
+import {
+  AuthService,
+  FEEDBACK_APP_ORIGIN,
+  MEETING_APP_ORIGIN,
+  POLL_APP_ORIGIN,
+  RETRO_APP_ORIGIN,
+  STANDUP_APP_ORIGIN,
+} from '@silvervibe/shared/auth';
+import {
+  getVibestandupLimits,
+  TOOL_KEYS,
+  type ToolKey,
+} from '@silvervibe/shared/feature-flags';
+import {
+  Callout,
+  EmptyState,
+  FieldHelp,
+  SettingsSection,
+  Shell,
+} from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import { UserFacade } from '@silvervibe/stores/user';
 import {
   resolvePortalEntry,
+  vibefeedbackReturnUrl,
+  vibemeetingReturnUrl,
+  vibepollReturnUrl,
+  viberetroReturnUrl,
   vibestandupReturnUrl,
   WorkspaceFacade,
 } from '@silvervibe/stores/workspace';
@@ -25,9 +49,36 @@ type CreateWorkspaceModel = {
   slug: string;
 };
 
+const PRODUCT_TOOL_KEYS = [
+  TOOL_KEYS.vibestandup,
+  TOOL_KEYS.vibepoll,
+  TOOL_KEYS.viberetro,
+  TOOL_KEYS.vibefeedback,
+  TOOL_KEYS.vibemeeting,
+] as const;
+
+/** URL-safe slug from a workspace display name. */
+export function slugifyWorkspaceName(name: string): string {
+  const slug = name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 48);
+  return slug || 'workspace';
+}
+
 @Component({
   selector: 'sv-portal',
-  imports: [FormField, Shell, TranslocoPipe],
+  imports: [
+    FormField,
+    Shell,
+    TranslocoPipe,
+    SettingsSection,
+    EmptyState,
+    FieldHelp,
+    Callout,
+  ],
   templateUrl: './portal.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -41,8 +92,22 @@ export class Portal implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly manageToolsSection =
+    viewChild<ElementRef<HTMLElement>>('manageToolsSection');
+  private readonly createWorkspaceSection = viewChild<ElementRef<HTMLElement>>(
+    'createWorkspaceSection',
+  );
+
   private readonly standupOrigin =
     inject(STANDUP_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4201';
+  private readonly pollOrigin =
+    inject(POLL_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4202';
+  private readonly retroOrigin =
+    inject(RETRO_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4203';
+  private readonly feedbackOrigin =
+    inject(FEEDBACK_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4204';
+  private readonly meetingOrigin =
+    inject(MEETING_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4205';
 
   readonly loading = this.workspaces.loading;
   readonly error = this.workspaces.error;
@@ -65,9 +130,23 @@ export class Portal implements OnInit {
       maxMembersPerTeam: limits.maxMembersPerTeam,
     };
   });
+  /** Product tools for admins to enable/disable on the hub. */
+  readonly manageTools = computed(() => {
+    const existing = this.selected()?.tools ?? [];
+    const byKey = new Map(existing.map((tool) => [tool.toolKey, tool]));
+    return PRODUCT_TOOL_KEYS.map((toolKey) => {
+      const current = byKey.get(toolKey);
+      return current ?? { toolKey, enabled: false };
+    });
+  });
   readonly openingTool = signal(false);
+  readonly togglingTool = signal<string | null>(null);
   readonly createMessage = signal<string | null>(null);
   readonly createError = signal<string | null>(null);
+  readonly showSlug = signal(false);
+  readonly slugManual = signal(false);
+  /** Extra create form when the user already has a workspace. */
+  readonly showCreateForm = signal(false);
 
   readonly workspaceModel = signal<CreateWorkspaceModel>({
     name: '',
@@ -78,27 +157,61 @@ export class Portal implements OnInit {
     required(schemaPath.slug);
   });
 
-  async ngOnInit(): Promise<void> {
-    const enter = this.route.snapshot.queryParamMap.get('enter') === '1';
-    await this.workspaces.loadMyWorkspaces();
-    if (!enter) {
-      return;
-    }
-    const decision = resolvePortalEntry(this.workspaces.memberships());
-    if (decision.kind === 'vibestandup') {
-      await this.openVibeStandup(decision.workspaceId);
-      return;
-    }
-    await this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { enter: null },
-      queryParamsHandling: 'merge',
-      replaceUrl: true,
+  constructor() {
+    effect(() => {
+      const name = this.workspaceModel().name;
+      if (this.slugManual()) {
+        return;
+      }
+      const next = slugifyWorkspaceName(name);
+      if (this.workspaceModel().slug !== next) {
+        this.workspaceModel.update((model) => ({ ...model, slug: next }));
+      }
     });
+  }
+
+  async ngOnInit(): Promise<void> {
+    const hadEnter = this.route.snapshot.queryParamMap.get('enter') === '1';
+    await this.workspaces.loadMyWorkspaces();
+    const decision = resolvePortalEntry(this.workspaces.memberships());
+    if (decision.kind === 'product') {
+      await this.openProduct(decision.toolKey, decision.workspaceId);
+      return;
+    }
+    if (hadEnter) {
+      await this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { enter: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
   }
 
   selectWorkspace(workspaceId: string): void {
     this.workspaces.selectWorkspace(workspaceId);
+  }
+
+  focusManageTools(): void {
+    this.manageToolsSection()?.nativeElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }
+
+  focusCreateWorkspace(): void {
+    this.showCreateForm.set(true);
+    queueMicrotask(() => {
+      this.createWorkspaceSection()?.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
+  }
+
+  markSlugManual(): void {
+    this.slugManual.set(true);
+    this.showSlug.set(true);
   }
 
   async createWorkspace(event: Event): Promise<void> {
@@ -109,8 +222,13 @@ export class Portal implements OnInit {
       action: async () => {
         try {
           const body = this.workspaceModel();
-          await this.workspaces.createWorkspace(body);
+          await this.workspaces.createWorkspace({
+            name: body.name.trim(),
+            slug: (body.slug || slugifyWorkspaceName(body.name)).trim(),
+          });
           this.workspaceModel.set({ name: '', slug: '' });
+          this.slugManual.set(false);
+          this.showSlug.set(false);
           this.createMessage.set('portal.createSuccess');
         } catch (err: unknown) {
           this.createError.set(
@@ -120,6 +238,46 @@ export class Portal implements OnInit {
         return undefined;
       },
     });
+  }
+
+  async toggleTool(toolKey: string, enabled: boolean): Promise<void> {
+    const ws = this.selected();
+    if (!ws || !this.isAdmin()) {
+      return;
+    }
+    this.togglingTool.set(toolKey);
+    try {
+      await this.workspaces.setToolEntitlement(ws.id, toolKey, enabled);
+      await this.workspaces.loadMyWorkspaces();
+      this.workspaces.selectWorkspace(ws.id);
+    } finally {
+      this.togglingTool.set(null);
+    }
+  }
+
+  async openProduct(
+    toolKey: ToolKey | string,
+    workspaceId?: string,
+  ): Promise<void> {
+    switch (toolKey) {
+      case TOOL_KEYS.vibestandup:
+        await this.openVibeStandup(workspaceId);
+        return;
+      case TOOL_KEYS.vibepoll:
+        await this.openVibePoll(workspaceId);
+        return;
+      case TOOL_KEYS.viberetro:
+        await this.openVibeRetro(workspaceId);
+        return;
+      case TOOL_KEYS.vibefeedback:
+        await this.openVibeFeedback(workspaceId);
+        return;
+      case TOOL_KEYS.vibemeeting:
+        await this.openVibeMeeting(workspaceId);
+        return;
+      default:
+        return;
+    }
   }
 
   async openVibeStandup(workspaceId?: string): Promise<void> {
@@ -133,6 +291,70 @@ export class Portal implements OnInit {
       this.assignLocation(url.toString());
     } catch {
       this.assignLocation(`${this.standupOrigin}/auth`);
+    } finally {
+      this.openingTool.set(false);
+    }
+  }
+
+  async openVibePoll(workspaceId?: string): Promise<void> {
+    const id = workspaceId ?? this.selected()?.id;
+    this.openingTool.set(true);
+    try {
+      const { customToken } = await this.users.createCustomToken();
+      const url = new URL('/auth/handoff', this.pollOrigin);
+      url.searchParams.set('token', customToken);
+      url.searchParams.set('returnUrl', vibepollReturnUrl(id));
+      this.assignLocation(url.toString());
+    } catch {
+      this.assignLocation(`${this.pollOrigin}/auth`);
+    } finally {
+      this.openingTool.set(false);
+    }
+  }
+
+  async openVibeRetro(workspaceId?: string): Promise<void> {
+    const id = workspaceId ?? this.selected()?.id;
+    this.openingTool.set(true);
+    try {
+      const { customToken } = await this.users.createCustomToken();
+      const url = new URL('/auth/handoff', this.retroOrigin);
+      url.searchParams.set('token', customToken);
+      url.searchParams.set('returnUrl', viberetroReturnUrl(id));
+      this.assignLocation(url.toString());
+    } catch {
+      this.assignLocation(`${this.retroOrigin}/auth`);
+    } finally {
+      this.openingTool.set(false);
+    }
+  }
+
+  async openVibeFeedback(workspaceId?: string): Promise<void> {
+    const id = workspaceId ?? this.selected()?.id;
+    this.openingTool.set(true);
+    try {
+      const { customToken } = await this.users.createCustomToken();
+      const url = new URL('/auth/handoff', this.feedbackOrigin);
+      url.searchParams.set('token', customToken);
+      url.searchParams.set('returnUrl', vibefeedbackReturnUrl(id));
+      this.assignLocation(url.toString());
+    } catch {
+      this.assignLocation(`${this.feedbackOrigin}/auth`);
+    } finally {
+      this.openingTool.set(false);
+    }
+  }
+
+  async openVibeMeeting(workspaceId?: string): Promise<void> {
+    const id = workspaceId ?? this.selected()?.id;
+    this.openingTool.set(true);
+    try {
+      const { customToken } = await this.users.createCustomToken();
+      const url = new URL('/auth/handoff', this.meetingOrigin);
+      url.searchParams.set('token', customToken);
+      url.searchParams.set('returnUrl', vibemeetingReturnUrl(id));
+      this.assignLocation(url.toString());
+    } catch {
+      this.assignLocation(`${this.meetingOrigin}/auth`);
     } finally {
       this.openingTool.set(false);
     }

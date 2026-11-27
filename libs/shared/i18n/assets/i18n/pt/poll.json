@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "polls": "Enquetes",
+    "create": "Criar",
+    "account": "Conta"
+  },
+  "list": {
+    "title": "Enquetes da equipe",
+    "lead": "Enquetes para {{workspace}}",
+    "create": "Nova enquete",
+    "loading": "A carregar enquetes…",
+    "empty": "Ainda não há enquetes. Crie uma para o espaço.",
+    "meta": "{{status}} · {{options}} opções · {{invites}} convidados"
+  },
+  "create": {
+    "title": "Criar enquete",
+    "lead": "Convide membros do espaço na app. Sem e-mail nesta versão.",
+    "question": "Pergunta",
+    "options": "Opções (pelo menos duas)",
+    "allowMulti": "Permitir várias opções",
+    "startsAt": "Início (opcional)",
+    "endsAt": "Fim (opcional)",
+    "invites": "Convidar membros",
+    "invitesHint": "Você está sempre incluído. Os outros devem ser membros do espaço.",
+    "submit": "Criar enquete",
+    "cancel": "Cancelar",
+    "noWorkspace": "Selecione um espaço primeiro.",
+    "needOptions": "Adicione pelo menos duas opções.",
+    "stepDetails": "Details",
+    "nextParticipants": "Next: Participants",
+    "sectionDetails": "Poll details",
+    "sectionDetailsPurpose": "Write a clear question and at least two options.",
+    "questionHelp": "Example: Which sprint goal should we prioritize?",
+    "optionsHelp": "Fill A and B at minimum. Leave unused options blank.",
+    "optional": "optional",
+    "noMembersTitle": "No workspace members yet",
+    "noMembersBody": "Invite people to the workspace first, then create the poll.",
+    "reviewTitle": "Ready to create?",
+    "reviewBody": "You can close the poll later from its detail page. Voting rules stay as set here."
+  },
+  "detail": {
+    "loading": "A carregar enquete…",
+    "back": "Todas as enquetes",
+    "meta": "Estado: {{status}}",
+    "voteTitle": "O seu voto",
+    "submitVote": "Enviar voto",
+    "changeVote": "Alterar voto",
+    "notOpen": "A votação não está aberta agora.",
+    "resultsTitle": "Resultados",
+    "ballots": "{{count}} boletim(ns)",
+    "close": "Fechar enquete",
+    "settingsTitle": "Settings",
+    "settingsPurpose": "How this poll behaves for members.",
+    "settingsMulti": "Allow multiple options: {{value}}",
+    "settingsOptions": "{{count}} options",
+    "settingsStarts": "Starts: {{at}}",
+    "settingsEnds": "Ends: {{at}}",
+    "settingsEditHint": "Closing ends voting. Changing options after create is not available yet—create a new poll if you need different choices.",
+    "yes": "Yes",
+    "no": "No"
+  }
+}

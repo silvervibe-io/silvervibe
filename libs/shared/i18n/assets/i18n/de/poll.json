@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "polls": "Umfragen",
+    "create": "Erstellen",
+    "account": "Konto"
+  },
+  "list": {
+    "title": "Team-Umfragen",
+    "lead": "Umfragen für {{workspace}}",
+    "create": "Neue Umfrage",
+    "loading": "Umfragen werden geladen…",
+    "empty": "Noch keine Umfragen. Erstelle eine für deinen Workspace.",
+    "meta": "{{status}} · {{options}} Optionen · {{invites}} eingeladen"
+  },
+  "create": {
+    "title": "Umfrage erstellen",
+    "lead": "Lade Workspace-Mitglieder in der App ein. Keine E-Mail in dieser Version.",
+    "question": "Frage",
+    "options": "Optionen (mindestens zwei)",
+    "allowMulti": "Mehrfachauswahl erlauben",
+    "startsAt": "Start (optional)",
+    "endsAt": "Ende (optional)",
+    "invites": "Mitglieder einladen",
+    "invitesHint": "Du bist immer dabei. Andere müssen Workspace-Mitglieder sein.",
+    "submit": "Umfrage erstellen",
+    "cancel": "Abbrechen",
+    "noWorkspace": "Zuerst einen Workspace wählen.",
+    "needOptions": "Mindestens zwei Optionen hinzufügen.",
+    "stepDetails": "Details",
+    "nextParticipants": "Next: Participants",
+    "sectionDetails": "Poll details",
+    "sectionDetailsPurpose": "Write a clear question and at least two options.",
+    "questionHelp": "Example: Which sprint goal should we prioritize?",
+    "optionsHelp": "Fill A and B at minimum. Leave unused options blank.",
+    "optional": "optional",
+    "noMembersTitle": "No workspace members yet",
+    "noMembersBody": "Invite people to the workspace first, then create the poll.",
+    "reviewTitle": "Ready to create?",
+    "reviewBody": "You can close the poll later from its detail page. Voting rules stay as set here."
+  },
+  "detail": {
+    "loading": "Umfrage wird geladen…",
+    "back": "Alle Umfragen",
+    "meta": "Status: {{status}}",
+    "voteTitle": "Deine Stimme",
+    "submitVote": "Stimme abgeben",
+    "changeVote": "Stimme ändern",
+    "notOpen": "Die Abstimmung ist gerade nicht offen.",
+    "resultsTitle": "Ergebnisse",
+    "ballots": "{{count}} Stimmzettel",
+    "close": "Umfrage schließen",
+    "settingsTitle": "Settings",
+    "settingsPurpose": "How this poll behaves for members.",
+    "settingsMulti": "Allow multiple options: {{value}}",
+    "settingsOptions": "{{count}} options",
+    "settingsStarts": "Starts: {{at}}",
+    "settingsEnds": "Ends: {{at}}",
+    "settingsEditHint": "Closing ends voting. Changing options after create is not available yet—create a new poll if you need different choices.",
+    "yes": "Yes",
+    "no": "No"
+  }
+}

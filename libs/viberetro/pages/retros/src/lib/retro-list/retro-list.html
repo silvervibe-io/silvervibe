@@ -1,0 +1,47 @@
+<sv-shell [title]="'VibeRetro'">
+  <div class="space-y-6">
+    <header class="flex flex-wrap items-end justify-between gap-3">
+      <div class="space-y-1">
+        <h1 class="text-3xl font-bold tracking-tight">
+          {{ 'retro.list.title' | transloco }}
+        </h1>
+        <p class="text-base-content/70">
+          {{ 'retro.list.lead' | transloco : { workspace: workspaceName() } }}
+        </p>
+      </div>
+      <a routerLink="/app/create" class="btn btn-primary btn-sm">
+        {{ 'retro.list.create' | transloco }}
+      </a>
+    </header>
+
+    @if (loading()) {
+    <p class="text-sm text-base-content/60">
+      {{ 'retro.list.loading' | transloco }}
+    </p>
+    } @else if (error()) {
+    <p class="text-error">{{ error() }}</p>
+    } @else if (items().length === 0) {
+    <p class="text-base-content/70">{{ 'retro.list.empty' | transloco }}</p>
+    } @else {
+    <ul class="divide-y divide-base-300">
+      @for (retro of items(); track retro.id) {
+      <li class="flex flex-wrap items-center justify-between gap-3 py-4">
+        <div class="space-y-1">
+          <a
+            [routerLink]="['/app/retros', retro.id]"
+            class="link link-hover text-lg font-semibold"
+          >
+            {{ retro.title }}
+          </a>
+          <p class="text-sm text-base-content/60">
+            {{ 'retro.list.meta' | transloco : { status: retro.status, notes:
+            retro.noteCount, invites: retro.inviteCount } }}
+          </p>
+        </div>
+        <span class="badge badge-outline">{{ retro.status }}</span>
+      </li>
+      }
+    </ul>
+    }
+  </div>
+</sv-shell>

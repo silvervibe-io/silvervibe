@@ -36,6 +36,7 @@
   "footer": {
     "legal": "Silver Vibe™ est un projet open source personnel (MIT). Les noms et marques sont des marques du propriétaire du projet — voir LICENSE et TRADEMARKS.md.",
     "github": "Code source sur GitHub",
-    "privacy": "Confidentialité"
+    "privacy": "Confidentialité",
+    "terms": "Terms"
   }
 }

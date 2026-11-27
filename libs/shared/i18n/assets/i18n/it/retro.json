@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "retros": "Retro",
+    "create": "Crea",
+    "account": "Account"
+  },
+  "list": {
+    "title": "Retro di team",
+    "lead": "Retro per {{workspace}}",
+    "create": "Nuova retro",
+    "loading": "Caricamento retro…",
+    "empty": "Nessuna retro ancora. Creane una per il workspace.",
+    "meta": "{{status}} · {{notes}} note · {{invites}} invitati"
+  },
+  "create": {
+    "title": "Crea una retro",
+    "lead": "Invita i membri del workspace nell’app. Niente email in questa versione.",
+    "name": "Titolo",
+    "visibility": "Visibilità delle note",
+    "closePolicy": "Chi può chiudere",
+    "endsAt": "Fine (opzionale)",
+    "invites": "Invita membri",
+    "invitesHint": "Sei sempre incluso. Gli altri devono essere membri del workspace.",
+    "submit": "Crea retro",
+    "cancel": "Annulla",
+    "noWorkspace": "Seleziona prima un workspace.",
+    "stepDetails": "Details",
+    "nextParticipants": "Next: Participants",
+    "sectionDetails": "Retro details",
+    "sectionDetailsPurpose": "Name the retro and choose who can see notes while it runs.",
+    "nameHelp": "Example: Sprint 42 retro",
+    "visibilityHelp": "Controls whether notes are visible to everyone before close.",
+    "closePolicyHelp": "Who is allowed to close the board and write the summary.",
+    "optional": "optional",
+    "noMembersTitle": "No workspace members yet",
+    "noMembersBody": "Invite people to the workspace first, then start the retro.",
+    "reviewTitle": "Classic columns",
+    "reviewBody": "Notes use Went well / Improve / Actions. You can close with a summary later."
+  },
+  "visibility": {
+    "LIVE": "Live — tutti vedono le note man mano che vengono aggiunte",
+    "PRIVATE_UNTIL_CLOSE": "Privato fino alla chiusura — solo le tue note fino alla chiusura",
+    "AFTER_CONTRIBUTE": "Dopo il contributo — vedi le altre dopo aver aggiunto una nota"
+  },
+  "closePolicy": {
+    "CREATOR_OR_ADMIN": "Creatore o admin del workspace",
+    "CREATOR_ONLY": "Solo creatore",
+    "ANY_INVITEE": "Qualsiasi invitato"
+  },
+  "column": {
+    "WENT_WELL": "È andato bene",
+    "IMPROVE": "Migliorare",
+    "ACTIONS": "Azioni"
+  },
+  "board": {
+    "loading": "Caricamento retro…",
+    "back": "Tutte le retro",
+    "meta": "{{status}} · {{visibility}} · {{close}}",
+    "addNote": "Aggiungi una nota",
+    "notePlaceholder": "Scrivi la tua nota…",
+    "submitNote": "Aggiungi nota",
+    "deleteNote": "Elimina",
+    "emptyColumn": "Ancora nessuna nota",
+    "summaryTitle": "Riepilogo",
+    "summaryEmpty": "Nessun riepilogo fornito.",
+    "closeTitle": "Chiudi retro",
+    "summaryPlaceholder": "Riepilogo breve opzionale…",
+    "close": "Chiudi retro",
+    "settingsTitle": "Settings",
+    "settingsPurpose": "Visibility and close rules for this retro.",
+    "settingsHint": "Note visibility and close policy were set at create time. Closing finalizes the board."
+  }
+}

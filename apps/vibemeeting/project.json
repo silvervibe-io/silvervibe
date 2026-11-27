@@ -1,0 +1,110 @@
+{
+  "name": "vibemeeting",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "vm",
+  "sourceRoot": "apps/vibemeeting/src",
+  "tags": ["type:app", "scope:vibemeeting"],
+  "targets": {
+    "sync-firebase-web": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/sync-firebase-web-from-env.mjs"
+      }
+    },
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "dependsOn": ["sync-firebase-web"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/vibemeeting",
+        "browser": "apps/vibemeeting/src/main.ts",
+        "tsConfig": "apps/vibemeeting/tsconfig.app.json",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/vibemeeting/public"
+          },
+          {
+            "glob": "**/*",
+            "input": "libs/shared/ui/assets/icons",
+            "output": "icons"
+          },
+          {
+            "glob": "**/*",
+            "input": "libs/shared/ui/assets/brand",
+            "output": "brand"
+          },
+          {
+            "glob": "**/*",
+            "input": "libs/shared/i18n/assets/i18n",
+            "output": "i18n"
+          }
+        ],
+        "styles": ["apps/vibemeeting/src/styles.css"]
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1.16mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      }
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "defaultConfiguration": "development",
+      "dependsOn": ["sync-firebase-web"],
+      "options": {
+        "port": 4205,
+        "proxyConfig": "apps/vibemeeting/proxy.conf.json",
+        "prebundle": false
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "vibemeeting:build:production"
+        },
+        "development": {
+          "buildTarget": "vibemeeting:build:development"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "coverage/apps/vibemeeting"
+      }
+    },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "vibemeeting:build",
+        "port": 4205,
+        "staticFilePath": "dist/apps/vibemeeting/browser",
+        "spa": true
+      }
+    }
+  }
+}

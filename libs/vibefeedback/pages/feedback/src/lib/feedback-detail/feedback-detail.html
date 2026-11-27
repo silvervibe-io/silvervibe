@@ -1,0 +1,110 @@
+<sv-shell [title]="'VibeFeedback'">
+  <div class="space-y-6">
+    @if (loading() && !request()) {
+    <p class="text-sm text-base-content/60">
+      {{ 'feedback.detail.loading' | transloco }}
+    </p>
+    } @else if (error() && !request()) {
+    <p class="text-error">{{ error() }}</p>
+    } @else if (request(); as item) {
+    <header class="space-y-2">
+      <p class="text-sm text-base-content/60">
+        <a routerLink="/app" class="link link-hover"
+          >{{ 'feedback.detail.back' | transloco }}</a
+        >
+      </p>
+      <h1 class="text-3xl font-bold tracking-tight">{{ item.title }}</h1>
+      @if (item.context) {
+      <p class="whitespace-pre-wrap text-base-content/80">{{ item.context }}</p>
+      }
+      <p class="text-sm text-base-content/60">
+        {{ 'feedback.detail.meta' | transloco : { status: item.status,
+        visibility: item.answerVisibility, close: item.closePolicy, anonymous:
+        item.anonymous, } }}
+      </p>
+    </header>
+
+    <div class="space-y-6">
+      @for (prompt of item.prompts; track prompt.id) {
+      <section class="space-y-3">
+        <h2 class="text-lg font-semibold">{{ prompt.body }}</h2>
+
+        @if (item.canAnswer) {
+        <textarea
+          class="textarea textarea-bordered min-h-24 w-full max-w-2xl"
+          [value]="drafts()[prompt.id] ?? ''"
+          (input)="setDraft(prompt.id, $any($event.target).value)"
+          [attr.placeholder]="'feedback.detail.answerPlaceholder' | transloco"
+        ></textarea>
+        }
+
+        <ul class="space-y-2">
+          @for (answer of answersByPrompt()[prompt.id] ?? []; track answer.id) {
+          <li class="border-b border-base-300 py-2">
+            <p class="whitespace-pre-wrap">{{ answer.body }}</p>
+            <p class="text-xs text-base-content/60">
+              @if (answer.mine) { {{ 'feedback.detail.you' | transloco }} }
+              @else { {{ answer.authorDisplayName || answer.authorId ||
+              ('feedback.detail.anonymousAuthor' | transloco) }} }
+            </p>
+          </li>
+          } @empty {
+          <li class="text-sm text-base-content/50">
+            {{ 'feedback.detail.emptyAnswers' | transloco }}
+          </li>
+          }
+        </ul>
+      </section>
+      }
+    </div>
+
+    @if (item.canAnswer) {
+    <button
+      type="button"
+      class="btn btn-primary btn-sm"
+      [disabled]="loading()"
+      (click)="saveAnswers()"
+    >
+      {{ 'feedback.detail.saveAnswers' | transloco }}
+    </button>
+    } @if (item.status === 'CLOSED') {
+    <section class="space-y-2">
+      <h2 class="text-lg font-semibold">
+        {{ 'feedback.detail.summaryTitle' | transloco }}
+      </h2>
+      <p class="whitespace-pre-wrap">
+        {{ item.summary || ('feedback.detail.summaryEmpty' | transloco) }}
+      </p>
+    </section>
+    } @else if (item.canClose) {
+    <sv-settings-section
+      [title]="'feedback.detail.settingsTitle' | transloco"
+      [purpose]="'feedback.detail.settingsPurpose' | transloco"
+    >
+      <sv-callout
+        variant="info"
+        [body]="'feedback.detail.settingsHint' | transloco"
+      />
+      <h3 class="font-medium">
+        {{ 'feedback.detail.closeTitle' | transloco }}
+      </h3>
+      <textarea
+        class="textarea textarea-bordered min-h-24 w-full max-w-2xl"
+        [value]="summaryDraft()"
+        (input)="summaryDraft.set($any($event.target).value)"
+        [attr.placeholder]="'feedback.detail.summaryPlaceholder' | transloco"
+      ></textarea>
+      <button
+        type="button"
+        class="btn btn-outline btn-sm self-start"
+        [disabled]="loading()"
+        (click)="closeRequest()"
+      >
+        {{ 'feedback.detail.close' | transloco }}
+      </button>
+    </sv-settings-section>
+    } @if (error()) {
+    <p class="text-error text-sm">{{ error() }}</p>
+    } }
+  </div>
+</sv-shell>

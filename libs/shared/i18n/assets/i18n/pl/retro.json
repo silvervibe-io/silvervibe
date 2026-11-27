@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "retros": "Retra",
+    "create": "Utwórz",
+    "account": "Konto"
+  },
+  "list": {
+    "title": "Retra zespołu",
+    "lead": "Retra dla {{workspace}}",
+    "create": "Nowe retro",
+    "loading": "Ładowanie retr…",
+    "empty": "Brak retr. Utwórz jedno dla workspace.",
+    "meta": "{{status}} · {{notes}} notatek · {{invites}} zaproszonych"
+  },
+  "create": {
+    "title": "Utwórz retro",
+    "lead": "Zaproś członków workspace w aplikacji. Bez e-maila w tej wersji.",
+    "name": "Tytuł",
+    "visibility": "Widoczność notatek",
+    "closePolicy": "Kto może zamknąć",
+    "endsAt": "Koniec (opcjonalnie)",
+    "invites": "Zaproś członków",
+    "invitesHint": "Zawsze jesteś uwzględniony. Inni muszą być członkami workspace.",
+    "submit": "Utwórz retro",
+    "cancel": "Anuluj",
+    "noWorkspace": "Najpierw wybierz workspace.",
+    "stepDetails": "Details",
+    "nextParticipants": "Next: Participants",
+    "sectionDetails": "Retro details",
+    "sectionDetailsPurpose": "Name the retro and choose who can see notes while it runs.",
+    "nameHelp": "Example: Sprint 42 retro",
+    "visibilityHelp": "Controls whether notes are visible to everyone before close.",
+    "closePolicyHelp": "Who is allowed to close the board and write the summary.",
+    "optional": "optional",
+    "noMembersTitle": "No workspace members yet",
+    "noMembersBody": "Invite people to the workspace first, then start the retro.",
+    "reviewTitle": "Classic columns",
+    "reviewBody": "Notes use Went well / Improve / Actions. You can close with a summary later."
+  },
+  "visibility": {
+    "LIVE": "Na żywo — wszyscy widzą notatki w miarę dodawania",
+    "PRIVATE_UNTIL_CLOSE": "Prywatne do zamknięcia — tylko własne notatki do zamknięcia",
+    "AFTER_CONTRIBUTE": "Po wkładzie — zobacz innych po dodaniu notatki"
+  },
+  "closePolicy": {
+    "CREATOR_OR_ADMIN": "Twórca lub admin workspace",
+    "CREATOR_ONLY": "Tylko twórca",
+    "ANY_INVITEE": "Każdy zaproszony"
+  },
+  "column": {
+    "WENT_WELL": "Poszło dobrze",
+    "IMPROVE": "Do poprawy",
+    "ACTIONS": "Działania"
+  },
+  "board": {
+    "loading": "Ładowanie retro…",
+    "back": "Wszystkie retra",
+    "meta": "{{status}} · {{visibility}} · {{close}}",
+    "addNote": "Dodaj notatkę",
+    "notePlaceholder": "Napisz notatkę…",
+    "submitNote": "Dodaj notatkę",
+    "deleteNote": "Usuń",
+    "emptyColumn": "Brak notatek",
+    "summaryTitle": "Podsumowanie",
+    "summaryEmpty": "Brak podsumowania.",
+    "closeTitle": "Zamknij retro",
+    "summaryPlaceholder": "Opcjonalne krótkie podsumowanie…",
+    "close": "Zamknij retro",
+    "settingsTitle": "Settings",
+    "settingsPurpose": "Visibility and close rules for this retro.",
+    "settingsHint": "Note visibility and close policy were set at create time. Closing finalizes the board."
+  }
+}

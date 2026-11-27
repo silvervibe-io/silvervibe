@@ -1,0 +1,23 @@
+import { describe, expect, it } from 'vitest';
+import { meetingShellLinks } from './meeting-nav';
+
+describe('meetingShellLinks', () => {
+  it('returns nav links with translated labels', () => {
+    const links = meetingShellLinks((key) => key);
+    expect(links).toEqual([
+      { label: 'meeting.nav.meetings', href: '/app' },
+      { label: 'meeting.nav.create', href: '/app/create' },
+      { label: 'meeting.nav.account', href: '/account' },
+    ]);
+  });
+
+  it('prepends an external portal link when provided', () => {
+    expect(
+      meetingShellLinks((key) => key, 'https://silvervibe.io/portal')[0],
+    ).toEqual({
+      label: 'nav.portal',
+      href: 'https://silvervibe.io/portal',
+      external: true,
+    });
+  });
+});

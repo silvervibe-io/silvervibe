@@ -1,18 +1,62 @@
 {
-  "title": "Your portal",
-  "lead": "Workspaces and tools enabled for your organization.",
+  "title": "Your workspace",
+  "lead": "Pick a workspace, open a tool, or set up what your team can use. Everything stays optional—start with one tool.",
   "loading": "Loading workspaces…",
   "empty": "No workspaces yet. Create one below, or ask an admin to invite you.",
+  "emptyTitle": "No workspace yet",
+  "emptyBody": "Create a workspace to enable tools, or ask an admin to invite you.",
+  "loadErrorTitle": "Could not load workspaces",
+  "whereYouAre": "Where you are",
+  "whereYouArePurpose": "This workspace controls which tools you can open and who can manage them.",
   "workspace": "Workspace",
-  "tools": "Enabled tools",
-  "noTools": "No tools enabled for this workspace.",
+  "workspaceHelp": "Switch workspaces if you belong to more than one.",
+  "tools": "Your tools",
+  "toolsPurpose": "Open an enabled tool. Each product opens in its own app with the same sign-in.",
+  "manageTools": "Set up workspace tools",
+  "manageToolsPurpose": "Turn tools on so members can open them from this hub.",
+  "manageToolsLearnMore": "Enabling a tool only unlocks access in this workspace. It does not require chat integrations. Members will see Open once a tool is on.",
+  "manageToolsCta": "Set up tools",
+  "learnMore": "Learn more",
+  "noTools": "No tools enabled yet. Admins can enable tools below.",
+  "noToolsTitle": "No tools enabled",
+  "noToolsAdminBody": "Enable at least one tool below so you and your members can open it from here.",
+  "noToolsMemberBody": "Ask a workspace admin to enable a tool for this workspace.",
   "openTool": "Open",
-  "adminHint": "You can manage tools and teams as a workspace admin.",
+  "toolEnabled": "On",
+  "toolDisabled": "Off",
+  "optional": "optional",
   "planHint": "Preview plan {{plan}}: up to {{teams}} teams, {{members}} members per team (preview only — Nest still enforces the workspace planKey).",
   "createTitle": "Create a workspace",
+  "createPurpose": "A workspace holds your tools, teams, and members. You can add more later.",
   "addWorkspace": "Create another workspace",
+  "createCancel": "Cancel",
   "createName": "Name",
-  "createSlug": "Slug",
+  "createNameHelp": "Shown to members. Example: Acme Product",
+  "createSlug": "URL slug",
+  "createSlugHelp": "Lowercase letters, numbers, and hyphens. Example: acme-product",
+  "createSlugAdvanced": "Edit URL slug",
   "createSubmit": "Create",
-  "createSuccess": "Workspace created."
+  "createSuccess": "Workspace created.",
+  "tool": {
+    "vibestandup": {
+      "title": "VibeStandup",
+      "body": "Async daily standups for your team."
+    },
+    "vibepoll": {
+      "title": "VibePoll",
+      "body": "Quick polls and votes in the workspace."
+    },
+    "viberetro": {
+      "title": "VibeRetro",
+      "body": "Retrospectives with notes and a close summary."
+    },
+    "vibefeedback": {
+      "title": "VibeFeedback",
+      "body": "Structured feedback requests and answers."
+    },
+    "vibemeeting": {
+      "title": "VibeMeeting",
+      "body": "Meeting agendas, decisions, and actions."
+    }
+  }
 }

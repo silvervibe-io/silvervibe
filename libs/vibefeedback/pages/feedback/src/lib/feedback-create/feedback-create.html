@@ -1,0 +1,207 @@
+<sv-shell [title]="'VibeFeedback'">
+  <form
+    class="mx-auto flex max-w-xl flex-col gap-6"
+    (submit)="onSubmit($event)"
+  >
+    <header class="space-y-2">
+      <h1 class="text-3xl font-bold tracking-tight">
+        {{ 'feedback.create.title' | transloco }}
+      </h1>
+      <p class="text-base-content/70">
+        {{ 'feedback.create.lead' | transloco }}
+      </p>
+      <sv-step-header
+        [step]="1"
+        [total]="3"
+        [title]="'feedback.create.stepDetails' | transloco"
+        [nextLabel]="'feedback.create.nextParticipants' | transloco"
+      />
+    </header>
+
+    <sv-settings-section
+      [title]="'feedback.create.sectionDetails' | transloco"
+      [purpose]="'feedback.create.sectionDetailsPurpose' | transloco"
+    >
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'feedback.create.name' | transloco }}
+        </legend>
+        <input
+          class="input input-bordered w-full"
+          [formField]="feedbackForm.title"
+        />
+      </fieldset>
+
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'feedback.create.context' | transloco }}
+          <span class="font-normal text-base-content/50"
+            >({{ 'feedback.create.optional' | transloco }})</span
+          >
+        </legend>
+        <sv-field-help
+          controlId="feedback-context"
+          [help]="'feedback.create.contextHelp' | transloco"
+        >
+          <textarea
+            class="textarea textarea-bordered min-h-24 w-full"
+            [formField]="feedbackForm.context"
+            [attr.aria-describedby]="'feedback-context-help'"
+          ></textarea>
+        </sv-field-help>
+      </fieldset>
+
+      <section class="space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <h3 class="font-semibold">
+            {{ 'feedback.create.prompts' | transloco }}
+          </h3>
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs"
+            (click)="addPrompt()"
+          >
+            {{ 'feedback.create.addPrompt' | transloco }}
+          </button>
+        </div>
+        <sv-callout
+          variant="info"
+          [body]="'feedback.create.promptsHelp' | transloco"
+        />
+        @for (prompt of prompts(); track $index; let i = $index) {
+        <div class="flex gap-2">
+          <input
+            class="input input-bordered w-full"
+            [value]="prompt"
+            (input)="updatePrompt(i, $any($event.target).value)"
+          />
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm"
+            [disabled]="prompts().length <= 1"
+            (click)="removePrompt(i)"
+          >
+            {{ 'feedback.create.removePrompt' | transloco }}
+          </button>
+        </div>
+        }
+      </section>
+
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'feedback.create.visibility' | transloco }}
+        </legend>
+        <sv-field-help
+          controlId="feedback-visibility"
+          [description]="'feedback.create.visibilityHelp' | transloco"
+        >
+          <select
+            class="select select-bordered w-full"
+            [formField]="feedbackForm.answerVisibility"
+            [attr.aria-describedby]="'feedback-visibility-desc'"
+          >
+            @for (option of visibilityOptions; track option) {
+            <option [value]="option">
+              {{ ('feedback.visibility.' + option) | transloco }}
+            </option>
+            }
+          </select>
+        </sv-field-help>
+      </fieldset>
+
+      <label class="label cursor-pointer justify-start gap-3">
+        <input
+          type="checkbox"
+          class="checkbox checkbox-sm"
+          [formField]="feedbackForm.anonymous"
+        />
+        <span>{{ 'feedback.create.anonymous' | transloco }}</span>
+      </label>
+      <sv-field-help
+        controlId="feedback-anon"
+        [help]="'feedback.create.anonymousHelp' | transloco"
+      />
+
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'feedback.create.closePolicy' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [formField]="feedbackForm.closePolicy"
+        >
+          @for (option of closeOptions; track option) {
+          <option [value]="option">
+            {{ ('feedback.closePolicy.' + option) | transloco }}
+          </option>
+          }
+        </select>
+      </fieldset>
+
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'feedback.create.endsAt' | transloco }}
+          <span class="font-normal text-base-content/50"
+            >({{ 'feedback.create.optional' | transloco }})</span
+          >
+        </legend>
+        <input
+          type="datetime-local"
+          class="input input-bordered w-full"
+          [formField]="feedbackForm.endsAt"
+        />
+      </fieldset>
+    </sv-settings-section>
+
+    <sv-settings-section
+      [title]="'feedback.create.invites' | transloco"
+      [purpose]="'feedback.create.invitesHint' | transloco"
+    >
+      @if (members().length === 0) {
+      <sv-empty-state
+        [title]="'feedback.create.noMembersTitle' | transloco"
+        [body]="'feedback.create.noMembersBody' | transloco"
+      />
+      } @else {
+      <ul class="space-y-2">
+        @for (member of members(); track member.userId) {
+        <li>
+          <label class="label cursor-pointer justify-start gap-3">
+            <input
+              type="checkbox"
+              class="checkbox checkbox-sm"
+              [checked]="isInvited(member.userId)"
+              (change)="
+                toggleInvite(member.userId, $any($event.target).checked)
+              "
+            />
+            <span>
+              {{ member.displayName || member.email || member.userId }}
+            </span>
+          </label>
+        </li>
+        }
+      </ul>
+      }
+    </sv-settings-section>
+
+    @if (formError()) {
+    <p class="text-error text-sm">{{ formError()! | transloco }}</p>
+    } @else if (error()) {
+    <p class="text-error text-sm">{{ error() }}</p>
+    }
+
+    <div class="flex flex-wrap gap-2">
+      <button
+        type="submit"
+        class="btn btn-primary btn-sm"
+        [disabled]="loading()"
+      >
+        {{ 'feedback.create.submit' | transloco }}
+      </button>
+      <a routerLink="/app" class="btn btn-ghost btn-sm">
+        {{ 'feedback.create.cancel' | transloco }}
+      </a>
+    </div>
+  </form>
+</sv-shell>

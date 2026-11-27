@@ -4,6 +4,10 @@ import { FLAG_KEYS, TOOL_KEYS, isKnownToolKey } from './flag-keys';
 describe('flag and tool keys', () => {
   it('uses dotted domains for flags', () => {
     expect(FLAG_KEYS.toolsVibestandupEnabled).toBe('tools.vibestandup.enabled');
+    expect(FLAG_KEYS.toolsVibefeedbackEnabled).toBe(
+      'tools.vibefeedback.enabled',
+      'tools.vibemeeting.enabled',
+    );
     expect(FLAG_KEYS.vibestandupMultiTeamEnabled).toBe(
       'vibestandup.multiTeam.enabled',
     );
@@ -13,6 +17,10 @@ describe('flag and tool keys', () => {
 
   it('exposes workspace tool keys', () => {
     expect(TOOL_KEYS.vibestandup).toBe('vibestandup');
+    expect(TOOL_KEYS.vibepoll).toBe('vibepoll');
+    expect(TOOL_KEYS.viberetro).toBe('viberetro');
+    expect(TOOL_KEYS.vibefeedback).toBe('vibefeedback');
+    expect(TOOL_KEYS.vibemeeting).toBe('vibemeeting');
     expect(TOOL_KEYS.addonsGithub).toBe('addons.github');
     expect(TOOL_KEYS.addonsGitlab).toBe('addons.gitlab');
     expect(TOOL_KEYS.addonsBitbucket).toBe('addons.bitbucket');

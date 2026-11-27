@@ -19,7 +19,14 @@ if (result.status === 0) {
   process.exit(0);
 }
 
-for (const app of ['silvervibe', 'vibestandup']) {
+for (const app of [
+  'silvervibe',
+  'vibestandup',
+  'vibepoll',
+  'viberetro',
+  'vibefeedback',
+  'vibemeeting',
+]) {
   const dir = join(root, 'apps', app, 'src', 'environments');
   for (const [localName, exampleName] of [
     ['firebase-web.local.ts', 'firebase-web.local.example.ts'],

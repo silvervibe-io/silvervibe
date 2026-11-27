@@ -10,6 +10,30 @@
       "defaultValue": true
     },
     {
+      "key": "tools.vibepoll.enabled",
+      "valueType": "boolean",
+      "description": "Roll out the VibePoll product surface (not proof of workspace entitlement).",
+      "defaultValue": true
+    },
+    {
+      "key": "tools.viberetro.enabled",
+      "valueType": "boolean",
+      "description": "Roll out the VibeRetro product surface (not proof of workspace entitlement).",
+      "defaultValue": true
+    },
+    {
+      "key": "tools.vibefeedback.enabled",
+      "valueType": "boolean",
+      "description": "Roll out the VibeFeedback product surface (not proof of workspace entitlement).",
+      "defaultValue": true
+    },
+    {
+      "key": "tools.vibemeeting.enabled",
+      "valueType": "boolean",
+      "description": "Roll out the VibeMeeting product surface (not proof of workspace entitlement).",
+      "defaultValue": true
+    },
+    {
       "key": "addons.github.webhooks",
       "valueType": "boolean",
       "description": "Roll out GitHub webhook handling for add-ons.",
@@ -37,6 +61,18 @@
                 "enabledByDefault": true,
                 "maxTeams": 1,
                 "maxMembersPerTeam": 12
+              },
+              "vibepoll": {
+                "enabledByDefault": false
+              },
+              "viberetro": {
+                "enabledByDefault": false
+              },
+              "vibefeedback": {
+                "enabledByDefault": false
+              },
+              "vibemeeting": {
+                "enabledByDefault": false
               }
             }
           },
@@ -49,6 +85,18 @@
                 "enabledByDefault": true,
                 "maxTeams": 10,
                 "maxMembersPerTeam": 50
+              },
+              "vibepoll": {
+                "enabledByDefault": false
+              },
+              "viberetro": {
+                "enabledByDefault": false
+              },
+              "vibefeedback": {
+                "enabledByDefault": false
+              },
+              "vibemeeting": {
+                "enabledByDefault": false
               }
             }
           }

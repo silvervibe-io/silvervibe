@@ -1,0 +1,11 @@
+@if (description(); as desc) {
+<p [id]="descriptionId()" class="mb-1 text-sm text-base-content/60">
+  {{ desc }}
+</p>
+}
+
+<ng-content />
+
+@if (help(); as helpText) {
+<p [id]="helpId()" class="mt-1 text-sm text-base-content/50">{{ helpText }}</p>
+}

@@ -29,6 +29,23 @@ export default [
               onlyDependOnLibsWithTags: ['scope:shared', 'scope:vibestandup'],
             },
             {
+              sourceTag: 'scope:vibepoll',
+              onlyDependOnLibsWithTags: ['scope:shared', 'scope:vibepoll'],
+            },
+            {
+              sourceTag: 'scope:viberetro',
+              onlyDependOnLibsWithTags: ['scope:shared', 'scope:viberetro'],
+            },
+            {
+              sourceTag: 'scope:vibefeedback',
+              onlyDependOnLibsWithTags: ['scope:shared', 'scope:vibefeedback'],
+            },
+            {
+              sourceTag: 'scope:vibemeeting',
+              onlyDependOnLibsWithTags: ['scope:shared', 'scope:vibemeeting'],
+            },
+
+            {
               sourceTag: 'scope:api',
               onlyDependOnLibsWithTags: ['scope:api', 'scope:shared'],
             },

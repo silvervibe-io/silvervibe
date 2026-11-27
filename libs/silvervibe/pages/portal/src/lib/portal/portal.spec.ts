@@ -18,7 +18,65 @@ import { UserFacade } from '@silvervibe/stores/user';
 import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
-import { Portal } from './portal';
+import { Portal, slugifyWorkspaceName } from './portal';
+
+const portalCatalog = {
+  title: 'Your workspace',
+  lead: 'Open a tool',
+  loading: 'Loading…',
+  empty: 'No workspaces',
+  emptyTitle: 'No workspace yet',
+  emptyBody: 'Create a workspace to enable tools.',
+  loadErrorTitle: 'Could not load workspaces',
+  whereYouAre: 'Where you are',
+  whereYouArePurpose: 'This workspace controls tools.',
+  workspace: 'Workspace',
+  workspaceHelp: 'Switch workspaces if needed.',
+  tools: 'Your tools',
+  toolsPurpose: 'Open an enabled tool.',
+  manageTools: 'Set up workspace tools',
+  manageToolsPurpose: 'Turn tools on for members.',
+  manageToolsLearnMore: 'Enabling unlocks access only.',
+  manageToolsCta: 'Set up tools',
+  learnMore: 'Learn more',
+  noTools: 'No tools',
+  noToolsTitle: 'No tools enabled',
+  noToolsAdminBody: 'Enable at least one tool below.',
+  noToolsMemberBody: 'Ask an admin to enable a tool.',
+  openTool: 'Open',
+  toolEnabled: 'On',
+  toolDisabled: 'Off',
+  optional: 'optional',
+  planHint: 'Preview plan {{plan}}',
+  createTitle: 'Create a workspace',
+  createPurpose: 'A workspace holds your tools.',
+  addWorkspace: 'Create another workspace',
+  createCancel: 'Cancel',
+  createName: 'Name',
+  createNameHelp: 'Example: Acme Product',
+  createSlug: 'URL slug',
+  createSlugHelp: 'Example: acme-product',
+  createSlugAdvanced: 'Edit URL slug',
+  createSubmit: 'Create',
+  createSuccess: 'Workspace created.',
+  tool: {
+    vibestandup: {
+      title: 'VibeStandup',
+      body: 'Async daily standups for your team.',
+    },
+    vibepoll: { title: 'VibePoll', body: 'Quick polls.' },
+    viberetro: { title: 'VibeRetro', body: 'Retrospectives.' },
+    vibefeedback: { title: 'VibeFeedback', body: 'Feedback.' },
+    vibemeeting: { title: 'VibeMeeting', body: 'Meetings.' },
+  },
+};
+
+describe('slugifyWorkspaceName', () => {
+  it('builds a url-safe slug from the display name', () => {
+    expect(slugifyWorkspaceName('Acme Corp!')).toBe('acme-corp');
+    expect(slugifyWorkspaceName('  ')).toBe('workspace');
+  });
+});
 
 describe('Portal', () => {
   let fixture: ComponentFixture<Portal>;
@@ -59,24 +117,7 @@ describe('Portal', () => {
                   portal: 'Portal',
                   account: 'Account',
                 },
-                portal: {
-                  title: 'Your portal',
-                  lead: 'Enabled tools',
-                  loading: 'Loading…',
-                  empty: 'No workspaces',
-                  workspace: 'Workspace',
-                  tools: 'Tools',
-                  noTools: 'No tools',
-                  openTool: 'Open',
-                  adminHint: 'You are an admin',
-                  planHint: 'Preview plan {{plan}}',
-                  createTitle: 'Create a workspace',
-                  addWorkspace: 'Create another workspace',
-                  createName: 'Name',
-                  createSlug: 'Slug',
-                  createSubmit: 'Create',
-                  createSuccess: 'Workspace created.',
-                },
+                portal: portalCatalog,
                 shell: {
                   theme: { toDark: 'Dark', toLight: 'Light' },
                   preview: {
@@ -105,13 +146,14 @@ describe('Portal', () => {
 
   it('renders the portal title', () => {
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('h1')?.textContent).toContain('Your portal');
+    expect(el.querySelector('h1')?.textContent).toContain('Your workspace');
   });
 
   it('shows the create workspace form when empty', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('form')).toBeTruthy();
     expect(el.textContent).toContain('Create a workspace');
+    expect(el.textContent).toContain('Edit URL slug');
   });
 });
 
@@ -152,24 +194,7 @@ describe('Portal enter', () => {
                 portal: 'Portal',
                 account: 'Account',
               },
-              portal: {
-                title: 'Your portal',
-                lead: 'Enabled tools',
-                loading: 'Loading…',
-                empty: 'No workspaces',
-                workspace: 'Workspace',
-                tools: 'Tools',
-                noTools: 'No tools',
-                openTool: 'Open',
-                adminHint: 'You are an admin',
-                planHint: 'Preview plan {{plan}}',
-                createTitle: 'Create a workspace',
-                addWorkspace: 'Create another workspace',
-                createName: 'Name',
-                createSlug: 'Slug',
-                createSubmit: 'Create',
-                createSuccess: 'Workspace created.',
-              },
+              portal: portalCatalog,
               shell: { theme: { toDark: 'Dark', toLight: 'Light' } },
               common: { language: { label: 'Language', en: 'English' } },
             });
@@ -180,6 +205,7 @@ describe('Portal enter', () => {
   }
 
   beforeEach(() => {
+    TestBed.resetTestingModule();
     assignLocation = vi
       .spyOn(Portal.prototype, 'assignLocation')
       .mockImplementation(() => undefined);
@@ -189,7 +215,32 @@ describe('Portal enter', () => {
     vi.restoreAllMocks();
   });
 
-  it('hands off the only vibestandup workspace when enter=1', async () => {
+  it('auto-enters when a single product is enabled without enter=1', async () => {
+    await TestBed.configureTestingModule({
+      providers: providers(),
+    }).compileComponents();
+    const pending = RouterTestingHarness.create('/portal');
+    const http = TestBed.inject(HttpTestingController);
+    const harness = await pending;
+    http.expectOne('/api/me/workspaces').flush([
+      {
+        id: 'ws1',
+        name: 'Acme',
+        slug: 'acme',
+        role: 'OWNER',
+        tools: [{ toolKey: 'vibestandup', enabled: true }],
+      },
+    ]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    http.expectOne('/api/auth/custom-token').flush({ customToken: 'tok' });
+    await harness.fixture.whenStable();
+    expect(assignLocation).toHaveBeenCalledWith(
+      expect.stringContaining('workspaceId%3Dws1'),
+    );
+    http.verify();
+  });
+
+  it('hands off when enter=1 and standup is the only product', async () => {
     await TestBed.configureTestingModule({
       providers: providers(),
     }).compileComponents();
@@ -214,6 +265,95 @@ describe('Portal enter', () => {
     expect(assignLocation).toHaveBeenCalledWith(
       expect.stringContaining('enter%3D1'),
     );
+    http.verify();
+  });
+
+  it('stays on the portal when multiple products are enabled', async () => {
+    await TestBed.configureTestingModule({
+      providers: providers(),
+    }).compileComponents();
+    const pending = RouterTestingHarness.create('/portal');
+    const http = TestBed.inject(HttpTestingController);
+    const harness = await pending;
+    http.expectOne('/api/me/workspaces').flush([
+      {
+        id: 'ws1',
+        name: 'Acme',
+        slug: 'acme',
+        role: 'OWNER',
+        tools: [
+          { toolKey: 'vibestandup', enabled: true },
+          { toolKey: 'viberetro', enabled: true },
+        ],
+      },
+    ]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await harness.fixture.whenStable();
+    harness.fixture.detectChanges();
+    expect(assignLocation).not.toHaveBeenCalled();
+    const el = harness.fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain('VibeStandup');
+    expect(el.textContent).toContain('Set up workspace tools');
+    http.verify();
+  });
+
+  it('toggles a tool entitlement for workspace admins', async () => {
+    await TestBed.configureTestingModule({
+      imports: [Portal],
+      providers: providers(),
+    }).compileComponents();
+    const fixture = TestBed.createComponent(Portal);
+    const http = TestBed.inject(HttpTestingController);
+    fixture.detectChanges();
+    http.expectOne('/api/me/workspaces').flush([
+      {
+        id: 'ws1',
+        name: 'Acme',
+        slug: 'acme',
+        role: 'OWNER',
+        tools: [
+          { toolKey: 'vibestandup', enabled: true },
+          { toolKey: 'vibepoll', enabled: false },
+          { toolKey: 'viberetro', enabled: true },
+        ],
+      },
+    ]);
+    await fixture.whenStable();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelectorAll('input.toggle').length).toBeGreaterThan(0);
+    expect(el.textContent).toContain('Set up workspace tools');
+
+    const togglePromise = fixture.componentInstance.toggleTool(
+      'vibepoll',
+      true,
+    );
+    await Promise.resolve();
+    const put = http.expectOne(
+      (req) =>
+        req.method === 'PUT' &&
+        req.url.includes('/api/workspaces/ws1/tools/vibepoll'),
+    );
+    expect(put.request.body).toEqual({ enabled: true });
+    put.flush({ toolKey: 'vibepoll', enabled: true });
+    await Promise.resolve();
+    http.expectOne('/api/me/workspaces').flush([
+      {
+        id: 'ws1',
+        name: 'Acme',
+        slug: 'acme',
+        role: 'OWNER',
+        tools: [
+          { toolKey: 'vibestandup', enabled: true },
+          { toolKey: 'vibepoll', enabled: true },
+          { toolKey: 'viberetro', enabled: true },
+        ],
+      },
+    ]);
+    await togglePromise;
+    await fixture.whenStable();
     http.verify();
   });
 });

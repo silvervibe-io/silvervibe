@@ -1,0 +1,9 @@
+{
+  "name": "vibemeeting-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/vibemeeting-e2e/src",
+  "implicitDependencies": ["vibemeeting"],
+  "// targets": "to see all targets run: nx show project vibemeeting-e2e --web",
+  "targets": {}
+}

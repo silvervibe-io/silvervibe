@@ -6,8 +6,28 @@ export type VibestandupPlanLimits = {
   maxMembersPerTeam: number;
 };
 
+export type VibepollPlanLimits = {
+  enabledByDefault: boolean;
+};
+
+export type ViberetroPlanLimits = {
+  enabledByDefault: boolean;
+};
+
+export type VibefeedbackPlanLimits = {
+  enabledByDefault: boolean;
+};
+
+export type VibemeetingPlanLimits = {
+  enabledByDefault: boolean;
+};
+
 export type PlanToolLimits = {
   vibestandup?: VibestandupPlanLimits;
+  vibepoll?: VibepollPlanLimits;
+  viberetro?: ViberetroPlanLimits;
+  vibefeedback?: VibefeedbackPlanLimits;
+  vibemeeting?: VibemeetingPlanLimits;
 };
 
 export type WorkspacePlanDefinition = {

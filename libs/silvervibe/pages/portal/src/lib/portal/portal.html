@@ -7,12 +7,14 @@
     { label: ('nav.account' | transloco), href: '/account' }
   ]"
 >
-  <div class="space-y-6">
+  <div class="space-y-8">
     <header class="space-y-2">
       <h1 class="text-3xl font-bold tracking-tight">
         {{ 'portal.title' | transloco }}
       </h1>
-      <p class="text-base-content/70">{{ 'portal.lead' | transloco }}</p>
+      <p class="max-w-prose text-base-content/70">
+        {{ 'portal.lead' | transloco }}
+      </p>
     </header>
 
     @if (loading()) {
@@ -20,103 +22,233 @@
       {{ 'portal.loading' | transloco }}
     </p>
     } @else if (error()) {
-    <p class="text-error">{{ error() }}</p>
+    <sv-callout
+      variant="warning"
+      [title]="'portal.loadErrorTitle' | transloco"
+      [body]="error()"
+    />
     } @else { @if (memberships().length === 0) {
-    <p class="text-base-content/70">{{ 'portal.empty' | transloco }}</p>
+    <sv-empty-state
+      [title]="'portal.emptyTitle' | transloco"
+      [body]="'portal.emptyBody' | transloco"
+      [primaryLabel]="'portal.createSubmit' | transloco"
+      (primaryClick)="focusCreateWorkspace()"
+    />
     } @else {
-    <fieldset class="fieldset w-full max-w-xs">
-      <legend class="fieldset-legend">
-        {{ 'portal.workspace' | transloco }}
-      </legend>
-      <select
-        class="select select-bordered w-full"
-        [value]="selected()?.id ?? ''"
-        (change)="selectWorkspace($any($event.target).value)"
+    <sv-settings-section
+      [title]="'portal.whereYouAre' | transloco"
+      [purpose]="'portal.whereYouArePurpose' | transloco"
+    >
+      <div
+        class="flex flex-col gap-3 rounded-lg border border-base-300 bg-base-200/30 p-4 sm:flex-row sm:items-end sm:justify-between"
       >
-        @for (ws of memberships(); track ws.id) {
-        <option [value]="ws.id">
-          {{ ws.name }} ({{ previewActive() && selected()?.id === ws.id ?
-          effectiveRole() : ws.role }})
-        </option>
+        <fieldset class="fieldset w-full max-w-sm">
+          <legend class="fieldset-legend">
+            {{ 'portal.workspace' | transloco }}
+          </legend>
+          <sv-field-help
+            controlId="portal-workspace"
+            [description]="'portal.workspaceHelp' | transloco"
+          >
+            <select
+              class="select select-bordered w-full"
+              [value]="selected()?.id ?? ''"
+              [attr.aria-describedby]="'portal-workspace-desc'"
+              (change)="selectWorkspace($any($event.target).value)"
+            >
+              @for (ws of memberships(); track ws.id) {
+              <option [value]="ws.id">
+                {{ ws.name }} ({{ previewActive() && selected()?.id === ws.id ?
+                effectiveRole() : ws.role }})
+              </option>
+              }
+            </select>
+          </sv-field-help>
+        </fieldset>
+        @if (planHint(); as hint) {
+        <p class="text-sm text-base-content/60">
+          {{ 'portal.planHint' | transloco : { plan: hint.planKey, teams:
+          hint.maxTeams, members: hint.maxMembersPerTeam, } }}
+        </p>
         }
-      </select>
-    </fieldset>
+      </div>
+    </sv-settings-section>
 
-    @if (planHint(); as hint) {
-    <p class="text-sm text-base-content/60">
-      {{ 'portal.planHint' | transloco : { plan: hint.planKey, teams:
-      hint.maxTeams, members: hint.maxMembersPerTeam, } }}
-    </p>
-    }
-
-    <section class="space-y-3">
-      <h2 class="text-xl font-semibold">{{ 'portal.tools' | transloco }}</h2>
+    <sv-settings-section
+      [title]="'portal.tools' | transloco"
+      [purpose]="'portal.toolsPurpose' | transloco"
+    >
       @if (enabledTools().length === 0) {
-      <p class="text-base-content/60">{{ 'portal.noTools' | transloco }}</p>
+      <sv-empty-state
+        [title]="'portal.noToolsTitle' | transloco"
+        [body]="
+          (isAdmin() ? 'portal.noToolsAdminBody' : 'portal.noToolsMemberBody')
+            | transloco
+        "
+        [primaryLabel]="
+          isAdmin() ? ('portal.manageToolsCta' | transloco) : null
+        "
+        (primaryClick)="focusManageTools()"
+      />
       } @else {
       <ul class="space-y-2">
         @for (tool of enabledTools(); track tool.toolKey) {
         <li
-          class="flex flex-wrap items-center justify-between gap-3 border-b border-base-300 py-3"
+          class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-base-300 bg-base-100 px-4 py-3"
         >
-          <span class="font-medium">{{ tool.toolKey }}</span>
-          @if (tool.toolKey === 'vibestandup') {
+          <div class="min-w-0 space-y-0.5">
+            <p class="font-medium">
+              {{ 'portal.tool.' + tool.toolKey + '.title' | transloco }}
+            </p>
+            <p class="text-sm text-base-content/60">
+              {{ 'portal.tool.' + tool.toolKey + '.body' | transloco }}
+            </p>
+          </div>
           <button
             type="button"
-            class="btn btn-primary btn-sm"
+            class="btn btn-primary"
             [disabled]="openingTool()"
-            (click)="openVibeStandup()"
+            (click)="openProduct(tool.toolKey)"
           >
             {{ 'portal.openTool' | transloco }}
           </button>
-          }
         </li>
         }
       </ul>
       }
-    </section>
+    </sv-settings-section>
 
     @if (isAdmin()) {
-    <p class="text-sm text-base-content/60">
-      {{ 'portal.adminHint' | transloco }}
-    </p>
+    <div #manageToolsSection>
+      <sv-settings-section
+        [title]="'portal.manageTools' | transloco"
+        [purpose]="'portal.manageToolsPurpose' | transloco"
+        [learnMore]="'portal.manageToolsLearnMore' | transloco"
+        [learnMoreLabel]="'portal.learnMore' | transloco"
+      >
+        <ul class="space-y-2">
+          @for (tool of manageTools(); track tool.toolKey) {
+          <li
+            class="flex flex-wrap items-center justify-between gap-3 border-b border-base-300 py-3"
+          >
+            <div class="min-w-0 space-y-0.5">
+              <p class="font-medium">
+                {{ 'portal.tool.' + tool.toolKey + '.title' | transloco }}
+              </p>
+              <p class="text-sm text-base-content/60">
+                {{ 'portal.tool.' + tool.toolKey + '.body' | transloco }}
+              </p>
+            </div>
+            <label class="label cursor-pointer gap-2">
+              <span class="text-sm text-base-content/70">
+                {{ (tool.enabled ? 'portal.toolEnabled' : 'portal.toolDisabled')
+                | transloco }}
+              </span>
+              <input
+                type="checkbox"
+                class="toggle toggle-primary"
+                [checked]="tool.enabled"
+                [disabled]="togglingTool() === tool.toolKey"
+                (change)="toggleTool(tool.toolKey, $any($event.target).checked)"
+              />
+            </label>
+          </li>
+          }
+        </ul>
+      </sv-settings-section>
+    </div>
     } }
 
-    <form
-      class="flex max-w-md flex-col gap-3"
-      (submit)="createWorkspace($event)"
-    >
-      <h2 class="text-xl font-semibold">
-        {{ (memberships().length === 0 ? 'portal.createTitle' :
-        'portal.addWorkspace') | transloco }}
-      </h2>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'portal.createName' | transloco }}
-        </legend>
-        <input
-          class="input input-bordered w-full"
-          [formField]="workspaceForm.name"
-        />
-      </fieldset>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'portal.createSlug' | transloco }}
-        </legend>
-        <input
-          class="input input-bordered w-full"
-          [formField]="workspaceForm.slug"
-        />
-      </fieldset>
-      <button type="submit" class="btn btn-primary btn-sm self-start">
-        {{ 'portal.createSubmit' | transloco }}
+    <div #createWorkspaceSection>
+      @if (memberships().length === 0 || showCreateForm()) {
+      <sv-settings-section
+        [title]="
+          (memberships().length === 0
+            ? 'portal.createTitle'
+            : 'portal.addWorkspace'
+          ) | transloco
+        "
+        [purpose]="'portal.createPurpose' | transloco"
+      >
+        <form
+          class="flex max-w-md flex-col gap-3"
+          (submit)="createWorkspace($event)"
+        >
+          <fieldset class="fieldset w-full">
+            <legend class="fieldset-legend">
+              {{ 'portal.createName' | transloco }}
+            </legend>
+            <sv-field-help
+              controlId="portal-name"
+              [help]="'portal.createNameHelp' | transloco"
+            >
+              <input
+                class="input input-bordered w-full"
+                [formField]="workspaceForm.name"
+                [attr.aria-describedby]="'portal-name-help'"
+              />
+            </sv-field-help>
+          </fieldset>
+          @if (!showSlug()) {
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm self-start"
+            (click)="showSlug.set(true)"
+          >
+            {{ 'portal.createSlugAdvanced' | transloco }}
+          </button>
+          } @else {
+          <fieldset class="fieldset w-full">
+            <legend class="fieldset-legend">
+              {{ 'portal.createSlug' | transloco }}
+              <span class="font-normal text-base-content/50"
+                >({{ 'portal.optional' | transloco }})</span
+              >
+            </legend>
+            <sv-field-help
+              controlId="portal-slug"
+              [help]="'portal.createSlugHelp' | transloco"
+            >
+              <input
+                class="input input-bordered w-full"
+                [formField]="workspaceForm.slug"
+                [attr.aria-describedby]="'portal-slug-help'"
+                (input)="markSlugManual()"
+              />
+            </sv-field-help>
+          </fieldset>
+          }
+          <div class="flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-primary btn-sm">
+              {{ 'portal.createSubmit' | transloco }}
+            </button>
+            @if (memberships().length > 0) {
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm"
+              (click)="showCreateForm.set(false)"
+            >
+              {{ 'portal.createCancel' | transloco }}
+            </button>
+            }
+          </div>
+          @if (createMessage()) {
+          <p class="text-success text-sm">{{ createMessage()! | transloco }}</p>
+          } @if (createError()) {
+          <p class="text-error text-sm">{{ createError() }}</p>
+          }
+        </form>
+      </sv-settings-section>
+      } @else {
+      <button
+        type="button"
+        class="btn btn-outline btn-sm"
+        (click)="showCreateForm.set(true)"
+      >
+        {{ 'portal.addWorkspace' | transloco }}
       </button>
-      @if (createMessage()) {
-      <p class="text-success text-sm">{{ createMessage()! | transloco }}</p>
-      } @if (createError()) {
-      <p class="text-error text-sm">{{ createError() }}</p>
       }
-    </form>
+    </div>
     }
   </div>
 </sv-shell>

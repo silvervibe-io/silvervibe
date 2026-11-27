@@ -8,7 +8,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
   email,
   form,
@@ -18,7 +17,17 @@ import {
 } from '@angular/forms/signals';
 import { ActivatedRoute } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { MentionText, Shell, StandupSummary } from '@silvervibe/shared/ui';
+import { toTranslocoReadySignal } from '@silvervibe/shared/i18n';
+import {
+  Callout,
+  EmptyState,
+  FieldHelp,
+  MentionText,
+  QuestionEditorShell,
+  SettingsSection,
+  Shell,
+  StandupSummary,
+} from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import {
   isWithinWorkHours,
@@ -37,6 +46,17 @@ import {
   type TeamSlackChannelView,
 } from '@silvervibe/stores/workspace';
 
+export const TEAM_TIMEZONE_OPTIONS = [
+  'UTC',
+  'Europe/Amsterdam',
+  'Europe/Athens',
+  'Europe/Berlin',
+  'Europe/London',
+  'Europe/Paris',
+  'America/New_York',
+  'America/Los_Angeles',
+] as const;
+
 type ConfigModel = {
   timezone: string;
   scheduleKind: 'deadline' | 'window';
@@ -54,7 +74,18 @@ type InviteModel = {
 
 @Component({
   selector: 'vs-team-admin',
-  imports: [FormField, MentionText, Shell, StandupSummary, TranslocoPipe],
+  imports: [
+    FormField,
+    MentionText,
+    Shell,
+    StandupSummary,
+    TranslocoPipe,
+    SettingsSection,
+    FieldHelp,
+    Callout,
+    EmptyState,
+    QuestionEditorShell,
+  ],
   templateUrl: './team-admin.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -62,14 +93,14 @@ type InviteModel = {
   },
 })
 export class TeamAdmin implements OnInit {
+  readonly timezoneOptions = TEAM_TIMEZONE_OPTIONS;
+
   private readonly workspaces = inject(WorkspaceFacade);
   private readonly standup = inject(StandupFacade);
   private readonly preview = inject(PreviewContextStore);
   private readonly route = inject(ActivatedRoute);
   private readonly transloco = inject(TranslocoService);
-  private readonly lang = toSignal(this.transloco.langChanges$, {
-    initialValue: this.transloco.getActiveLang(),
-  });
+  private readonly i18nReady = toTranslocoReadySignal(this.transloco);
 
   readonly ready = signal(false);
   readonly error = this.standup.error;
@@ -89,11 +120,11 @@ export class TeamAdmin implements OnInit {
   readonly slackChannelSaving = signal(false);
   readonly selectedSlackChannelId = signal('');
   readonly adminSection = signal<
-    'standup' | 'questions' | 'digests' | 'people'
+    'standup' | 'questions' | 'digests' | 'people' | 'today'
   >('standup');
   readonly workspaceId = computed(() => this.workspaces.selectedWorkspaceId());
   readonly shellLinks = computed(() => {
-    this.lang();
+    this.i18nReady();
     this.workspaces.memberships();
     this.workspaces.selectedWorkspaceId();
     this.standup.teams();

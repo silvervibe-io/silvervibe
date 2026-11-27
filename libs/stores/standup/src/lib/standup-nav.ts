@@ -14,6 +14,12 @@ export type StandupAccess = {
   showWorkspace: boolean;
 };
 
+export type StandupShellLink = {
+  label: string;
+  href: string;
+  external?: boolean;
+};
+
 export function standupAccess(input: StandupAccessInput): StandupAccess {
   const showWorkspace =
     input.workspaceRole === 'OWNER' || input.workspaceRole === 'ADMIN';
@@ -55,18 +61,36 @@ const NAV = {
 export function standupShellLinks(
   input: StandupAccessInput,
   translate: (key: string) => string,
-): Array<{ label: string; href: string }> {
+  portalHref?: string,
+): StandupShellLink[] {
   const access = standupAccess(input);
-  const links: Array<{ key: string; href: string }> = [NAV.myStandup];
+  const links: StandupShellLink[] = [];
+  if (portalHref) {
+    links.push({
+      label: translate('nav.portal'),
+      href: portalHref,
+      external: true,
+    });
+  }
+  links.push({
+    label: translate(NAV.myStandup.key),
+    href: NAV.myStandup.href,
+  });
   if (access.showTeamAdmin) {
-    links.push(NAV.teamAdmin);
+    links.push({
+      label: translate(NAV.teamAdmin.key),
+      href: NAV.teamAdmin.href,
+    });
   }
   if (access.showWorkspace) {
-    links.push(NAV.workspace);
+    links.push({
+      label: translate(NAV.workspace.key),
+      href: NAV.workspace.href,
+    });
   }
-  links.push(NAV.settings, NAV.account);
-  return links.map((link) => ({
-    label: translate(link.key),
-    href: link.href,
-  }));
+  links.push(
+    { label: translate(NAV.settings.key), href: NAV.settings.href },
+    { label: translate(NAV.account.key), href: NAV.account.href },
+  );
+  return links;
 }

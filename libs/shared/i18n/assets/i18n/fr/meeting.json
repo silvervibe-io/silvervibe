@@ -1,0 +1,80 @@
+{
+  "nav": {
+    "meetings": "Meetings",
+    "create": "Create",
+    "account": "Account"
+  },
+  "list": {
+    "title": "Meetings",
+    "lead": "Meetings for {{workspace}}",
+    "create": "New meeting",
+    "loading": "Loading meetings…",
+    "empty": "No meetings yet. Create one for your workspace.",
+    "meta": "{{status}} · {{agenda}} agenda items · {{decisions}} decisions · {{actions}} actions · {{invites}} invited"
+  },
+  "create": {
+    "title": "Create a meeting",
+    "lead": "Plan the agenda and invite workspace members in-app. No email in this version.",
+    "name": "Title",
+    "context": "Context (optional)",
+    "agenda": "Agenda",
+    "addAgendaItem": "Add agenda item",
+    "removeAgendaItem": "Remove",
+    "editPolicy": "Who can edit notes",
+    "closePolicy": "Who can close",
+    "scheduledAt": "Scheduled for (optional)",
+    "invites": "Invite attendees",
+    "invitesHint": "You are always included. Others must be workspace members.",
+    "submit": "Create meeting",
+    "cancel": "Cancel",
+    "noWorkspace": "Select a workspace first.",
+    "needAgenda": "Add at least one agenda item.",
+    "stepDetails": "Details",
+    "nextParticipants": "Next: Participants",
+    "sectionDetails": "Meeting details",
+    "sectionDetailsPurpose": "Set the agenda and who can edit decisions before you meet.",
+    "editPolicyHelp": "Controls who can change agenda, decisions, and actions.",
+    "optional": "optional",
+    "noMembersTitle": "No workspace members yet",
+    "noMembersBody": "Invite people to the workspace first, then create the meeting."
+  },
+  "editPolicy": {
+    "CREATOR_OR_ADMIN": "Creator or workspace admin",
+    "CREATOR_ONLY": "Creator only",
+    "ANY_INVITEE": "Any invitee"
+  },
+  "closePolicy": {
+    "CREATOR_OR_ADMIN": "Creator or workspace admin",
+    "CREATOR_ONLY": "Creator only",
+    "ANY_INVITEE": "Any invitee"
+  },
+  "detail": {
+    "loading": "Loading meeting…",
+    "back": "All meetings",
+    "meta": "{{status}} · edit: {{edit}} · close: {{close}}",
+    "scheduledAt": "Scheduled: {{date}}",
+    "agendaTitle": "Agenda",
+    "emptyAgenda": "No agenda items",
+    "decisionsTitle": "Decisions",
+    "addDecision": "Add decision",
+    "decisionPlaceholder": "Describe a decision…",
+    "saveDecisions": "Save decisions",
+    "emptyDecisions": "No decisions recorded",
+    "actionsTitle": "Action items",
+    "addAction": "Add action",
+    "actionPlaceholder": "Describe an action…",
+    "done": "Done",
+    "unassigned": "Unassigned",
+    "saveActions": "Save actions",
+    "emptyActions": "No action items",
+    "remove": "Remove",
+    "recapTitle": "Recap",
+    "recapEmpty": "No recap provided.",
+    "closeTitle": "Close meeting",
+    "recapPlaceholder": "Optional short recap…",
+    "close": "Close meeting",
+    "settingsTitle": "Settings",
+    "settingsPurpose": "Edit and close rules for this meeting.",
+    "settingsHint": "Closing stores the recap. Edit policy was set when the meeting was created."
+  }
+}

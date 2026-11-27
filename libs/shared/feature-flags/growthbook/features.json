@@ -4,6 +4,18 @@
     "tools.vibestandup.enabled": {
       "defaultValue": true
     },
+    "tools.vibepoll.enabled": {
+      "defaultValue": true
+    },
+    "tools.viberetro.enabled": {
+      "defaultValue": true
+    },
+    "tools.vibefeedback.enabled": {
+      "defaultValue": true
+    },
+    "tools.vibemeeting.enabled": {
+      "defaultValue": true
+    },
     "addons.github.webhooks": {
       "defaultValue": false
     },
@@ -23,6 +35,18 @@
                 "enabledByDefault": true,
                 "maxTeams": 1,
                 "maxMembersPerTeam": 12
+              },
+              "vibepoll": {
+                "enabledByDefault": false
+              },
+              "viberetro": {
+                "enabledByDefault": false
+              },
+              "vibefeedback": {
+                "enabledByDefault": false
+              },
+              "vibemeeting": {
+                "enabledByDefault": false
               }
             }
           },
@@ -35,6 +59,18 @@
                 "enabledByDefault": true,
                 "maxTeams": 10,
                 "maxMembersPerTeam": 50
+              },
+              "vibepoll": {
+                "enabledByDefault": false
+              },
+              "viberetro": {
+                "enabledByDefault": false
+              },
+              "vibefeedback": {
+                "enabledByDefault": false
+              },
+              "vibemeeting": {
+                "enabledByDefault": false
               }
             }
           }

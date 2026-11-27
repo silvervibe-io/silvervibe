@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "polls": "Ψηφοφορίες",
+    "create": "Δημιουργία",
+    "account": "Λογαριασμός"
+  },
+  "list": {
+    "title": "Ψηφοφορίες ομάδας",
+    "lead": "Ψηφοφορίες για {{workspace}}",
+    "create": "Νέα ψηφοφορία",
+    "loading": "Φόρτωση ψηφοφοριών…",
+    "empty": "Δεν υπάρχουν ακόμη ψηφοφορίες. Δημιούργησε μία για τον χώρο εργασίας.",
+    "meta": "{{status}} · {{options}} επιλογές · {{invites}} προσκεκλημένοι"
+  },
+  "create": {
+    "title": "Δημιουργία ψηφοφορίας",
+    "lead": "Πρόσκληση μελών στον χώρο εργασίας μέσα στην εφαρμογή. Χωρίς email σε αυτή την έκδοση.",
+    "question": "Ερώτηση",
+    "options": "Επιλογές (τουλάχιστον δύο)",
+    "allowMulti": "Επιτρέπεται επιλογή περισσότερων από μία",
+    "startsAt": "Έναρξη (προαιρετικό)",
+    "endsAt": "Λήξη (προαιρετικό)",
+    "invites": "Πρόσκληση μελών",
+    "invitesHint": "Εσύ περιλαμβάνεσαι πάντα. Οι άλλοι πρέπει να είναι μέλη του χώρου.",
+    "submit": "Δημιουργία",
+    "cancel": "Ακύρωση",
+    "noWorkspace": "Επίλεξε πρώτα χώρο εργασίας.",
+    "needOptions": "Πρόσθεσε τουλάχιστον δύο επιλογές.",
+    "stepDetails": "Details",
+    "nextParticipants": "Next: Participants",
+    "sectionDetails": "Poll details",
+    "sectionDetailsPurpose": "Write a clear question and at least two options.",
+    "questionHelp": "Example: Which sprint goal should we prioritize?",
+    "optionsHelp": "Fill A and B at minimum. Leave unused options blank.",
+    "optional": "optional",
+    "noMembersTitle": "No workspace members yet",
+    "noMembersBody": "Invite people to the workspace first, then create the poll.",
+    "reviewTitle": "Ready to create?",
+    "reviewBody": "You can close the poll later from its detail page. Voting rules stay as set here."
+  },
+  "detail": {
+    "loading": "Φόρτωση ψηφοφορίας…",
+    "back": "Όλες οι ψηφοφορίες",
+    "meta": "Κατάσταση: {{status}}",
+    "voteTitle": "Η ψήφος σου",
+    "submitVote": "Υποβολή ψήφου",
+    "changeVote": "Αλλαγή ψήφου",
+    "notOpen": "Η ψηφοφορία δεν είναι ανοιχτή αυτή τη στιγμή.",
+    "resultsTitle": "Αποτελέσματα",
+    "ballots": "{{count}} ψήφος/οι",
+    "close": "Κλείσιμο ψηφοφορίας",
+    "settingsTitle": "Settings",
+    "settingsPurpose": "How this poll behaves for members.",
+    "settingsMulti": "Allow multiple options: {{value}}",
+    "settingsOptions": "{{count}} options",
+    "settingsStarts": "Starts: {{at}}",
+    "settingsEnds": "Ends: {{at}}",
+    "settingsEditHint": "Closing ends voting. Changing options after create is not available yet—create a new poll if you need different choices.",
+    "yes": "Yes",
+    "no": "No"
+  }
+}

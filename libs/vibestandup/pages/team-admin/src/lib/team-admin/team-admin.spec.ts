@@ -86,6 +86,8 @@ describe('TeamAdmin', () => {
                     linkCopied: 'Copied',
                     todayEntries: 'Today',
                     rebuildSummary: 'Rebuild',
+                    aiDigestNotice:
+                      'AI digests may send standup text to Gemini.',
                     slackChannelTitle: 'Slack channel',
                     slackChannelHint: 'Override channel',
                     slackNotConnected: 'Not connected',
@@ -159,10 +161,17 @@ describe('TeamAdmin', () => {
       .flush([{ id: 't1', name: 'Alpha', slug: 'alpha', role: 'ADMIN' }]);
     await pending;
     fixture.componentInstance.roster.set([
-      { userId: 'u1', name: 'Ada', status: 'posted', today: 'Ship the API' },
+      {
+        userId: 'u1',
+        name: 'Ada',
+        status: 'posted',
+        today: 'Ship the API',
+        answeredVia: 'slack',
+      },
       { userId: 'u2', name: 'Bea', status: 'open', today: null },
       { userId: 'u3', name: 'Cal', status: 'away', today: null },
     ]);
+    fixture.componentInstance.adminSection.set('today');
     fixture.detectChanges();
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(text).toContain('Ada');

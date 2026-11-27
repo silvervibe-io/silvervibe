@@ -1,0 +1,10 @@
+<div [class]="panelClass()">
+  <p class="font-medium">
+    <span class="sr-only">{{ variantLabel() }}: </span>
+    @if (title(); as heading) { {{ heading }} } @else { {{ variantLabel() }} }
+  </p>
+  @if (body(); as text) {
+  <p class="mt-1 text-base-content/80">{{ text }}</p>
+  }
+  <ng-content />
+</div>

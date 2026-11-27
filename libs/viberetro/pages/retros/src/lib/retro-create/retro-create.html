@@ -1,0 +1,155 @@
+<sv-shell [title]="'VibeRetro'">
+  <form
+    class="mx-auto flex max-w-xl flex-col gap-6"
+    (submit)="onSubmit($event)"
+  >
+    <header class="space-y-2">
+      <h1 class="text-3xl font-bold tracking-tight">
+        {{ 'retro.create.title' | transloco }}
+      </h1>
+      <p class="text-base-content/70">{{ 'retro.create.lead' | transloco }}</p>
+      <sv-step-header
+        [step]="1"
+        [total]="3"
+        [title]="'retro.create.stepDetails' | transloco"
+        [nextLabel]="'retro.create.nextParticipants' | transloco"
+      />
+    </header>
+
+    <sv-settings-section
+      [title]="'retro.create.sectionDetails' | transloco"
+      [purpose]="'retro.create.sectionDetailsPurpose' | transloco"
+    >
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'retro.create.name' | transloco }}
+        </legend>
+        <sv-field-help
+          controlId="retro-title"
+          [help]="'retro.create.nameHelp' | transloco"
+        >
+          <input
+            class="input input-bordered w-full"
+            [formField]="retroForm.title"
+            [attr.aria-describedby]="'retro-title-help'"
+          />
+        </sv-field-help>
+      </fieldset>
+
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'retro.create.visibility' | transloco }}
+        </legend>
+        <sv-field-help
+          controlId="retro-visibility"
+          [description]="'retro.create.visibilityHelp' | transloco"
+        >
+          <select
+            class="select select-bordered w-full"
+            [formField]="retroForm.noteVisibility"
+            [attr.aria-describedby]="'retro-visibility-desc'"
+          >
+            @for (option of visibilityOptions; track option) {
+            <option [value]="option">
+              {{ ('retro.visibility.' + option) | transloco }}
+            </option>
+            }
+          </select>
+        </sv-field-help>
+      </fieldset>
+
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'retro.create.closePolicy' | transloco }}
+        </legend>
+        <sv-field-help
+          controlId="retro-close"
+          [description]="'retro.create.closePolicyHelp' | transloco"
+        >
+          <select
+            class="select select-bordered w-full"
+            [formField]="retroForm.closePolicy"
+            [attr.aria-describedby]="'retro-close-desc'"
+          >
+            @for (option of closeOptions; track option) {
+            <option [value]="option">
+              {{ ('retro.closePolicy.' + option) | transloco }}
+            </option>
+            }
+          </select>
+        </sv-field-help>
+      </fieldset>
+
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'retro.create.endsAt' | transloco }}
+          <span class="font-normal text-base-content/50"
+            >({{ 'retro.create.optional' | transloco }})</span
+          >
+        </legend>
+        <input
+          type="datetime-local"
+          class="input input-bordered w-full"
+          [formField]="retroForm.endsAt"
+        />
+      </fieldset>
+    </sv-settings-section>
+
+    <sv-settings-section
+      [title]="'retro.create.invites' | transloco"
+      [purpose]="'retro.create.invitesHint' | transloco"
+    >
+      @if (members().length === 0) {
+      <sv-empty-state
+        [title]="'retro.create.noMembersTitle' | transloco"
+        [body]="'retro.create.noMembersBody' | transloco"
+      />
+      } @else {
+      <ul class="space-y-2">
+        @for (member of members(); track member.userId) {
+        <li>
+          <label class="label cursor-pointer justify-start gap-3">
+            <input
+              type="checkbox"
+              class="checkbox checkbox-sm"
+              [checked]="isInvited(member.userId)"
+              (change)="
+                toggleInvite(member.userId, $any($event.target).checked)
+              "
+            />
+            <span>
+              {{ member.displayName || member.email || member.userId }}
+            </span>
+          </label>
+        </li>
+        }
+      </ul>
+      }
+    </sv-settings-section>
+
+    <sv-callout
+      variant="tip"
+      [title]="'retro.create.reviewTitle' | transloco"
+      [body]="'retro.create.reviewBody' | transloco"
+    />
+
+    @if (formError()) {
+    <p class="text-error text-sm">{{ formError()! | transloco }}</p>
+    } @if (error()) {
+    <p class="text-error text-sm">{{ error() }}</p>
+    }
+
+    <div class="flex flex-wrap gap-2">
+      <button
+        type="submit"
+        class="btn btn-primary btn-sm"
+        [disabled]="loading()"
+      >
+        {{ 'retro.create.submit' | transloco }}
+      </button>
+      <a routerLink="/app" class="btn btn-ghost btn-sm">
+        {{ 'retro.create.cancel' | transloco }}
+      </a>
+    </div>
+  </form>
+</sv-shell>

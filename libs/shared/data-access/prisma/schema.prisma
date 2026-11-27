@@ -59,6 +59,71 @@ enum AddonConnectionStatus {
   ERROR
 }
 
+enum PollStatus {
+  DRAFT
+  OPEN
+  CLOSED
+}
+
+enum RetroStatus {
+  DRAFT
+  OPEN
+  CLOSED
+}
+
+enum RetroNoteVisibility {
+  LIVE
+  PRIVATE_UNTIL_CLOSE
+  AFTER_CONTRIBUTE
+}
+
+enum RetroClosePolicy {
+  CREATOR_OR_ADMIN
+  CREATOR_ONLY
+  ANY_INVITEE
+}
+
+enum RetroNoteColumn {
+  WENT_WELL
+  IMPROVE
+  ACTIONS
+}
+
+enum FeedbackStatus {
+  DRAFT
+  OPEN
+  CLOSED
+}
+
+enum FeedbackAnswerVisibility {
+  PRIVATE_TO_REQUESTER
+  SHARED_WITH_INVITEES
+}
+
+enum FeedbackClosePolicy {
+  CREATOR_OR_ADMIN
+  CREATOR_ONLY
+  ANY_INVITEE
+}
+
+enum MeetingStatus {
+  DRAFT
+  OPEN
+  CLOSED
+}
+
+enum MeetingEditPolicy {
+  CREATOR_OR_ADMIN
+  CREATOR_ONLY
+  ANY_INVITEE
+}
+
+enum MeetingClosePolicy {
+  CREATOR_OR_ADMIN
+  CREATOR_ONLY
+  ANY_INVITEE
+}
+
 model User {
   id          String   @id @default(cuid())
   firebaseUid String   @unique @map("firebase_uid")
@@ -74,8 +139,38 @@ model User {
   standupEntries  StandupEntry[]
   standupAways    StandupAway[]
   invitesSent     TeamInvite[]      @relation("TeamInvitesSent")
+  pollsCreated    Poll[]            @relation("PollsCreated")
+  pollInvites     PollInvite[]
+  pollVotes       PollVote[]
+  retrosCreated      Retro[]            @relation("RetrosCreated")
+  retroInvites       RetroInvite[]
+  retroNotes         RetroNote[]
+  feedbackCreated    FeedbackRequest[]  @relation("FeedbackCreated")
+  feedbackInvites    FeedbackInvite[]
+  feedbackAnswers    FeedbackAnswer[]
+  meetingsCreated    Meeting[]          @relation("MeetingCreated")
+  meetingInvites     MeetingInvite[]
+  slackUserLinks     SlackUserLink[]
 
   @@map("users")
+}
+
+/** Maps a Slack user in a Slack workspace (team) to a Silvervibe Neon user. */
+model SlackUserLink {
+  id          String   @id @default(cuid())
+  slackTeamId String   @map("slack_team_id")
+  slackUserId String   @map("slack_user_id")
+  userId      String   @map("user_id")
+  email       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([slackTeamId, slackUserId])
+  @@unique([userId, slackTeamId])
+  @@index([email])
+  @@map("slack_user_links")
 }
 
 model Workspace {
@@ -91,6 +186,10 @@ model Workspace {
   tools            WorkspaceTool[]
   addonConnections AddonConnection[]
   teams            Team[]
+  polls            Poll[]
+  retros           Retro[]
+  feedbackRequests FeedbackRequest[]
+  meetings         Meeting[]
 
   @@map("workspaces")
 }
@@ -214,18 +313,20 @@ model StandupConfig {
 }
 
 model StandupEntry {
-  id          String             @id @default(cuid())
-  teamId      String             @map("team_id")
-  userId      String             @map("user_id")
-  entryDate   DateTime           @map("entry_date") @db.Date
-  status      StandupEntryStatus @default(DRAFT)
-  yesterday   String?
-  today       String?
-  blockers    String?
-  answersJson Json               @default("{}") @map("answers_json")
-  submittedAt DateTime?          @map("submitted_at")
-  createdAt   DateTime           @default(now()) @map("created_at")
-  updatedAt   DateTime           @updatedAt @map("updated_at")
+  id           String             @id @default(cuid())
+  teamId       String             @map("team_id")
+  userId       String             @map("user_id")
+  entryDate    DateTime           @map("entry_date") @db.Date
+  status       StandupEntryStatus @default(DRAFT)
+  yesterday    String?
+  today        String?
+  blockers     String?
+  answersJson  Json               @default("{}") @map("answers_json")
+  /** How the entry was last submitted: `web` | `slack` (null for drafts / legacy). */
+  submittedVia String?            @map("submitted_via")
+  submittedAt  DateTime?          @map("submitted_at")
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
 
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -263,4 +364,277 @@ model StandupAway {
   @@unique([teamId, userId, entryDate])
   @@index([teamId, entryDate])
   @@map("standup_aways")
+}
+
+model Poll {
+  id              String     @id @default(cuid())
+  workspaceId     String     @map("workspace_id")
+  createdById     String     @map("created_by_id")
+  question        String
+  allowMulti      Boolean    @default(false) @map("allow_multi")
+  allowSuggest    Boolean    @default(false) @map("allow_suggest")
+  status          PollStatus @default(OPEN)
+  startsAt        DateTime?  @map("starts_at")
+  endsAt          DateTime?  @map("ends_at")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  workspace Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy User         @relation("PollsCreated", fields: [createdById], references: [id], onDelete: Cascade)
+  options   PollOption[]
+  invites   PollInvite[]
+  votes     PollVote[]
+
+  @@index([workspaceId, status])
+  @@map("polls")
+}
+
+model PollOption {
+  id        String   @id @default(cuid())
+  pollId    String   @map("poll_id")
+  label     String
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  poll  Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes PollVote[]
+
+  @@index([pollId])
+  @@map("poll_options")
+}
+
+model PollInvite {
+  id        String   @id @default(cuid())
+  pollId    String   @map("poll_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  poll Poll @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([pollId, userId])
+  @@map("poll_invites")
+}
+
+model PollVote {
+  id        String   @id @default(cuid())
+  pollId    String   @map("poll_id")
+  userId    String   @map("user_id")
+  optionId  String   @map("option_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  poll   Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  option PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@unique([pollId, userId, optionId])
+  @@index([pollId, userId])
+  @@map("poll_votes")
+}
+
+model Retro {
+  id             String              @id @default(cuid())
+  workspaceId    String              @map("workspace_id")
+  createdById    String              @map("created_by_id")
+  title          String
+  status         RetroStatus         @default(OPEN)
+  noteVisibility RetroNoteVisibility @default(LIVE) @map("note_visibility")
+  closePolicy    RetroClosePolicy    @default(CREATOR_OR_ADMIN) @map("close_policy")
+  startsAt       DateTime?           @map("starts_at")
+  endsAt         DateTime?           @map("ends_at")
+  summary        String?
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedAt      DateTime            @updatedAt @map("updated_at")
+
+  workspace Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy User         @relation("RetrosCreated", fields: [createdById], references: [id], onDelete: Cascade)
+  invites   RetroInvite[]
+  notes     RetroNote[]
+
+  @@index([workspaceId, status])
+  @@map("retros")
+}
+
+model RetroInvite {
+  id        String   @id @default(cuid())
+  retroId   String   @map("retro_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  retro Retro @relation(fields: [retroId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([retroId, userId])
+  @@map("retro_invites")
+}
+
+model RetroNote {
+  id        String          @id @default(cuid())
+  retroId   String          @map("retro_id")
+  authorId  String          @map("author_id")
+  column    RetroNoteColumn
+  body      String
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
+
+  retro  Retro @relation(fields: [retroId], references: [id], onDelete: Cascade)
+  author User  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([retroId, column])
+  @@index([retroId, authorId])
+  @@map("retro_notes")
+}
+
+model FeedbackRequest {
+  id               String                    @id @default(cuid())
+  workspaceId      String                    @map("workspace_id")
+  createdById      String                    @map("created_by_id")
+  title            String
+  context          String?
+  status           FeedbackStatus            @default(OPEN)
+  answerVisibility FeedbackAnswerVisibility  @default(PRIVATE_TO_REQUESTER) @map("answer_visibility")
+  anonymous        Boolean                   @default(false)
+  closePolicy      FeedbackClosePolicy       @default(CREATOR_OR_ADMIN) @map("close_policy")
+  endsAt           DateTime?                 @map("ends_at")
+  summary          String?
+  createdAt        DateTime                  @default(now()) @map("created_at")
+  updatedAt        DateTime                  @updatedAt @map("updated_at")
+
+  workspace Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy User              @relation("FeedbackCreated", fields: [createdById], references: [id], onDelete: Cascade)
+  prompts   FeedbackPrompt[]
+  invites   FeedbackInvite[]
+  answers   FeedbackAnswer[]
+
+  @@index([workspaceId, status])
+  @@map("feedback_requests")
+}
+
+model FeedbackPrompt {
+  id        String   @id @default(cuid())
+  requestId String   @map("request_id")
+  body      String
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  request FeedbackRequest  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  answers FeedbackAnswer[]
+
+  @@index([requestId])
+  @@map("feedback_prompts")
+}
+
+model FeedbackInvite {
+  id        String   @id @default(cuid())
+  requestId String   @map("request_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  request FeedbackRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([requestId, userId])
+  @@map("feedback_invites")
+}
+
+model FeedbackAnswer {
+  id        String   @id @default(cuid())
+  requestId String   @map("request_id")
+  promptId  String   @map("prompt_id")
+  authorId  String   @map("author_id")
+  body      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  request FeedbackRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  prompt  FeedbackPrompt  @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  author  User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@unique([promptId, authorId])
+  @@index([requestId, authorId])
+  @@map("feedback_answers")
+}
+
+model Meeting {
+  id          String             @id @default(cuid())
+  workspaceId String             @map("workspace_id")
+  createdById String             @map("created_by_id")
+  title       String
+  context     String?
+  status      MeetingStatus      @default(OPEN)
+  editPolicy  MeetingEditPolicy  @default(CREATOR_OR_ADMIN) @map("edit_policy")
+  closePolicy MeetingClosePolicy @default(CREATOR_OR_ADMIN) @map("close_policy")
+  scheduledAt DateTime?          @map("scheduled_at")
+  recap       String?
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+
+  workspace   Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy   User                @relation("MeetingCreated", fields: [createdById], references: [id], onDelete: Cascade)
+  agendaItems MeetingAgendaItem[]
+  invites     MeetingInvite[]
+  decisions   MeetingDecision[]
+  actions     MeetingAction[]
+
+  @@index([workspaceId, status])
+  @@map("meetings")
+}
+
+model MeetingAgendaItem {
+  id        String   @id @default(cuid())
+  meetingId String   @map("meeting_id")
+  body      String
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId])
+  @@map("meeting_agenda_items")
+}
+
+model MeetingInvite {
+  id        String   @id @default(cuid())
+  meetingId String   @map("meeting_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([meetingId, userId])
+  @@map("meeting_invites")
+}
+
+model MeetingDecision {
+  id          String   @id @default(cuid())
+  meetingId   String   @map("meeting_id")
+  body        String
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdById String   @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId])
+  @@map("meeting_decisions")
+}
+
+model MeetingAction {
+  id          String   @id @default(cuid())
+  meetingId   String   @map("meeting_id")
+  body        String
+  assigneeId  String?  @map("assignee_id")
+  done        Boolean  @default(false)
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdById String   @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId])
+  @@map("meeting_actions")
 }

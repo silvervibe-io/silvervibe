@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "retros": "Retros",
+    "create": "Maken",
+    "account": "Account"
+  },
+  "list": {
+    "title": "Teamretros",
+    "lead": "Retros voor {{workspace}}",
+    "create": "Nieuwe retro",
+    "loading": "Retros laden…",
+    "empty": "Nog geen retros. Maak er een voor je workspace.",
+    "meta": "{{status}} · {{notes}} notities · {{invites}} uitgenodigd"
+  },
+  "create": {
+    "title": "Retro maken",
+    "lead": "Nodig workspaceleden in de app uit. Geen e-mail in deze versie.",
+    "name": "Titel",
+    "visibility": "Zichtbaarheid van notities",
+    "closePolicy": "Wie mag sluiten",
+    "endsAt": "Einde (optioneel)",
+    "invites": "Leden uitnodigen",
+    "invitesHint": "Jij bent altijd inbegrepen. Anderen moeten workspaceleden zijn.",
+    "submit": "Retro maken",
+    "cancel": "Annuleren",
+    "noWorkspace": "Selecteer eerst een workspace.",
+    "stepDetails": "Details",
+    "nextParticipants": "Next: Participants",
+    "sectionDetails": "Retro details",
+    "sectionDetailsPurpose": "Name the retro and choose who can see notes while it runs.",
+    "nameHelp": "Example: Sprint 42 retro",
+    "visibilityHelp": "Controls whether notes are visible to everyone before close.",
+    "closePolicyHelp": "Who is allowed to close the board and write the summary.",
+    "optional": "optional",
+    "noMembersTitle": "No workspace members yet",
+    "noMembersBody": "Invite people to the workspace first, then start the retro.",
+    "reviewTitle": "Classic columns",
+    "reviewBody": "Notes use Went well / Improve / Actions. You can close with a summary later."
+  },
+  "visibility": {
+    "LIVE": "Live — iedereen ziet notities zodra ze worden toegevoegd",
+    "PRIVATE_UNTIL_CLOSE": "Privé tot sluiten — alleen je eigen notities tot gesloten",
+    "AFTER_CONTRIBUTE": "Na bijdrage — zie anderen nadat je een notitie toevoegt"
+  },
+  "closePolicy": {
+    "CREATOR_OR_ADMIN": "Maker of workspace-admin",
+    "CREATOR_ONLY": "Alleen maker",
+    "ANY_INVITEE": "Elke genodigde"
+  },
+  "column": {
+    "WENT_WELL": "Ging goed",
+    "IMPROVE": "Verbeteren",
+    "ACTIONS": "Acties"
+  },
+  "board": {
+    "loading": "Retro laden…",
+    "back": "Alle retros",
+    "meta": "{{status}} · {{visibility}} · {{close}}",
+    "addNote": "Notitie toevoegen",
+    "notePlaceholder": "Schrijf je notitie…",
+    "submitNote": "Notitie toevoegen",
+    "deleteNote": "Verwijderen",
+    "emptyColumn": "Nog geen notities",
+    "summaryTitle": "Samenvatting",
+    "summaryEmpty": "Geen samenvatting gegeven.",
+    "closeTitle": "Retro sluiten",
+    "summaryPlaceholder": "Optionele korte samenvatting…",
+    "close": "Retro sluiten",
+    "settingsTitle": "Settings",
+    "settingsPurpose": "Visibility and close rules for this retro.",
+    "settingsHint": "Note visibility and close policy were set at create time. Closing finalizes the board."
+  }
+}

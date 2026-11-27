@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "retros": "Retros",
+    "create": "Δημιουργία",
+    "account": "Λογαριασμός"
+  },
+  "list": {
+    "title": "Retros ομάδας",
+    "lead": "Retros για {{workspace}}",
+    "create": "Νέο retro",
+    "loading": "Φόρτωση retros…",
+    "empty": "Δεν υπάρχουν ακόμα retros. Δημιούργησε ένα για το workspace.",
+    "meta": "{{status}} · {{notes}} σημειώσεις · {{invites}} προσκεκλημένοι"
+  },
+  "create": {
+    "title": "Δημιουργία retro",
+    "lead": "Προσκάλεσε μέλη του workspace στην εφαρμογή. Χωρίς email σε αυτή την έκδοση.",
+    "name": "Τίτλος",
+    "visibility": "Ορατότητα σημειώσεων",
+    "closePolicy": "Ποιος μπορεί να κλείσει",
+    "endsAt": "Λήξη (προαιρετικό)",
+    "invites": "Πρόσκληση μελών",
+    "invitesHint": "Είσαι πάντα συμπεριλαμβανόμενος. Οι άλλοι πρέπει να είναι μέλη του workspace.",
+    "submit": "Δημιουργία retro",
+    "cancel": "Ακύρωση",
+    "noWorkspace": "Επίλεξε πρώτα ένα workspace.",
+    "stepDetails": "Details",
+    "nextParticipants": "Next: Participants",
+    "sectionDetails": "Retro details",
+    "sectionDetailsPurpose": "Name the retro and choose who can see notes while it runs.",
+    "nameHelp": "Example: Sprint 42 retro",
+    "visibilityHelp": "Controls whether notes are visible to everyone before close.",
+    "closePolicyHelp": "Who is allowed to close the board and write the summary.",
+    "optional": "optional",
+    "noMembersTitle": "No workspace members yet",
+    "noMembersBody": "Invite people to the workspace first, then start the retro.",
+    "reviewTitle": "Classic columns",
+    "reviewBody": "Notes use Went well / Improve / Actions. You can close with a summary later."
+  },
+  "visibility": {
+    "LIVE": "Ζωντανά — όλοι βλέπουν τις σημειώσεις καθώς προστίθενται",
+    "PRIVATE_UNTIL_CLOSE": "Ιδιωτικά μέχρι το κλείσιμο — μόνο οι δικές σου μέχρι το κλείσιμο",
+    "AFTER_CONTRIBUTE": "Μετά τη συνεισφορά — δες τους άλλους αφού προσθέσεις σημείωση"
+  },
+  "closePolicy": {
+    "CREATOR_OR_ADMIN": "Δημιουργός ή admin του workspace",
+    "CREATOR_ONLY": "Μόνο δημιουργός",
+    "ANY_INVITEE": "Οποιοσδήποτε προσκεκλημένος"
+  },
+  "column": {
+    "WENT_WELL": "Πήγε καλά",
+    "IMPROVE": "Βελτίωση",
+    "ACTIONS": "Ενέργειες"
+  },
+  "board": {
+    "loading": "Φόρτωση retro…",
+    "back": "Όλα τα retros",
+    "meta": "{{status}} · {{visibility}} · {{close}}",
+    "addNote": "Προσθήκη σημείωσης",
+    "notePlaceholder": "Γράψε τη σημείωσή σου…",
+    "submitNote": "Προσθήκη σημείωσης",
+    "deleteNote": "Διαγραφή",
+    "emptyColumn": "Δεν υπάρχουν ακόμα σημειώσεις",
+    "summaryTitle": "Σύνοψη",
+    "summaryEmpty": "Δεν δόθηκε σύνοψη.",
+    "closeTitle": "Κλείσιμο retro",
+    "summaryPlaceholder": "Προαιρετική σύντομη σύνοψη…",
+    "close": "Κλείσιμο retro",
+    "settingsTitle": "Settings",
+    "settingsPurpose": "Visibility and close rules for this retro.",
+    "settingsHint": "Note visibility and close policy were set at create time. Closing finalizes the board."
+  }
+}

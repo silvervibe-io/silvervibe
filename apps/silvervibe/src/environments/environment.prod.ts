@@ -15,4 +15,8 @@ export const environment = {
   previewSwitcherEmails: [...previewSwitcherEmails],
   apiBaseUrl: publicUrls.apiBaseUrl,
   standupAppOrigin: publicUrls.standupAppOrigin,
+  pollAppOrigin: publicUrls.pollAppOrigin,
+  retroAppOrigin: publicUrls.retroAppOrigin,
+  feedbackAppOrigin: publicUrls.feedbackAppOrigin,
+  meetingAppOrigin: publicUrls.meetingAppOrigin,
 };

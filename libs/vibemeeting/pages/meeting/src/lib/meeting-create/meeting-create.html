@@ -1,0 +1,184 @@
+<sv-shell [title]="'VibeMeeting'">
+  <form
+    class="mx-auto flex max-w-xl flex-col gap-6"
+    (submit)="onSubmit($event)"
+  >
+    <header class="space-y-2">
+      <h1 class="text-3xl font-bold tracking-tight">
+        {{ 'meeting.create.title' | transloco }}
+      </h1>
+      <p class="text-base-content/70">
+        {{ 'meeting.create.lead' | transloco }}
+      </p>
+      <sv-step-header
+        [step]="1"
+        [total]="3"
+        [title]="'meeting.create.stepDetails' | transloco"
+        [nextLabel]="'meeting.create.nextParticipants' | transloco"
+      />
+    </header>
+
+    <sv-settings-section
+      [title]="'meeting.create.sectionDetails' | transloco"
+      [purpose]="'meeting.create.sectionDetailsPurpose' | transloco"
+    >
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'meeting.create.name' | transloco }}
+        </legend>
+        <input
+          class="input input-bordered w-full"
+          [formField]="meetingForm.title"
+        />
+      </fieldset>
+
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'meeting.create.context' | transloco }}
+          <span class="font-normal text-base-content/50"
+            >({{ 'meeting.create.optional' | transloco }})</span
+          >
+        </legend>
+        <textarea
+          class="textarea textarea-bordered min-h-24 w-full"
+          [formField]="meetingForm.context"
+        ></textarea>
+      </fieldset>
+
+      <section class="space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <h3 class="font-semibold">
+            {{ 'meeting.create.agenda' | transloco }}
+          </h3>
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs"
+            (click)="addAgendaItem()"
+          >
+            {{ 'meeting.create.addAgendaItem' | transloco }}
+          </button>
+        </div>
+        @for (item of agendaItems(); track $index; let i = $index) {
+        <div class="flex gap-2">
+          <input
+            class="input input-bordered w-full"
+            [value]="item"
+            (input)="updateAgendaItem(i, $any($event.target).value)"
+          />
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm"
+            [disabled]="agendaItems().length <= 1"
+            (click)="removeAgendaItem(i)"
+          >
+            {{ 'meeting.create.removeAgendaItem' | transloco }}
+          </button>
+        </div>
+        }
+      </section>
+
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'meeting.create.editPolicy' | transloco }}
+        </legend>
+        <sv-field-help
+          controlId="meeting-edit"
+          [description]="'meeting.create.editPolicyHelp' | transloco"
+        >
+          <select
+            class="select select-bordered w-full"
+            [formField]="meetingForm.editPolicy"
+            [attr.aria-describedby]="'meeting-edit-desc'"
+          >
+            @for (option of editOptions; track option) {
+            <option [value]="option">
+              {{ ('meeting.editPolicy.' + option) | transloco }}
+            </option>
+            }
+          </select>
+        </sv-field-help>
+      </fieldset>
+
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'meeting.create.closePolicy' | transloco }}
+        </legend>
+        <select
+          class="select select-bordered w-full"
+          [formField]="meetingForm.closePolicy"
+        >
+          @for (option of closeOptions; track option) {
+          <option [value]="option">
+            {{ ('meeting.closePolicy.' + option) | transloco }}
+          </option>
+          }
+        </select>
+      </fieldset>
+
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'meeting.create.scheduledAt' | transloco }}
+          <span class="font-normal text-base-content/50"
+            >({{ 'meeting.create.optional' | transloco }})</span
+          >
+        </legend>
+        <input
+          type="datetime-local"
+          class="input input-bordered w-full"
+          [formField]="meetingForm.scheduledAt"
+        />
+      </fieldset>
+    </sv-settings-section>
+
+    <sv-settings-section
+      [title]="'meeting.create.invites' | transloco"
+      [purpose]="'meeting.create.invitesHint' | transloco"
+    >
+      @if (members().length === 0) {
+      <sv-empty-state
+        [title]="'meeting.create.noMembersTitle' | transloco"
+        [body]="'meeting.create.noMembersBody' | transloco"
+      />
+      } @else {
+      <ul class="space-y-2">
+        @for (member of members(); track member.userId) {
+        <li>
+          <label class="label cursor-pointer justify-start gap-3">
+            <input
+              type="checkbox"
+              class="checkbox checkbox-sm"
+              [checked]="isInvited(member.userId)"
+              (change)="
+                toggleInvite(member.userId, $any($event.target).checked)
+              "
+            />
+            <span>
+              {{ member.displayName || member.email || member.userId }}
+            </span>
+          </label>
+        </li>
+        }
+      </ul>
+      }
+    </sv-settings-section>
+
+    @if (formError()) {
+    <p class="text-error text-sm">{{ formError()! | transloco }}</p>
+    } @else if (error()) {
+    <p class="text-error text-sm">{{ error() }}</p>
+    }
+
+    <div class="flex flex-wrap gap-2">
+      <button
+        type="submit"
+        class="btn btn-primary btn-sm"
+        [disabled]="loading()"
+      >
+        {{ 'meeting.create.submit' | transloco }}
+      </button>
+      <a routerLink="/app" class="btn btn-ghost btn-sm">
+        {{ 'meeting.create.cancel' | transloco }}
+      </a>
+    </div>
+  </form>
+</sv-shell>

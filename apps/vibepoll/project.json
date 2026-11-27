@@ -1,0 +1,109 @@
+{
+  "name": "vibepoll",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "vp",
+  "sourceRoot": "apps/vibepoll/src",
+  "tags": ["type:app", "scope:vibepoll"],
+  "targets": {
+    "sync-firebase-web": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/sync-firebase-web-from-env.mjs"
+      }
+    },
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "dependsOn": ["sync-firebase-web"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/vibepoll",
+        "browser": "apps/vibepoll/src/main.ts",
+        "tsConfig": "apps/vibepoll/tsconfig.app.json",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/vibepoll/public"
+          },
+          {
+            "glob": "**/*",
+            "input": "libs/shared/ui/assets/icons",
+            "output": "icons"
+          },
+          {
+            "glob": "**/*",
+            "input": "libs/shared/ui/assets/brand",
+            "output": "brand"
+          },
+          {
+            "glob": "**/*",
+            "input": "libs/shared/i18n/assets/i18n",
+            "output": "i18n"
+          }
+        ],
+        "styles": ["apps/vibepoll/src/styles.css"]
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1.16mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      }
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "defaultConfiguration": "development",
+      "dependsOn": ["sync-firebase-web"],
+      "options": {
+        "port": 4202,
+        "proxyConfig": "apps/vibepoll/proxy.conf.json",
+        "prebundle": false
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "vibepoll:build:production"
+        },
+        "development": {
+          "buildTarget": "vibepoll:build:development"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@angular/build:unit-test",
+      "options": {
+        "watch": false
+      }
+    },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "vibepoll:build",
+        "port": 4202,
+        "staticFilePath": "dist/apps/vibepoll/browser",
+        "spa": true
+      }
+    }
+  }
+}

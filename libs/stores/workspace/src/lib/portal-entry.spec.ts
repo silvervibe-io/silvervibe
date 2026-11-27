@@ -1,7 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { resolvePortalEntry, vibestandupReturnUrl } from './portal-entry';
+import {
+  resolvePortalEntry,
+  vibefeedbackReturnUrl,
+  vibemeetingReturnUrl,
+  vibepollReturnUrl,
+  viberetroReturnUrl,
+  vibestandupReturnUrl,
+} from './portal-entry';
 
 const standup = { toolKey: 'vibestandup', enabled: true };
+const poll = { toolKey: 'vibepoll', enabled: true };
+const retro = { toolKey: 'viberetro', enabled: true };
+const feedback = { toolKey: 'vibefeedback', enabled: true };
 const slack = { toolKey: 'addons.slack', enabled: true };
 
 describe('resolvePortalEntry', () => {
@@ -18,7 +28,7 @@ describe('resolvePortalEntry', () => {
     ).toEqual({ kind: 'stay' });
   });
 
-  it('stays when the only workspace does not include vibestandup', () => {
+  it('stays when the only workspace has no enabled product', () => {
     expect(
       resolvePortalEntry([
         {
@@ -29,10 +39,30 @@ describe('resolvePortalEntry', () => {
     ).toEqual({ kind: 'stay' });
   });
 
-  it('opens vibestandup for the only entitled workspace', () => {
+  it('opens the only enabled product (standup)', () => {
     expect(
       resolvePortalEntry([{ id: 'ws1', tools: [slack, standup] }]),
-    ).toEqual({ kind: 'vibestandup', workspaceId: 'ws1' });
+    ).toEqual({
+      kind: 'product',
+      toolKey: 'vibestandup',
+      workspaceId: 'ws1',
+    });
+  });
+
+  it('opens the only enabled product (poll)', () => {
+    expect(resolvePortalEntry([{ id: 'ws1', tools: [poll] }])).toEqual({
+      kind: 'product',
+      toolKey: 'vibepoll',
+      workspaceId: 'ws1',
+    });
+  });
+
+  it('stays when multiple product tools are enabled', () => {
+    expect(
+      resolvePortalEntry([
+        { id: 'ws1', tools: [standup, poll, retro, feedback] },
+      ]),
+    ).toEqual({ kind: 'stay' });
   });
 });
 
@@ -43,5 +73,29 @@ describe('vibestandupReturnUrl', () => {
 
   it('omits a blank workspace id', () => {
     expect(vibestandupReturnUrl('  ')).toBe('/app?enter=1');
+  });
+});
+
+describe('vibepollReturnUrl', () => {
+  it('includes enter and the workspace id', () => {
+    expect(vibepollReturnUrl('ws1')).toBe('/app?enter=1&workspaceId=ws1');
+  });
+});
+
+describe('viberetroReturnUrl', () => {
+  it('includes enter and the workspace id', () => {
+    expect(viberetroReturnUrl('ws1')).toBe('/app?enter=1&workspaceId=ws1');
+  });
+});
+
+describe('vibefeedbackReturnUrl', () => {
+  it('includes enter and the workspace id', () => {
+    expect(vibefeedbackReturnUrl('ws1')).toBe('/app?enter=1&workspaceId=ws1');
+  });
+});
+
+describe('vibemeetingReturnUrl', () => {
+  it('includes enter and the workspace id', () => {
+    expect(vibemeetingReturnUrl('ws1')).toBe('/app?enter=1&workspaceId=ws1');
   });
 });

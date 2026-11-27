@@ -1,0 +1,131 @@
+<sv-shell [title]="'VibeRetro'">
+  <div class="space-y-6">
+    @if (loading() && !retro()) {
+    <p class="text-sm text-base-content/60">
+      {{ 'retro.board.loading' | transloco }}
+    </p>
+    } @else if (error() && !retro()) {
+    <p class="text-error">{{ error() }}</p>
+    } @else if (retro(); as item) {
+    <header class="space-y-2">
+      <p class="text-sm text-base-content/60">
+        <a routerLink="/app" class="link link-hover"
+          >{{ 'retro.board.back' | transloco }}</a
+        >
+      </p>
+      <h1 class="text-3xl font-bold tracking-tight">{{ item.title }}</h1>
+      <p class="text-sm text-base-content/60">
+        {{ 'retro.board.meta' | transloco : { status: item.status, visibility:
+        item.noteVisibility, close: item.closePolicy } }}
+      </p>
+    </header>
+
+    @if (item.canAddNotes) {
+    <section class="flex max-w-2xl flex-col gap-3">
+      <h2 class="text-lg font-semibold">
+        {{ 'retro.board.addNote' | transloco }}
+      </h2>
+      <select
+        class="select select-bordered w-full max-w-xs"
+        [value]="draftColumn()"
+        (change)="draftColumn.set($any($event.target).value)"
+      >
+        @for (column of columns; track column) {
+        <option [value]="column">
+          {{ ('retro.column.' + column) | transloco }}
+        </option>
+        }
+      </select>
+      <textarea
+        class="textarea textarea-bordered min-h-24 w-full"
+        [value]="draftBody()"
+        (input)="draftBody.set($any($event.target).value)"
+        [attr.placeholder]="'retro.board.notePlaceholder' | transloco"
+      ></textarea>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm self-start"
+        [disabled]="loading() || !draftBody().trim()"
+        (click)="addNote()"
+      >
+        {{ 'retro.board.submitNote' | transloco }}
+      </button>
+    </section>
+    }
+
+    <div class="grid gap-4 lg:grid-cols-3">
+      @for (column of columns; track column) {
+      <section class="space-y-3">
+        <h2 class="text-lg font-semibold">
+          {{ ('retro.column.' + column) | transloco }}
+        </h2>
+        <ul class="space-y-2">
+          @for (note of notesByColumn()[column]; track note.id) {
+          <li class="border-b border-base-300 py-2">
+            <p>{{ note.body }}</p>
+            <p class="text-xs text-base-content/60">
+              {{ note.authorDisplayName || note.authorId }}
+            </p>
+            @if (note.mine && item.canAddNotes) {
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs"
+              (click)="deleteNote(note.id)"
+            >
+              {{ 'retro.board.deleteNote' | transloco }}
+            </button>
+            }
+          </li>
+          } @empty {
+          <li class="text-sm text-base-content/50">
+            {{ 'retro.board.emptyColumn' | transloco }}
+          </li>
+          }
+        </ul>
+      </section>
+      }
+    </div>
+
+    @if (item.status === 'CLOSED') {
+    <section class="space-y-2">
+      <h2 class="text-lg font-semibold">
+        {{ 'retro.board.summaryTitle' | transloco }}
+      </h2>
+      <p class="whitespace-pre-wrap">
+        {{ item.summary || ('retro.board.summaryEmpty' | transloco) }}
+      </p>
+    </section>
+    } @else if (item.canClose) {
+    <sv-settings-section
+      [title]="'retro.board.settingsTitle' | transloco"
+      [purpose]="'retro.board.settingsPurpose' | transloco"
+    >
+      <sv-callout
+        variant="info"
+        [body]="'retro.board.settingsHint' | transloco"
+      />
+      <p class="text-sm text-base-content/70">
+        {{ 'retro.board.meta' | transloco : { status: item.status, visibility:
+        item.noteVisibility, close: item.closePolicy } }}
+      </p>
+      <h3 class="font-medium">{{ 'retro.board.closeTitle' | transloco }}</h3>
+      <textarea
+        class="textarea textarea-bordered min-h-24 w-full max-w-2xl"
+        [value]="summaryDraft()"
+        (input)="summaryDraft.set($any($event.target).value)"
+        [attr.placeholder]="'retro.board.summaryPlaceholder' | transloco"
+      ></textarea>
+      <button
+        type="button"
+        class="btn btn-outline btn-sm self-start"
+        [disabled]="loading()"
+        (click)="closeRetro()"
+      >
+        {{ 'retro.board.close' | transloco }}
+      </button>
+    </sv-settings-section>
+    } @if (error()) {
+    <p class="text-error text-sm">{{ error() }}</p>
+    } }
+  </div>
+</sv-shell>

@@ -1,0 +1,164 @@
+<sv-shell [title]="'VibePoll'">
+  <form
+    class="mx-auto flex max-w-xl flex-col gap-6"
+    (submit)="onSubmit($event)"
+  >
+    <header class="space-y-2">
+      <h1 class="text-3xl font-bold tracking-tight">
+        {{ 'poll.create.title' | transloco }}
+      </h1>
+      <p class="text-base-content/70">{{ 'poll.create.lead' | transloco }}</p>
+      <sv-step-header
+        [step]="1"
+        [total]="3"
+        [title]="'poll.create.stepDetails' | transloco"
+        [nextLabel]="'poll.create.nextParticipants' | transloco"
+      />
+    </header>
+
+    <sv-settings-section
+      [title]="'poll.create.sectionDetails' | transloco"
+      [purpose]="'poll.create.sectionDetailsPurpose' | transloco"
+    >
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'poll.create.question' | transloco }}
+        </legend>
+        <sv-field-help
+          controlId="poll-question"
+          [help]="'poll.create.questionHelp' | transloco"
+        >
+          <input
+            class="input input-bordered w-full"
+            [formField]="pollForm.question"
+            [attr.aria-describedby]="'poll-question-help'"
+          />
+        </sv-field-help>
+      </fieldset>
+
+      <fieldset class="fieldset w-full">
+        <legend class="fieldset-legend">
+          {{ 'poll.create.options' | transloco }}
+        </legend>
+        <sv-field-help
+          controlId="poll-options"
+          [help]="'poll.create.optionsHelp' | transloco"
+        >
+          <div class="flex flex-col gap-2">
+            <input
+              class="input input-bordered w-full"
+              [formField]="pollForm.optionA"
+            />
+            <input
+              class="input input-bordered w-full"
+              [formField]="pollForm.optionB"
+            />
+            <input
+              class="input input-bordered w-full"
+              [formField]="pollForm.optionC"
+            />
+            <input
+              class="input input-bordered w-full"
+              [formField]="pollForm.optionD"
+            />
+          </div>
+        </sv-field-help>
+      </fieldset>
+
+      <label class="label cursor-pointer justify-start gap-3">
+        <input
+          type="checkbox"
+          class="checkbox checkbox-primary"
+          [formField]="pollForm.allowMulti"
+        />
+        <span>{{ 'poll.create.allowMulti' | transloco }}</span>
+      </label>
+
+      <div class="grid gap-3 sm:grid-cols-2">
+        <fieldset class="fieldset w-full">
+          <legend class="fieldset-legend">
+            {{ 'poll.create.startsAt' | transloco }}
+            <span class="font-normal text-base-content/50"
+              >({{ 'poll.create.optional' | transloco }})</span
+            >
+          </legend>
+          <input
+            type="datetime-local"
+            class="input input-bordered w-full"
+            [formField]="pollForm.startsAt"
+          />
+        </fieldset>
+        <fieldset class="fieldset w-full">
+          <legend class="fieldset-legend">
+            {{ 'poll.create.endsAt' | transloco }}
+            <span class="font-normal text-base-content/50"
+              >({{ 'poll.create.optional' | transloco }})</span
+            >
+          </legend>
+          <input
+            type="datetime-local"
+            class="input input-bordered w-full"
+            [formField]="pollForm.endsAt"
+          />
+        </fieldset>
+      </div>
+    </sv-settings-section>
+
+    <sv-settings-section
+      [title]="'poll.create.invites' | transloco"
+      [purpose]="'poll.create.invitesHint' | transloco"
+    >
+      @if (members().length === 0) {
+      <sv-empty-state
+        [title]="'poll.create.noMembersTitle' | transloco"
+        [body]="'poll.create.noMembersBody' | transloco"
+      />
+      } @else {
+      <ul class="space-y-2">
+        @for (member of members(); track member.userId) {
+        <li>
+          <label class="label cursor-pointer justify-start gap-3">
+            <input
+              type="checkbox"
+              class="checkbox checkbox-sm"
+              [checked]="isInvited(member.userId)"
+              (change)="
+                toggleInvite(member.userId, $any($event.target).checked)
+              "
+            />
+            <span>
+              {{ member.displayName || member.email || member.userId }}
+            </span>
+          </label>
+        </li>
+        }
+      </ul>
+      }
+    </sv-settings-section>
+
+    <sv-callout
+      variant="tip"
+      [title]="'poll.create.reviewTitle' | transloco"
+      [body]="'poll.create.reviewBody' | transloco"
+    />
+
+    @if (formError()) {
+    <p class="text-error text-sm">{{ formError()! | transloco }}</p>
+    } @if (error()) {
+    <p class="text-error text-sm">{{ error() }}</p>
+    }
+
+    <div class="flex flex-wrap gap-2">
+      <button
+        type="submit"
+        class="btn btn-primary btn-sm"
+        [disabled]="loading()"
+      >
+        {{ 'poll.create.submit' | transloco }}
+      </button>
+      <a routerLink="/app" class="btn btn-ghost btn-sm">
+        {{ 'poll.create.cancel' | transloco }}
+      </a>
+    </div>
+  </form>
+</sv-shell>

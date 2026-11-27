@@ -1,0 +1,20 @@
+{
+  "name": "viberetro-pages-retros",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/viberetro/pages/retros/src",
+  "prefix": "vr",
+  "projectType": "library",
+  "tags": ["type:feature", "scope:viberetro"],
+  "targets": {
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "coverage/libs/viberetro/pages/retros"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

@@ -27,7 +27,7 @@ export const appRoutes: Route[] = [
     data: {
       productTitle: 'Silver Vibe',
       blurbKey: 'auth.signIn.blurb.platform',
-      accountPath: '/portal?enter=1',
+      accountPath: '/portal',
     },
   },
   {
@@ -48,6 +48,10 @@ export const appRoutes: Route[] = [
   {
     path: 'privacy',
     loadComponent: () => import('./privacy/privacy').then((m) => m.Privacy),
+  },
+  {
+    path: 'terms',
+    loadComponent: () => import('./terms/terms').then((m) => m.Terms),
   },
   {
     path: '**',

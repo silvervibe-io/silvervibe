@@ -58,7 +58,23 @@
       ],
       "@silvervibe/vibestandup/pages/workspace-admin": [
         "./libs/vibestandup/pages/workspace-admin/src/index.ts"
-      ]
+      ],
+      "@silvervibe/vibepoll/pages/polls": [
+        "./libs/vibepoll/pages/polls/src/index.ts"
+      ],
+      "@silvervibe/stores/poll": ["./libs/stores/poll/src/index.ts"],
+      "@silvervibe/viberetro/pages/retros": [
+        "./libs/viberetro/pages/retros/src/index.ts"
+      ],
+      "@silvervibe/stores/retro": ["./libs/stores/retro/src/index.ts"],
+      "@silvervibe/vibefeedback/pages/feedback": [
+        "./libs/vibefeedback/pages/feedback/src/index.ts"
+      ],
+      "@silvervibe/stores/feedback": ["./libs/stores/feedback/src/index.ts"],
+      "@silvervibe/vibemeeting/pages/meeting": [
+        "./libs/vibemeeting/pages/meeting/src/index.ts"
+      ],
+      "@silvervibe/stores/meeting": ["./libs/stores/meeting/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
