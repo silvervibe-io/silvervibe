@@ -1,7 +1,15 @@
 import { inject, type Signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoService } from '@jsverse/transloco';
-import { filter, map, merge, startWith, type Observable } from 'rxjs';
+import {
+  asapScheduler,
+  filter,
+  map,
+  merge,
+  observeOn,
+  startWith,
+  type Observable,
+} from 'rxjs';
 
 type TranslocoReadySource = {
   langChanges$: Observable<string>;
@@ -14,6 +22,10 @@ type TranslocoReadySource = {
  * `langChanges$` alone is not enough: catalog load uses
  * `translationLoadSuccess` with `emitChange: false`, so shell-link
  * computeds that only depend on lang stay stuck on raw keys.
+ *
+ * Emissions after `startWith` are deferred with `asapScheduler` so
+ * `toSignal` does not write during template/CD (NG0600) when the
+ * sync catalog loader fires `translationLoadSuccess` mid-render.
  */
 export function translocoReady$(
   source: TranslocoReadySource,
@@ -24,6 +36,7 @@ export function translocoReady$(
       filter((event) => event.type === 'translationLoadSuccess'),
     ),
   ).pipe(
+    observeOn(asapScheduler),
     map((_, index) => index + 1),
     startWith(0),
   );

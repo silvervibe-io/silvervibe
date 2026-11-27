@@ -3,9 +3,11 @@ import {
   Component,
   computed,
   effect,
+  ElementRef,
   inject,
   OnInit,
   signal,
+  viewChild,
 } from '@angular/core';
 import { form, FormField, required, submit } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -23,7 +25,13 @@ import {
   TOOL_KEYS,
   type ToolKey,
 } from '@silvervibe/shared/feature-flags';
-import { Shell } from '@silvervibe/shared/ui';
+import {
+  Callout,
+  EmptyState,
+  FieldHelp,
+  SettingsSection,
+  Shell,
+} from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import { UserFacade } from '@silvervibe/stores/user';
 import {
@@ -62,7 +70,15 @@ export function slugifyWorkspaceName(name: string): string {
 
 @Component({
   selector: 'sv-portal',
-  imports: [FormField, Shell, TranslocoPipe],
+  imports: [
+    FormField,
+    Shell,
+    TranslocoPipe,
+    SettingsSection,
+    EmptyState,
+    FieldHelp,
+    Callout,
+  ],
   templateUrl: './portal.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -76,6 +92,12 @@ export class Portal implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly manageToolsSection =
+    viewChild<ElementRef<HTMLElement>>('manageToolsSection');
+  private readonly createWorkspaceSection = viewChild<ElementRef<HTMLElement>>(
+    'createWorkspaceSection',
+  );
+
   private readonly standupOrigin =
     inject(STANDUP_APP_ORIGIN, { optional: true }) ?? 'http://localhost:4201';
   private readonly pollOrigin =
@@ -123,6 +145,8 @@ export class Portal implements OnInit {
   readonly createError = signal<string | null>(null);
   readonly showSlug = signal(false);
   readonly slugManual = signal(false);
+  /** Extra create form when the user already has a workspace. */
+  readonly showCreateForm = signal(false);
 
   readonly workspaceModel = signal<CreateWorkspaceModel>({
     name: '',
@@ -166,6 +190,23 @@ export class Portal implements OnInit {
 
   selectWorkspace(workspaceId: string): void {
     this.workspaces.selectWorkspace(workspaceId);
+  }
+
+  focusManageTools(): void {
+    this.manageToolsSection()?.nativeElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }
+
+  focusCreateWorkspace(): void {
+    this.showCreateForm.set(true);
+    queueMicrotask(() => {
+      this.createWorkspaceSection()?.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
   }
 
   markSlugManual(): void {

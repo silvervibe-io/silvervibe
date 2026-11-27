@@ -1,4 +1,4 @@
-<sv-shell [title]="'VibeMeeting'" [links]="links()">
+<sv-shell [title]="'VibeMeeting'">
   <div class="space-y-6">
     @if (loading() && !meeting()) {
     <p class="text-sm text-base-content/60">
@@ -196,12 +196,17 @@
       </p>
     </section>
     } @else if (item.canClose) {
-    <section class="flex max-w-2xl flex-col gap-3">
-      <h2 class="text-lg font-semibold">
-        {{ 'meeting.detail.closeTitle' | transloco }}
-      </h2>
+    <sv-settings-section
+      [title]="'meeting.detail.settingsTitle' | transloco"
+      [purpose]="'meeting.detail.settingsPurpose' | transloco"
+    >
+      <sv-callout
+        variant="info"
+        [body]="'meeting.detail.settingsHint' | transloco"
+      />
+      <h3 class="font-medium">{{ 'meeting.detail.closeTitle' | transloco }}</h3>
       <textarea
-        class="textarea textarea-bordered min-h-24 w-full"
+        class="textarea textarea-bordered min-h-24 w-full max-w-2xl"
         [value]="recapDraft()"
         (input)="recapDraft.set($any($event.target).value)"
         [attr.placeholder]="'meeting.detail.recapPlaceholder' | transloco"
@@ -214,7 +219,7 @@
       >
         {{ 'meeting.detail.close' | transloco }}
       </button>
-    </section>
+    </sv-settings-section>
     } @if (error()) {
     <p class="text-error text-sm">{{ error() }}</p>
     } }

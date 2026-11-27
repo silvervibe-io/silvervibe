@@ -6,10 +6,10 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { form, FormField, required } from '@angular/forms/signals';
 import { ActivatedRoute } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { toTranslocoReadySignal } from '@silvervibe/shared/i18n';
 import { Shell } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import {
@@ -41,9 +41,7 @@ export class MemberSettings implements OnInit {
   private readonly preview = inject(PreviewContextStore);
   private readonly route = inject(ActivatedRoute);
   private readonly transloco = inject(TranslocoService);
-  private readonly lang = toSignal(this.transloco.langChanges$, {
-    initialValue: this.transloco.getActiveLang(),
-  });
+  private readonly i18nReady = toTranslocoReadySignal(this.transloco);
 
   readonly weekdays: Weekday[] = [
     'mon',
@@ -64,7 +62,7 @@ export class MemberSettings implements OnInit {
     required(schemaPath.timezone);
   });
   readonly shellLinks = computed(() => {
-    this.lang();
+    this.i18nReady();
     this.workspaces.memberships();
     this.workspaces.selectedWorkspaceId();
     this.standup.teams();

@@ -1,18 +1,27 @@
 <sv-shell [title]="'Vibe Standup'" [links]="shellLinks()">
   <div class="space-y-8">
-    <header>
+    <header class="space-y-2">
       <h1 class="text-3xl font-bold tracking-tight">
         {{ 'standup.team.title' | transloco }}
       </h1>
-      <p class="text-base-content/70">{{ 'standup.team.lead' | transloco }}</p>
+      <p class="max-w-prose text-base-content/70">
+        {{ 'standup.team.lead' | transloco }}
+      </p>
     </header>
 
     @if (!ready()) {
     <p>{{ 'standup.loading' | transloco }}</p>
     } @else if (error()) {
-    <p class="text-error">{{ error() }}</p>
+    <sv-callout
+      variant="warning"
+      [title]="'standup.team.title' | transloco"
+      [body]="error()"
+    />
     } @else if (teams().length === 0) {
-    <p>{{ 'standup.team.noTeams' | transloco }}</p>
+    <sv-empty-state
+      [title]="'standup.team.noTeamsTitle' | transloco"
+      [body]="'standup.team.noTeamsBody' | transloco"
+    />
     } @else {
     <fieldset class="fieldset w-full max-w-xs">
       <legend class="fieldset-legend">
@@ -29,7 +38,7 @@
       </select>
     </fieldset>
 
-    <div role="tablist" class="tabs tabs-box w-fit">
+    <div role="tablist" class="tabs tabs-box w-fit flex-wrap">
       <button
         type="button"
         role="tab"
@@ -70,203 +79,245 @@
       >
         {{ 'standup.team.tabPeople' | transloco }}
       </button>
+      <button
+        type="button"
+        role="tab"
+        class="tab"
+        [class.tab-active]="adminSection() === 'today'"
+        [attr.aria-selected]="adminSection() === 'today'"
+        (click)="adminSection.set('today')"
+      >
+        {{ 'standup.team.tabToday' | transloco }}
+      </button>
     </div>
 
     <form class="flex max-w-xl flex-col gap-3" (submit)="saveConfig($event)">
       @if (adminSection() === 'standup') {
-      <h2 class="text-xl font-semibold">
-        {{ 'standup.team.config' | transloco }}
-      </h2>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'standup.team.timezone' | transloco }}
-        </legend>
-        <input
-          class="input input-bordered w-full"
-          [formField]="configForm.timezone"
-        />
-      </fieldset>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'standup.team.scheduleKind' | transloco }}
-        </legend>
-        <select
-          class="select select-bordered w-full"
-          [formField]="configForm.scheduleKind"
-        >
-          <option value="deadline">
-            {{ 'standup.team.deadline' | transloco }}
-          </option>
-          <option value="window">
-            {{ 'standup.team.window' | transloco }}
-          </option>
-        </select>
-      </fieldset>
-      @if (configModel().scheduleKind === 'window') {
-      <div class="flex flex-wrap gap-3">
-        <fieldset class="fieldset w-28">
+      <sv-settings-section
+        [title]="'standup.team.config' | transloco"
+        [purpose]="'standup.team.schedulePurpose' | transloco"
+        [learnMore]="'standup.team.scheduleLearnMore' | transloco"
+        [learnMoreLabel]="'standup.team.learnMore' | transloco"
+      >
+        <fieldset class="fieldset w-full">
           <legend class="fieldset-legend">
-            {{ 'standup.team.windowStart' | transloco }}
+            {{ 'standup.team.timezone' | transloco }}
           </legend>
-          <select
-            class="select select-bordered w-full"
-            [formField]="configForm.windowStartHour"
+          <sv-field-help
+            controlId="team-tz"
+            [help]="'standup.team.timezoneHelp' | transloco"
           >
-            @for (h of reminderHourOptions; track h) {
-            <option [value]="h">{{ h }}</option>
-            }
-          </select>
-        </fieldset>
-        <fieldset class="fieldset w-28">
-          <legend class="fieldset-legend">
-            {{ 'standup.team.reminderMinute' | transloco }}
-          </legend>
-          <select
-            class="select select-bordered w-full"
-            [formField]="configForm.windowStartMinute"
-          >
-            @for (m of reminderMinuteOptions; track m) {
-            <option [value]="m">{{ m }}</option>
-            }
-          </select>
-        </fieldset>
-      </div>
-      }
-      <div class="flex flex-wrap gap-3">
-        <fieldset class="fieldset w-28">
-          <legend class="fieldset-legend">
-            {{ (configModel().scheduleKind === 'window' ?
-            'standup.team.windowEnd' : 'standup.team.before' ) | transloco }}
-          </legend>
-          <select
-            class="select select-bordered w-full"
-            [formField]="configForm.reminderHour"
-          >
-            @for (h of reminderHourOptions; track h) {
-            <option [value]="h">{{ h }}</option>
-            }
-          </select>
-        </fieldset>
-        <fieldset class="fieldset w-28">
-          <legend class="fieldset-legend">
-            {{ 'standup.team.reminderMinute' | transloco }}
-          </legend>
-          <select
-            class="select select-bordered w-full"
-            [formField]="configForm.reminderMinute"
-          >
-            @for (m of reminderMinuteOptions; track m) {
-            <option [value]="m">{{ m }}</option>
-            }
-          </select>
-        </fieldset>
-      </div>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'standup.team.reveal' | transloco }}
-        </legend>
-        <select
-          class="select select-bordered w-full"
-          [formField]="configForm.reveal"
-        >
-          <option value="live">
-            {{ 'standup.team.revealLive' | transloco }}
-          </option>
-          <option value="together">
-            {{ 'standup.team.revealTogether' | transloco }}
-          </option>
-        </select>
-      </fieldset>
-      <p class="text-sm text-base-content/70">
-        {{ 'standup.team.reminderHint' | transloco }}
-      </p>
-      } @if (adminSection() === 'questions') {
-      <h3 class="text-lg font-semibold">
-        {{ 'standup.team.questions' | transloco }}
-      </h3>
-      @for (question of questions(); track question.id; let index = $index) {
-      <div class="rounded-lg bg-base-200 p-3">
-        <div class="flex flex-wrap items-center gap-3">
-          <label class="flex items-center gap-2 text-sm">
             <input
-              type="checkbox"
-              class="checkbox checkbox-sm"
-              [checked]="question.enabled"
-              (change)="updateQuestion(question.id, { enabled: $any($event.target).checked })"
+              class="input input-bordered w-full"
+              list="team-timezone-options"
+              [formField]="configForm.timezone"
+              [attr.aria-describedby]="'team-tz-help'"
             />
-            {{ 'standup.team.enabled' | transloco }}
-          </label>
-          <label class="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              class="checkbox checkbox-sm"
-              [checked]="question.required"
-              (change)="updateQuestion(question.id, { required: $any($event.target).checked })"
-            />
-            {{ 'standup.team.required' | transloco }}
-          </label>
-          <button
-            type="button"
-            class="btn btn-ghost btn-xs"
-            (click)="moveQuestion(index, -1)"
+            <datalist id="team-timezone-options">
+              @for (tz of timezoneOptions; track tz) {
+              <option [value]="tz"></option>
+              }
+            </datalist>
+          </sv-field-help>
+        </fieldset>
+        <fieldset class="fieldset w-full">
+          <legend class="fieldset-legend">
+            {{ 'standup.team.scheduleKind' | transloco }}
+          </legend>
+          <sv-field-help
+            controlId="team-schedule-kind"
+            [description]="'standup.team.scheduleKindHelp' | transloco"
           >
-            {{ 'standup.team.moveUp' | transloco }}
-          </button>
-          <button
-            type="button"
-            class="btn btn-ghost btn-xs"
-            (click)="moveQuestion(index, 1)"
-          >
-            {{ 'standup.team.moveDown' | transloco }}
-          </button>
-          @if (!question.builtin) {
-          <button
-            type="button"
-            class="btn btn-ghost btn-xs"
-            (click)="removeQuestion(question.id)"
-          >
-            {{ 'standup.team.remove' | transloco }}
-          </button>
-          }
-        </div>
-        <input
-          class="input input-bordered mt-2 w-full"
-          [value]="question.prompt"
-          (input)="updateQuestion(question.id, { prompt: $any($event.target).value })"
-        />
-        @if (question.type === 'choice') {
-        <div class="mt-2 space-y-2">
-          @for (option of question.options ?? []; track option.id) {
-          <input
-            class="input input-bordered input-sm w-full"
-            [value]="option.label"
-            (input)="updateOptionLabel(question.id, option.id, $any($event.target).value)"
-          />
-          }
-          <button
-            type="button"
-            class="btn btn-ghost btn-xs"
-            (click)="addOption(question.id)"
-          >
-            {{ 'standup.team.addOption' | transloco }}
-          </button>
-          <label class="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              class="checkbox checkbox-sm"
-              [checked]="question.allowOther === true"
-              (change)="updateQuestion(question.id, { allowOther: $any($event.target).checked })"
-            />
-            {{ 'standup.team.allowOther' | transloco }}
-          </label>
+            <select
+              class="select select-bordered w-full"
+              [formField]="configForm.scheduleKind"
+              [attr.aria-describedby]="'team-schedule-kind-desc'"
+            >
+              <option value="deadline">
+                {{ 'standup.team.deadline' | transloco }}
+              </option>
+              <option value="window">
+                {{ 'standup.team.window' | transloco }}
+              </option>
+            </select>
+          </sv-field-help>
+        </fieldset>
+        @if (configModel().scheduleKind === 'window') {
+        <div class="flex flex-wrap gap-3">
+          <fieldset class="fieldset w-28">
+            <legend class="fieldset-legend">
+              {{ 'standup.team.windowStart' | transloco }}
+            </legend>
+            <select
+              class="select select-bordered w-full"
+              [formField]="configForm.windowStartHour"
+            >
+              @for (h of reminderHourOptions; track h) {
+              <option [value]="h">{{ h }}</option>
+              }
+            </select>
+          </fieldset>
+          <fieldset class="fieldset w-28">
+            <legend class="fieldset-legend">
+              {{ 'standup.team.reminderMinute' | transloco }}
+            </legend>
+            <select
+              class="select select-bordered w-full"
+              [formField]="configForm.windowStartMinute"
+            >
+              @for (m of reminderMinuteOptions; track m) {
+              <option [value]="m">{{ m }}</option>
+              }
+            </select>
+          </fieldset>
         </div>
         }
-      </div>
-      }
-      <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap gap-3">
+          <fieldset class="fieldset w-28">
+            <legend class="fieldset-legend">
+              {{ (configModel().scheduleKind === 'window' ?
+              'standup.team.windowEnd' : 'standup.team.before' ) | transloco }}
+            </legend>
+            <select
+              class="select select-bordered w-full"
+              [formField]="configForm.reminderHour"
+            >
+              @for (h of reminderHourOptions; track h) {
+              <option [value]="h">{{ h }}</option>
+              }
+            </select>
+          </fieldset>
+          <fieldset class="fieldset w-28">
+            <legend class="fieldset-legend">
+              {{ 'standup.team.reminderMinute' | transloco }}
+            </legend>
+            <select
+              class="select select-bordered w-full"
+              [formField]="configForm.reminderMinute"
+            >
+              @for (m of reminderMinuteOptions; track m) {
+              <option [value]="m">{{ m }}</option>
+              }
+            </select>
+          </fieldset>
+        </div>
+        <fieldset class="fieldset w-full">
+          <legend class="fieldset-legend">
+            {{ 'standup.team.reveal' | transloco }}
+          </legend>
+          <sv-field-help
+            controlId="team-reveal"
+            [description]="'standup.team.revealHelp' | transloco"
+          >
+            <select
+              class="select select-bordered w-full"
+              [formField]="configForm.reveal"
+              [attr.aria-describedby]="'team-reveal-desc'"
+            >
+              <option value="live">
+                {{ 'standup.team.revealLive' | transloco }}
+              </option>
+              <option value="together">
+                {{ 'standup.team.revealTogether' | transloco }}
+              </option>
+            </select>
+          </sv-field-help>
+        </fieldset>
+        <sv-callout
+          variant="info"
+          [body]="'standup.team.reminderHint' | transloco"
+        />
+      </sv-settings-section>
+      } @if (adminSection() === 'questions') {
+      <sv-question-editor-shell
+        [title]="'standup.team.questions' | transloco"
+        [purpose]="'standup.team.questionsPurpose' | transloco"
+        [tip]="'standup.team.questionsTip' | transloco"
+      >
+        @for (question of questions(); track question.id; let index = $index) {
+        <li class="list-none rounded-lg border border-base-300 bg-base-200 p-3">
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="badge badge-ghost badge-sm">{{ question.type }}</span>
+            <label class="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                class="checkbox checkbox-sm"
+                [checked]="question.enabled"
+                (change)="updateQuestion(question.id, { enabled: $any($event.target).checked })"
+              />
+              {{ 'standup.team.enabled' | transloco }}
+            </label>
+            <label class="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                class="checkbox checkbox-sm"
+                [checked]="question.required"
+                (change)="updateQuestion(question.id, { required: $any($event.target).checked })"
+              />
+              {{ 'standup.team.required' | transloco }}
+            </label>
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs"
+              (click)="moveQuestion(index, -1)"
+            >
+              {{ 'standup.team.moveUp' | transloco }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs"
+              (click)="moveQuestion(index, 1)"
+            >
+              {{ 'standup.team.moveDown' | transloco }}
+            </button>
+            @if (!question.builtin) {
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs"
+              (click)="removeQuestion(question.id)"
+            >
+              {{ 'standup.team.remove' | transloco }}
+            </button>
+            }
+          </div>
+          <input
+            class="input input-bordered mt-2 w-full"
+            [value]="question.prompt"
+            (input)="updateQuestion(question.id, { prompt: $any($event.target).value })"
+          />
+          @if (question.type === 'choice') {
+          <div class="mt-2 space-y-2">
+            @for (option of question.options ?? []; track option.id) {
+            <input
+              class="input input-bordered input-sm w-full"
+              [value]="option.label"
+              (input)="updateOptionLabel(question.id, option.id, $any($event.target).value)"
+            />
+            }
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs"
+              (click)="addOption(question.id)"
+            >
+              {{ 'standup.team.addOption' | transloco }}
+            </button>
+            <label class="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                class="checkbox checkbox-sm"
+                [checked]="question.allowOther === true"
+                (change)="updateQuestion(question.id, { allowOther: $any($event.target).checked })"
+              />
+              {{ 'standup.team.allowOther' | transloco }}
+            </label>
+          </div>
+          }
+        </li>
+        }
         <button
           type="button"
           class="btn btn-ghost btn-sm"
+          actions
           (click)="addQuestion('text')"
         >
           {{ 'standup.team.addText' | transloco }}
@@ -274,11 +325,12 @@
         <button
           type="button"
           class="btn btn-ghost btn-sm"
+          actions
           (click)="addQuestion('choice')"
         >
           {{ 'standup.team.addChoice' | transloco }}
         </button>
-      </div>
+      </sv-question-editor-shell>
       } @if (adminSection() === 'standup' || adminSection() === 'questions') {
       <button type="submit" class="btn btn-primary btn-sm self-start">
         {{ 'standup.team.saveConfig' | transloco }}
@@ -287,10 +339,18 @@
     </form>
 
     @if (adminSection() === 'digests') {
-    <section class="flex max-w-xl flex-col gap-3">
-      <h2 class="text-xl font-semibold">
-        {{ 'standup.team.slackChannelTitle' | transloco }}
-      </h2>
+    <sv-settings-section
+      [title]="'standup.team.slackChannelTitle' | transloco"
+      [purpose]="'standup.team.digestsPurpose' | transloco"
+    >
+      <sv-callout
+        variant="info"
+        [body]="'standup.team.digestsOtherCallout' | transloco"
+      />
+      <sv-callout
+        variant="tip"
+        [body]="'standup.team.digestsInviteTip' | transloco"
+      />
       <p class="text-sm text-base-content/70">
         {{ 'standup.team.slackChannelHint' | transloco }}
       </p>
@@ -301,7 +361,7 @@
         {{ 'standup.team.slackNotConnected' | transloco }}
       </p>
       } @else {
-      <fieldset class="fieldset w-full">
+      <fieldset class="fieldset w-full max-w-xl">
         <legend class="fieldset-legend">
           {{ 'standup.team.slackChannel' | transloco }}
         </legend>
@@ -347,13 +407,18 @@
         }
       </div>
       } }
-    </section>
-
+    </sv-settings-section>
     } @if (adminSection() === 'people') {
-    <section class="flex max-w-xl flex-col gap-3">
-      <h2 class="text-xl font-semibold">
-        {{ 'standup.team.members' | transloco }}
-      </h2>
+    <sv-settings-section
+      [title]="'standup.team.members' | transloco"
+      [purpose]="'standup.team.peoplePurpose' | transloco"
+    >
+      @if (members().length === 0) {
+      <sv-empty-state
+        [title]="'standup.team.peopleEmptyTitle' | transloco"
+        [body]="'standup.team.peopleEmptyBody' | transloco"
+      />
+      } @else {
       <ul class="space-y-1 text-sm">
         @for (m of members(); track m.id) {
         <li>
@@ -363,21 +428,26 @@
         </li>
         }
       </ul>
+      }
 
-      <form class="flex flex-col gap-3" (submit)="invite($event)">
+      <form class="flex max-w-xl flex-col gap-3" (submit)="invite($event)">
         <fieldset class="fieldset w-full">
           <legend class="fieldset-legend">
             {{ 'standup.team.inviteEmail' | transloco }}
           </legend>
-          <input
-            class="input input-bordered w-full"
-            type="email"
-            autocomplete="email"
-            [formField]="inviteForm.email"
-          />
-          <p class="label text-base-content/70">
-            {{ 'standup.team.inviteEmailHint' | transloco }}
-          </p>
+          <sv-field-help
+            controlId="team-invite-email"
+            [description]="'standup.team.inviteEmailHint' | transloco"
+            [help]="'standup.team.inviteEmailExample' | transloco"
+          >
+            <input
+              class="input input-bordered w-full"
+              type="email"
+              autocomplete="email"
+              [formField]="inviteForm.email"
+              [attr.aria-describedby]="'team-invite-email-desc team-invite-email-help'"
+            />
+          </sv-field-help>
         </fieldset>
         <button type="submit" class="btn btn-secondary btn-sm self-start">
           {{ 'standup.team.invite' | transloco }}
@@ -431,13 +501,13 @@
       } @if (inviteError()) {
       <p class="text-error text-sm">{{ inviteError() }}</p>
       }
-    </section>
-    } @if (adminSection() === 'standup') {
-    <section class="space-y-3">
-      <div class="flex items-center gap-3">
-        <h2 class="text-xl font-semibold">
-          {{ 'standup.team.todayEntries' | transloco }}
-        </h2>
+    </sv-settings-section>
+    } @if (adminSection() === 'today') {
+    <sv-settings-section
+      [title]="'standup.team.todayEntries' | transloco"
+      [purpose]="'standup.team.todayPurpose' | transloco"
+    >
+      <div class="flex flex-wrap items-center gap-3">
         <button
           type="button"
           class="btn btn-outline btn-sm"
@@ -446,9 +516,10 @@
           {{ 'standup.team.rebuildSummary' | transloco }}
         </button>
       </div>
-      <p class="text-xs text-base-content/60">
-        {{ 'standup.team.aiDigestNotice' | transloco }}
-      </p>
+      <sv-callout
+        variant="info"
+        [body]="'standup.team.aiDigestNotice' | transloco"
+      />
       <ul class="space-y-2 text-sm">
         @for (person of roster(); track person.userId) {
         <li class="rounded-lg bg-base-200 p-3">
@@ -476,7 +547,7 @@
         <sv-standup-summary [text]="s.content" />
       </div>
       }
-    </section>
+    </sv-settings-section>
     } }
   </div>
 </sv-shell>

@@ -7,7 +7,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { form, FormField, required, submit } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
@@ -16,7 +15,13 @@ import {
   PLAN_KEYS,
   TOOL_KEYS,
 } from '@silvervibe/shared/feature-flags';
-import { Shell } from '@silvervibe/shared/ui';
+import { toTranslocoReadySignal } from '@silvervibe/shared/i18n';
+import {
+  Callout,
+  FieldHelp,
+  SettingsSection,
+  Shell,
+} from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import {
   standupShellLinks,
@@ -63,7 +68,14 @@ function apiErrorMessage(err: unknown, fallback: string): string {
 
 @Component({
   selector: 'vs-workspace-admin',
-  imports: [FormField, Shell, TranslocoPipe],
+  imports: [
+    FormField,
+    Shell,
+    TranslocoPipe,
+    SettingsSection,
+    FieldHelp,
+    Callout,
+  ],
   templateUrl: './workspace-admin.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -77,9 +89,7 @@ export class WorkspaceAdmin implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly transloco = inject(TranslocoService);
-  private readonly lang = toSignal(this.transloco.langChanges$, {
-    initialValue: this.transloco.getActiveLang(),
-  });
+  private readonly i18nReady = toTranslocoReadySignal(this.transloco);
 
   readonly loading = this.workspaces.loading;
   readonly error = this.workspaces.error;
@@ -90,7 +100,7 @@ export class WorkspaceAdmin implements OnInit {
     this.workspaces.effectiveWorkspaceRole(),
   );
   readonly shellLinks = computed(() => {
-    this.lang();
+    this.i18nReady();
     this.workspaces.memberships();
     this.workspaces.selectedWorkspaceId();
     this.standup.teams();

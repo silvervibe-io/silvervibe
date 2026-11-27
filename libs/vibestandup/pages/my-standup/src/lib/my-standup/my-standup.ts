@@ -8,10 +8,10 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { getVibestandupLimits } from '@silvervibe/shared/feature-flags';
+import { toTranslocoReadySignal } from '@silvervibe/shared/i18n';
 import { Shell, StandupSummary } from '@silvervibe/shared/ui';
 import { PreviewContextStore } from '@silvervibe/stores/preview';
 import {
@@ -76,9 +76,7 @@ export class MyStandup implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly transloco = inject(TranslocoService);
-  private readonly lang = toSignal(this.transloco.langChanges$, {
-    initialValue: this.transloco.getActiveLang(),
-  });
+  private readonly i18nReady = toTranslocoReadySignal(this.transloco);
 
   readonly ready = signal(false);
   readonly error = this.standup.error;
@@ -165,7 +163,7 @@ export class MyStandup implements OnInit {
       !this.summary(),
   );
   readonly mentionChoices = computed<MentionChoice[]>(() => {
-    this.lang();
+    this.i18nReady();
     const current = this.mention();
     if (!current) {
       return [];
@@ -197,7 +195,7 @@ export class MyStandup implements OnInit {
     }));
   });
   readonly shellLinks = computed(() => {
-    this.lang();
+    this.i18nReady();
     this.workspaces.memberships();
     this.workspaces.selectedWorkspaceId();
     this.standup.teams();

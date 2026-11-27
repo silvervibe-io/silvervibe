@@ -23,7 +23,19 @@
     "invitesHint": "You are always included. Others must be workspace members.",
     "submit": "Create retro",
     "cancel": "Cancel",
-    "noWorkspace": "Select a workspace first."
+    "noWorkspace": "Select a workspace first.",
+    "stepDetails": "Details",
+    "nextParticipants": "Next: Participants",
+    "sectionDetails": "Retro details",
+    "sectionDetailsPurpose": "Name the retro and choose who can see notes while it runs.",
+    "nameHelp": "Example: Sprint 42 retro",
+    "visibilityHelp": "Controls whether notes are visible to everyone before close.",
+    "closePolicyHelp": "Who is allowed to close the board and write the summary.",
+    "optional": "optional",
+    "noMembersTitle": "No workspace members yet",
+    "noMembersBody": "Invite people to the workspace first, then start the retro.",
+    "reviewTitle": "Classic columns",
+    "reviewBody": "Notes use Went well / Improve / Actions. You can close with a summary later."
   },
   "visibility": {
     "LIVE": "Live — everyone sees notes as they are added",
@@ -53,6 +65,9 @@
     "summaryEmpty": "No summary provided.",
     "closeTitle": "Close retro",
     "summaryPlaceholder": "Optional short summary…",
-    "close": "Close retro"
+    "close": "Close retro",
+    "settingsTitle": "Settings",
+    "settingsPurpose": "Visibility and close rules for this retro.",
+    "settingsHint": "Note visibility and close policy were set at create time. Closing finalizes the board."
   }
 }

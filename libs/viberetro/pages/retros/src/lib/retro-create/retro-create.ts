@@ -14,7 +14,14 @@ import {
 } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Shell } from '@silvervibe/shared/ui';
+import {
+  Callout,
+  EmptyState,
+  FieldHelp,
+  SettingsSection,
+  Shell,
+  StepHeader,
+} from '@silvervibe/shared/ui';
 import {
   RetroFacade,
   type RetroClosePolicy,
@@ -32,7 +39,17 @@ type CreateRetroModel = {
 
 @Component({
   selector: 'vr-retro-create',
-  imports: [FormField, RouterLink, Shell, TranslocoPipe],
+  imports: [
+    FormField,
+    RouterLink,
+    Shell,
+    TranslocoPipe,
+    SettingsSection,
+    FieldHelp,
+    EmptyState,
+    StepHeader,
+    Callout,
+  ],
   templateUrl: './retro-create.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
