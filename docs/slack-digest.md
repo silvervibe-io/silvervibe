@@ -29,8 +29,10 @@ the admin disconnects and reconnects with OAuth. Prefer OAuth for new workspaces
    - Local: `http://localhost:3000/api/addons/slack/oauth/callback`
    - Prod: `https://api.silvervibe.io/api/addons/slack/oauth/callback`
 3. Bot token scopes: `chat:write`, `channels:join`, `channels:read`,
-   `groups:read`, `incoming-webhook`.
-4. Copy **Client ID** and **Client Secret** into Nest env (never commit).
+   `groups:read`, `incoming-webhook`, plus for check-ins (`docs/slack-checkins.md`):
+   `commands`, `users:read`, `users:read.email`.
+4. Copy **Client ID**, **Client Secret**, and **Signing Secret** into Nest env
+   (never commit).
 5. After Connect Slack, if digests fail with `not_in_channel`, invite the bot
    into the channel (`/invite @YourApp`) or Disconnect + Connect again (stores
    the install webhook as a fallback).
@@ -40,14 +42,14 @@ Optional: set `SLACK_REDIRECT_URI` if it must differ from
 
 ## Nest / Cloud Run env
 
-| Variable               | Notes                                       |
-| ---------------------- | ------------------------------------------- |
-| `SLACK_CLIENT_ID`      | Slack app Client ID                         |
-| `SLACK_CLIENT_SECRET`  | Slack app Client Secret (Secret Manager)    |
-| `SLACK_SIGNING_SECRET` | Optional; reserved for request verification |
-| `SLACK_REDIRECT_URI`   | Optional override of callback URL           |
-| `PUBLIC_API_URL`       | Used to build the default redirect URI      |
-| `PUBLIC_STANDUP_URL`   | Post-OAuth redirect to Workspace admin      |
+| Variable               | Notes                                    |
+| ---------------------- | ---------------------------------------- |
+| `SLACK_CLIENT_ID`      | Slack app Client ID                      |
+| `SLACK_CLIENT_SECRET`  | Slack app Client Secret (Secret Manager) |
+| `SLACK_SIGNING_SECRET` | Required for `/standup` check-ins (#208) |
+| `SLACK_REDIRECT_URI`   | Optional override of callback URL        |
+| `PUBLIC_API_URL`       | Used to build the default redirect URI   |
+| `PUBLIC_STANDUP_URL`   | Post-OAuth redirect to Workspace admin   |
 
 ## API
 
@@ -63,8 +65,12 @@ Optional: set `SLACK_REDIRECT_URI` if it must differ from
 | `PUT`    | `/api/teams/:teamId/addons/slack/channel`               | Set team override            |
 | `DELETE` | `/api/teams/:teamId/addons/slack/channel`               | Clear override               |
 
+## Related
+
+- Slash `/standup` check-ins: `docs/slack-checkins.md` (#208)
+
 ## Out of scope (follow-ups)
 
 - Channel picker after install (MVP still uses channel chosen during OAuth as workspace default)
-- Slash commands / interactivity beyond posting digests
+- Scheduled Geekbot-style DM prompts
 - Microsoft Teams OAuth (Teams stays deferred)

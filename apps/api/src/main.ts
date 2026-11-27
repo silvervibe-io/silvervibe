@@ -17,7 +17,9 @@ async function loadLocalEnv(): Promise<void> {
 
 async function bootstrap() {
   await loadLocalEnv();
-  const app = await NestFactory.create(AppModule);
+  // rawBody required for Slack request signature verification (#208).
+  const app = await NestFactory.create(AppModule, { rawBody: true });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

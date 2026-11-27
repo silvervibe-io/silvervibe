@@ -261,6 +261,13 @@ export class StandupRosterMemberDto {
 
   @ApiProperty({ required: false, nullable: true })
   today!: string | null;
+
+  @ApiPropertyOptional({
+    enum: ['web', 'slack'],
+    nullable: true,
+    description: 'Where the member submitted when status is posted',
+  })
+  answeredVia!: 'web' | 'slack' | null;
 }
 
 export class StandupRecentDayDto {

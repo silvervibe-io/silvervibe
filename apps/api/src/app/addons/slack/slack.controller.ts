@@ -3,10 +3,15 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
+  HttpCode,
   Param,
+  Post,
   Put,
   Query,
+  RawBodyRequest,
   Redirect,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -17,10 +22,12 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import type { Request } from 'express';
 import { CurrentUser } from '../../auth/current-user.decorator';
 import { FirebaseAuthGuard } from '../../auth/firebase-auth.guard';
 import { VerifiedUser } from '../../auth/firebase-auth.service';
 import { AddonStatusDto } from '../addon-status.dto';
+import { SlackCheckinService } from './slack-checkin.service';
 import {
   ConnectSlackDto,
   SetTeamSlackChannelDto,
@@ -34,7 +41,10 @@ import { SlackService } from './slack.service';
 @ApiTags('slack')
 @Controller()
 export class SlackController {
-  constructor(private readonly slack: SlackService) {}
+  constructor(
+    private readonly slack: SlackService,
+    private readonly checkins: SlackCheckinService,
+  ) {}
 
   /** Nest may pass repeated query keys as string[]. */
   private singleQuery(
@@ -197,5 +207,49 @@ export class SlackController {
     @CurrentUser() user: VerifiedUser,
   ): Promise<TeamSlackChannelDto> {
     return this.slack.clearTeamChannel(teamId, user);
+  }
+
+  @Post('addons/slack/commands')
+  @HttpCode(200)
+  @ApiOperation({
+    summary:
+      'Slack slash command endpoint (public; verified with signing secret)',
+  })
+  handleCommand(
+    @Req() req: RawBodyRequest<Request>,
+    @Headers('x-slack-signature') signature: string | undefined,
+    @Headers('x-slack-request-timestamp') timestamp: string | undefined,
+    @Body() body: Record<string, string>,
+  ): Promise<Record<string, unknown>> {
+    this.checkins.assertSignedRequest({
+      signatureHeader: signature,
+      timestampHeader: timestamp,
+      rawBody: req.rawBody,
+    });
+    return this.checkins.handleCommand(body);
+  }
+
+  @Post('addons/slack/interactions')
+  @HttpCode(200)
+  @ApiOperation({
+    summary:
+      'Slack interactivity endpoint for standup modal (public; signing secret)',
+  })
+  handleInteraction(
+    @Req() req: RawBodyRequest<Request>,
+    @Headers('x-slack-signature') signature: string | undefined,
+    @Headers('x-slack-request-timestamp') timestamp: string | undefined,
+    @Body() body: { payload?: string },
+  ): Promise<Record<string, unknown> | ''> {
+    this.checkins.assertSignedRequest({
+      signatureHeader: signature,
+      timestampHeader: timestamp,
+      rawBody: req.rawBody,
+    });
+    const payload = body.payload;
+    if (!payload || typeof payload !== 'string') {
+      return Promise.resolve('');
+    }
+    return this.checkins.handleInteraction(payload);
   }
 }
