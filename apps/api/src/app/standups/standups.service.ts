@@ -256,6 +256,21 @@ export class StandupsService {
   ): Promise<StandupEntryDto> {
     this.ensureDb();
     const userId = (await this.users.upsertFromFirebase(user)).id;
+    return this.upsertForMember(teamId, userId, body, dateStr, 'web');
+  }
+
+  /**
+   * Upsert a standup entry for a known Neon user (web or Slack).
+   * Caller must ensure team membership when resolving the user.
+   */
+  async upsertForMember(
+    teamId: string,
+    userId: string,
+    body: UpsertStandupEntryDto,
+    dateStr?: string,
+    submittedVia: 'web' | 'slack' = 'web',
+  ): Promise<StandupEntryDto> {
+    this.ensureDb();
     await this.teams.requireTeamMember(teamId, userId);
     const stored = await this.prisma.standupConfig.findUnique({
       where: { teamId },
@@ -283,6 +298,7 @@ export class StandupsService {
     const entryDate = dateStr?.trim()
       ? parseCalendarDate(dateStr)
       : parseCalendarDate(calendarDateInTimezone(schedule.timezone));
+    const via = status === StandupEntryStatus.SUBMITTED ? submittedVia : null;
 
     const entry = await this.prisma.standupEntry.upsert({
       where: {
@@ -297,6 +313,7 @@ export class StandupsService {
         today: mirrored.today,
         blockers: mirrored.blockers,
         answersJson: answers,
+        submittedVia: via,
         submittedAt:
           status === StandupEntryStatus.SUBMITTED ? new Date() : null,
       },
@@ -306,6 +323,7 @@ export class StandupsService {
         today: mirrored.today,
         blockers: mirrored.blockers,
         answersJson: answers,
+        submittedVia: via,
         submittedAt:
           status === StandupEntryStatus.SUBMITTED ? new Date() : null,
       },
@@ -413,18 +431,24 @@ export class StandupsService {
     const submitted = new Map(
       entries
         .filter((entry) => entry.status === StandupEntryStatus.SUBMITTED)
-        .map((entry) => [entry.userId, entry.today]),
+        .map((entry) => [
+          entry.userId,
+          { today: entry.today, via: entry.submittedVia },
+        ]),
     );
     const awayIds = new Set(aways.map((row) => row.userId));
     return members.map((member) => {
       const name =
         member.user.displayName || member.user.email || member.userId;
       if (submitted.has(member.userId)) {
+        const row = submitted.get(member.userId)!;
         return {
           userId: member.userId,
           name,
           status: 'posted' as const,
-          today: submitted.get(member.userId) ?? null,
+          today: row.today ?? null,
+          answeredVia:
+            row.via === 'slack' || row.via === 'web' ? row.via : null,
         };
       }
       if (awayIds.has(member.userId)) {
@@ -433,6 +457,7 @@ export class StandupsService {
           name,
           status: 'away' as const,
           today: null,
+          answeredVia: null,
         };
       }
       return {
@@ -440,6 +465,7 @@ export class StandupsService {
         name,
         status: 'open' as const,
         today: null,
+        answeredVia: null,
       };
     });
   }

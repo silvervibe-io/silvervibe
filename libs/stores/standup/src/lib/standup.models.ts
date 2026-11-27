@@ -59,6 +59,7 @@ export type StandupRosterMember = {
   name: string;
   status: StandupRosterStatus;
   today: string | null;
+  answeredVia?: 'web' | 'slack' | null;
 };
 
 export type StandupRecentDay = {

@@ -161,7 +161,13 @@ describe('TeamAdmin', () => {
       .flush([{ id: 't1', name: 'Alpha', slug: 'alpha', role: 'ADMIN' }]);
     await pending;
     fixture.componentInstance.roster.set([
-      { userId: 'u1', name: 'Ada', status: 'posted', today: 'Ship the API' },
+      {
+        userId: 'u1',
+        name: 'Ada',
+        status: 'posted',
+        today: 'Ship the API',
+        answeredVia: 'slack',
+      },
       { userId: 'u2', name: 'Bea', status: 'open', today: null },
       { userId: 'u3', name: 'Cal', status: 'away', today: null },
     ]);

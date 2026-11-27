@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AiModule } from '../ai/ai.module';
 import { BitbucketModule } from '../addons/bitbucket/bitbucket.module';
 import { TrelloModule } from '../addons/trello/trello.module';
@@ -21,7 +21,7 @@ import { StandupsService } from './standups.service';
     UsersModule,
     WorkspaceTeamsModule,
     AiModule,
-    SlackModule,
+    forwardRef(() => SlackModule),
     MsTeamsModule,
     LinearModule,
     GithubModule,

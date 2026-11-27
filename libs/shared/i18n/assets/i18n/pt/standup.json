@@ -176,7 +176,8 @@
     "tabPeople": "Pessoas",
     "reconnectAddon": "A ligação foi recusada (HTTP {{status}}). Volte a ligá-la na administração do espaço.",
     "reconnectLink": "Abrir a administração do espaço.",
-    "aiDigestNotice": "If AI digests are enabled on the server, rebuilding or posting a digest may send today’s standup answers to Google Gemini for polishing. See the Privacy notice."
+    "aiDigestNotice": "If AI digests are enabled on the server, rebuilding or posting a digest may send today’s standup answers to Google Gemini for polishing. See the Privacy notice.",
+    "answeredViaSlack": "Slack"
   },
   "workspace": {
     "title": "Workspace admin",
@@ -195,7 +196,7 @@
     "slackDisconnected": "Slack disconnected.",
     "slackDisconnect": "Disconnect Slack",
     "slackConnected": "Slack ligado.",
-    "slackHint": "Autorize o Slack uma vez. Escolha um canal na instalação; os resumos são publicados aí se addons.slack estiver ativo.",
+    "slackHint": "Autorize o Slack uma vez. Escolha um canal na instalação; os resumos são publicados aí se addons.slack estiver ativo. After reconnecting with updated scopes, members can submit with /standup in Slack (same Neon standups as the web).",
     "slackStatus": "Status",
     "teamsTitle": "Microsoft Teams digest",
     "teamsConnect": "Save Teams webhook",

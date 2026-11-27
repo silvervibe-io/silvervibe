@@ -176,7 +176,8 @@
     "tabPeople": "Άτομα",
     "reconnectAddon": "Η σύνδεση απορρίφθηκε (HTTP {{status}}). Συνδέστε την ξανά στη διαχείριση χώρου εργασίας.",
     "reconnectLink": "Άνοιγμα διαχείρισης χώρου εργασίας.",
-    "aiDigestNotice": "If AI digests are enabled on the server, rebuilding or posting a digest may send today’s standup answers to Google Gemini for polishing. See the Privacy notice."
+    "aiDigestNotice": "If AI digests are enabled on the server, rebuilding or posting a digest may send today’s standup answers to Google Gemini for polishing. See the Privacy notice.",
+    "answeredViaSlack": "Slack"
   },
   "workspace": {
     "title": "Workspace admin",
@@ -195,7 +196,7 @@
     "slackDisconnected": "Slack disconnected.",
     "slackDisconnect": "Disconnect Slack",
     "slackConnected": "Το Slack συνδέθηκε.",
-    "slackHint": "Εξουσιοδοτήστε το Slack μία φορά. Επιλέξτε κανάλι κατά την εγκατάσταση· οι συνοψίσεις δημοσιεύονται εκεί αν είναι ενεργό το addons.slack.",
+    "slackHint": "Εξουσιοδοτήστε το Slack μία φορά. Επιλέξτε κανάλι κατά την εγκατάσταση· οι συνοψίσεις δημοσιεύονται εκεί αν είναι ενεργό το addons.slack. After reconnecting with updated scopes, members can submit with /standup in Slack (same Neon standups as the web).",
     "slackStatus": "Status",
     "teamsTitle": "Microsoft Teams digest",
     "teamsConnect": "Save Teams webhook",

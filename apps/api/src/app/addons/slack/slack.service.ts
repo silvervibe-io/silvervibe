@@ -64,6 +64,9 @@ const OAUTH_SCOPES = [
   'channels:read',
   'groups:read',
   'incoming-webhook',
+  'commands',
+  'users:read',
+  'users:read.email',
 ].join(',');
 
 const STATE_TTL_MS = 15 * 60 * 1000;

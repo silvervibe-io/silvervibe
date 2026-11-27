@@ -150,8 +150,27 @@ model User {
   feedbackAnswers    FeedbackAnswer[]
   meetingsCreated    Meeting[]          @relation("MeetingCreated")
   meetingInvites     MeetingInvite[]
+  slackUserLinks     SlackUserLink[]
 
   @@map("users")
+}
+
+/** Maps a Slack user in a Slack workspace (team) to a Silvervibe Neon user. */
+model SlackUserLink {
+  id          String   @id @default(cuid())
+  slackTeamId String   @map("slack_team_id")
+  slackUserId String   @map("slack_user_id")
+  userId      String   @map("user_id")
+  email       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([slackTeamId, slackUserId])
+  @@unique([userId, slackTeamId])
+  @@index([email])
+  @@map("slack_user_links")
 }
 
 model Workspace {
@@ -294,18 +313,20 @@ model StandupConfig {
 }
 
 model StandupEntry {
-  id          String             @id @default(cuid())
-  teamId      String             @map("team_id")
-  userId      String             @map("user_id")
-  entryDate   DateTime           @map("entry_date") @db.Date
-  status      StandupEntryStatus @default(DRAFT)
-  yesterday   String?
-  today       String?
-  blockers    String?
-  answersJson Json               @default("{}") @map("answers_json")
-  submittedAt DateTime?          @map("submitted_at")
-  createdAt   DateTime           @default(now()) @map("created_at")
-  updatedAt   DateTime           @updatedAt @map("updated_at")
+  id           String             @id @default(cuid())
+  teamId       String             @map("team_id")
+  userId       String             @map("user_id")
+  entryDate    DateTime           @map("entry_date") @db.Date
+  status       StandupEntryStatus @default(DRAFT)
+  yesterday    String?
+  today        String?
+  blockers     String?
+  answersJson  Json               @default("{}") @map("answers_json")
+  /** How the entry was last submitted: `web` | `slack` (null for drafts / legacy). */
+  submittedVia String?            @map("submitted_via")
+  submittedAt  DateTime?          @map("submitted_at")
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
 
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
