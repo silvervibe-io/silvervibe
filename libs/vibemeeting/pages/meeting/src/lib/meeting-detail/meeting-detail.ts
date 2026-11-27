@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Shell } from '@silvervibe/shared/ui';
+import { Callout, SettingsSection, Shell } from '@silvervibe/shared/ui';
 import { MeetingFacade } from '@silvervibe/stores/meeting';
 import { MeetingShellLinks } from '../meeting-shell-links';
 
@@ -21,7 +21,14 @@ export type ActionDraft = {
 
 @Component({
   selector: 'vm-meeting-detail',
-  imports: [DatePipe, RouterLink, Shell, TranslocoPipe],
+  imports: [
+    DatePipe,
+    RouterLink,
+    Shell,
+    TranslocoPipe,
+    SettingsSection,
+    Callout,
+  ],
   templateUrl: './meeting-detail.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

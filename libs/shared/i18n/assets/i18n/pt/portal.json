@@ -1,43 +1,62 @@
 {
-  "title": "O seu espaço de trabalho",
-  "lead": "Escolha um espaço e abra uma ferramenta. Os admins podem ativar ou desativar ferramentas aqui.",
-  "loading": "A carregar espaços…",
-  "empty": "Ainda sem espaços. Crie um abaixo, ou peça a um admin para o convidar.",
-  "workspace": "Espaço de trabalho",
-  "tools": "As suas ferramentas",
-  "manageTools": "Gerir ferramentas",
-  "noTools": "Ainda sem ferramentas ativas. Os admins podem ativá-las abaixo.",
-  "openTool": "Abrir",
-  "toolEnabled": "Ativa",
-  "toolDisabled": "Inativa",
-  "planHint": "Pré-visualização do plano {{plan}}: até {{teams}} equipas, {{members}} membros por equipa (só pré-visualização — o Nest continua a aplicar o planKey do espaço).",
-  "createTitle": "Criar um espaço",
-  "addWorkspace": "Criar outro espaço",
-  "createName": "Nome",
-  "createSlug": "Slug do URL",
-  "createSlugAdvanced": "Editar slug do URL",
-  "createSubmit": "Criar",
-  "createSuccess": "Espaço criado.",
+  "title": "Your workspace",
+  "lead": "Pick a workspace, open a tool, or set up what your team can use. Everything stays optional—start with one tool.",
+  "loading": "Loading workspaces…",
+  "empty": "No workspaces yet. Create one below, or ask an admin to invite you.",
+  "emptyTitle": "No workspace yet",
+  "emptyBody": "Create a workspace to enable tools, or ask an admin to invite you.",
+  "loadErrorTitle": "Could not load workspaces",
+  "whereYouAre": "Where you are",
+  "whereYouArePurpose": "This workspace controls which tools you can open and who can manage them.",
+  "workspace": "Workspace",
+  "workspaceHelp": "Switch workspaces if you belong to more than one.",
+  "tools": "Your tools",
+  "toolsPurpose": "Open an enabled tool. Each product opens in its own app with the same sign-in.",
+  "manageTools": "Set up workspace tools",
+  "manageToolsPurpose": "Turn tools on so members can open them from this hub.",
+  "manageToolsLearnMore": "Enabling a tool only unlocks access in this workspace. It does not require chat integrations. Members will see Open once a tool is on.",
+  "manageToolsCta": "Set up tools",
+  "learnMore": "Learn more",
+  "noTools": "No tools enabled yet. Admins can enable tools below.",
+  "noToolsTitle": "No tools enabled",
+  "noToolsAdminBody": "Enable at least one tool below so you and your members can open it from here.",
+  "noToolsMemberBody": "Ask a workspace admin to enable a tool for this workspace.",
+  "openTool": "Open",
+  "toolEnabled": "On",
+  "toolDisabled": "Off",
+  "optional": "optional",
+  "planHint": "Preview plan {{plan}}: up to {{teams}} teams, {{members}} members per team (preview only — Nest still enforces the workspace planKey).",
+  "createTitle": "Create a workspace",
+  "createPurpose": "A workspace holds your tools, teams, and members. You can add more later.",
+  "addWorkspace": "Create another workspace",
+  "createCancel": "Cancel",
+  "createName": "Name",
+  "createNameHelp": "Shown to members. Example: Acme Product",
+  "createSlug": "URL slug",
+  "createSlugHelp": "Lowercase letters, numbers, and hyphens. Example: acme-product",
+  "createSlugAdvanced": "Edit URL slug",
+  "createSubmit": "Create",
+  "createSuccess": "Workspace created.",
   "tool": {
     "vibestandup": {
       "title": "VibeStandup",
-      "body": "Standups diários assíncronos para a sua equipa."
+      "body": "Async daily standups for your team."
     },
     "vibepoll": {
       "title": "VibePoll",
-      "body": "Sondagens e votos rápidos no espaço."
+      "body": "Quick polls and votes in the workspace."
     },
     "viberetro": {
       "title": "VibeRetro",
-      "body": "Retrospectivas com notas e um resumo de fecho."
+      "body": "Retrospectives with notes and a close summary."
     },
     "vibefeedback": {
       "title": "VibeFeedback",
-      "body": "Pedidos e respostas de feedback estruturado."
+      "body": "Structured feedback requests and answers."
     },
     "vibemeeting": {
       "title": "VibeMeeting",
-      "body": "Agendas, decisões e ações de reunião."
+      "body": "Meeting agendas, decisions, and actions."
     }
   }
 }

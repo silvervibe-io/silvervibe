@@ -1,4 +1,4 @@
-<sv-shell [title]="'VibeFeedback'" [links]="links()">
+<sv-shell [title]="'VibeFeedback'">
   <div class="space-y-6">
     @if (loading() && !request()) {
     <p class="text-sm text-base-content/60">
@@ -77,12 +77,19 @@
       </p>
     </section>
     } @else if (item.canClose) {
-    <section class="flex max-w-2xl flex-col gap-3">
-      <h2 class="text-lg font-semibold">
+    <sv-settings-section
+      [title]="'feedback.detail.settingsTitle' | transloco"
+      [purpose]="'feedback.detail.settingsPurpose' | transloco"
+    >
+      <sv-callout
+        variant="info"
+        [body]="'feedback.detail.settingsHint' | transloco"
+      />
+      <h3 class="font-medium">
         {{ 'feedback.detail.closeTitle' | transloco }}
-      </h2>
+      </h3>
       <textarea
-        class="textarea textarea-bordered min-h-24 w-full"
+        class="textarea textarea-bordered min-h-24 w-full max-w-2xl"
         [value]="summaryDraft()"
         (input)="summaryDraft.set($any($event.target).value)"
         [attr.placeholder]="'feedback.detail.summaryPlaceholder' | transloco"
@@ -95,7 +102,7 @@
       >
         {{ 'feedback.detail.close' | transloco }}
       </button>
-    </section>
+    </sv-settings-section>
     } @if (error()) {
     <p class="text-error text-sm">{{ error() }}</p>
     } }

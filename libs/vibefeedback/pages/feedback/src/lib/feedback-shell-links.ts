@@ -1,17 +1,24 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoService } from '@jsverse/transloco';
+import {
+  defaultPortalAppOrigin,
+  PORTAL_APP_ORIGIN,
+} from '@silvervibe/shared/auth';
+import { toTranslocoReadySignal } from '@silvervibe/shared/i18n';
 import { feedbackShellLinks } from '@silvervibe/stores/feedback';
 
 @Injectable({ providedIn: 'root' })
 export class FeedbackShellLinks {
   private readonly transloco = inject(TranslocoService);
-  private readonly lang = toSignal(this.transloco.langChanges$, {
-    initialValue: this.transloco.getActiveLang(),
-  });
+  private readonly portalOrigin =
+    inject(PORTAL_APP_ORIGIN, { optional: true }) ?? defaultPortalAppOrigin();
+  private readonly i18nReady = toTranslocoReadySignal(this.transloco);
 
   readonly links = computed(() => {
-    this.lang();
-    return feedbackShellLinks((key) => this.transloco.translate(key));
+    this.i18nReady();
+    return feedbackShellLinks(
+      (key) => this.transloco.translate(key),
+      `${this.portalOrigin}/portal`,
+    );
   });
 }

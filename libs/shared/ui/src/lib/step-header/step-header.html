@@ -1,0 +1,20 @@
+<p class="text-sm font-medium text-base-content/60">
+  {{ progressLabel() }} @if (nextLabel(); as next) {
+  <span aria-hidden="true"> · </span>
+  <span>{{ next }}</span>
+  }
+</p>
+<h2 class="text-xl font-semibold tracking-tight">{{ title() }}</h2>
+<div
+  class="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-base-300"
+  role="progressbar"
+  [attr.aria-valuenow]="step()"
+  [attr.aria-valuemin]="1"
+  [attr.aria-valuemax]="total()"
+  [attr.aria-label]="progressLabel()"
+>
+  <div
+    class="h-full rounded-full bg-primary transition-[width] duration-300 motion-reduce:transition-none"
+    [style.width.%]="(step() / total()) * 100"
+  ></div>
+</div>

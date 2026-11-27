@@ -39,10 +39,10 @@
       hint.maxTeams, members: hint.maxMembersPerTeam, } }}
     </p>
     } @if (workspacePlan(); as plan) {
-    <section class="flex max-w-xl flex-col gap-3">
-      <h2 class="text-xl font-semibold">
-        {{ 'standup.workspace.planTitle' | transloco }}
-      </h2>
+    <sv-settings-section
+      [title]="'standup.workspace.planTitle' | transloco"
+      [purpose]="'standup.workspace.planPurpose' | transloco"
+    >
       <p class="text-sm text-base-content/70">
         {{ 'standup.workspace.planStatus' | transloco : { plan: plan.planKey,
         teams: plan.maxTeams, members: plan.maxMembersPerTeam, } }}
@@ -59,17 +59,26 @@
       } @if (planError()) {
       <p class="text-error text-sm">{{ planError() }}</p>
       }
-    </section>
+    </sv-settings-section>
     }
 
-    <section class="space-y-3">
-      <h2 class="text-xl font-semibold">
-        {{ 'standup.workspace.tools' | transloco }}
-      </h2>
+    <sv-settings-section
+      [title]="'standup.workspace.tools' | transloco"
+      [purpose]="'standup.workspace.toolsPurpose' | transloco"
+    >
       <ul class="space-y-2">
         @for (tool of tools(); track tool.toolKey) {
-        <li class="flex items-center gap-3">
-          <span class="font-medium">{{ tool.toolKey }}</span>
+        <li
+          class="flex flex-wrap items-center justify-between gap-3 border-b border-base-300 py-2"
+        >
+          <div class="min-w-0 space-y-0.5">
+            <p class="font-medium">
+              {{ 'portal.tool.' + tool.toolKey + '.title' | transloco }}
+            </p>
+            <p class="text-sm text-base-content/60">
+              {{ 'portal.tool.' + tool.toolKey + '.body' | transloco }}
+            </p>
+          </div>
           <input
             type="checkbox"
             class="toggle toggle-primary"
@@ -79,325 +88,387 @@
         </li>
         }
       </ul>
-    </section>
+    </sv-settings-section>
 
-    <section class="flex max-w-xl flex-col gap-3">
-      <h2 class="text-xl font-semibold">
-        {{ 'standup.workspace.slackTitle' | transloco }}
-      </h2>
-      <p class="text-sm text-base-content/70">
-        {{ 'standup.workspace.slackHint' | transloco }}
-      </p>
-      @if (slack(); as conn) {
-      <p class="text-sm">
-        {{ 'standup.workspace.slackStatus' | transloco }}:
-        <span class="font-medium">{{ conn.status }}</span>
-        @if (conn.channelLabel) {
-        <span class="text-base-content/70"> — {{ conn.channelLabel }}</span>
-        } @if (conn.authMode) {
-        <span class="text-base-content/50"> ({{ conn.authMode }})</span>
+    <sv-settings-section
+      [title]="'standup.workspace.chatDigestsTitle' | transloco"
+      [purpose]="'standup.workspace.chatDigestsPurpose' | transloco"
+    >
+      <div
+        class="flex max-w-xl flex-col gap-3 rounded-lg border border-base-300 p-4"
+      >
+        <h3 class="font-semibold">
+          {{ 'standup.workspace.slackTitle' | transloco }}
+        </h3>
+        <p class="text-sm text-base-content/70">
+          {{ 'standup.workspace.slackHint' | transloco }}
+        </p>
+        @if (slack(); as conn) {
+        <p class="text-sm">
+          {{ 'standup.workspace.slackStatus' | transloco }}:
+          <span class="font-medium">{{ conn.status }}</span>
+          @if (conn.channelLabel) {
+          <span class="text-base-content/70"> — {{ conn.channelLabel }}</span>
+          } @if (conn.authMode) {
+          <span class="text-base-content/50"> ({{ conn.authMode }})</span>
+          }
+        </p>
+        @if (conn.configured) {
+        <button
+          type="button"
+          class="btn btn-outline btn-sm self-start"
+          (click)="disconnectSlack()"
+        >
+          {{ 'standup.workspace.slackDisconnect' | transloco }}
+        </button>
+        } @else if (conn.oauthAvailable) {
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm self-start"
+          [disabled]="slackConnecting()"
+          (click)="connectSlack()"
+        >
+          {{ 'standup.workspace.slackConnect' | transloco }}
+        </button>
+        } @else {
+        <p class="text-sm text-warning">
+          {{ 'standup.workspace.slackOAuthUnavailable' | transloco }}
+        </p>
+        } } @if (slackError()) {
+        <p class="text-error text-sm">{{ slackError() }}</p>
         }
-      </p>
-      @if (conn.configured) {
-      <button
-        type="button"
-        class="btn btn-outline btn-sm self-start"
-        (click)="disconnectSlack()"
-      >
-        {{ 'standup.workspace.slackDisconnect' | transloco }}
-      </button>
-      } @else if (conn.oauthAvailable) {
-      <button
-        type="button"
-        class="btn btn-secondary btn-sm self-start"
-        [disabled]="slackConnecting()"
-        (click)="connectSlack()"
-      >
-        {{ 'standup.workspace.slackConnect' | transloco }}
-      </button>
-      } @else {
-      <p class="text-sm text-warning">
-        {{ 'standup.workspace.slackOAuthUnavailable' | transloco }}
-      </p>
-      } } @if (slackError()) {
-      <p class="text-error text-sm">{{ slackError() }}</p>
-      }
-    </section>
+      </div>
+    </sv-settings-section>
 
-    <section class="flex max-w-xl flex-col gap-3">
-      <h2 class="text-xl font-semibold">
-        {{ 'standup.workspace.linearTitle' | transloco }}
-      </h2>
-      <p class="text-sm text-base-content/70">
-        {{ 'standup.workspace.linearHint' | transloco }}
-      </p>
-      @if (linear(); as conn) {
-      <p class="text-sm">
-        {{ 'standup.workspace.linearStatus' | transloco }}:
-        <span class="font-medium">{{ conn.status }}</span>
-        @if (conn.organizationName) {
-        <span class="text-base-content/70"> — {{ conn.organizationName }}</span>
+    <sv-settings-section
+      [title]="'standup.workspace.workTrackersTitle' | transloco"
+      [purpose]="'standup.workspace.workTrackersPurpose' | transloco"
+    >
+      <sv-callout
+        variant="info"
+        [body]="'standup.workspace.workTrackersCallout' | transloco"
+      />
+      <div class="join join-vertical w-full max-w-xl bg-base-100">
+        <div class="collapse join-item collapse-arrow border border-base-300">
+          <input type="checkbox" />
+          <div class="collapse-title font-medium">
+            {{ 'standup.workspace.linearTitle' | transloco }}
+          </div>
+          <div class="collapse-content flex flex-col gap-3">
+            <p class="text-sm text-base-content/70">
+              {{ 'standup.workspace.linearHint' | transloco }}
+            </p>
+            @if (linear(); as conn) {
+            <p class="text-sm">
+              {{ 'standup.workspace.linearStatus' | transloco }}:
+              <span class="font-medium">{{ conn.status }}</span>
+              @if (conn.organizationName) {
+              <span class="text-base-content/70">
+                — {{ conn.organizationName }}</span
+              >
+              }
+            </p>
+            @if (conn.configured) {
+            <button
+              type="button"
+              class="btn btn-outline btn-sm self-start"
+              (click)="disconnectLinear()"
+            >
+              {{ 'standup.workspace.linearDisconnect' | transloco }}
+            </button>
+            } @else if (conn.oauthAvailable) {
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm self-start"
+              [disabled]="linearConnecting()"
+              (click)="connectLinear()"
+            >
+              {{ 'standup.workspace.linearConnect' | transloco }}
+            </button>
+            } @else {
+            <p class="text-sm text-warning">
+              {{ 'standup.workspace.linearOAuthUnavailable' | transloco }}
+            </p>
+            } } @if (linearError()) {
+            <p class="text-error text-sm">{{ linearError() }}</p>
+            }
+          </div>
+        </div>
+
+        <div class="collapse join-item collapse-arrow border border-base-300">
+          <input type="checkbox" />
+          <div class="collapse-title font-medium">
+            {{ 'standup.workspace.githubTitle' | transloco }}
+          </div>
+          <div class="collapse-content flex flex-col gap-3">
+            <p class="text-sm text-base-content/70">
+              {{ 'standup.workspace.githubHint' | transloco }}
+            </p>
+            @if (github(); as conn) {
+            <p class="text-sm">
+              {{ 'standup.workspace.githubStatus' | transloco }}:
+              <span class="font-medium">{{ conn.status }}</span>
+              @if (conn.accountLogin) {
+              <span class="text-base-content/70">
+                — @{{ conn.accountLogin }}</span
+              >
+              }
+            </p>
+            @if (conn.configured) {
+            <button
+              type="button"
+              class="btn btn-outline btn-sm self-start"
+              (click)="disconnectGithub()"
+            >
+              {{ 'standup.workspace.githubDisconnect' | transloco }}
+            </button>
+            } @else if (conn.oauthAvailable) {
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm self-start"
+              [disabled]="githubConnecting()"
+              (click)="connectGithub()"
+            >
+              {{ 'standup.workspace.githubConnect' | transloco }}
+            </button>
+            } @else {
+            <p class="text-sm text-warning">
+              {{ 'standup.workspace.githubOAuthUnavailable' | transloco }}
+            </p>
+            } } @if (githubError()) {
+            <p class="text-error text-sm">
+              {{ githubError()! | transloco: { status: githubErrorStatus() } }}
+            </p>
+            }
+          </div>
+        </div>
+
+        <div class="collapse join-item collapse-arrow border border-base-300">
+          <input type="checkbox" />
+          <div class="collapse-title font-medium">
+            {{ 'standup.workspace.gitlabTitle' | transloco }}
+          </div>
+          <div class="collapse-content flex flex-col gap-3">
+            <p class="text-sm text-base-content/70">
+              {{ 'standup.workspace.gitlabHint' | transloco }}
+            </p>
+            @if (gitlab(); as conn) {
+            <p class="text-sm">
+              {{ 'standup.workspace.gitlabStatus' | transloco }}:
+              <span class="font-medium">{{ conn.status }}</span>
+              @if (conn.accountLogin) {
+              <span class="text-base-content/70">
+                — @{{ conn.accountLogin }}</span
+              >
+              }
+            </p>
+            @if (conn.configured) {
+            <button
+              type="button"
+              class="btn btn-outline btn-sm self-start"
+              (click)="disconnectGitlab()"
+            >
+              {{ 'standup.workspace.gitlabDisconnect' | transloco }}
+            </button>
+            } @else if (conn.oauthAvailable) {
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm self-start"
+              [disabled]="gitlabConnecting()"
+              (click)="connectGitlab()"
+            >
+              {{ 'standup.workspace.gitlabConnect' | transloco }}
+            </button>
+            } @else {
+            <p class="text-sm text-warning">
+              {{ 'standup.workspace.gitlabOAuthUnavailable' | transloco }}
+            </p>
+            } } @if (gitlabError()) {
+            <p class="text-error text-sm">{{ gitlabError() }}</p>
+            }
+          </div>
+        </div>
+
+        <div class="collapse join-item collapse-arrow border border-base-300">
+          <input type="checkbox" />
+          <div class="collapse-title font-medium">
+            {{ 'standup.workspace.bitbucketTitle' | transloco }}
+          </div>
+          <div class="collapse-content flex flex-col gap-3">
+            <p class="text-sm text-base-content/70">
+              {{ 'standup.workspace.bitbucketHint' | transloco }}
+            </p>
+            @if (bitbucket(); as conn) {
+            <p class="text-sm">
+              {{ 'standup.workspace.bitbucketStatus' | transloco }}:
+              <span class="font-medium">{{ conn.status }}</span>
+              @if (conn.accountLogin) {
+              <span class="text-base-content/70">
+                — @{{ conn.accountLogin }}</span
+              >
+              }
+            </p>
+            @if (conn.configured) {
+            <button
+              type="button"
+              class="btn btn-outline btn-sm self-start"
+              (click)="disconnectBitbucket()"
+            >
+              {{ 'standup.workspace.bitbucketDisconnect' | transloco }}
+            </button>
+            } @else if (conn.oauthAvailable) {
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm self-start"
+              [disabled]="bitbucketConnecting()"
+              (click)="connectBitbucket()"
+            >
+              {{ 'standup.workspace.bitbucketConnect' | transloco }}
+            </button>
+            } @else {
+            <p class="text-sm text-warning">
+              {{ 'standup.workspace.bitbucketOAuthUnavailable' | transloco }}
+            </p>
+            } } @if (bitbucketError()) {
+            <p class="text-error text-sm">
+              {{ bitbucketError()! | transloco }}
+            </p>
+            }
+          </div>
+        </div>
+
+        <div class="collapse join-item collapse-arrow border border-base-300">
+          <input type="checkbox" />
+          <div class="collapse-title font-medium">
+            {{ 'standup.workspace.trelloTitle' | transloco }}
+          </div>
+          <div class="collapse-content flex flex-col gap-3">
+            <p class="text-sm text-base-content/70">
+              {{ 'standup.workspace.trelloHint' | transloco }}
+            </p>
+            @if (trello(); as conn) {
+            <p class="text-sm">
+              {{ 'standup.workspace.trelloStatus' | transloco }}:
+              <span class="font-medium">{{ conn.status }}</span>
+              @if (conn.accountLogin) {
+              <span class="text-base-content/70">
+                — @{{ conn.accountLogin }}</span
+              >
+              }
+            </p>
+            @if (conn.configured) {
+            <button
+              type="button"
+              class="btn btn-outline btn-sm self-start"
+              (click)="disconnectTrello()"
+            >
+              {{ 'standup.workspace.trelloDisconnect' | transloco }}
+            </button>
+            } @else if (conn.oauthAvailable) {
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm self-start"
+              [disabled]="trelloConnecting()"
+              (click)="connectTrello()"
+            >
+              {{ 'standup.workspace.trelloConnect' | transloco }}
+            </button>
+            } @else {
+            <p class="text-sm text-warning">
+              {{ 'standup.workspace.trelloOAuthUnavailable' | transloco }}
+            </p>
+            } } @if (trelloError()) {
+            <p class="text-error text-sm">{{ trelloError()! | transloco }}</p>
+            }
+          </div>
+        </div>
+
+        <div class="collapse join-item collapse-arrow border border-base-300">
+          <input type="checkbox" />
+          <div class="collapse-title font-medium">
+            {{ 'standup.workspace.jiraTitle' | transloco }}
+          </div>
+          <div class="collapse-content flex flex-col gap-3">
+            <p class="text-sm text-base-content/70">
+              {{ 'standup.workspace.jiraHint' | transloco }}
+            </p>
+            @if (jira(); as conn) {
+            <p class="text-sm">
+              {{ 'standup.workspace.jiraStatus' | transloco }}:
+              <span class="font-medium">{{ conn.status }}</span>
+            </p>
+            @if (conn.configured) {
+            <button
+              type="button"
+              class="btn btn-outline btn-sm self-start"
+              (click)="disconnectJira()"
+            >
+              {{ 'standup.workspace.jiraDisconnect' | transloco }}
+            </button>
+            } @else if (conn.oauthAvailable) {
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm self-start"
+              [disabled]="jiraConnecting()"
+              (click)="connectJira()"
+            >
+              {{ 'standup.workspace.jiraConnect' | transloco }}
+            </button>
+            } @else {
+            <p class="text-sm text-warning">
+              {{ 'standup.workspace.jiraOAuthUnavailable' | transloco }}
+            </p>
+            } } @if (jiraError()) {
+            <p class="text-error text-sm">{{ jiraError() }}</p>
+            }
+          </div>
+        </div>
+      </div>
+    </sv-settings-section>
+
+    <sv-settings-section
+      [title]="'standup.workspace.createTeam' | transloco"
+      [purpose]="'standup.workspace.createTeamPurpose' | transloco"
+    >
+      <form class="flex max-w-md flex-col gap-3" (submit)="createTeam($event)">
+        <fieldset class="fieldset w-full">
+          <legend class="fieldset-legend">
+            {{ 'standup.workspace.teamName' | transloco }}
+          </legend>
+          <sv-field-help
+            controlId="ws-team-name"
+            [help]="'standup.workspace.teamNameHelp' | transloco"
+          >
+            <input
+              class="input input-bordered w-full"
+              [formField]="teamForm.name"
+              [attr.aria-describedby]="'ws-team-name-help'"
+            />
+          </sv-field-help>
+        </fieldset>
+        <fieldset class="fieldset w-full">
+          <legend class="fieldset-legend">
+            {{ 'standup.workspace.teamSlug' | transloco }}
+          </legend>
+          <sv-field-help
+            controlId="ws-team-slug"
+            [help]="'standup.workspace.teamSlugHelp' | transloco"
+          >
+            <input
+              class="input input-bordered w-full"
+              [formField]="teamForm.slug"
+              [attr.aria-describedby]="'ws-team-slug-help'"
+            />
+          </sv-field-help>
+        </fieldset>
+        <button type="submit" class="btn btn-primary btn-sm self-start">
+          {{ 'standup.workspace.create' | transloco }}
+        </button>
+        @if (teamError()) {
+        <p class="text-error text-sm">{{ teamError() }}</p>
         }
-      </p>
-      @if (conn.configured) {
-      <button
-        type="button"
-        class="btn btn-outline btn-sm self-start"
-        (click)="disconnectLinear()"
-      >
-        {{ 'standup.workspace.linearDisconnect' | transloco }}
-      </button>
-      } @else if (conn.oauthAvailable) {
-      <button
-        type="button"
-        class="btn btn-secondary btn-sm self-start"
-        [disabled]="linearConnecting()"
-        (click)="connectLinear()"
-      >
-        {{ 'standup.workspace.linearConnect' | transloco }}
-      </button>
-      } @else {
-      <p class="text-sm text-warning">
-        {{ 'standup.workspace.linearOAuthUnavailable' | transloco }}
-      </p>
-      } } @if (linearError()) {
-      <p class="text-error text-sm">{{ linearError() }}</p>
-      }
-    </section>
-
-    <section class="flex max-w-xl flex-col gap-3">
-      <h2 class="text-xl font-semibold">
-        {{ 'standup.workspace.githubTitle' | transloco }}
-      </h2>
-      <p class="text-sm text-base-content/70">
-        {{ 'standup.workspace.githubHint' | transloco }}
-      </p>
-      @if (github(); as conn) {
-      <p class="text-sm">
-        {{ 'standup.workspace.githubStatus' | transloco }}:
-        <span class="font-medium">{{ conn.status }}</span>
-        @if (conn.accountLogin) {
-        <span class="text-base-content/70"> — @{{ conn.accountLogin }}</span>
-        }
-      </p>
-      @if (conn.configured) {
-      <button
-        type="button"
-        class="btn btn-outline btn-sm self-start"
-        (click)="disconnectGithub()"
-      >
-        {{ 'standup.workspace.githubDisconnect' | transloco }}
-      </button>
-      } @else if (conn.oauthAvailable) {
-      <button
-        type="button"
-        class="btn btn-secondary btn-sm self-start"
-        [disabled]="githubConnecting()"
-        (click)="connectGithub()"
-      >
-        {{ 'standup.workspace.githubConnect' | transloco }}
-      </button>
-      } @else {
-      <p class="text-sm text-warning">
-        {{ 'standup.workspace.githubOAuthUnavailable' | transloco }}
-      </p>
-      } } @if (githubError()) {
-      <p class="text-error text-sm">
-        {{ githubError()! | transloco: { status: githubErrorStatus() } }}
-      </p>
-      }
-    </section>
-
-    <section class="flex max-w-xl flex-col gap-3">
-      <h2 class="text-xl font-semibold">
-        {{ 'standup.workspace.gitlabTitle' | transloco }}
-      </h2>
-      <p class="text-sm text-base-content/70">
-        {{ 'standup.workspace.gitlabHint' | transloco }}
-      </p>
-      @if (gitlab(); as conn) {
-      <p class="text-sm">
-        {{ 'standup.workspace.gitlabStatus' | transloco }}:
-        <span class="font-medium">{{ conn.status }}</span>
-        @if (conn.accountLogin) {
-        <span class="text-base-content/70"> — @{{ conn.accountLogin }}</span>
-        }
-      </p>
-      @if (conn.configured) {
-      <button
-        type="button"
-        class="btn btn-outline btn-sm self-start"
-        (click)="disconnectGitlab()"
-      >
-        {{ 'standup.workspace.gitlabDisconnect' | transloco }}
-      </button>
-      } @else if (conn.oauthAvailable) {
-      <button
-        type="button"
-        class="btn btn-secondary btn-sm self-start"
-        [disabled]="gitlabConnecting()"
-        (click)="connectGitlab()"
-      >
-        {{ 'standup.workspace.gitlabConnect' | transloco }}
-      </button>
-      } @else {
-      <p class="text-sm text-warning">
-        {{ 'standup.workspace.gitlabOAuthUnavailable' | transloco }}
-      </p>
-      } } @if (gitlabError()) {
-      <p class="text-error text-sm">{{ gitlabError() }}</p>
-      }
-    </section>
-
-    <section class="flex max-w-xl flex-col gap-3">
-      <h2 class="text-xl font-semibold">
-        {{ 'standup.workspace.bitbucketTitle' | transloco }}
-      </h2>
-      <p class="text-sm text-base-content/70">
-        {{ 'standup.workspace.bitbucketHint' | transloco }}
-      </p>
-      @if (bitbucket(); as conn) {
-      <p class="text-sm">
-        {{ 'standup.workspace.bitbucketStatus' | transloco }}:
-        <span class="font-medium">{{ conn.status }}</span>
-        @if (conn.accountLogin) {
-        <span class="text-base-content/70"> — @{{ conn.accountLogin }}</span>
-        }
-      </p>
-      @if (conn.configured) {
-      <button
-        type="button"
-        class="btn btn-outline btn-sm self-start"
-        (click)="disconnectBitbucket()"
-      >
-        {{ 'standup.workspace.bitbucketDisconnect' | transloco }}
-      </button>
-      } @else if (conn.oauthAvailable) {
-      <button
-        type="button"
-        class="btn btn-secondary btn-sm self-start"
-        [disabled]="bitbucketConnecting()"
-        (click)="connectBitbucket()"
-      >
-        {{ 'standup.workspace.bitbucketConnect' | transloco }}
-      </button>
-      } @else {
-      <p class="text-sm text-warning">
-        {{ 'standup.workspace.bitbucketOAuthUnavailable' | transloco }}
-      </p>
-      } } @if (bitbucketError()) {
-      <p class="text-error text-sm">{{ bitbucketError()! | transloco }}</p>
-      }
-    </section>
-
-    <section class="flex max-w-xl flex-col gap-3">
-      <h2 class="text-xl font-semibold">
-        {{ 'standup.workspace.trelloTitle' | transloco }}
-      </h2>
-      <p class="text-sm text-base-content/70">
-        {{ 'standup.workspace.trelloHint' | transloco }}
-      </p>
-      @if (trello(); as conn) {
-      <p class="text-sm">
-        {{ 'standup.workspace.trelloStatus' | transloco }}:
-        <span class="font-medium">{{ conn.status }}</span>
-        @if (conn.accountLogin) {
-        <span class="text-base-content/70"> — @{{ conn.accountLogin }}</span>
-        }
-      </p>
-      @if (conn.configured) {
-      <button
-        type="button"
-        class="btn btn-outline btn-sm self-start"
-        (click)="disconnectTrello()"
-      >
-        {{ 'standup.workspace.trelloDisconnect' | transloco }}
-      </button>
-      } @else if (conn.oauthAvailable) {
-      <button
-        type="button"
-        class="btn btn-secondary btn-sm self-start"
-        [disabled]="trelloConnecting()"
-        (click)="connectTrello()"
-      >
-        {{ 'standup.workspace.trelloConnect' | transloco }}
-      </button>
-      } @else {
-      <p class="text-sm text-warning">
-        {{ 'standup.workspace.trelloOAuthUnavailable' | transloco }}
-      </p>
-      } } @if (trelloError()) {
-      <p class="text-error text-sm">{{ trelloError()! | transloco }}</p>
-      }
-    </section>
-
-    <section class="flex max-w-xl flex-col gap-3">
-      <h2 class="text-xl font-semibold">
-        {{ 'standup.workspace.jiraTitle' | transloco }}
-      </h2>
-      <p class="text-sm text-base-content/70">
-        {{ 'standup.workspace.jiraHint' | transloco }}
-      </p>
-      @if (jira(); as conn) {
-      <p class="text-sm">
-        {{ 'standup.workspace.jiraStatus' | transloco }}:
-        <span class="font-medium">{{ conn.status }}</span>
-      </p>
-      @if (conn.configured) {
-      <button
-        type="button"
-        class="btn btn-outline btn-sm self-start"
-        (click)="disconnectJira()"
-      >
-        {{ 'standup.workspace.jiraDisconnect' | transloco }}
-      </button>
-      } @else if (conn.oauthAvailable) {
-      <button
-        type="button"
-        class="btn btn-secondary btn-sm self-start"
-        [disabled]="jiraConnecting()"
-        (click)="connectJira()"
-      >
-        {{ 'standup.workspace.jiraConnect' | transloco }}
-      </button>
-      } @else {
-      <p class="text-sm text-warning">
-        {{ 'standup.workspace.jiraOAuthUnavailable' | transloco }}
-      </p>
-      } } @if (jiraError()) {
-      <p class="text-error text-sm">{{ jiraError() }}</p>
-      }
-    </section>
-
-    <form class="flex max-w-md flex-col gap-3" (submit)="createTeam($event)">
-      <h2 class="text-xl font-semibold">
-        {{ 'standup.workspace.createTeam' | transloco }}
-      </h2>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'standup.workspace.teamName' | transloco }}
-        </legend>
-        <input
-          class="input input-bordered w-full"
-          [formField]="teamForm.name"
-        />
-      </fieldset>
-      <fieldset class="fieldset w-full">
-        <legend class="fieldset-legend">
-          {{ 'standup.workspace.teamSlug' | transloco }}
-        </legend>
-        <input
-          class="input input-bordered w-full"
-          [formField]="teamForm.slug"
-        />
-      </fieldset>
-      <button type="submit" class="btn btn-primary btn-sm self-start">
-        {{ 'standup.workspace.create' | transloco }}
-      </button>
-      @if (teamError()) {
-      <p class="text-error text-sm">{{ teamError() }}</p>
-      }
-    </form>
+      </form>
+    </sv-settings-section>
 
     @if (message()) {
     <p class="text-success text-sm">{{ message()! | transloco }}</p>

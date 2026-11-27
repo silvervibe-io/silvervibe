@@ -25,7 +25,18 @@
     "submit": "Crea sondaggio",
     "cancel": "Annulla",
     "noWorkspace": "Seleziona prima un workspace.",
-    "needOptions": "Aggiungi almeno due opzioni."
+    "needOptions": "Aggiungi almeno due opzioni.",
+    "stepDetails": "Details",
+    "nextParticipants": "Next: Participants",
+    "sectionDetails": "Poll details",
+    "sectionDetailsPurpose": "Write a clear question and at least two options.",
+    "questionHelp": "Example: Which sprint goal should we prioritize?",
+    "optionsHelp": "Fill A and B at minimum. Leave unused options blank.",
+    "optional": "optional",
+    "noMembersTitle": "No workspace members yet",
+    "noMembersBody": "Invite people to the workspace first, then create the poll.",
+    "reviewTitle": "Ready to create?",
+    "reviewBody": "You can close the poll later from its detail page. Voting rules stay as set here."
   },
   "detail": {
     "loading": "Caricamento sondaggio…",
@@ -37,6 +48,15 @@
     "notOpen": "La votazione non è aperta in questo momento.",
     "resultsTitle": "Risultati",
     "ballots": "{{count}} scheda/e",
-    "close": "Chiudi sondaggio"
+    "close": "Chiudi sondaggio",
+    "settingsTitle": "Settings",
+    "settingsPurpose": "How this poll behaves for members.",
+    "settingsMulti": "Allow multiple options: {{value}}",
+    "settingsOptions": "{{count}} options",
+    "settingsStarts": "Starts: {{at}}",
+    "settingsEnds": "Ends: {{at}}",
+    "settingsEditHint": "Closing ends voting. Changing options after create is not available yet—create a new poll if you need different choices.",
+    "yes": "Yes",
+    "no": "No"
   }
 }

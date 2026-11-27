@@ -9,13 +9,13 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Shell } from '@silvervibe/shared/ui';
+import { Callout, SettingsSection, Shell } from '@silvervibe/shared/ui';
 import { RetroFacade, type RetroNoteColumn } from '@silvervibe/stores/retro';
 import { RetroShellLinks } from '../retro-shell-links';
 
 @Component({
   selector: 'vr-retro-board',
-  imports: [RouterLink, Shell, TranslocoPipe],
+  imports: [RouterLink, Shell, TranslocoPipe, SettingsSection, Callout],
   templateUrl: './retro-board.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

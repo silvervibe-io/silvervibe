@@ -171,6 +171,7 @@ describe('TeamAdmin', () => {
       { userId: 'u2', name: 'Bea', status: 'open', today: null },
       { userId: 'u3', name: 'Cal', status: 'away', today: null },
     ]);
+    fixture.componentInstance.adminSection.set('today');
     fixture.detectChanges();
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(text).toContain('Ada');

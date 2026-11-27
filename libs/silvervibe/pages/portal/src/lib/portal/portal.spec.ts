@@ -25,18 +25,37 @@ const portalCatalog = {
   lead: 'Open a tool',
   loading: 'Loading…',
   empty: 'No workspaces',
+  emptyTitle: 'No workspace yet',
+  emptyBody: 'Create a workspace to enable tools.',
+  loadErrorTitle: 'Could not load workspaces',
+  whereYouAre: 'Where you are',
+  whereYouArePurpose: 'This workspace controls tools.',
   workspace: 'Workspace',
+  workspaceHelp: 'Switch workspaces if needed.',
   tools: 'Your tools',
-  manageTools: 'Manage tools',
+  toolsPurpose: 'Open an enabled tool.',
+  manageTools: 'Set up workspace tools',
+  manageToolsPurpose: 'Turn tools on for members.',
+  manageToolsLearnMore: 'Enabling unlocks access only.',
+  manageToolsCta: 'Set up tools',
+  learnMore: 'Learn more',
   noTools: 'No tools',
+  noToolsTitle: 'No tools enabled',
+  noToolsAdminBody: 'Enable at least one tool below.',
+  noToolsMemberBody: 'Ask an admin to enable a tool.',
   openTool: 'Open',
   toolEnabled: 'On',
   toolDisabled: 'Off',
+  optional: 'optional',
   planHint: 'Preview plan {{plan}}',
   createTitle: 'Create a workspace',
+  createPurpose: 'A workspace holds your tools.',
   addWorkspace: 'Create another workspace',
+  createCancel: 'Cancel',
   createName: 'Name',
+  createNameHelp: 'Example: Acme Product',
   createSlug: 'URL slug',
+  createSlugHelp: 'Example: acme-product',
   createSlugAdvanced: 'Edit URL slug',
   createSubmit: 'Create',
   createSuccess: 'Workspace created.',
@@ -274,7 +293,7 @@ describe('Portal enter', () => {
     expect(assignLocation).not.toHaveBeenCalled();
     const el = harness.fixture.nativeElement as HTMLElement;
     expect(el.textContent).toContain('VibeStandup');
-    expect(el.textContent).toContain('Manage tools');
+    expect(el.textContent).toContain('Set up workspace tools');
     http.verify();
   });
 
@@ -305,7 +324,7 @@ describe('Portal enter', () => {
 
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelectorAll('input.toggle').length).toBeGreaterThan(0);
-    expect(el.textContent).toContain('Manage tools');
+    expect(el.textContent).toContain('Set up workspace tools');
 
     const togglePromise = fixture.componentInstance.toggleTool(
       'vibepoll',

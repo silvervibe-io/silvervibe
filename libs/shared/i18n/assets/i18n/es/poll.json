@@ -25,7 +25,18 @@
     "submit": "Crear encuesta",
     "cancel": "Cancelar",
     "noWorkspace": "Selecciona primero un espacio.",
-    "needOptions": "Añade al menos dos opciones."
+    "needOptions": "Añade al menos dos opciones.",
+    "stepDetails": "Details",
+    "nextParticipants": "Next: Participants",
+    "sectionDetails": "Poll details",
+    "sectionDetailsPurpose": "Write a clear question and at least two options.",
+    "questionHelp": "Example: Which sprint goal should we prioritize?",
+    "optionsHelp": "Fill A and B at minimum. Leave unused options blank.",
+    "optional": "optional",
+    "noMembersTitle": "No workspace members yet",
+    "noMembersBody": "Invite people to the workspace first, then create the poll.",
+    "reviewTitle": "Ready to create?",
+    "reviewBody": "You can close the poll later from its detail page. Voting rules stay as set here."
   },
   "detail": {
     "loading": "Cargando encuesta…",
@@ -37,6 +48,15 @@
     "notOpen": "La votación no está abierta ahora.",
     "resultsTitle": "Resultados",
     "ballots": "{{count}} boleta(s)",
-    "close": "Cerrar encuesta"
+    "close": "Cerrar encuesta",
+    "settingsTitle": "Settings",
+    "settingsPurpose": "How this poll behaves for members.",
+    "settingsMulti": "Allow multiple options: {{value}}",
+    "settingsOptions": "{{count}} options",
+    "settingsStarts": "Starts: {{at}}",
+    "settingsEnds": "Ends: {{at}}",
+    "settingsEditHint": "Closing ends voting. Changing options after create is not available yet—create a new poll if you need different choices.",
+    "yes": "Yes",
+    "no": "No"
   }
 }

@@ -8,13 +8,13 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Shell } from '@silvervibe/shared/ui';
+import { Callout, SettingsSection, Shell } from '@silvervibe/shared/ui';
 import { PollFacade } from '@silvervibe/stores/poll';
 import { PollShellLinks } from '../poll-shell-links';
 
 @Component({
   selector: 'vp-poll-detail',
-  imports: [RouterLink, Shell, TranslocoPipe],
+  imports: [RouterLink, Shell, TranslocoPipe, SettingsSection, Callout],
   templateUrl: './poll-detail.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

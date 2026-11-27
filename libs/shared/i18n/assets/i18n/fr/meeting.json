@@ -28,7 +28,15 @@
     "submit": "Create meeting",
     "cancel": "Cancel",
     "noWorkspace": "Select a workspace first.",
-    "needAgenda": "Add at least one agenda item."
+    "needAgenda": "Add at least one agenda item.",
+    "stepDetails": "Details",
+    "nextParticipants": "Next: Participants",
+    "sectionDetails": "Meeting details",
+    "sectionDetailsPurpose": "Set the agenda and who can edit decisions before you meet.",
+    "editPolicyHelp": "Controls who can change agenda, decisions, and actions.",
+    "optional": "optional",
+    "noMembersTitle": "No workspace members yet",
+    "noMembersBody": "Invite people to the workspace first, then create the meeting."
   },
   "editPolicy": {
     "CREATOR_OR_ADMIN": "Creator or workspace admin",
@@ -64,6 +72,9 @@
     "recapEmpty": "No recap provided.",
     "closeTitle": "Close meeting",
     "recapPlaceholder": "Optional short recap…",
-    "close": "Close meeting"
+    "close": "Close meeting",
+    "settingsTitle": "Settings",
+    "settingsPurpose": "Edit and close rules for this meeting.",
+    "settingsHint": "Closing stores the recap. Edit policy was set when the meeting was created."
   }
 }

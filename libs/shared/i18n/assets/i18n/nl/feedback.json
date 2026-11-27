@@ -29,7 +29,18 @@
     "submit": "Create request",
     "cancel": "Cancel",
     "noWorkspace": "Select a workspace first.",
-    "needPrompts": "Add at least one prompt."
+    "needPrompts": "Add at least one prompt.",
+    "stepDetails": "Details",
+    "nextParticipants": "Next: Participants",
+    "sectionDetails": "Request details",
+    "sectionDetailsPurpose": "Explain the topic and the prompts people should answer.",
+    "contextHelp": "Optional background for reviewers.",
+    "promptsHelp": "Keep prompts short and specific. One idea per prompt.",
+    "visibilityHelp": "Who can read answers while the request is open.",
+    "anonymousHelp": "When on, answers hide the author name from other members.",
+    "optional": "optional",
+    "noMembersTitle": "No workspace members yet",
+    "noMembersBody": "Invite people to the workspace first, then request feedback."
   },
   "visibility": {
     "PRIVATE_TO_REQUESTER": "Private to requester — reviewers only see their own answers",
@@ -53,6 +64,9 @@
     "summaryEmpty": "No summary provided.",
     "closeTitle": "Close request",
     "summaryPlaceholder": "Optional short summary…",
-    "close": "Close request"
+    "close": "Close request",
+    "settingsTitle": "Settings",
+    "settingsPurpose": "Visibility and close rules for this request.",
+    "settingsHint": "Closing locks answers and stores your summary."
   }
 }

@@ -14,7 +14,13 @@ import {
 } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Shell } from '@silvervibe/shared/ui';
+import {
+  EmptyState,
+  FieldHelp,
+  SettingsSection,
+  Shell,
+  StepHeader,
+} from '@silvervibe/shared/ui';
 import {
   MeetingFacade,
   type MeetingClosePolicy,
@@ -33,7 +39,16 @@ type CreateMeetingModel = {
 
 @Component({
   selector: 'vm-meeting-create',
-  imports: [FormField, RouterLink, Shell, TranslocoPipe],
+  imports: [
+    FormField,
+    RouterLink,
+    Shell,
+    TranslocoPipe,
+    SettingsSection,
+    FieldHelp,
+    EmptyState,
+    StepHeader,
+  ],
   templateUrl: './meeting-create.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

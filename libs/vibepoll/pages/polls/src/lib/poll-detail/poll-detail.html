@@ -1,4 +1,4 @@
-<sv-shell [title]="'VibePoll'" [links]="links()">
+<sv-shell [title]="'VibePoll'">
   <div class="mx-auto max-w-2xl space-y-6">
     @if (loading() && !poll()) {
     <p class="text-sm text-base-content/60">
@@ -77,16 +77,48 @@
         }
       </ul>
     </section>
-    } @if (item.canClose) {
-    <button
-      type="button"
-      class="btn btn-outline btn-sm"
-      [disabled]="loading()"
-      (click)="closePoll()"
+    }
+
+    <sv-settings-section
+      [title]="'poll.detail.settingsTitle' | transloco"
+      [purpose]="'poll.detail.settingsPurpose' | transloco"
     >
-      {{ 'poll.detail.close' | transloco }}
-    </button>
-    } @if (error()) {
+      <ul class="space-y-1 text-sm text-base-content/80">
+        <li>
+          {{ 'poll.detail.settingsMulti' | transloco : { value: item.allowMulti
+          ? ('poll.detail.yes' | transloco) : ('poll.detail.no' | transloco) }
+          }}
+        </li>
+        <li>
+          {{ 'poll.detail.settingsOptions' | transloco : { count:
+          item.options.length } }}
+        </li>
+        @if (item.startsAt) {
+        <li>
+          {{ 'poll.detail.settingsStarts' | transloco : { at: item.startsAt } }}
+        </li>
+        } @if (item.endsAt) {
+        <li>
+          {{ 'poll.detail.settingsEnds' | transloco : { at: item.endsAt } }}
+        </li>
+        }
+      </ul>
+      <sv-callout
+        variant="info"
+        [body]="'poll.detail.settingsEditHint' | transloco"
+      />
+      @if (item.canClose) {
+      <button
+        type="button"
+        class="btn btn-outline btn-sm"
+        [disabled]="loading()"
+        (click)="closePoll()"
+      >
+        {{ 'poll.detail.close' | transloco }}
+      </button>
+      }
+    </sv-settings-section>
+    @if (error()) {
     <p class="text-error text-sm">{{ error() }}</p>
     } }
   </div>

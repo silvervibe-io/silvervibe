@@ -9,13 +9,13 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Shell } from '@silvervibe/shared/ui';
+import { Callout, SettingsSection, Shell } from '@silvervibe/shared/ui';
 import { FeedbackFacade } from '@silvervibe/stores/feedback';
 import { FeedbackShellLinks } from '../feedback-shell-links';
 
 @Component({
   selector: 'vf-feedback-detail',
-  imports: [RouterLink, Shell, TranslocoPipe],
+  imports: [RouterLink, Shell, TranslocoPipe, SettingsSection, Callout],
   templateUrl: './feedback-detail.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

@@ -14,7 +14,14 @@ import {
 } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Shell } from '@silvervibe/shared/ui';
+import {
+  Callout,
+  EmptyState,
+  FieldHelp,
+  SettingsSection,
+  Shell,
+  StepHeader,
+} from '@silvervibe/shared/ui';
 import { PollFacade } from '@silvervibe/stores/poll';
 import { WorkspaceFacade } from '@silvervibe/stores/workspace';
 import { PollShellLinks } from '../poll-shell-links';
@@ -32,7 +39,17 @@ type CreatePollModel = {
 
 @Component({
   selector: 'vp-poll-create',
-  imports: [FormField, RouterLink, Shell, TranslocoPipe],
+  imports: [
+    FormField,
+    RouterLink,
+    Shell,
+    TranslocoPipe,
+    SettingsSection,
+    FieldHelp,
+    EmptyState,
+    StepHeader,
+    Callout,
+  ],
   templateUrl: './poll-create.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

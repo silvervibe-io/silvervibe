@@ -23,7 +23,19 @@
     "invitesHint": "Είσαι πάντα συμπεριλαμβανόμενος. Οι άλλοι πρέπει να είναι μέλη του workspace.",
     "submit": "Δημιουργία retro",
     "cancel": "Ακύρωση",
-    "noWorkspace": "Επίλεξε πρώτα ένα workspace."
+    "noWorkspace": "Επίλεξε πρώτα ένα workspace.",
+    "stepDetails": "Details",
+    "nextParticipants": "Next: Participants",
+    "sectionDetails": "Retro details",
+    "sectionDetailsPurpose": "Name the retro and choose who can see notes while it runs.",
+    "nameHelp": "Example: Sprint 42 retro",
+    "visibilityHelp": "Controls whether notes are visible to everyone before close.",
+    "closePolicyHelp": "Who is allowed to close the board and write the summary.",
+    "optional": "optional",
+    "noMembersTitle": "No workspace members yet",
+    "noMembersBody": "Invite people to the workspace first, then start the retro.",
+    "reviewTitle": "Classic columns",
+    "reviewBody": "Notes use Went well / Improve / Actions. You can close with a summary later."
   },
   "visibility": {
     "LIVE": "Ζωντανά — όλοι βλέπουν τις σημειώσεις καθώς προστίθενται",
@@ -53,6 +65,9 @@
     "summaryEmpty": "Δεν δόθηκε σύνοψη.",
     "closeTitle": "Κλείσιμο retro",
     "summaryPlaceholder": "Προαιρετική σύντομη σύνοψη…",
-    "close": "Κλείσιμο retro"
+    "close": "Κλείσιμο retro",
+    "settingsTitle": "Settings",
+    "settingsPurpose": "Visibility and close rules for this retro.",
+    "settingsHint": "Note visibility and close policy were set at create time. Closing finalizes the board."
   }
 }
